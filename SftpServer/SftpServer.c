@@ -287,43 +287,45 @@ static int	CheckRulesAboutMaxFiles()
   return SSH2_FX_OK;
 }
 
-static void	ResolvPath(char *path, char *dst)
+static void     ResolvPath(char *path, char *dst)
 {
-  char		*ptr, *s = path;
-  int		i, beg, end, len;
+  char          *ptr, *s = path;
+  int           i, beg, end, len;
 
   dst[0] = 0;
   beg = 0;
   len = strlen(path);
+  strcpy(dst, path);
+  s = dst;
   while ((ptr = strstr(s, "..")))
     {
-      end = (int )(ptr - path);//(int)ptr - (int)path;
-      if (end > 0 && (end + 2) <= len
-	  && path[end - 1] == '/' && (path[end + 2] == '/' || !path[end + 2]))
-	{
-	  for (s = 0, i = end - 2; i >= 0; i--)
-	    if (path[i] == '/')
-	      {
-		s = path + i + 1;
-		end = i + 1;//end = (int)s - (int)path;
-		break;
-	      }
-	  if (s)
-	    strncat(dst, path + beg, end - beg); 
-	  beg = end + 1;
-	}
-      s = ptr + 2;
+      beg = len - strlen(ptr);
+      end = beg + 2;
+      if ((dst[beg - 1] == '/' || !beg) && (!dst[end] || dst[end] == '/'))
+        {
+          for (i = beg - 2; i >= 0; i--)
+            if (dst[i] == '/')
+              break;
+          if (i < 0) i = 0;
+          strcpy(dst + i, dst + end);
+          len = strlen(dst);
+        }
+      else
+        s = ptr + 2;
     }
   if (!dst[0])
-    strcpy(dst, path);
+    {
+      dst[0] = path[0];
+      dst[1] = 0;
+    }
   len = strlen(dst);
   if (len >= 2 && dst[len - 2] == '/' && dst[len - 1] == '.')
     dst[len - 1] = 0;
-  else if (len > 1 && dst[len - 1] != '/')
+  else if (len >= 1 && dst[len - 1] != '/')
     {
-      struct stat	st;
-      
+      struct stat       st;
+
       if (stat(dst, &st) != -1 && (st.st_mode & S_IFMT) != S_IFREG)
-	strcat(dst, "/");
+        strcat(dst, "/");
     }
 }
