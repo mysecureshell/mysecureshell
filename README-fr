@@ -89,8 +89,9 @@ HISTORIQUE:
 	+ reecriture totale du sftp-server_MSS
 	+ support du protocol SFTP v4
 	+ ajout du tag VirtualHost (attention aux restrictions)
+	= fixe les warnings de compilation sous 64bits
 
-0.5 (avril 2005) :
+0.5 (mai 2005) :
 	+ support Cygwin (Windows 2000/XP) [un package special sera bientot creer]
 	+ ajout des mots clefs ByPassGlobalDownload, ByPassGlobalUpload et ShowLinksAsLinks
 	+ sftp-state :

@@ -66,7 +66,7 @@ teka2nerdman@users.sourceforge.net
 
 CHANGE LOG:
 -----------
-0.5 (april 2005) :
+0.5 (may 2005) :
         + support Cygwin (Windows 2000/XP) [new special package will come]
 	+ add keywords ByPassGlobalDownload, ByPassGlobalUpload and ShowLinksAsLinks
         + sftp-state :
