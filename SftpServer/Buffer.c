@@ -162,10 +162,14 @@ u_int64_t	BufferGetInt64(tBuffer *b)
 
 char	*BufferGetData(tBuffer *b, u_int32_t *size)
 {
+  char	*data;
+
   *size = BufferGetInt32(b);
   if ((b->read + *size) > b->length)
     return (0);
-  return (b->data + b->read);
+  data = b->data + b->read;
+  b->read += *size;
+  return (data);
 }
 
 char		*BufferGetString(tBuffer *b)
