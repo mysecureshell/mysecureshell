@@ -139,7 +139,7 @@ static void	DoReadDir()
   dir = HandleGetDir(h);
   path = HandleGetPath(h);
   DEBUG((MYLOG_DEBUG, "[DoReadDir]path:'%s' handle:%i", path, h));
-  if (dir == NULL || path == NULL)
+  if (dir == NULL || path == NULL || !path[0])
     SendStatus(bOut, id, (cVersion <= 3 ? SSH2_FX_FAILURE : SSH4_FX_INVALID_HANDLE));
   else
     {
@@ -157,7 +157,7 @@ static void	DoReadDir()
 	      s = realloc(s, nstats * sizeof(tStat));
 	    }
 	  snprintf(pathName, sizeof(pathName), "%s%s%s", path,
-		   strcmp(path, "/") ? "/" : "", dp->d_name);
+		   path[strlen(path) - 1] == '/' ? "" : "/", dp->d_name);
 	  if ((gl_var->who->status & SFTPWHO_LINKS_AS_LINKS))
 	    {
 	      if (lstat(pathName, &st) < 0)
@@ -250,7 +250,7 @@ static void	DoOpen()
 	    {
 	      int	h;
 	      
-	      if ((h = HandleNew(HANDLE_FILE, path, fd, NULL, flags & SSH4_FXF_TEXT ? 1 : 0)) < 0)
+	      if ((h = HandleNew(HANDLE_FILE, path, fd, NULL, pflags & SSH4_FXF_TEXT ? 1 : 0)) < 0)
 		close(fd);
 	      else
 		{
@@ -271,7 +271,7 @@ static void	DoOpen()
       else
 	gl_var->who->status = (gl_var->who->status & SFTPWHO_ARGS_MASK ) | SFTPWHO_IDLE;
     }
-  DEBUG((MYLOG_DEBUG, "[DoOpen]file:'%s' flags:%i perm:0%o fd:%i", path, flags, mode, fd));
+  DEBUG((MYLOG_DEBUG, "[DoOpen]file:'%s' pflags:%i perm:0%o fd:%i", path, pflags, mode, fd));
   if (status != SSH2_FX_OK)
     SendStatus(bOut, id, status);
   free(path);
@@ -355,7 +355,7 @@ static void	DoWrite()
 	    status = SSH2_FX_OK;
 	}
     }
-  DEBUG((MYLOG_DEBUG, "[DoWrite]fd:%i off:%llu len:%i", fd, off, len));
+  DEBUG((MYLOG_DEBUG, "[DoWrite]fd:%i off:%llu len:%i fileIsText:%i", fd, off, len, fileIsText));
   SendStatus(bOut, id, status);
 }
 
@@ -784,7 +784,8 @@ static void	DoProtocol()
     }
   if ((bIn->read - oldRead) < msgLen)//read entire message
     {
-      DEBUG((MYLOG_DEBUG, "ZAP DATA len:%i", msgLen - (bIn->read - oldRead)));
+      DEBUG((MYLOG_DEBUG, "ZAP DATA len:%i [bIn->read=%i, oldRead=%i]",
+	     msgLen - (bIn->read - oldRead), bIn->read, oldRead));
       BufferReadData(bIn, msgLen - (bIn->read - oldRead));
     }
   BufferClean(bIn);
@@ -796,7 +797,7 @@ int			main(int ac, char **av)
   struct timeval	tm;
   fd_set		fdR, fdW;
   int			len, ret;
-	
+
   bIn = BufferNew();
   bOut = BufferNew();
   HandleInit();
