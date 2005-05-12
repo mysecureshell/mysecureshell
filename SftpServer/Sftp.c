@@ -717,64 +717,64 @@ static void	DoProtocol()
   DEBUG((MYLOG_DEBUG, "[DoProtocol] msgType:%i msgLen:%i", msgType, msgLen));
   switch (msgType)
     {
-    case SSH2_FXP_INIT:		// 1
+    case SSH2_FXP_INIT:
       DoInit();
       break;
-    case SSH2_FXP_OPEN:		// 3
+    case SSH2_FXP_OPEN:
       DoOpen();
       break;
-    case SSH2_FXP_CLOSE:	// 4
+    case SSH2_FXP_CLOSE:
       DoClose();
       break;
-    case SSH2_FXP_READ:		// 5
+    case SSH2_FXP_READ:
       DoRead();
       break;
-    case SSH2_FXP_WRITE:	// 6
+    case SSH2_FXP_WRITE:
       DoWrite();
       break;
-    case SSH2_FXP_LSTAT:	// 7
+    case SSH2_FXP_LSTAT:
       DoStat(lstat);
       break;
-    case SSH2_FXP_FSTAT:	// 8
+    case SSH2_FXP_FSTAT:
       DoFStat();
       break;
-    case SSH2_FXP_SETSTAT:	// 9
+    case SSH2_FXP_SETSTAT:
       DoSetStat();
       break;
-    case SSH2_FXP_FSETSTAT:	//10
+    case SSH2_FXP_FSETSTAT:
       DoFSetStat();
       break;
-    case SSH2_FXP_OPENDIR:	//11
+    case SSH2_FXP_OPENDIR:
       DoOpenDir();
       break;
-    case SSH2_FXP_READDIR:	//12
+    case SSH2_FXP_READDIR:
       DoReadDir();
       break;
-    case SSH2_FXP_REMOVE:	//13
+    case SSH2_FXP_REMOVE:
       DoRemove();
       break;
-    case SSH2_FXP_MKDIR:	//14
+    case SSH2_FXP_MKDIR:
       DoMkDir();
       break;
-    case SSH2_FXP_RMDIR:	//15
+    case SSH2_FXP_RMDIR:
       DoRmDir();
       break;
-    case SSH2_FXP_REALPATH:	//16
+    case SSH2_FXP_REALPATH:
       DoRealPath();
       break;
-    case SSH2_FXP_STAT:		//17
+    case SSH2_FXP_STAT:
       DoStat(stat);
       break;
-    case SSH2_FXP_RENAME:	//18
+    case SSH2_FXP_RENAME:
       DoRename();
       break;
-    case SSH2_FXP_READLINK:	//19
+    case SSH2_FXP_READLINK:
       DoReadLink();
       break;
-    case SSH2_FXP_SYMLINK:	//20
+    case SSH2_FXP_SYMLINK:
       DoSymLink();
       break;
-    case SSH2_FXP_EXTENDED: //200
+    case SSH2_FXP_EXTENDED:
       DoExtended();
       break;
       
