@@ -25,5 +25,5 @@ int	init_user_info();
 int	is_for_user(char *user, int verbose);
 int	is_for_group(char *group, int verbose);
 int	is_for_rangeip(char *range, int verbose);
-int is_for_virtualhost(char *host, int port, int verbose);
+int	is_for_virtualhost(char *host, int port, int verbose);
 void	free_user_info();

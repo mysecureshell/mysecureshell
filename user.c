@@ -163,22 +163,22 @@ int	is_for_group(char *group, int verbose)
   return (0);
 }
 
-int is_for_virtualhost(char *host, int port, int verbose)
+int	is_for_virtualhost(char *host, int port, int verbose)
 {
-	char	*current_host;
-	int		current_port;
-
-	current_host = (char *)hash_get("VIRTUALHOST_IP");
-	current_port = (int )hash_get("VIRTUALHOST_PORT");	
-	if (current_host && (!strcmp(host, current_host)
-			|| !strcmp(current_host, TAG_ALL)))
-		if (!current_port || port == current_port)
-		{
-			if (verbose >= 2)
-				printf("--- Apply restriction for virtualhost '%s:%i' ---\n", current_host, current_port);
-			return (1);
-		}
-	return (0);
+  char	*current_host;
+  int	current_port;
+  
+  current_host = (char *)hash_get("VIRTUALHOST_IP");
+  current_port = hash_get_int("VIRTUALHOST_PORT");	
+  if (current_host && (!strcmp(host, current_host)
+		       || !strcmp(current_host, TAG_ALL)))
+    if (!current_port || port == current_port)
+      {
+	if (verbose >= 2)
+	  printf("--- Apply restriction for virtualhost '%s:%i' ---\n", current_host, current_port);
+	return (1);
+      }
+  return (0);
 }
 
 int	is_for_rangeip(char *range, int verbose)
