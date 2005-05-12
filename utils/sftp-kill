@@ -1,0 +1,24 @@
+#!/bin/sh
+if [ $1 ] ; then
+	if [ $1 == "all" ] ; then 
+		pid=`ps -C sftp-server_MSS -o pid,user | grep -v PID | awk '{ print $1 }'`
+		who=`ps -C sftp-server_MSS -o pid,user | grep -v PID | awk '{ print $2 }'`
+		if [ "$who" != "" ] ; then
+		    echo "Kill user(s) ["$who"]"
+		    kill -HUP $pid
+		else
+		    echo "Sorry but the server is empty"
+		fi    
+	else 
+		pid=`ps -C sftp-server_MSS -o pid,user | grep $1 | awk '{ print $1 }'`
+		who=`ps -C sftp-server_MSS -o pid,user | grep $1 | awk '{ print $2 }'`
+		if [ "$who" != "" ] ; then
+			echo "Kill '"$who"' on PID "$pid
+			kill -HUP $pid
+		else 
+			echo "Sorry but '"$1"' isn't connected !" 
+		fi
+	fi
+else
+	printf "Usage:\n"$0" [username]\n\nusername: specify the user name to kill or enter all to kill all\n";
+fi

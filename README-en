@@ -1,0 +1,122 @@
+Installation:
+-------------
+Execute the shell script of installation as:
+sh install.sh en
+
+For Mac version, install package and follow the instructions.
+
+
+Compilation:
+------------
+Require : gnu-make (by default under linux)
+
+1/ Type:
+        make all
+
+2/ And type :
+        ./install.sh en
+
+
+Require:
+--------
+OpenSSH 3.8.1 (or superior)
+
+
+Configuration file:
+-------------------
+Take a look at sftp_config sample.
+
+
+Arguments of MySecureShell:
+---------------------------
+--configtest = test the actual configuration file and print information for the user
+
+
+Utilities:
+----------
+In the directory utils, we can found:
+- sftp-who : usefull to print informations of connected client
+- sftp-kill : we can deconnect client or all clients
+
+
+INFO IMPORTANTES:
+-----------------
+1/ The rights:
+Configuration for an account works like that:
+(Goes to the upper propriety class):
+- groups / accounts restrictions
+- one of it's restricting groups
+- user restriction
+If a user has more than 1 group, the last class will be apply.
+
+2/ The chroot:
+The chroot make the user close in his home. The user see his home like "/".
+
+
+IMPOSSIBLE TO ADD:
+------------------
+- Deny users who "brute force" an account (already implemented in PAM and OpenSSH)
+
+
+CONTACTS AND INFORMATIONS:
+-------------------------
+http://mysecureshell.sourceforge.net
+teka2nerdman@users.sourceforge.net
+
+
+CHANGE LOG:
+-----------
+0.5 (april 2005) :
+        + support Cygwin (Windows 2000/XP) [new special package will come]
+	+ add keywords ByPassGlobalDownload, ByPassGlobalUpload and ShowLinksAsLinks
+        + sftp-state :
+                - add -yes option to accept all questions
+	+ remove all of dependencies (lic6 is the last dependency)
+        ~ improvement of tag IpRange
+        = fix bug on bandwidth restrictions
+        = fix bugs on restrictions IgnoreHidden and VirtualChroot
+        = sftp-who :
+                - fix infinite loop
+                - fix memory leak
+        - delete java install because shell script is more powerfull
+
+0.4 (january 2005) :
+        + add tag:
+                - IpRange (you can define some restrictions for a range of ip)
+                - Default (to define default restrictions)
+        + add keywords GlobalDownload and GlobalUpload
+	+ now links aren't broken if you used StayAtHome
+        + MySecureShell :
+                - add verbose mode to see which rules are used
+        + sftp-kill :
+                - add question to deconnect all client when you stop the server
+        ~ sftp-who :
+                - see maximum of connections for the server
+		- more info in verbose mode
+		- draw speed download in real time
+		- see download percent
+        = fix bug on limitbandwith
+        = fix bugs
+
+0.3 (december 2004) :
+	+ add keywords HideNoAcess, MaxOpenFilesForUser, MaxWriteFilesForUser, MaxReadFilesForUser,
+                Include, Umask, PathDenyFilter
+        + sftp-who :
+                - add argument -v to print more information about restriction on a user
+	+ renome keyword Umask to DefaultRights to be more explicit
+        + add sftp-state (to shutdown the server sftp)
+	~ improve install on MacOSX (now only graphical)
+        ~ improve install script (can support multi-language)
+        ~ improve option --configtest (on MySecureShell)
+        = fix bugs restrictions on HideFiles and IgnoreHidden
+	= fix bug on sftp-kill
+
+0.2 (24 october 2004) :
+	+ first version of this file :)
+	+ support of OpenBSD, FreeBSD and NetBSD
+	+ add restrictions LimitConnectionByUser (old LimitConnection),
+		LimitConnection (limite of total connection on the server), Shell
+	+ file sftp-server has moved to sftp-server_MSS to keep original sftp of OpenSSH
+	+ restriction Home support environment variable
+	= fixe bug of "gost" client
+	= fixe bug on restrictions LimitConnection and LimitConnectionByIP

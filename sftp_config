@@ -1,0 +1,67 @@
+#Default rules for everybody
+<Default>
+	GlobalDownload		50k	#total speed download for all clients
+					# o -> bytes   k -> kilo bytes   m -> mega bytes
+	GlobalUpload		0	#total speed download for all clients (0 for unlimited)
+	Download 		5k	#limit speed download for each connection
+	Upload 			0	#unlimit speed upload for each connection
+	StayAtHome		true	#limit client to his home
+	VirtualChroot		true	#fake a chroot to the home account
+	LimitConnection		50	#max connection for the server sftp
+	LimitConnectionByUser	20	#max connection for the account
+	LimitConnectionByIP	3	#max connection by ip for the account
+	Home			/home/ftp	#overrite home of the user but if you want you can use
+						#	environment variable (ie: Home /home/$USER)
+	IdleTimeOut		300	#(in second) deconnect client is idle too long time
+	ResolveIP		true	#resolve ip to dns
+	IgnoreHidden		true	#treat all hidden files as if they don't exist
+	DirFakeUser		true	#Hide real file/directory owner (just change displayed permissions)
+	DirFakeGroup		true	#Hide real file/directory group (just change displayed permissions)
+	DirFakeMode		0400	#Hide real file/directory rights (just change displayed permissions)
+					#Add execution right for directory if read right is set
+	HideFiles		"^(lost\+found|public_html)$"	#Hide file/directory which match
+								#this extented POSIX regex
+	HideNoAccess		true	#Hide file/directory which user has no access
+	MaxOpenFilesForUser	20	#limit user to open x files on same time
+	MaxWriteFilesForUser	10	#limit user to x uppload on same time
+	MaxReadFilesForUser	10	#limit user to x download on same time
+	DefaultRights			0640 0750	#Set default rights for new file and new directory
+
+	PathDenyFilter		"^\."	#deny upload of directory/file which match this extented POSIX regex
+
+	ShowLinksAsLinks	false	#show links as their destinations
+</Default>
+
+#Rules only for group ftp
+<Group ftp>
+	Download	25 k/s
+</Group>
+
+#Rules only for group ftpnolimit
+<Group ftpnolimit>
+	Download		0	#0 = unlimited
+	IdleTimeOut		0	#no timeout
+	DirFakeUser		false	#show real user on file/directory
+	DirFakeGroup		false	#show real group on file/directory
+	DirFakeMode		0	#show real rights on file/directory
+	HideFiles		""	#show all files
+	MaxReadFilesForUser	0	#0 = unlimited but still have the restriction MaxOpenFilesForUser
+</Group>
+
+<IpRange 192.168.0.1-192.168.0.5>
+	ByPassGlobalDownload	true	#bypass GlobalDownload restriction
+	ByPassGlobalUpload	true	#bypass GlobalUpload restriction
+	Download		0
+</IpRange>
+
+
+<Group trusted_users>
+	Shell		/bin/tcsh	#give a shell access to TRUSTED clients !!!
+</Group>
+
+
+<VirtualHost *:22> 
+        Home	"/home"
+</VirtualHost>
+
+#Include /etc/my_sftp_config_file	#include this valid configuration file
