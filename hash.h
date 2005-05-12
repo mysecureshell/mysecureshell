@@ -22,9 +22,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 typedef struct		s_element
 {
   char			*key;
-  void			*value;
+  void			*str;
+  int			number;
   struct s_element	*next;
-  int			free;
 }			t_element;
 
 typedef struct		s_hash
@@ -35,5 +35,7 @@ typedef struct		s_hash
 void	delete_hash();
 char	*hash_get_int_to_char(char *key);
 void	*hash_get(char *key);
-void	hash_set(char *key, void *value, char free_old);
+int	hash_get_int(char *key);
+void	hash_set(char *key, void *value);
+void	hash_set_int(char *key, int value);
 void	create_hash();

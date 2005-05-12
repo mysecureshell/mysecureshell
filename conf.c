@@ -35,8 +35,8 @@ void	load_config(char verbose)
       if (verbose) printf("[ERROR]Error when fetching user informations\n");
       exit (2);
     }
-  hash_set("SERVER_PORT", (void *)get_port_server(), 0);
-  hash_set("SERVER_IP", get_ip_server(), 1);
+  hash_set_int("SERVER_PORT", get_port_server());
+  hash_set("SERVER_IP", get_ip_server());
   if (!load_config_file(CONFIG_FILE, verbose, 10))
     if (!load_config_file(CONFIG_FILE2, verbose, 10) && verbose)
       {
@@ -51,35 +51,35 @@ void	load_config(char verbose)
 
       printf("--- %s ---\n", (char *)hash_get("User"));
       printf("Home\t\t\t= %s\n", (char *)hash_get("Home"));
-      printf("ByPassGlobalDownload\t= %s\n", (int )hash_get("ByPassGlobalDownload") == 0 ? "false" : "true");
-      printf("ByPassGlobalUpload\t= %s\n", (int )hash_get("ByPassGlobalUpload") == 0 ? "false" : "true");
-      printf("GlobalDownload\t\t= %i bytes/s\n", (int )hash_get("GlobalDownload"));
-      printf("GlobalUpload\t\t= %i bytes/s\n", (int )hash_get("GlobalUpload"));
-      printf("Download\t\t= %i bytes/s\n", (int )hash_get("Download"));
-      printf("Upload\t\t\t= %i bytes/s\n", (int )hash_get("Upload"));
-      printf("StayAtHome\t\t= %s\n", (int )hash_get("StayAtHome") == 0 ? "false" : "true");
-      printf("VirtualChroot\t\t= %s\n", (int )hash_get("VirtualChroot") == 0 ? "false" : "true");
-      printf("LimitConnection\t\t= %i\n", (int )hash_get("LimitConnection"));
-      printf("LimitConnectionByUser\t= %i\n", (int )hash_get("LimitConnectionByUser"));
-      printf("LimitConnectionByIP\t= %i\n", (int )hash_get("LimitConnectionByIP"));
-      printf("IdleTimeOut\t\t= %is\n", (int )hash_get("IdleTimeOut"));
-      printf("ResolveIP\t\t= %s\n", (int )hash_get("ResolveIP") == 0 ? "false" : "true");
-      printf("DirFakeUser\t\t= %s\n", (int )hash_get("DirFakeUser") == 0 ? "false" : "true");
-      printf("DirFakeGroup\t\t= %s\n", (int )hash_get("DirFakeGroup") == 0 ? "false" : "true");
-      r = (int )hash_get("DirFakeMode");
+      printf("ByPassGlobalDownload\t= %s\n", hash_get_int("ByPassGlobalDownload") == 0 ? "false" : "true");
+      printf("ByPassGlobalUpload\t= %s\n", hash_get_int("ByPassGlobalUpload") == 0 ? "false" : "true");
+      printf("GlobalDownload\t\t= %i bytes/s\n", hash_get_int("GlobalDownload"));
+      printf("GlobalUpload\t\t= %i bytes/s\n", hash_get_int("GlobalUpload"));
+      printf("Download\t\t= %i bytes/s\n", hash_get_int("Download"));
+      printf("Upload\t\t\t= %i bytes/s\n", hash_get_int("Upload"));
+      printf("StayAtHome\t\t= %s\n", hash_get_int("StayAtHome") == 0 ? "false" : "true");
+      printf("VirtualChroot\t\t= %s\n", hash_get_int("VirtualChroot") == 0 ? "false" : "true");
+      printf("LimitConnection\t\t= %i\n", hash_get_int("LimitConnection"));
+      printf("LimitConnectionByUser\t= %i\n", hash_get_int("LimitConnectionByUser"));
+      printf("LimitConnectionByIP\t= %i\n", hash_get_int("LimitConnectionByIP"));
+      printf("IdleTimeOut\t\t= %is\n", hash_get_int("IdleTimeOut"));
+      printf("ResolveIP\t\t= %s\n", hash_get_int("ResolveIP") == 0 ? "false" : "true");
+      printf("DirFakeUser\t\t= %s\n", hash_get_int("DirFakeUser") == 0 ? "false" : "true");
+      printf("DirFakeGroup\t\t= %s\n", hash_get_int("DirFakeGroup") == 0 ? "false" : "true");
+      r = hash_get_int("DirFakeMode");
       printf("DirFakeMode\t\t= %i%i%i%i\n", r / (8 * 8 * 8), (r / ( 8 * 8)) % 8, (r / 8) % 8, r % 8);
       ptr = (char *)hash_get("HideFiles");
       printf("HideFiles\t\t= %s\n", ptr ? ptr : "{nothing to hide}");
-      printf("HideNoAccess\t\t= %s\n", (int )hash_get("HideNoAccess") == 0 ? "false" : "true");
-      printf("MaxOpenFilesForUser\t= %i\n", (int )hash_get("MaxOpenFilesForUser"));
-      printf("MaxReadFilesForUser\t= %i\n", (int )hash_get("MaxReadFilesForUser"));
-      printf("MaxWriteFilesForUser\t= %i\n", (int )hash_get("MaxWriteFilesForUser"));
+      printf("HideNoAccess\t\t= %s\n", hash_get_int("HideNoAccess") == 0 ? "false" : "true");
+      printf("MaxOpenFilesForUser\t= %i\n", hash_get_int("MaxOpenFilesForUser"));
+      printf("MaxReadFilesForUser\t= %i\n", hash_get_int("MaxReadFilesForUser"));
+      printf("MaxWriteFilesForUser\t= %i\n", hash_get_int("MaxWriteFilesForUser"));
       printf("PathDenyFilter\t\t= %s\n", (char *)hash_get("PathDenyFilter"));
       ptr = (char *)hash_get("Shell");
       printf("Shell\t\t\t= %s\n", ptr ? ptr : "{no shell}");
-      printf("ShowLinksAsLinks\t= %s\n", (int )hash_get("ShowLinksAsLinks") == 0 ? "false" : "true");
-      r = (int )hash_get("DefaultRightsFile");
-      r2 = (int )hash_get("DefaultRightsDirectory");
+      printf("ShowLinksAsLinks\t= %s\n", hash_get_int("ShowLinksAsLinks") == 0 ? "false" : "true");
+      r = hash_get_int("DefaultRightsFile");
+      r2 = hash_get_int("DefaultRightsDirectory");
       printf("DefaultRights\t\t= %i%i%i%i %i%i%i%i\n",
 	     r / (8 * 8 * 8), (r / ( 8 * 8)) % 8, (r / 8) % 8, r % 8,
 	     r2 / (8 * 8 * 8), (r2 / ( 8 * 8)) % 8, (r2 / 8) % 8, r2 % 8);
@@ -231,68 +231,68 @@ int	load_config_file(char *file, char verbose, int max_recursive_left)
 			  || is_for_group((char *)hash_get("GROUP"), verbose)
 			  || is_for_rangeip((char *)hash_get("RANGEIP"), verbose)
 			  || is_for_virtualhost((char *)hash_get("SERVER_IP"),
-			  						(int )hash_get("SERVER_PORT"),
+			  						hash_get_int("SERVER_PORT"),
 			  						verbose)
-			  || (int)hash_get("DEFAULT") == 1)
+			  || hash_get_int("DEFAULT") == 1)
 			{
 			  if (!strcmp(tb[0], "GlobalDownload") && tb[1])
-			    hash_set(tb[0], (void *)convert_speed_to_int(tb + 1), 0);
+			    hash_set_int(tb[0], convert_speed_to_int(tb + 1));
 			  else if (!strcmp(tb[0], "GlobalUpload") && tb[1])
-			    hash_set(tb[0], (void *)convert_speed_to_int(tb + 1), 0);
+			    hash_set_int(tb[0], convert_speed_to_int(tb + 1));
 			  else if (!strcmp(tb[0], "Download") && tb[1])
-			    hash_set(tb[0], (void *)convert_speed_to_int(tb + 1), 0);
+			    hash_set_int(tb[0], convert_speed_to_int(tb + 1));
 			  else if (!strcmp(tb[0], "Upload") && tb[1])
-			    hash_set(tb[0], (void *)convert_speed_to_int(tb + 1), 0);
+			    hash_set_int(tb[0], convert_speed_to_int(tb + 1));
 			  else if (!strcmp(tb[0], "StayAtHome") && tb[1])
-			    hash_set(tb[0], (void *)convert_boolean_to_int(tb[1]), 0);
+			    hash_set_int(tb[0], convert_boolean_to_int(tb[1]));
 			  else if (!strcmp(tb[0], "VirtualChroot") && tb[1])
-			    hash_set(tb[0], (void *)convert_boolean_to_int(tb[1]), 0);
+			    hash_set_int(tb[0], convert_boolean_to_int(tb[1]));
 			  else if (!strcmp(tb[0], "LimitConnection") && tb[1])
-			    hash_set(tb[0], (void *)atoi(tb[1]), 0);
+			    hash_set_int(tb[0], atoi(tb[1]));
 			  else if (!strcmp(tb[0], "LimitConnectionByUser") && tb[1])
-			    hash_set(tb[0], (void *)atoi(tb[1]), 0);
+			    hash_set_int(tb[0], atoi(tb[1]));
 			  else if (!strcmp(tb[0], "LimitConnectionByIP") && tb[1])
-			    hash_set(tb[0], (void *)atoi(tb[1]), 0);
+			    hash_set_int(tb[0], atoi(tb[1]));
 			  else if (!strcmp(tb[0], "Home") && tb[1])
-			    hash_set(tb[0], (void *)convert_str_with_resolv_env_to_str(tb[1]), 1);
+			    hash_set(tb[0], (void *)convert_str_with_resolv_env_to_str(tb[1]));
 			  else if (!strcmp(tb[0], "Shell") && tb[1])
-			    hash_set(tb[0], (void *)strdup(tb[1]), 1);
+			    hash_set(tb[0], (void *)strdup(tb[1]));
 			  else if (!strcmp(tb[0], "ResolveIP") && tb[1])
-			    hash_set(tb[0], (void *)convert_boolean_to_int(tb[1]), 0);
+			    hash_set_int(tb[0], convert_boolean_to_int(tb[1]));
 			  else if (!strcmp(tb[0], "IdleTimeOut") && tb[1])
-			    hash_set(tb[0], (void *)atoi(tb[1]), 0);
+			    hash_set_int(tb[0], atoi(tb[1]));
 			  else if (!strcmp(tb[0], "IgnoreHidden") && tb[1])
-			    hash_set(tb[0], (void *)convert_boolean_to_int(tb[1]), 0);
+			    hash_set_int(tb[0], convert_boolean_to_int(tb[1]));
 			  else if (!strcmp(tb[0], "DirFakeUser") && tb[1])
-			    hash_set(tb[0], (void *)convert_boolean_to_int(tb[1]), 0);
+			    hash_set_int(tb[0], convert_boolean_to_int(tb[1]));
 			  else if (!strcmp(tb[0], "DirFakeGroup") && tb[1])
-			    hash_set(tb[0], (void *)convert_boolean_to_int(tb[1]), 0);
+			    hash_set_int(tb[0], convert_boolean_to_int(tb[1]));
 			  else if (!strcmp(tb[0], "DirFakeMode") && tb[1])
-			    hash_set(tb[0], (void *)convert_mode_to_int(tb[1]), 0);
+			    hash_set_int(tb[0], convert_mode_to_int(tb[1]));
 			  else if (!strcmp(tb[0], "HideFiles"))
-			    hash_set(tb[0], (void *)(tb[1] ? strdup(tb[1]) : 0), 1);
+			    hash_set(tb[0], (void *)(tb[1] ? strdup(tb[1]) : 0));
 			  else if (!strcmp(tb[0], "HideNoAccess") && tb[1])
-			    hash_set(tb[0], (void *)convert_boolean_to_int(tb[1]), 0);
+			    hash_set_int(tb[0], convert_boolean_to_int(tb[1]));
 			  else if (!strcmp(tb[0], "ByPassGlobalDownload") && tb[1])
-			    hash_set(tb[0], (void *)convert_boolean_to_int(tb[1]), 0);
+			    hash_set_int(tb[0], convert_boolean_to_int(tb[1]));
 			  else if (!strcmp(tb[0], "ByPassGlobalUpload") && tb[1])
-			    hash_set(tb[0], (void *)convert_boolean_to_int(tb[1]), 0);
+			    hash_set_int(tb[0], convert_boolean_to_int(tb[1]));
 			  else if (!strcmp(tb[0], "MaxOpenFilesForUser") && tb[1])
-			    hash_set(tb[0], (void *)atoi(tb[1]), 0);
+			    hash_set_int(tb[0], atoi(tb[1]));
 			  else if (!strcmp(tb[0], "MaxReadFilesForUser") && tb[1])
-			    hash_set(tb[0], (void *)atoi(tb[1]), 0);
+			    hash_set_int(tb[0], atoi(tb[1]));
 			  else if (!strcmp(tb[0], "MaxWriteFilesForUser") && tb[1])
-			    hash_set(tb[0], (void *)atoi(tb[1]), 0);
+			    hash_set_int(tb[0], atoi(tb[1]));
 			  else if (!strcmp(tb[0], "ShowLinksAsLinks") && tb[1])
-                            hash_set(tb[0], (void *)convert_boolean_to_int(tb[1]), 0);
+                            hash_set_int(tb[0], convert_boolean_to_int(tb[1]));
 			  else if (!strcmp(tb[0], "DefaultRights") && tb[1])
 			    {
-			      hash_set("DefaultRightsFile", (void *)convert_mode_to_int(tb[1]), 0);
+			      hash_set_int("DefaultRightsFile", convert_mode_to_int(tb[1]));
 			      if (tb[2])
-				hash_set("DefaultRightsDirectory", (void *)convert_mode_to_int(tb[2]), 0);
+				hash_set_int("DefaultRightsDirectory", convert_mode_to_int(tb[2]));
 			    }
 			  else if (!strcmp(tb[0], "PathDenyFilter") && tb[1])
-			    hash_set(tb[0], (void *)strdup(tb[1]), 1);
+			    hash_set(tb[0], (void *)strdup(tb[1]));
 			  else
 			    err1 = 1;
 			}

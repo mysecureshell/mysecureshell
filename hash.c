@@ -44,8 +44,8 @@ void		delete_hash()
 	{
 	  n = t->next;
 	  free(t->key);
-	  if (t->free)
-	    free(t->value);
+	  if (t->str)
+	    free(t->str);
 	  t = n;
 	}
     }
@@ -54,7 +54,7 @@ void		delete_hash()
   _last_key = 0;
 }
 
-void		hash_set(char *key, void *value, char free_old)
+void		hash_set(char *key, void *value)
 {
   t_element	*t = _hash->hash[(int )*key];
 
@@ -62,20 +62,36 @@ void		hash_set(char *key, void *value, char free_old)
     {
       if (!strcmp(key, t->key))
 	{
-	  if (free_old)
-	    free(t->value);
-	  t->value = value;
-	  if (free_old)
-	    t->free = free_old;
+	  free(t->str);
+	  t->str = value;
 	  return;
 	}
       t = t->next;
     }
   t = calloc(1, sizeof(*t));
   t->key = strdup(key);
-  t->value = value;
+  t->str = value;
   t->next = _hash->hash[(int )*key];
-  t->free = free_old;
+  _hash->hash[(int )*key] = t;
+}
+
+void		hash_set_int(char *key, int value)
+{
+  t_element	*t = _hash->hash[(int )*key];
+
+  while (t)
+    {
+      if (!strcmp(key, t->key))
+	{
+	  t->number = value;
+	  return;
+	}
+      t = t->next;
+    }
+  t = calloc(1, sizeof(*t));
+  t->key = strdup(key);
+  t->number = value;
+  t->next = _hash->hash[(int )*key];
   _hash->hash[(int )*key] = t;
 }
 
@@ -84,14 +100,32 @@ void		*hash_get(char *key)
   t_element	*t = _hash->hash[(int )*key];
 
   if (_last_key && !strcmp(key, _last_key->key))
-    return (_last_key->value);
+    return (_last_key->str);
   while (t)
     {
       if (!strcmp(key, t->key))
 	{
 	  _last_key = t;
-	  return (t->value);
+	  return (t->str);
 	}
+      t = t->next;
+    }
+  return (0);
+}
+
+int		hash_get_int(char *key)
+{
+  t_element     *t = _hash->hash[(int )*key];
+
+  if (_last_key && !strcmp(key, _last_key->key))
+    return (_last_key->number);
+  while (t)
+    {
+      if (!strcmp(key, t->key))
+        {
+          _last_key = t;
+          return (t->number);
+        }
       t = t->next;
     }
   return (0);
@@ -102,7 +136,7 @@ char	*hash_get_int_to_char(char *key)
   char	*str;
   int	nb, size;
 
-  nb = (int )hash_get(key);
+  nb = hash_get_int(key);
   size = sizeof(*str) * 12;
   str = malloc(12);
   snprintf(str, nb, "%i", nb);

@@ -49,7 +49,7 @@ static void	parse_args(int ac, char **av)
     else if (!strcmp(av[i], "--help"))
       {
       help:
-	printf("Build:\n\t%s is version %s build on " __DATE__ "\n\n", av[0], "0.6");
+	printf("Build:\n\t%s is version %s build on " __DATE__ "\n\n", av[0], "0.6pre2");
 	printf("Usage:\n\t%s [verbose] [options]\n\nOptions:\n", av[0]);
 	printf("\t--configtest : test the config file and show errors\n");
 	printf("\t--help       : show this screen\n");
@@ -101,15 +101,15 @@ int	main(int ac, char **av, char **env)
       char	bmode[12];
       int	max, nb_args, fd;
 
-      max = (int )hash_get("LimitConnectionByUser");
+      max = hash_get_int("LimitConnectionByUser");
       if (max > 0 && count_program_for_uid(getuid(), (char *)hash_get("User")) >= max)
 	//too many connection for the account
 	exit(10);
-      max = (int )hash_get("LimitConnectionByIP");
-      if (max > 0 && count_program_for_ip(getuid(), get_ip((int )hash_get("ResolveIP"))) >= max)
+      max = hash_get_int("LimitConnectionByIP");
+      if (max > 0 && count_program_for_ip(getuid(), get_ip(hash_get_int("ResolveIP"))) >= max)
 	//too many connection for this IP
 	exit(11);
-      max = (int )hash_get("LimitConnection");
+      max = hash_get_int("LimitConnection");
       if (max > 0 && count_program_for_uid(-1, 0) >= max)
 	//too many connection for the server
         exit(12);
@@ -124,17 +124,17 @@ int	main(int ac, char **av, char **env)
       if ((deny_filter = (char *)hash_get("PathDenyFilter"))) deny_filter = strdup(deny_filter);
 
       snprintf(bmode, sizeof(bmode), "%i",
-	       ((int )hash_get("StayAtHome") ? SFTPWHO_STAY_AT_HOME : 0) +
-	       ((int )hash_get("VirtualChroot") ? SFTPWHO_VIRTUAL_CHROOT : 0) +
-	       ((int )hash_get("ResolveIP") ? SFTPWHO_RESOLVE_IP : 0) +
-	       ((int )hash_get("IgnoreHidden") ? SFTPWHO_IGNORE_HIDDEN : 0) +
-	       ((int )hash_get("DirFakeUser") ? SFTPWHO_FAKE_USER : 0) +
-	       ((int )hash_get("DirFakeGroup") ? SFTPWHO_FAKE_GROUP : 0) +
-	       ((int )hash_get("DirFakeMode") ? SFTPWHO_FAKE_MODE : 0) +
-	       ((int )hash_get("HideNoAccess") ? SFTPWHO_HIDE_NO_ACESS : 0) +
-	       ((int )hash_get("ByPassGlobalDownload") ? SFTPWHO_BYPASS_GLB_DWN : 0) +
-	       ((int )hash_get("ByPassGlobalUpload") ? SFTPWHO_BYPASS_GLB_UPL : 0) +
-	       ((int )hash_get("ShowLinksAsLinks") ? SFTPWHO_LINKS_AS_LINKS : 0)
+	       (hash_get_int("StayAtHome") ? SFTPWHO_STAY_AT_HOME : 0) +
+	       (hash_get_int("VirtualChroot") ? SFTPWHO_VIRTUAL_CHROOT : 0) +
+	       (hash_get_int("ResolveIP") ? SFTPWHO_RESOLVE_IP : 0) +
+	       (hash_get_int("IgnoreHidden") ? SFTPWHO_IGNORE_HIDDEN : 0) +
+	       (hash_get_int("DirFakeUser") ? SFTPWHO_FAKE_USER : 0) +
+	       (hash_get_int("DirFakeGroup") ? SFTPWHO_FAKE_GROUP : 0) +
+	       (hash_get_int("DirFakeMode") ? SFTPWHO_FAKE_MODE : 0) +
+	       (hash_get_int("HideNoAccess") ? SFTPWHO_HIDE_NO_ACESS : 0) +
+	       (hash_get_int("ByPassGlobalDownload") ? SFTPWHO_BYPASS_GLB_DWN : 0) +
+	       (hash_get_int("ByPassGlobalUpload") ? SFTPWHO_BYPASS_GLB_UPL : 0) +
+	       (hash_get_int("ShowLinksAsLinks") ? SFTPWHO_LINKS_AS_LINKS : 0)
 	       );
 
       args = calloc(sizeof(*args), 36);//be aware of the buffer overflow
@@ -145,7 +145,7 @@ int	main(int ac, char **av, char **env)
       args[nb_args++] = "--home";
       args[nb_args++] = strdup((char *)hash_get("Home"));
       args[nb_args++] = "--ip";
-      args[nb_args++] = get_ip((int )hash_get("ResolveIP"));
+      args[nb_args++] = get_ip(hash_get_int("ResolveIP"));
       args[nb_args++] = "--mode";
       args[nb_args++] = bmode;
       if (hash_get("GlobalDownload"))

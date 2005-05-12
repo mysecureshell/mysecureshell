@@ -52,18 +52,18 @@ void	parse_tag(char *buffer)
 void	parse_tag_close(char *str)
 {
   if (!strcasecmp(str, TAG_GROUP))
-      hash_set("GROUP", 0, 1);
+      hash_set("GROUP", 0);
   else if (!strcasecmp(str, TAG_USER))
-      hash_set("USER", 0, 1);
+      hash_set("USER", 0);
   else if (!strcasecmp(str, TAG_RANGEIP))  
-    hash_set("RANGEIP", 0, 1);
+    hash_set("RANGEIP", 0);
   else if (!strcasecmp(str, TAG_VIRTUALHOST))
   {
-  	hash_set("VIRTUALHOST_IP", 0, 1);
-	hash_set("VIRTUALHOST_PORT", 0, 0);
+  	hash_set("VIRTUALHOST_IP", 0);
+	hash_set_int("VIRTUALHOST_PORT", 0);
   }
   else if (!strcasecmp(str, TAG_DEFAULT))
-    hash_set("DEFAULT", 0, 0);
+    hash_set_int("DEFAULT", 0);
   parse_opened_tag--;
 }
 
@@ -78,15 +78,15 @@ void	parse_tag_open(char *str)
       }
   str = trim_right(str);
   if (!strcasecmp(str, TAG_GROUP))
-    hash_set("GROUP", strdup(s), 1);
+    hash_set("GROUP", strdup(s));
   else if (!strcasecmp(str, TAG_USER))
-    hash_set("USER", strdup(s), 1);
+    hash_set("USER", strdup(s));
   else if (!strcasecmp(str, TAG_RANGEIP))
-    hash_set("RANGEIP", parse_range_ip(s), 1);
+    hash_set("RANGEIP", parse_range_ip(s));
   else if (!strcasecmp(str, TAG_VIRTUALHOST))
     parse_virtualhost(s);
   else if (!strcasecmp(str, TAG_DEFAULT))
-    hash_set("DEFAULT", (void *)1, 0);
+    hash_set_int("DEFAULT", 1);
   parse_opened_tag++;
 }
 
@@ -112,11 +112,11 @@ void				parse_virtualhost(char *str)
 				(unsigned char)h->h_addr_list[0][2],
 				(unsigned char)h->h_addr_list[0][3]
 				);
-			hash_set("VIRTUALHOST_IP", strdup(buffer), 1);
+			hash_set("VIRTUALHOST_IP", strdup(buffer));
 		}
 	else
-		hash_set("VIRTUALHOST_IP", strdup(str), 1);
-	hash_set("VIRTUALHOST_PORT", (void *)port, 0);
+		hash_set("VIRTUALHOST_IP", strdup(str));
+	hash_set_int("VIRTUALHOST_PORT", port);
 }
 
 char	*parse_range_ip(char *str)

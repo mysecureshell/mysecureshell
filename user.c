@@ -103,8 +103,8 @@ int		init_user_info()
 	      user_group[i] = strdup(group->gr_name);
           user_group[i] = 0;
         }
-      hash_set("User", (void *)strdup(info->pw_name), 1);
-      hash_set("Home", (void *)strdup(info->pw_dir), 1);
+      hash_set("User", (void *)strdup(info->pw_name));
+      hash_set("Home", (void *)strdup(info->pw_dir));
       return (1);
     }
   return (0);
