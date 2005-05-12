@@ -1,5 +1,5 @@
 EXT	=
-VERSION = `grep Build main.c | sed -e 's/^.*"\([0-9\.ab]*\)".*/\1/' | tr . _`
+VERSION = `grep Build main.c | sed -e 's/^.*"\([^"]*\)".*/\1/' | tr . _`
 CPU	= "`uname -m`"
 OS	= "__OS`uname -s | sed -e 's/[-\.]/_/g'`"
 ARCHIVE	= MySecureShell-$(OSTYPE)-$(CPU)-$(VERSION)
