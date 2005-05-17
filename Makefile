@@ -32,6 +32,12 @@ OBJ3	= $(SRC3:.c=.o)
 FILE	= sftp_config utils LICENSE README-fr README-en				\
 	  install.sh locales_en locales_fr
 CFLAGS	= -Wall -Wunused -Wpointer-arith -Wno-uninitialized -O2 -D$(OS) -ISftpServer
+DEBUG	= 0
+
+ifeq ($(DEBUG), 1)
+	CFLAGS	+= -DDODEBUG
+endif
+
 ifneq (,$(findstring $(OSTYPE), linux))
 	LIBS	=
 else
@@ -41,7 +47,7 @@ endif
 endif
 
 RM	= rm -f
-CC	= gcc# -m64
+CC	= gcc
 CHMOD	= chmod
 TAR	= tar
 CP	= cp -pf

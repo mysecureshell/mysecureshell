@@ -38,7 +38,11 @@ static tBuffer	*bIn = 0;
 static tBuffer	*bOut = 0;
 int		cVersion = 0;
 
+#ifdef DODEBUG
 #define	DEBUG(_X)	log_printf _X
+#else
+#define	DEBUG(_X)
+#endif
 
 static void	DoInit()
 {
@@ -537,10 +541,14 @@ static void	DoRemove()
   id = BufferGetInt32(bIn);
   path = BufferGetString(bIn);
   if ((status = CheckRules(path, RULES_RMFILE, 0, 0)) == SSH2_FX_OK)
-    if (unlink(path) == -1)
-      status = errnoToPortable(errno);
-  SendStatus(bOut, id, status);
+    {
+      if (unlink(path) == -1)
+	status = errnoToPortable(errno);
+      log_printf(MYLOG_WARNING, "[%s][%s]Try to remove file '%s'",
+		 gl_var->who->user, gl_var->who->ip, path);
+    }
   DEBUG((MYLOG_DEBUG, "[DoRemove]path:'%s' -> '%i'", path, status));
+  SendStatus(bOut, id, status);
   free(path);
 }
 
