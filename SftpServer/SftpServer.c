@@ -303,11 +303,16 @@ static void     ResolvPath(char *path, char *dst)
       end = beg + 2;
       if ((dst[beg - 1] == '/' || !beg) && (!dst[end] || dst[end] == '/'))
         {
-          for (i = beg - 2; i >= 0; i--)
-            if (dst[i] == '/')
+          while (beg >= 1 && dst[beg - 1] == '/')
+            beg--;
+          for (i = beg - 1; i >= 0; i--)
+            if (dst[i] == '/' && (i == 0 || dst[i - 1] != '/'))
               break;
           if (i < 0) i = 0;
-          strcpy(dst + i, dst + end);
+          if (dst[end])
+            strcpy(dst + i, dst + end);
+          else
+	    dst[i] = 0;
           len = strlen(dst);
         }
       else
@@ -315,7 +320,10 @@ static void     ResolvPath(char *path, char *dst)
     }
   if (!dst[0])
     {
-      dst[0] = path[0];
+      if (path[0] == '/')
+        dst[0] = path[0];
+      else
+        dst[0] = '.';
       dst[1] = 0;
     }
   len = strlen(dst);
