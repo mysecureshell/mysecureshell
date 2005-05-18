@@ -130,6 +130,22 @@ else
  	detecfiles
 fi
 
+
+## Check compactibility of the system
+
+echo
+tmp=`MyGetLocale 'TestSystem?'`
+echo -n $tmp
+read rep7
+
+if [ $rep7 = "y" ] ; then
+    MyGetLocale 'LaunchMSS'
+    ./MySecureShell --configtest > /dev/null
+    MyGetLocale 'LaunchSftpMSS'
+    ./sftp-server_MSS < /dev/null
+fi
+
+
 ## Introduction text
 
 echo -e "\n"
@@ -140,6 +156,7 @@ MyGetLocale 'text4'
 MyGetLocale 'text5'
 MyGetLocale 'text6'
 MyGetLocale 'text7'
+
 
 ## Starting or ending installation
 
@@ -333,18 +350,6 @@ sftpinst=$sftpinst"\n"`MyGetLocale 'finishedinst'`"\n\n"`MyGetLocale 'osxreminde
 
 clear
 echo -e "$sftpinst\n"
-
-tmp=`MyGetLocale 'TestSystem?'`
-echo -n $tmp
-read rep7
-
-if [ $rep7 = "y" ] ; then
-    MyGetLocale 'LaunchMSS'
-    /bin/MySecureShell --configtest > /dev/null
-    MyGetLocale 'LaunchSftpMSS'
-    echo -n | $sftpsrv/sftp-server_MSS
-fi
-
 
 fi
 
