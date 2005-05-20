@@ -1,6 +1,6 @@
 #!/bin/sh
 
-## Installation Script v0.5 - Made by Nerdman
+## Installation Script v0.6 - Made by Pierre
 ## MySecureShell Team <teka2nerdman@users.sourceforge.net>
 
 ## Language local initialising
@@ -131,7 +131,7 @@ else
 fi
 
 
-## Check compactibility of the system
+# Testing MySecureShell
 
 echo
 tmp=`MyGetLocale 'TestSystem?'`
@@ -143,6 +143,7 @@ if [ $rep7 = "y" ] ; then
     ./MySecureShell --configtest > /dev/null
     MyGetLocale 'LaunchSftpMSS'
     ./sftp-server_MSS < /dev/null
+    MyGetLocale 'Testsuccess'
 fi
 
 
@@ -156,7 +157,6 @@ MyGetLocale 'text4'
 MyGetLocale 'text5'
 MyGetLocale 'text6'
 MyGetLocale 'text7'
-
 
 ## Starting or ending installation
 
@@ -344,12 +344,11 @@ else
 	sftpinst=$sftpinst`MyGetLocale 'utilsnodetec'`"\t\t"`MyGetLocale 'failed'`"\n"
 fi
 
-# Fin d'installation
+# Installation Ending
 
 sftpinst=$sftpinst"\n"`MyGetLocale 'finishedinst'`"\n\n"`MyGetLocale 'osxreminder'`
 
 clear
 echo -e "$sftpinst\n"
-
 fi
 
