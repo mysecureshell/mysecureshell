@@ -49,7 +49,7 @@ static void	parse_args(int ac, char **av)
     else if (!strcmp(av[i], "--help"))
       {
       help:
-	printf("Build:\n\t%s is version %s build on " __DATE__ "\n\n", av[0], "0.6pre2");
+	printf("Build:\n\t%s is version %s build on " __DATE__ "\n\n", av[0], "0.6pre4");
 	printf("Usage:\n\t%s [verbose] [options]\n\nOptions:\n", av[0]);
 	printf("\t--configtest : test the config file and show errors\n");
 	printf("\t--help       : show this screen\n");
@@ -148,32 +148,32 @@ int	main(int ac, char **av, char **env)
       args[nb_args++] = get_ip(hash_get_int("ResolveIP"));
       args[nb_args++] = "--mode";
       args[nb_args++] = bmode;
-      if (hash_get("GlobalDownload"))
+      if (hash_get_int("GlobalDownload"))
 	{
 	  args[nb_args++] = "--global-download";
 	  args[nb_args++] = hash_get_int_to_char("GlobalDownload");
 	}
-      if (hash_get("GlobalUpload"))
+      if (hash_get_int("GlobalUpload"))
 	{
 	  args[nb_args++] = "--global-upload";
           args[nb_args++] = hash_get_int_to_char("GlobalUpload");
 	}
-      if (hash_get("Download"))
+      if (hash_get_int("Download"))
 	{
 	  args[nb_args++] = "--download";
 	  args[nb_args++] = hash_get_int_to_char("Download");
 	}
-      if (hash_get("Upload"))
+      if (hash_get_int("Upload"))
 	{
 	  args[nb_args++] = "--upload";
           args[nb_args++] = hash_get_int_to_char("Upload");
 	}
-      if (hash_get("IdleTimeOut"))
+      if (hash_get_int("IdleTimeOut"))
 	{
 	  args[nb_args++] = "--idle";
 	  args[nb_args++] = hash_get_int_to_char("IdleTimeOut");
 	}
-      if (hash_get("DirFakeMode"))
+      if (hash_get_int("DirFakeMode"))
 	{
 	  args[nb_args++] = "--fake-mode";
 	  args[nb_args++] = hash_get_int_to_char("DirFakeMode");
@@ -183,27 +183,27 @@ int	main(int ac, char **av, char **env)
 	  args[nb_args++] = "--hide-files";
           args[nb_args++] = hide_files;
 	}
-      if (hash_get("MaxOpenFilesForUser"))
+      if (hash_get_int("MaxOpenFilesForUser"))
 	{
 	  args[nb_args++] = "--max-open-files";
 	  args[nb_args++] = hash_get_int_to_char("MaxOpenFilesForUser");
 	}
-      if (hash_get("MaxReadFilesForUser"))
+      if (hash_get_int("MaxReadFilesForUser"))
 	{
 	  args[nb_args++] = "--max-read-files";
 	  args[nb_args++] = hash_get_int_to_char("MaxReadFilesForUser");
 	}
-      if (hash_get("MaxWriteFilesForUser"))
+      if (hash_get_int("MaxWriteFilesForUser"))
 	{
 	  args[nb_args++] = "--max-write-files";
 	  args[nb_args++] = hash_get_int_to_char("MaxWriteFilesForUser");
 	}
-      if (hash_get("DefaultRightsDirectory"))
+      if (hash_get_int("DefaultRightsDirectory"))
 	{
 	  args[nb_args++] = "--rights-directory";
 	  args[nb_args++] = hash_get_int_to_char("DefaultRightsDirectory");
 	}
-      if (hash_get("DefaultRightsFile"))
+      if (hash_get_int("DefaultRightsFile"))
 	{
 	  args[nb_args++] = "--rights-file";
 	  args[nb_args++] = hash_get_int_to_char("DefaultRightsFile");

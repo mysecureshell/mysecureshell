@@ -320,7 +320,7 @@ static void	DoRead()
 	    }
 	}
     }
-  DEBUG((MYLOG_DEBUG, "[DoRead]fd:%i off:%llu len:%i", fd, off, len));
+  //DEBUG((MYLOG_DEBUG, "[DoRead]fd:%i off:%llu len:%i", fd, off, len));
   if (status != SSH2_FX_OK)
     SendStatus(bOut, id, status);
 }
@@ -359,7 +359,7 @@ static void	DoWrite()
 	    status = SSH2_FX_OK;
 	}
     }
-  DEBUG((MYLOG_DEBUG, "[DoWrite]fd:%i off:%llu len:%i fileIsText:%i", fd, off, len, fileIsText));
+  //DEBUG((MYLOG_DEBUG, "[DoWrite]fd:%i off:%llu len:%i fileIsText:%i", fd, off, len, fileIsText));
   SendStatus(bOut, id, status);
 }
 
@@ -865,6 +865,7 @@ int			main(int ac, char **av)
       else
 	{
 	  gl_var->who->time_idle = 0;
+	  //DEBUG((MYLOG_DEBUG, "Down [%i:%i:%i:%i]", gl_var->download_current, gl_var->download_max, _sftpglobal->download_by_client, gl_var->who->download_max));
 	  if (FD_ISSET(0, &fdR))
 	    {
 	      char	buffer[16384];
