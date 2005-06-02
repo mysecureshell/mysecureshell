@@ -29,7 +29,7 @@ SRC3	= SftpServer/Buffer.c SftpServer/Encode.c	\
 	  SftpServer/Sftp.c SftpServer/Util.c
 OBJ3	= $(SRC3:.c=.o)
 
-FILE	= sftp_config utils LICENSE README-fr README-en				\
+FILE	= sftp_config utils/sftp-kill LICENSE README-fr README-en				\
 	  install.sh locales_en locales_fr
 CFLAGS	= -Wall -Wunused -Wpointer-arith -Wno-uninitialized -O2 -D$(OS) -ISftpServer
 DEBUG	= 0
@@ -94,7 +94,7 @@ package : re
 	@echo "Make package"
 	@$(STRIP) $(NAME) $(NAME1) $(NAME2) $(NAME3)
 	@echo "Tar package"
-	@$(TAR) cfz $(ARCHIVE).tgz $(NAME) $(NAME3) $(FILE) --exclude=CVS
+	@$(TAR) cfz $(ARCHIVE).tgz $(NAME) $(NAME1) $(NAME2) $(NAME3) $(FILE)
 	@echo "Package done."
 
 source	: fclean
