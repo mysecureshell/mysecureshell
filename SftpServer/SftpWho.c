@@ -28,11 +28,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 typedef struct		s_shm
 {
 	t_sftpglobal	global;
-	t_sftpwho		who[SFTPWHO_MAXCLIENT];
-}					t_shm;
+	t_sftpwho	who[SFTPWHO_MAXCLIENT];
+}			t_shm;
 
 static t_sftpwho	*_sftpwho_ptr = 0;
-static t_sftpglobal	*_sftpglobal = 0;
+t_sftpglobal		*_sftpglobal = 0;
 
 t_sftpwho	*SftWhoGetAllStructs()
 {
