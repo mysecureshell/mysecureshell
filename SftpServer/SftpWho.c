@@ -48,42 +48,35 @@ t_sftpwho		*SftpWhoGetStruct(int create)
   int			shmid, shmkey = 0x0782;
   int			eraze = 0;
   int			i, try;
-//char buffer[1024];
+
  try_shm:
   if ((key = ftok("/dev/null", shmkey)) != -1)
     {
       //try to join to existing shm
-      if ((shmid = shmget(key, sizeof(t_shm), IPC_EXCL)) == -1)//SHM_SFTP_SIZE, IPC_EXCL)) == -1)
+      if ((shmid = shmget(key, sizeof(t_shm), IPC_EXCL)) == -1)
 	{
-//snprintf(buffer, sizeof(buffer), "1shmid=%i key=%i error=%i\n", shmid, key, errno); write(1, buffer, strlen(buffer));
 	  if (create == 1) //check if we are not in sftp-who
 	    //doesn't exist so create it
-	    shmid = shmget(key, sizeof(t_shm), IPC_CREAT | 0666);//SHM_SFTP_SIZE, IPC_CREAT | 0666);
-//snprintf(buffer, sizeof(buffer), "2shmid=%i\n", shmid); write(1, buffer, strlen(buffer));
+	    shmid = shmget(key, sizeof(t_shm), IPC_CREAT | 0666);
 	  eraze = 1;
 	}
-//snprintf(buffer, sizeof(buffer), "2.5shmid=%i key=%i error=%i\n", shmid, key, errno); write(1, buffer, strlen(buffer));
       if (shmid != -1 && create == 1 && !shmctl(shmid, IPC_STAT, &shst))
 	{
-//snprintf(buffer, sizeof(buffer), "oldSize=%i newSize=%i\n", shst.shm_segsz,SHM_SFTP_SIZE); write(3, buffer, strlen(buffer));
-	  if (shst.shm_segsz != sizeof(t_shm))//SHM_SFTP_SIZE) //huho we have a old shm memory
+	  if (shst.shm_segsz != sizeof(t_shm)) //huho we have a old shm memory
 	    {
 	      shmkey++;
 	      goto try_shm;
 	    }
 	}
-//snprintf(buffer, sizeof(buffer), "3shmid=%i\n", shmid); write(1, buffer, strlen(buffer));
       if (shmid != -1 && (ptr = shmat(shmid, 0, 0)))
 	{
 		t_shm	*shm = ptr;
 		
-//snprintf(buffer, sizeof(buffer), "4shmid=%i ptr=%p\n", shmid, ptr); write(1, buffer, strlen(buffer));
-	  _sftpglobal = &shm->global;//ptr;
+	  _sftpglobal = &shm->global;
 	  who = shm->who;
-	  //who = (t_sftpwho *)((int )ptr + sizeof(t_sftpglobal));
 	  _sftpwho_ptr = who;
 	  if (eraze)
-	    memset(shm, 0, sizeof(t_shm));//memset(who, 0, SHM_SFTP_SIZE);
+	    memset(shm, 0, sizeof(t_shm));
 	  else
 	    //clean all sessions of bugged client (abnormally quit)
 	    SftpWhoCleanBuggedClient();
@@ -102,13 +95,11 @@ t_sftpwho		*SftpWhoGetStruct(int create)
 			memset(&who[i], 0, sizeof(*who));
 			//marked structure as occuped :)
 			who[i].status = SFTPWHO_IDLE;
-//snprintf(buffer, sizeof(buffer), "use who[%i]\n", i); write(1, buffer, strlen(buffer));
 			return (&who[i]);
 		      }
 		  }
 	}
     }
-//snprintf(buffer, sizeof(buffer), "Aucune place libre :'(\n"); write(1, buffer, strlen(buffer));
   if (create == 1)
     who = calloc(1, sizeof(*who));
   return (who);
