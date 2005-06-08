@@ -167,7 +167,7 @@ char	*BufferGetData(tBuffer *b, u_int32_t *size)
   *size = BufferGetInt32(b);
   if ((b->read + *size) > b->length)
     return (0);
-  data = b->data + b->read;
+  data = (char *)(b->data + b->read);
   b->read += *size;
   return (data);
 }
