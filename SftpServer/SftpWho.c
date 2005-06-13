@@ -38,7 +38,7 @@ t_sftpwho	*SftWhoGetAllStructs()
 {
   return	(_sftpwho_ptr);
 }
-#include <errno.h>
+
 t_sftpwho		*SftpWhoGetStruct(int create)
 {
   struct shmid_ds	shst;
