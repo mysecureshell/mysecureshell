@@ -53,3 +53,7 @@ TestSystem?=Do you want to test MySecureShell (check libraries requirement) ? (Y
 LaunchMSS=Test MySecureShell...
 LaunchSftpMSS=Test module SFTP of MySecureShell...
 Testsuccess=Test ending
+uninst?=Are you sure you want to uninstall MySecureShell ? (y,N)
+delconf?=Do you want to delete your configuration file too ? (y/N)
+mssuninstok!=MySecureShell Sucessfully uninstalled !
+mssuninstfail=MySecureShell uninstaller aborded !

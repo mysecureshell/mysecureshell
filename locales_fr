@@ -53,3 +53,7 @@ TestSystem?=Voulez-vous tester MySecureShell, pour detecter d'eventuel probleme 
 LaunchMSS=Test de MySecureShell...
 LaunchSftpMSS=Test du module SFTP de MySecureShell...
 Testsuccess=Fin du test
+uninst?=Etes vous sur de vouloir desinstaller MySecureShell ? (y,N)
+delconf?=Voulez vous supprimer votre fichier de configuration aussi ? (y/N)
+mssuninstok!=MySecureShell a ete desinstaller avec succes !
+mssuninstfail=La desinstallation de MySecureShell a echouee !
