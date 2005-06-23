@@ -49,7 +49,7 @@ static void	parse_args(int ac, char **av)
     else if (!strcmp(av[i], "--help"))
       {
       help:
-	printf("Build:\n\t%s is version %s build on " __DATE__ "\n\n", av[0], "0.6pre4");
+	printf("Build:\n\t%s is version %s build on " __DATE__ "\n\n", av[0], "0.6");
 	printf("Usage:\n\t%s [verbose] [options]\n\nOptions:\n", av[0]);
 	printf("\t--configtest : test the config file and show errors\n");
 	printf("\t--help       : show this screen\n");
