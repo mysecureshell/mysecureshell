@@ -30,7 +30,7 @@ SRC3	= SftpServer/Buffer.c SftpServer/Encode.c	\
 OBJ3	= $(SRC3:.c=.o)
 
 FILE	= sftp_config utils/sftp-kill LICENSE README-fr README-en				\
-	  install.sh locales_en locales_fr
+	  install.sh locales_en locales_fr uninstaller.sh
 CFLAGS	= -Wall -Wunused -Wpointer-arith -Wno-uninitialized -O2 -D$(OS) -ISftpServer
 DEBUG	= 0
 
