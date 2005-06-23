@@ -231,50 +231,45 @@ static void	DoOpen()
   flags = FlagsFromPortable(pflags);
   mode = (a->flags & SSH2_FILEXFER_ATTR_PERMISSIONS) ? a->perm : gl_var->rights_file;
   if ((status = CheckRules(path, RULES_FILE, 0, flags)) == SSH2_FX_OK)
-    {
-      status = SSH2_FX_FAILURE;
-      snprintf(gl_var->who->path, sizeof(gl_var->who->path), "%s", path);
-      if (flags & O_WRONLY)
-	{
-	  gl_var->who->status = (gl_var->who->status & SFTPWHO_ARGS_MASK ) | SFTPWHO_PUT;
-	  log_printf(MYLOG_NORMAL, "[%s][%s]Uppload into file '%s'",
-		     gl_var->who->user, gl_var->who->ip, path);
-	}
-      else
-	{
-	  gl_var->who->status = (gl_var->who->status & SFTPWHO_ARGS_MASK ) | SFTPWHO_GET;
-	  log_printf(MYLOG_NORMAL, "[%s][%s]Download file '%s'",
-		     gl_var->who->user, gl_var->who->ip, path);
-	}
-      if ((status = CheckRulesAboutMaxFiles()) == SSH2_FX_OK)
-	{
-	  if ((fd = open(path, flags, mode)) < 0)
-	    status = errnoToPortable(errno);
-	  else
-	    {
-	      int	h;
-	      
-	      if ((h = HandleNew(HANDLE_FILE, path, fd, NULL, pflags & SSH4_FXF_TEXT ? 1 : 0)) < 0)
-		close(fd);
-	      else
-		{
-		  gl_var->down_size = 0;
-		  gl_var->down_max = 0;
-		  if (!(flags & O_WRONLY))
-		    {
-		      struct stat	st;
-		      
-		      if (stat(path, &st) != -1)
-			gl_var->down_max = st.st_size;
-		    }
-		  SendHandle(bOut, id, h);
-		  status = SSH2_FX_OK;
-		}
-	    }
-      	}
-      else
-	gl_var->who->status = (gl_var->who->status & SFTPWHO_ARGS_MASK ) | SFTPWHO_IDLE;
-    }
+    if ((status = CheckRulesAboutMaxFiles()) == SSH2_FX_OK)
+      {
+	if ((fd = open(path, flags, mode)) < 0)
+	  status = errnoToPortable(errno);
+	else
+	  {
+	    int	h;
+	    
+	    if ((h = HandleNew(HANDLE_FILE, path, fd, NULL, pflags & SSH4_FXF_TEXT ? 1 : 0)) < 0)
+	      close(fd);
+	    else
+	      {
+		snprintf(gl_var->who->path, sizeof(gl_var->who->path), "%s", path);
+		if (flags & O_WRONLY)
+		  {
+		    gl_var->who->status = (gl_var->who->status & SFTPWHO_ARGS_MASK ) | SFTPWHO_PUT;
+		    log_printf(MYLOG_NORMAL, "[%s][%s]Upload into file '%s'",
+			       gl_var->who->user, gl_var->who->ip, path);
+		  }
+		else
+		  {
+		    gl_var->who->status = (gl_var->who->status & SFTPWHO_ARGS_MASK ) | SFTPWHO_GET;
+		    log_printf(MYLOG_NORMAL, "[%s][%s]Download file '%s'",
+			       gl_var->who->user, gl_var->who->ip, path);
+		  }
+		gl_var->down_size = 0;
+		gl_var->down_max = 0;
+		if (!(flags & O_WRONLY))
+		  {
+		    struct stat	st;
+		    
+		    if (stat(path, &st) != -1)
+		      gl_var->down_max = st.st_size;
+		  }
+		SendHandle(bOut, id, h);
+		status = SSH2_FX_OK;
+	      }
+	  }
+      }
   DEBUG((MYLOG_DEBUG, "[DoOpen]file:'%s' pflags:%i perm:0%o fd:%i", path, pflags, mode, fd));
   if (status != SSH2_FX_OK)
     SendStatus(bOut, id, status);
@@ -283,9 +278,9 @@ static void	DoOpen()
 
 static void	DoRead()
 {
-  u_int32_t	id, len, fileIsText;
+  u_int32_t	id, len;
   char		buf[SSH2_MAX_READ];
-  int		h, fd, status = (cVersion <= 3 ? SSH2_FX_FAILURE : SSH4_FX_INVALID_HANDLE);
+  int		h, fileIsText, fd, status = (cVersion <= 3 ? SSH2_FX_FAILURE : SSH4_FX_INVALID_HANDLE);
   u_int64_t	off;
   
   id = BufferGetInt32(bIn);
@@ -327,10 +322,10 @@ static void	DoRead()
 
 static void	DoWrite()
 {
-  u_int32_t	id, fileIsText;
+  u_int32_t	id;
   u_int64_t	off;
   u_int		len;
-  int		fd, ret, status = (cVersion <= 3 ? SSH2_FX_FAILURE : SSH4_FX_INVALID_HANDLE);
+  int		fd, fileIsText, ret, status = (cVersion <= 3 ? SSH2_FX_FAILURE : SSH4_FX_INVALID_HANDLE);
   char		*data;
 
   id = BufferGetInt32(bIn);
@@ -429,8 +424,8 @@ static void	DoFStat()
 {
   tAttributes	a;
   struct stat	st;
-  u_int32_t	id, fileIsText, flags = 0;
-  int		fd;
+  u_int32_t	id, flags = 0;
+  int		fd, fileIsText;
 	
   id = BufferGetInt32(bIn);
   fd = HandleGetFd(BufferGetInt32(bIn), &fileIsText);
@@ -852,20 +847,17 @@ int			main(int ac, char **av)
 	  
 	  gl_var->download_max = gl_var->who->download_max;
 	  if (_sftpglobal->download_by_client && !(gl_var->who->status & SFTPWHO_BYPASS_GLB_DWN) &&
-	      ((_sftpglobal->download_by_client < gl_var->download_max && gl_var->download_max > 0)
-	       || !gl_var->download_max))
+	      ((_sftpglobal->download_by_client < gl_var->download_max) || !gl_var->download_max))
 	    gl_var->download_max = _sftpglobal->download_by_client;
 	  
 	  gl_var->upload_max = gl_var->who->upload_max;
 	  if (_sftpglobal->upload_by_client && !(gl_var->who->status & SFTPWHO_BYPASS_GLB_UPL) &&
-	      ((_sftpglobal->upload_by_client < gl_var->upload_max && gl_var->upload_max > 0)
-	       || !gl_var->upload_max))
+	      ((_sftpglobal->upload_by_client < gl_var->upload_max) || !gl_var->upload_max))
 	    gl_var->upload_max = _sftpglobal->upload_by_client;
 	}
       else
 	{
 	  gl_var->who->time_idle = 0;
-	  //DEBUG((MYLOG_DEBUG, "Down [%i:%i:%i:%i]", gl_var->download_current, gl_var->download_max, _sftpglobal->download_by_client, gl_var->who->download_max));
 	  if (FD_ISSET(0, &fdR))
 	    {
 	      char	buffer[16384];
@@ -893,6 +885,7 @@ int			main(int ac, char **av)
 	    {
 	      int	len = bOut->length - bOut->read;
 	      
+	      //DEBUG((MYLOG_DEBUG, "PID:%i Down [%i:%i:%i - %i:%i]", getpid(), gl_var->download_current, gl_var->download_max, gl_var->who->download_max,_sftpglobal->download_by_client, _sftpglobal->download_max));
 	      if (gl_var->download_max)
 		len = len < (gl_var->download_max - gl_var->download_current) ?
 		  len : (gl_var->download_max - gl_var->download_current);
