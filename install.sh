@@ -1,6 +1,6 @@
 #!/bin/sh
 
-## Installation Script v0.6 - Made by Pierre
+## Installation Script v0.6 - Made by Nerdman
 ## MySecureShell Team <teka2nerdman@users.sourceforge.net>
 
 ## Language local initialising
@@ -130,10 +130,9 @@ else
  	detecfiles
 fi
 
+## Test system
 
-# Testing MySecureShell
-
-echo
+echo -e "\n"
 tmp=`MyGetLocale 'TestSystem?'`
 echo -n $tmp
 read rep7
@@ -145,7 +144,6 @@ if [ $rep7 = "y" ] ; then
     ./sftp-server_MSS < /dev/null
     MyGetLocale 'Testsuccess'
 fi
-
 
 ## Introduction text
 
@@ -270,40 +268,45 @@ else
 			sftpsrv=/usr/lib
 			sftpfunc
 		else
-			ftploctmp=`/usr/bin/locate sftp-server`
-			if [ $? == 1 ] ; then
-				clear
-				MyGetLocale 'nosftpfund'
-				instend=`MyGetLocale 'installation'`"\t\t\t"`MyGetLocale 'failed'`"\t\n"
-				echo -e "$instend"
-				exit 1
+			if [ -f /usr/lib/openssh/sftp-server ] ; then
+				sftpsrv=/usr/lib/openssh
+				sftpfunc
 			else
-				MyGetLocale 'sftpsrvloc1'
-				MyGetLocale 'sftpsrvloc2'
-				read rep4
-				if [ $rep4 = 'y' ] ; then
-					MyGetLocale 'locfund1'
-					MyGetLocale 'locfund2'
-					echo -e ""
-					for file in `locate sftp-server`
-					do
-						if [ -x $file ] ; then
-							echo "[$file]"
-						fi
-					done
-					echo -e "\n"
-					MyGetLocale 'locfund3'
-					MyGetLocale 'locfund4'
-					read rep5
-					sftpsrv=$rep5
-					sftpfunc
-					echo -e "\n"
-				else
+				ftploctmp=`/usr/bin/locate sftp-server`
+				if [ $? == 1 ] ; then
 					clear
-					MyGetLocale 'sftp-s_unlocated'
-					tmp=`MyGetLocale 'installation'`"\t\t\t\t"`MyGetLocale 'failed'`"\n"
-					echo -e $tmp
+					MyGetLocale 'nosftpfund'
+					instend=`MyGetLocale 'installation'`"\t\t\t"`MyGetLocale 'failed'`"\t\n"
+					echo -e "$instend"
 					exit 1
+				else
+					MyGetLocale 'sftpsrvloc1'
+					MyGetLocale 'sftpsrvloc2'
+					read rep4
+					if [ $rep4 = 'y' ] ; then
+						MyGetLocale 'locfund1'
+						MyGetLocale 'locfund2'
+						echo -e ""
+						for file in `locate sftp-server`
+						do
+							if [ -x $file ] ; then
+								echo "[$file]"
+							fi
+						done
+						echo -e "\n"
+						MyGetLocale 'locfund3'
+						MyGetLocale 'locfund4'
+						read rep5
+						sftpsrv=$rep5
+						sftpfunc
+						echo -e "\n"
+					else
+						clear
+						MyGetLocale 'sftp-s_unlocated'
+						tmp=`MyGetLocale 'installation'`"\t\t\t\t"`MyGetLocale 'failed'`"\n"
+						echo -e $tmp
+						exit 1
+					fi
 				fi
 			fi
 		fi
@@ -344,11 +347,12 @@ else
 	sftpinst=$sftpinst`MyGetLocale 'utilsnodetec'`"\t\t"`MyGetLocale 'failed'`"\n"
 fi
 
-# Installation Ending
+# Fin d'installation
 
 sftpinst=$sftpinst"\n"`MyGetLocale 'finishedinst'`"\n\n"`MyGetLocale 'osxreminder'`
 
 clear
 echo -e "$sftpinst\n"
+
 fi
 
