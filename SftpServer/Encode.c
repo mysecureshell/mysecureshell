@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <stdlib.h>
 #include <string.h>
 #include "Encode.h"
+#include "GetUsersInfos.h"
 
 tAttributes		*GetAttributes(tBuffer *bIn)
 {
@@ -44,9 +45,9 @@ tAttributes		*GetAttributes(tBuffer *bIn)
       struct passwd	*pw;
       struct group	*gr;
       
-      if ((pw = getpwnam(BufferGetString(bIn))))
+      if ((pw = mygetpwnam(BufferGetString(bIn))))
 	a.uid = pw->pw_uid;
-      if ((gr = getgrnam(BufferGetString(bIn))))
+      if ((gr = mygetgrnam(BufferGetString(bIn))))
 	a.gid = gr->gr_gid;
     }
   if (a.flags & SSH2_FILEXFER_ATTR_PERMISSIONS)
@@ -158,8 +159,7 @@ void	EncodeAttributes(tBuffer *b, tAttributes *a)
 	}
       BufferPutString(b, str);
     }
-  if (a->flags & SSH2_FILEXFER_ATTR_PERMISSIONS
-      || a->flags & SSH4_FILEXFER_ATTR_PERMISSIONS)
+  if (a->flags & SSH2_FILEXFER_ATTR_PERMISSIONS)
     BufferPutInt32(b, a->perm);
   if (cVersion <= 3)
     {
