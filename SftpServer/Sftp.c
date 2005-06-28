@@ -709,7 +709,10 @@ static void	DoProtocol()
   oldRead = bIn->read;
   msgLen = BufferGetInt32(bIn);
   if (msgLen > (256 * 1024)) //message too long
-    exit (1);
+    {
+      log_printf(MYLOG_ERROR, "[%s][%s]Error: message is too long (%i)", gl_var->who->user, gl_var->who->ip, msgLen);
+      exit (1);
+    }
   if ((bIn->length - bIn->read) < msgLen) //message not complete
     {
       bIn->read = oldRead;//cancel read
