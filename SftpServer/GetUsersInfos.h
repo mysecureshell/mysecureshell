@@ -19,4 +19,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 void		init_usersinfos();
 struct passwd	*mygetpwuid(uid_t uid);
+struct passwd	*mygetpwnam(char *login);
 struct group	*mygetgrgid(gid_t gid);
+struct group	*mygetgrnam(char *group);

@@ -51,6 +51,28 @@ void		init_usersinfos()
   endgrent();
 }
 
+struct passwd		*mygetpwnam(char *login)
+{
+  static struct passwd	pwd;
+  int			i;
+
+  if (_users && login)
+    {
+      for (i = 0; _users[i].name; i++)
+        if (!strcmp(_users[i].name, login))
+          {
+            memset(&pwd, 0, sizeof(pwd));
+            pwd.pw_name = login;
+            pwd.pw_uid = _users[i].id;
+            return (&pwd);
+          }
+      log_printf(MYLOG_WARNING, "[%s][%s]Couldn't resolve user name %i",
+                 gl_var->who->user, gl_var->who->ip, login);
+    }
+  return (0);
+}
+
+
 struct passwd		*mygetpwuid(uid_t uid)
 {
   static struct passwd	pwd;
@@ -68,6 +90,27 @@ struct passwd		*mygetpwuid(uid_t uid)
 	  }
       log_printf(MYLOG_WARNING, "[%s][%s]Couldn't resolve user id %i",
 		 gl_var->who->user, gl_var->who->ip, uid);
+    }
+  return (0);
+}
+
+struct group		*mygetgrnam(char *group)
+{
+  static struct group	grp;
+  int			i;
+
+  if (_groups && group)
+    {
+      for (i = 0; _groups[i].name; i++)
+	if (!strcmp(_groups[i].name, group))
+	  {
+	    memset(&grp, 0, sizeof(grp));
+	    grp.gr_name = group;
+	    grp.gr_gid = _groups[i].id;
+	    return (&grp);
+	}
+      log_printf(MYLOG_WARNING, "[%s][%s]Couldn't resolve group name %i",
+		 gl_var->who->user, gl_var->who->ip, group);
     }
   return (0);
 }
