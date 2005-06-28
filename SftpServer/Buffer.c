@@ -41,14 +41,17 @@ void	BufferGrow(tBuffer *b, u_int32_t toAdd)
 
 void	BufferClean(tBuffer *b)
 {
+  int	nextSize;
+
   if (b->read > 0)
     {
       memcpy(b->data, b->data + b->read, b->length - b->read);
       b->length -= b->read;
       b->read = 0;
-      if (b->length < (b->size >> 2))
+      nextSize = b->size >> 2;
+      if (b->length < nextSize && nextSize > 0)
 	{
-	  b->size >>= 2;
+	  b->size = nextSize;
 	  b->data = realloc(b->data, b->size);
 	}
     }
