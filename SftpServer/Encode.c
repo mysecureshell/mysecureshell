@@ -183,9 +183,9 @@ void	EncodeAttributes(tBuffer *b, tAttributes *a)
 	BufferPutInt64(b, a->mtime);
       if (a->flags & SSH4_FILEXFER_ATTR_SUBSECOND_TIMES)
 	BufferPutInt32(b, 0);
-      if (a->flags & SSH4_FILEXFER_ATTR_ACL)
-	BufferPutString(b, ""); //unsupported feature
     }
+  if (a->flags & SSH2_FILEXFER_ATTR_ACL)
+    BufferPutString(b, ""); //unsupported feature
   if (a->flags & SSH2_FILEXFER_ATTR_EXTENDED)
     BufferPutInt32(b, 0); //unsupported feature
 }
