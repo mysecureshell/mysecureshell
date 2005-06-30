@@ -184,6 +184,8 @@ static void	DoReadDir()
 	      if (count == 100)
 		break;
 	    }
+	  else
+	    DEBUG((MYLOG_DEBUG, "[DoReadDir] REFUSED -> '%s' handle:%i [%i]", pathName, h, count));
 	}
       if (count > 0)
 	{
