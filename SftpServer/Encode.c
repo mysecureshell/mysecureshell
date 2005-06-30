@@ -74,10 +74,10 @@ tAttributes		*GetAttributes(tBuffer *bIn)
 	a.mtime = BufferGetInt64(bIn);
       if (a.flags & SSH4_FILEXFER_ATTR_SUBSECOND_TIMES)
 	BufferGetInt32(bIn);
-      if (a.flags & SSH4_FILEXFER_ATTR_ACL) //unsupported feature
-	{
-	  free(BufferGetString(bIn));
-	}
+    }
+  if (a.flags & SSH2_FILEXFER_ATTR_ACL) //unsupported feature
+    {
+      free(BufferGetString(bIn));
     }
   if (a.flags & SSH2_FILEXFER_ATTR_EXTENDED) //unsupported feature
     {
