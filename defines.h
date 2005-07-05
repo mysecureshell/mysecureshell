@@ -1,5 +1,7 @@
 #define MSS_EXECFILENAME "sftp-server_MSS"
 
+#define	_FILE_OFFSET_BITS	64
+
 #ifdef __OSLinux
 #define HAVE_NOTHING		1
 #define HAVE_LOG_IN_COLOR	1
