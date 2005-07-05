@@ -17,6 +17,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
+#include "../defines.h"
+#include <features.h>
 #include <errno.h>
 #include <dirent.h>
 #include <fcntl.h>
@@ -165,12 +167,18 @@ static void	DoReadDir()
 	  if ((gl_var->who->status & SFTPWHO_LINKS_AS_LINKS))
 	    {
 	      if (lstat(pathName, &st) < 0)
-		continue;
+		{
+		  DEBUG((MYLOG_DEBUG, "[DoReadDir]ERROR lstat(%s): %s", pathName, strerror(errno)));
+		  continue;
+		}
 	    }
 	  else
 	    {
 	      if (stat(pathName, &st) < 0)
-		continue;
+		{
+		  DEBUG((MYLOG_DEBUG, "[DoReadDir]ERROR stat(%s): %s", pathName, strerror(errno)));
+		  continue;
+		}
 	    }
 	  if ((dp->d_name[0] == '.' && (!dp->d_name[1] || (dp->d_name[1] == '.' && !dp->d_name[2])))
 	      || CheckRules(pathName, RULES_LISTING, &st, 0) == SSH2_FX_OK)
@@ -418,7 +426,6 @@ static void	DoStat(int (*f_stat)(const char *, struct stat *))
   else
     SendStatus(bOut, id, status);
   DEBUG((MYLOG_DEBUG, "[Do%sStat]path:'%s' -> '%i'", f_stat == stat ? "" : "L", path, r));
-  DEBUG((MYLOG_DEBUG, "status=%i flags=%x", status, flags));
   free(path);
 }
 
