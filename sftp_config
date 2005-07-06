@@ -37,6 +37,10 @@
 	Download	25 k/s
 </Group>
 
+<Group old_client>
+	SftpProtocol		3
+</Group>
+
 #Rules only for group ftpnolimit
 <Group ftpnolimit>
 	Download		0	#0 = unlimited

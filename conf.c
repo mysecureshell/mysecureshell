@@ -83,6 +83,9 @@ void	load_config(char verbose)
       printf("DefaultRights\t\t= %i%i%i%i %i%i%i%i\n",
 	     r / (8 * 8 * 8), (r / ( 8 * 8)) % 8, (r / 8) % 8, r % 8,
 	     r2 / (8 * 8 * 8), (r2 / ( 8 * 8)) % 8, (r2 / 8) % 8, r2 % 8);
+      r = hash_get_int("SftpProtocol");
+      if (r)
+	printf("SftpProtocol\t\t= %i\n", r);
     }
 }
 
@@ -293,6 +296,8 @@ int	load_config_file(char *file, char verbose, int max_recursive_left)
 			    }
 			  else if (!strcmp(tb[0], "PathDenyFilter") && tb[1])
 			    hash_set(tb[0], (void *)strdup(tb[1]));
+			  else if (!strcmp(tb[0], "SftpProtocol") && tb[1])
+                            hash_set_int(tb[0], atoi(tb[1]));
 			  else
 			    err1 = 1;
 			}

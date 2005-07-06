@@ -49,7 +49,7 @@ static void	parse_args(int ac, char **av)
     else if (!strcmp(av[i], "--help"))
       {
       help:
-	printf("Build:\n\t%s is version %s build on " __DATE__ "\n\n", av[0], "0.6");
+	printf("Build:\n\t%s is version %s build on " __DATE__ "\n\n", av[0], "0.6pre9");
 	printf("Usage:\n\t%s [verbose] [options]\n\nOptions:\n", av[0]);
 	printf("\t--configtest : test the config file and show errors\n");
 	printf("\t--help       : show this screen\n");
@@ -137,7 +137,7 @@ int	main(int ac, char **av, char **env)
 	       (hash_get_int("ShowLinksAsLinks") ? SFTPWHO_LINKS_AS_LINKS : 0)
 	       );
 
-      args = calloc(sizeof(*args), 36);//be aware of the buffer overflow
+      args = calloc(sizeof(*args), 38);//be aware of the buffer overflow
       nb_args = 0;
       args[nb_args++] = exe;
       args[nb_args++] = "--user";
@@ -212,6 +212,11 @@ int	main(int ac, char **av, char **env)
 	{
 	  args[nb_args++] = "--deny-filter";
 	  args[nb_args++] = deny_filter;
+	}
+      if (hash_get_int("SftpProtocol"))
+	{
+	  args[nb_args++] = "--protocol";
+          args[nb_args++] = hash_get_int_to_char("SftpProtocol");
 	}
       delete_hash();
       //check if the server is up

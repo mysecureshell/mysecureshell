@@ -137,6 +137,8 @@ static void	parse_conf(int ac, char **av)
 			 gl_var->who->user, gl_var->who->ip, buffer);
 	    }
 	}
+      else if (!strcmp(av[i], "--protocol") && av[i + 1])
+	cVersion = atoi(av[i + 1]);
     }
   log_printf(MYLOG_NORMAL, "New client [%s] from [%s]", gl_var->who->user, gl_var->who->ip);
   init_usersinfos();//load users / groups into memory

@@ -33,11 +33,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Send.h"
 #include "Sftp.h"
 
-#include "SftpServer.c"
-
 static tBuffer	*bIn = 0;
 static tBuffer	*bOut = 0;
-int		cVersion = 0;
+int		cVersion = SSH2_FILEXFER_VERSION;
+
+#include "SftpServer.c"
 
 #ifdef DODEBUG
 #define	DEBUG(_X)	log_printf _X
@@ -48,18 +48,19 @@ int		cVersion = 0;
 static void	DoInit()
 {
   tBuffer	*b;
+  int		clientVersion;
 	
-  cVersion = BufferGetInt32(bIn);
-  DEBUG((MYLOG_DEBUG, "[DoInit]New client version %i [server: %i]", cVersion, SSH2_FILEXFER_VERSION));
+  clientVersion = BufferGetInt32(bIn);
   b = BufferNew();
   BufferPutInt8(b, SSH2_FXP_VERSION);
-  if (cVersion >= SSH2_FILEXFER_VERSION)
-    {
-      BufferPutInt32(b, SSH2_FILEXFER_VERSION);
-      cVersion = SSH2_FILEXFER_VERSION;
-    }
-  else
-    BufferPutInt32(b, cVersion);
+  if (cVersion >= clientVersion)
+    cVersion = clientVersion;
+  if (cVersion < 3)
+    cVersion = 3;
+  else if (cVersion > SSH2_FILEXFER_VERSION)
+    cVersion = SSH2_FILEXFER_VERSION;
+  BufferPutInt32(b, cVersion);
+  DEBUG((MYLOG_DEBUG, "[DoInit]New client version %i [use: %i]", clientVersion, cVersion));
   if (cVersion == 4)
     {
       BufferPutString(b, "newline");
