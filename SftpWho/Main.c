@@ -28,6 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 static int	do_loop = 0;
 static int	_verbose = 0;
+static int	_only_show_pid_and_name = 0;
 
 static int	is_number(char *av)
 {
@@ -60,6 +61,8 @@ static void	parse_args(int ac, char **av)
       }
     else if (!strcmp(av[i], "-v"))
       _verbose = 1;
+    else if (!strcmp(av[i], "--sftp-kill"))
+      _only_show_pid_and_name = 1;
     else
       {
 	printf("Usage:\n------\n%s [options]\n\nOptions:\n", av[0]);
@@ -136,74 +139,83 @@ int		main(int ac, char **av)
 	  for (i = 0; i < SFTPWHO_MAXCLIENT; i++)
 	    if ((who[i].status & SFTPWHO_STATUS_MASK) != SFTPWHO_EMPTY)
 	      nb_clients++;
-	  printf("--- %i / %i clients ---\n", nb_clients, hash_get_int("LimitConnection"));
+	  if (!_only_show_pid_and_name)
+	    printf("--- %i / %i clients ---\n", nb_clients, hash_get_int("LimitConnection"));
 	  for (i = 0; i < SFTPWHO_MAXCLIENT; i++)
 	    if ((who[i].status & SFTPWHO_STATUS_MASK) != SFTPWHO_EMPTY)
 	      {
-		char	*status;
-		
-		switch (who[i].status & SFTPWHO_STATUS_MASK)
+		if (_only_show_pid_and_name)
 		  {
-		  case SFTPWHO_IDLE:
-		    status = "idle";
-		    break;
-		  case SFTPWHO_GET:
-		    status = "download";
-		    break;
-		  case SFTPWHO_PUT:
-		    status = "upload";
-		    break;
-		  default:
-		    status = "unknown";
-		    break;
-		  }
-		printf("PID: %u   Name: %s   IP: %s\n", who[i].pid, who[i].user, who[i].ip);
-		printf("\tHome: %s\n", who[i].home);
-		if (_verbose)
-		  printf("\tOptions: %s%s%s%s%s%s%s%s\n",
-			 (who[i].status & SFTPWHO_STAY_AT_HOME) ? " StayAtHome" : "",
-			 (who[i].status & SFTPWHO_VIRTUAL_CHROOT) ? " VirtualChroot" : "",
-			 (who[i].status & SFTPWHO_RESOLVE_IP) ? " ResolveIp" : "",
-			 (who[i].status & SFTPWHO_IGNORE_HIDDEN) ? " IgnoreHidden" : "",
-			 (who[i].status & SFTPWHO_FAKE_USER) ? " FakeUser" : "",
-			 (who[i].status & SFTPWHO_FAKE_GROUP) ? " FakeGroup" : "",
-			 (who[i].status & SFTPWHO_FAKE_MODE) ? " FakeMode" : "",
-			 (who[i].status & SFTPWHO_HIDE_NO_ACESS) ? " HideNoAccess" : ""
-			 );
-		if ((who[i].status & SFTPWHO_STATUS_MASK) != SFTPWHO_GET)
-		  {
-		    printf("\tStatus: %s %s%s%s   Path: %s\n", status, _verbose ? "[since " : "",
-			   _verbose ? make_idle_time(
-						     (who[i].status & SFTPWHO_STATUS_MASK) == SFTPWHO_IDLE ?
-						     who[i].time_idle : who[i].time_transf) : "",
-			   _verbose ? "]" : "",
-			   (who[i].status & SFTPWHO_STATUS_MASK) == SFTPWHO_IDLE ?  "" : who[i].path);
+		    printf("%i %s\n", who[i].pid, who[i].user);
 		  }
 		else
 		  {
-		    printf("\tStatus: %s %s%s%s   Path: %s [%i%%]\n", status, _verbose ? "[since " : "",
-			   _verbose ? make_idle_time(
-						     (who[i].status & SFTPWHO_STATUS_MASK) == SFTPWHO_IDLE ?
-						     who[i].time_idle : who[i].time_transf) : "",
-			   _verbose ? "]" : "",
-			   (who[i].status & SFTPWHO_STATUS_MASK) == SFTPWHO_IDLE ?  "" : who[i].path,
-			   who[i].dowload_pos);
+		    char	*status;
+		    
+		    switch (who[i].status & SFTPWHO_STATUS_MASK)
+		      {
+		      case SFTPWHO_IDLE:
+			status = "idle";
+			break;
+		      case SFTPWHO_GET:
+			status = "download";
+			break;
+		      case SFTPWHO_PUT:
+			status = "upload";
+			break;
+		      default:
+			status = "unknown";
+			break;
+		      }
+		    printf("PID: %u   Name: %s   IP: %s\n", who[i].pid, who[i].user, who[i].ip);
+		    printf("\tHome: %s\n", who[i].home);
+		    if (_verbose)
+		      printf("\tOptions: %s%s%s%s%s%s%s%s\n",
+			     (who[i].status & SFTPWHO_STAY_AT_HOME) ? " StayAtHome" : "",
+			     (who[i].status & SFTPWHO_VIRTUAL_CHROOT) ? " VirtualChroot" : "",
+			     (who[i].status & SFTPWHO_RESOLVE_IP) ? " ResolveIp" : "",
+			     (who[i].status & SFTPWHO_IGNORE_HIDDEN) ? " IgnoreHidden" : "",
+			     (who[i].status & SFTPWHO_FAKE_USER) ? " FakeUser" : "",
+			     (who[i].status & SFTPWHO_FAKE_GROUP) ? " FakeGroup" : "",
+			     (who[i].status & SFTPWHO_FAKE_MODE) ? " FakeMode" : "",
+			     (who[i].status & SFTPWHO_HIDE_NO_ACESS) ? " HideNoAccess" : ""
+			     );
+		    if ((who[i].status & SFTPWHO_STATUS_MASK) != SFTPWHO_GET)
+		      {
+			printf("\tStatus: %s %s%s%s   Path: %s\n", status, _verbose ? "[since " : "",
+			       _verbose ? make_idle_time(
+							 (who[i].status & SFTPWHO_STATUS_MASK) == SFTPWHO_IDLE ?
+							 who[i].time_idle : who[i].time_transf) : "",
+			       _verbose ? "]" : "",
+			       (who[i].status & SFTPWHO_STATUS_MASK) == SFTPWHO_IDLE ?  "" : who[i].path);
+		      }
+		    else
+		      {
+			printf("\tStatus: %s %s%s%s   Path: %s [%i%%]\n", status, _verbose ? "[since " : "",
+			       _verbose ? make_idle_time(
+							 (who[i].status & SFTPWHO_STATUS_MASK) == SFTPWHO_IDLE ?
+							 who[i].time_idle : who[i].time_transf) : "",
+			       _verbose ? "]" : "",
+			       (who[i].status & SFTPWHO_STATUS_MASK) == SFTPWHO_IDLE ?  "" : who[i].path,
+			       who[i].dowload_pos);
+		      }
+		    printf("\tConnected: %s [since %s]\n",
+			   make_time(who[i].time_begin), make_idle_time(who[i].time_total));
+		    printf("\tSpeed: Download: %s [%s]  Upload: %s [%s]\n",
+			   make_speed(b1, sizeof(b1), who[i].download_current, 0),
+			   make_speed(b2, sizeof(b2), who[i].download_max, 1),
+			   make_speed(b3, sizeof(b3), who[i].upload_current, 0),
+			   make_speed(b4, sizeof(b4), who[i].upload_max, 1));
+		    printf("\tTotal: Download: %u bytes   Upload: %u bytes\n",
+			   who[i].download_total, who[i].upload_total);
+		    printf("\n");
 		  }
-		printf("\tConnected: %s [since %s]\n",
-		       make_time(who[i].time_begin), make_idle_time(who[i].time_total));
-		printf("\tSpeed: Download: %s [%s]  Upload: %s [%s]\n",
-		       make_speed(b1, sizeof(b1), who[i].download_current, 0),
-		       make_speed(b2, sizeof(b2), who[i].download_max, 1),
-		       make_speed(b3, sizeof(b3), who[i].upload_current, 0),
-		       make_speed(b4, sizeof(b4), who[i].upload_max, 1));
-		printf("\tTotal: Download: %u bytes   Upload: %u bytes\n",
-		       who[i].download_total, who[i].upload_total);
-		printf("\n");
 	      }
 	}
       else
 	{
-	  printf("--- %i / %i clients ---\n", nb_clients, hash_get_int("LimitConnection"));
+	  if (!_only_show_pid_and_name)
+	    printf("--- %i / %i clients ---\n", nb_clients, hash_get_int("LimitConnection"));
 	  who = SftpWhoGetStruct(-1);
 	}
       if (do_loop)

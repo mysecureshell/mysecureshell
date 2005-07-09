@@ -1,8 +1,8 @@
 #!/bin/sh
 if [ $1 ] ; then
 	if [ $1 == "all" ] ; then 
-		pid=`ps -C sftp-server_MSS -o pid,user | grep -v PID | awk '{ print $1 }'`
-		who=`ps -C sftp-server_MSS -o pid,user | grep -v PID | awk '{ print $2 }'`
+		pid=`sftp-who --sftp-kill | awk '{ print $1 }'`
+		who=`sftp-who --sftp-kill | awk '{ print $2 }'`
 		if [ "$who" != "" ] ; then
 		    echo "Kill user(s) ["$who"]"
 		    kill -HUP $pid
@@ -10,8 +10,8 @@ if [ $1 ] ; then
 		    echo "Sorry but the server is empty"
 		fi    
 	else 
-		pid=`ps -C sftp-server_MSS -o pid,user | grep $1 | awk '{ print $1 }'`
-		who=`ps -C sftp-server_MSS -o pid,user | grep $1 | awk '{ print $2 }'`
+		pid=`sftp-who --sftp-kill | grep $1 | awk '{ print $1 }'`
+		who=`sftp-who --sftp-kill | grep $1 | awk '{ print $2 }'`
 		if [ "$who" != "" ] ; then
 			echo "Kill '"$who"' on PID "$pid
 			kill -HUP $pid
