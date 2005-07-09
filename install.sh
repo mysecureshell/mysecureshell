@@ -1,6 +1,6 @@
 #!/bin/sh
 
-## Installation Script v0.6 - Made by Nerdman
+## Installation Script v0.7 - Made by Pierre
 ## MySecureShell Team <teka2nerdman@users.sourceforge.net>
 
 ## Language local initialising
@@ -174,6 +174,13 @@ else
 exit 1
 fi
 
+## If MSS is present, stop server
+
+if [ -f /usr/bin/sftp-state ] ; then
+	MyGetLocale 'statestopquest'
+	/usr/bin/sftp-state stop
+fi
+
 ## Existing ssh or sshd folder
 
 if [ -d /etc/sshd ] ; then
@@ -256,59 +263,48 @@ fi
 
 ## sftp-server_MSS Installation
 
-if [ -f /usr/libexec/sftp-server ] ; then
-	sftpsrv=/usr/libexec
-	sftpfunc
-else
-	if [ -f /usr/lib/sftp-server ] ; then
-		sftpsrv=/usr/lib
+sftpservernum="0"
+for sftp_server_detect in "/usr/libexec" "/usr/lib" "/usr/lib/ssh" "/usr/lib/openssh" "/usr/libexec/openssh" ; do
+	if [ -f $sftp_server_detect/sftp-server ] ; then
+		sftpsrv=$sftp_server_detect
 		sftpfunc
+		sftpservernum="1"
+	fi
+done
+if [ $sftpservernum = "0" ] ; then
+	sftploctmp=`/usr/bin/locate sftp-server`
+	if [ $? == 1 ] ; then
+		clear
+		MyGetLocale 'nosftpfund'
+		instend=`MyGetLocale 'installation'`"\t\t\t"`MyGetLocale 'failed'`"\t\n"
+		echo -e "$instend"
+		exit 1
 	else
-		if [ -f /usr/lib/ssh/sftp-server ] ; then
-			sftpsrv=/usr/lib
-			sftpfunc
-		else
-			if [ -f /usr/lib/openssh/sftp-server ] ; then
-				sftpsrv=/usr/lib/openssh
-				sftpfunc
-			else
-				ftploctmp=`/usr/bin/locate sftp-server`
-				if [ $? == 1 ] ; then
-					clear
-					MyGetLocale 'nosftpfund'
-					instend=`MyGetLocale 'installation'`"\t\t\t"`MyGetLocale 'failed'`"\t\n"
-					echo -e "$instend"
-					exit 1
-				else
-					MyGetLocale 'sftpsrvloc1'
-					MyGetLocale 'sftpsrvloc2'
-					read rep4
-					if [ $rep4 = 'y' ] ; then
-						MyGetLocale 'locfund1'
-						MyGetLocale 'locfund2'
-						echo -e ""
-						for file in `locate sftp-server`
-						do
-							if [ -x $file ] ; then
-								echo "[$file]"
-							fi
-						done
-						echo -e "\n"
-						MyGetLocale 'locfund3'
-						MyGetLocale 'locfund4'
-						read rep5
-						sftpsrv=$rep5
-						sftpfunc
-						echo -e "\n"
-					else
-						clear
-						MyGetLocale 'sftp-s_unlocated'
-						tmp=`MyGetLocale 'installation'`"\t\t\t\t"`MyGetLocale 'failed'`"\n"
-						echo -e $tmp
-						exit 1
-					fi
+		MyGetLocale 'sftpsrvloc1'
+		MyGetLocale 'sftpsrvloc2'
+		read rep4
+		if [ $rep4 = 'y' ] ; then
+			MyGetLocale 'locfund1'
+			MyGetLocale 'locfund2'
+			echo -e ""
+			for file in `locate sftp-server` ; do
+				if [ -x $file ] ; then
+					echo "[$file]"
 				fi
-			fi
+			done
+			echo -e "\n"
+			MyGetLocale 'locfund3'
+			MyGetLocale 'locfund4'
+			read rep5
+			sftpsrv=$rep5
+			sftpfunc
+			echo -e "\n"
+		else
+			clear
+			MyGetLocale 'sftp-s_unlocated'
+			tmp=`MyGetLocale 'installation'`"\t\t\t\t"`MyGetLocale 'failed'`"\n"
+			echo -e $tmp
+			exit 1
 		fi
 	fi
 fi
@@ -337,6 +333,7 @@ if [ -d ./utils ] ; then
 		if [ -f ./utils/sftp-state ] ; then
 			cp -f ./utils/sftp-state /usr/bin
 			sftpinst=$sftpinst`MyGetLocale 'sftp-state'`"\t\t\t"`MyGetLocale 'ok'`"\n"
+			/usr/bin/sftp-state start
 		else
 			sftpinst=$sftpinst`MyGetLocale 'sftp-state'`"\t\t\t"`MyGetLocale 'failed'`"\n"`MyGetLocale 'unfound'`"\n"
 		fi

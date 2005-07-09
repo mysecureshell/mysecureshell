@@ -15,6 +15,7 @@ text4=- Make a configuration file in /etc/ssh/sftp_config
 text5=- Introduce if which MySecureShell as a valid shell
 text6=- Install if whish utilities in /usr/bin
 text7=- Do you want to continue installation ? (Y/n)
+statestopquest=WARNING: We notice to kill all connected clients before continuing installation !
 warnconf=WARNING: sftp_config configuration file already exist !
 mksshfolder=No default ssh folders found. Do you want to create /etc/ssh ? (Y/n)
 lgsshfolder=Created /etc/ssh folder

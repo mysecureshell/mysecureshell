@@ -15,6 +15,7 @@ text4=- Creer un fichier de configuration dans /etc/ssh/sftp_config
 text5=- Introduire MySecureShell en tant que shell valide
 text6=- Installer si souhaite les utilitaires dans /usr/bin
 text7=- Voulez vous continuer l'installation ? (Y/n)
+statestopquest=ATTENTION: Il est conseille de deconnecter tous les utilisateurs avant de poursuivre l'installation !
 warnconf=ATTENTION: Il existe deja un fichier de configuration sftp_config !
 mksshfolder=Aucuns dossiers par defaut d'ssh n'ont ete trouves. Voulez vous creer /etc/ssh ? (Y/n)
 lgsshfolder=Creation du dossier /etc/ssh
