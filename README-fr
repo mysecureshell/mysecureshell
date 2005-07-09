@@ -85,11 +85,15 @@ teka2nerdman@users.sourceforge.net
 
 HISTORIQUE:
 -----------
-0.6 (2005) :
+0.6 (juillet 2005) :
 	+ reecriture totale du sftp-server_MSS
 	+ support du protocol SFTP v4
 	+ ajout du tag VirtualHost (attention aux restrictions)
-	= fixe les warnings de compilation sous 64bits
+	+ ajout d'un script pour desinstaller MySecureShell
+	+ ajout du mot clef SftpProtocol
+	= fixe les problemes sous 64bit
+	= fixe la compilation sous gcc 4.0
+	= fixe des bugs sur la resolution des chemins descendants
 
 0.5 (mai 2005) :
 	+ support Cygwin (Windows 2000/XP) [un package special sera bientot creer]

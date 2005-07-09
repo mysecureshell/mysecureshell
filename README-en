@@ -66,6 +66,16 @@ teka2nerdman@users.sourceforge.net
 
 CHANGE LOG:
 -----------
+0.6 (july 2005) :
+        + total rewrite of sftp-server_MSS
+        + new support protocol SFTP v4
+        + add tag VirtualHost (beware of restrictions)
+        + add uninstaller script for MySecureShell
+        + add keyword SftpProtocol
+        = fix problems on 64bit
+        = fix compilation under gcc 4.0
+        = fix bugs on path resolv
+
 0.5 (may 2005) :
         + support Cygwin (Windows 2000/XP) [new special package will come]
 	+ add keywords ByPassGlobalDownload, ByPassGlobalUpload and ShowLinksAsLinks
