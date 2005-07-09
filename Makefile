@@ -104,7 +104,7 @@ source	: fclean
 
 cvs	:
 	@echo "Search for missing files in CVS"
-	@$(CVS) -q status -R | $(GREP) Status | $(GREP) -v 'Up-to-date'
+	@$(CVS) -q status -R | $(GREP) Status | $(GREP) -v 'Up-to-date' || true
 
 %.o	: %.c
 	@echo "Compile		[$<]"
