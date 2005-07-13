@@ -137,7 +137,7 @@ int	main(int ac, char **av, char **env)
 	       (hash_get_int("ShowLinksAsLinks") ? SFTPWHO_LINKS_AS_LINKS : 0)
 	       );
 
-      args = calloc(sizeof(*args), 38);//be aware of the buffer overflow
+      args = calloc(sizeof(*args), 40);//be aware of the buffer overflow
       nb_args = 0;
       args[nb_args++] = exe;
       args[nb_args++] = "--user";
@@ -218,6 +218,11 @@ int	main(int ac, char **av, char **env)
 	  args[nb_args++] = "--protocol";
           args[nb_args++] = hash_get_int_to_char("SftpProtocol");
 	}
+      if (hash_get_int("ConnectionMaxLife"))
+	{
+          args[nb_args++] = "--max-life";
+          args[nb_args++] = hash_get_int_to_char("ConnectionMaxLife");
+        }
       delete_hash();
       //check if the server is up
       if ((fd = open(SHUTDOWN_FILE, O_RDONLY)) >= 0)

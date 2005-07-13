@@ -866,6 +866,12 @@ int			main(int ac, char **av)
 	  if (_sftpglobal->upload_by_client && !(gl_var->who->status & SFTPWHO_BYPASS_GLB_UPL) &&
 	      ((_sftpglobal->upload_by_client < gl_var->upload_max) || !gl_var->upload_max))
 	    gl_var->upload_max = _sftpglobal->upload_by_client;
+	  if (gl_var->who->time_maxlife)
+	    {
+	      gl_var->who->time_maxlife--;
+	      if (!gl_var->who->time_maxlife)
+		exit (0);
+	    }
 	}
       else
 	{

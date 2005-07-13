@@ -30,6 +30,7 @@
 	PathDenyFilter		"^\."	#deny upload of directory/file which match this extented POSIX regex
 
 	ShowLinksAsLinks	false	#show links as their destinations
+	ConnectionMaxLife	1d	#limits connection lifetime to 1 day
 </Default>
 
 #Rules only for group ftp

@@ -69,6 +69,7 @@ typedef struct	s_sftpwho
   unsigned int	upload_max;
 
   unsigned int	time_maxidle;
+  unsigned int	time_maxlife;
   unsigned int	time_idle;
   unsigned int	time_total;
   unsigned int	time_begin;
