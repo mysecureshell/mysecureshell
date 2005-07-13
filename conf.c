@@ -83,107 +83,11 @@ void	load_config(char verbose)
       printf("DefaultRights\t\t= %i%i%i%i %i%i%i%i\n",
 	     r / (8 * 8 * 8), (r / ( 8 * 8)) % 8, (r / 8) % 8, r % 8,
 	     r2 / (8 * 8 * 8), (r2 / ( 8 * 8)) % 8, (r2 / 8) % 8, r2 % 8);
+      printf("ConnectionMaxLife\t= %is\n", hash_get_int("ConnectionMaxLife"));
       r = hash_get_int("SftpProtocol");
       if (r)
 	printf("SftpProtocol\t\t= %i\n", r);
     }
-}
-
-char	*convert_str_with_resolv_env_to_str(char *str)
-{
-  char	*env_var, *env_str, *new;
-  int	beg, end;
-  int	i, max;
-
-  str = strdup(str);
-  max = strlen(str);
-  for (i = 0; i < max; i++)
-    if (str[i] == '$')
-      {
-	beg = i + 1;
-	while (i < max)
-	  {
-	    i++;
-	    if (!((str[i] >= 'a' && str[i] <= 'z') || (str[i] >= 'A' && str[i] <= 'Z')
-		  || (str[i] >= '0' && str[i] <= '9') || (str[i] == '_')))
-	      break;
-	  }
-	end = i;
-	env_str = malloc(end - beg + 1);
-	strncpy(env_str, str + beg, end - beg);
-	if ((env_var = getenv(env_str)))
-	  {
-	    new = malloc(strlen(str) - (end - beg) + strlen(env_var) + 1);
-
-	    strncpy(new, str, beg - 1);
-	    strcat(new, env_var);
-	    strcat(new, str + end);
-	    free(str);
-	    str = new;
-	    i = 0;
-	  }
-	free(env_str);
-      }
-  return (str);
-}
-
-int	convert_boolean_to_int(char *str)
-{
-  if (str)
-    if (!strcasecmp(str, "true") || !strcmp(str, "1"))
-      return (1);
-  return (0);
-}
-
-int	convert_speed_to_int(char **tb)
-{
-  char	*str;
-  int	nb = 0;
-  int	div = 0;
-  int	i, j;
-  int	*ptr = &nb;
-  int	len = 1;
-
-  for (j = 0; tb[j]; j++)
-    {
-      str = tb[j];
-      for (i = 0; str[i]; i++)
-	{
-	  if (str[i] >= '0' && str[i] <= '9')
-	    {
-	      *ptr = *ptr * 10 + (str[i] - '0');
-	      len *= 10;
-	    }
-	  else
-	    switch (str[i])
-	      {
-	      case 'k':
-	      case 'K':
-		return (nb * 1024 + div * (1024 / len));
-		
-	      case 'm':
-	      case 'M':
-		return (nb * 1024 * 1024 + div * ((1024 * 1024) / len));
-		
-	      case '.':
-		ptr = &div;
-		len = 1;
-		break;
-	      }
-	}
-    }
-  return (nb);
-}
-
-int     convert_mode_to_int(char *str)
-{
-  int	i;
-  int	r;
-
-  r = 0;
-  for (i = 0; str[i]; i++)
-    r = (r * 8) + (str[i] - '0');
-  return (r);
 }
 
 int	load_config_file(char *file, char verbose, int max_recursive_left)
@@ -298,6 +202,8 @@ int	load_config_file(char *file, char verbose, int max_recursive_left)
 			    hash_set(tb[0], (void *)strdup(tb[1]));
 			  else if (!strcmp(tb[0], "SftpProtocol") && tb[1])
                             hash_set_int(tb[0], atoi(tb[1]));
+			  else if (!strcmp(tb[0], "ConnectionMaxLife") && tb[1])
+			    hash_set_int(tb[0], convert_time_to_int(tb + 1));
 			  else
 			    err1 = 1;
 			}

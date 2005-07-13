@@ -5,18 +5,17 @@ OS	= "__OS`uname -s | sed -e 's/[-\.]/_/g'`"
 ARCHIVE	= MySecureShell-$(OSTYPE)-$(CPU)-$(VERSION)
 
 NAME	= MySecureShell$(EXT)
-SRC	= main.c	\
-	  string.c	\
-	  parsing.c	\
-	  hash.c	\
-	  conf.c	\
-	  user.c	\
-	  prog.c	\
+SRC	= main.c string.c	\
+	  parsing.c hash.c	\
+	  conf.c convert.c	\
+	  user.c prog.c	\
 	  ip.c
 OBJ	= $(SRC:.c=.o)
 
 NAME1	= utils/sftp-who$(EXT)
-SRC1	= SftpWho/Main.c SftpServer/SftpWho.c conf.c hash.c user.c parsing.c string.c ip.c
+SRC1	= SftpWho/Main.c SftpServer/SftpWho.c		\
+	  conf.c convert.c hash.c user.c parsing.c	\
+	  string.c ip.c
 OBJ1	= $(SRC1:.c=.o)
 
 NAME2	= utils/sftp-state$(EXT)
