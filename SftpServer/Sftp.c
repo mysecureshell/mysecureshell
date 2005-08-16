@@ -727,7 +727,7 @@ static void	DoProtocol()
       bIn->read = oldRead;//cancel read
       return;
     }
-  oldRead += 4; //size of msgLen
+  oldRead += 4; //ignore size of msgLen
   msgType = BufferGetInt8(bIn);
   DEBUG((MYLOG_DEBUG, "[DoProtocol] msgType:%i msgLen:%i", msgType, msgLen));
   switch (msgType)
@@ -799,8 +799,8 @@ static void	DoProtocol()
     }
   if ((bIn->read - oldRead) < msgLen)//read entire message
     {
-      DEBUG((MYLOG_DEBUG, "ZAP DATA len:%i [bIn->read=%i, oldRead=%i]",
-	     msgLen - (bIn->read - oldRead), bIn->read, oldRead));
+      DEBUG((MYLOG_DEBUG, "ZAP DATA len:%i [bIn->read=%i, oldRead=%i msgLen=%i]",
+	     msgLen - (bIn->read - oldRead), bIn->read, oldRead, msgLen));
       BufferReadData(bIn, msgLen - (bIn->read - oldRead));
     }
   BufferClean(bIn);
