@@ -65,7 +65,7 @@ void	BufferDelete(tBuffer *b)
 
 void	BufferReadData(tBuffer *b, u_int32_t size)
 {
-  if ((b->read + size) < b->length)
+  if ((b->read + size) <= b->length)
     b->read += size;
 }
 
