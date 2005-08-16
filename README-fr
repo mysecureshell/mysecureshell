@@ -85,6 +85,10 @@ teka2nerdman@users.sourceforge.net
 
 HISTORIQUE:
 -----------
+0.61 (aout 2005) :
+	+ ajout du tag ConnectionMaxLife
+	= fixe un bug sur l'upload des fichiers avec gFtp
+
 0.6 (juillet 2005) :
 	+ reecriture totale du sftp-server_MSS
 	+ support du protocol SFTP v4

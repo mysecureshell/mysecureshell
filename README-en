@@ -66,6 +66,11 @@ teka2nerdman@users.sourceforge.net
 
 CHANGE LOG:
 -----------
+0.61 (august 2005) :
+        + add tag ConnectionMaxLife
+        = fix upload bug with gFtp
+
+
 0.6 (july 2005) :
         + total rewrite of sftp-server_MSS
         + new support protocol SFTP v4
