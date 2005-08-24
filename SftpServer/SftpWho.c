@@ -17,6 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
+#include <errno.h>
 #include <sys/types.h>
 #include <sys/shm.h>
 #include "SftpWho.h"
@@ -39,38 +40,39 @@ t_sftpwho	*SftWhoGetAllStructs()
   return	(_sftpwho_ptr);
 }
 
-t_sftpwho		*SftpWhoGetStruct(int create)
+t_sftpwho	*SftpWhoGetStruct(int create)
 {
-  struct shmid_ds	shst;
-  t_sftpwho		*who = 0;
-  void			*ptr;
-  key_t			key;
-  int			shmid, shmkey = 0x0782;
-  int			eraze = 0;
-  int			i, try;
+  t_sftpwho	*who = 0;
+  void		*ptr;
+  key_t		key;
+  int		shmid, shmkey = 0x0782;
+  int		eraze = 0;
+  int		i, try, tryshm = 3;
 
  try_shm:
   if ((key = ftok("/dev/null", shmkey)) != -1)
     {
       //try to join to existing shm
-      if ((shmid = shmget(key, sizeof(t_shm), IPC_EXCL)) == -1)
+      if ((shmid = shmget(key, sizeof(t_shm), 0)) == -1)
 	{
-	  if (create == 1) //check if we are not in sftp-who
-	    //doesn't exist so create it
-	    shmid = shmget(key, sizeof(t_shm), IPC_CREAT | 0666);
+	  if (create == 1)
+	    shmid = shmget(key, sizeof(t_shm), IPC_CREAT | IPC_EXCL | 0666);
 	  eraze = 1;
 	}
-      if (shmid != -1 && create == 1 && !shmctl(shmid, IPC_STAT, &shst))
+      if (shmid == -1 && create == 1 &&
+	  (errno == EINVAL || errno == EEXIST))
 	{
-	  if (shst.shm_segsz != sizeof(t_shm)) //huho we have a old shm memory
+	  //huho we have a old shm memory
+	  if (tryshm)
 	    {
+	      tryshm--;
 	      shmkey++;
 	      goto try_shm;
 	    }
 	}
-      if (shmid != -1 && (ptr = shmat(shmid, 0, 0)))
+      if (shmid != -1 && (int )(ptr = shmat(shmid, 0, 0)) != -1)
 	{
-		t_shm	*shm = ptr;
+	  t_shm	*shm = ptr;
 		
 	  _sftpglobal = &shm->global;
 	  who = shm->who;
@@ -101,7 +103,10 @@ t_sftpwho		*SftpWhoGetStruct(int create)
 	}
     }
   if (create == 1)
-    who = calloc(1, sizeof(*who));
+    {
+      _sftpglobal = calloc(1, sizeof(*_sftpglobal));
+      who = calloc(1, sizeof(*who));
+    }
   return (who);
 }
 
@@ -111,6 +116,8 @@ int		SftpWhoCleanBuggedClient()
   unsigned int	t;
   int		i, nb, nbdown, nbup;
 
+  if (!_sftpwho_ptr)
+    return (0);
   t = time(0);
   nb = 0;
   nbdown = 0;
