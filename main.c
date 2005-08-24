@@ -49,7 +49,7 @@ static void	parse_args(int ac, char **av)
     else if (!strcmp(av[i], "--help"))
       {
       help:
-	printf("Build:\n\t%s is version %s build on " __DATE__ "\n\n", av[0], "0.61");
+	printf("Build:\n\t%s is version %s build on " __DATE__ "\n\n", av[0], "0.7b2");
 	printf("Usage:\n\t%s [verbose] [options]\n\nOptions:\n", av[0]);
 	printf("\t--configtest : test the config file and show errors\n");
 	printf("\t--help       : show this screen\n");
@@ -113,6 +113,9 @@ int	main(int ac, char **av, char **env)
       if (max > 0 && count_program_for_uid(-1, 0) >= max)
 	//too many connection for the server
         exit(12);
+      if (hash_get_int("DisableAccount"))
+	//account is temporary disable
+	exit (13);
       if (getuid() != geteuid())
 	//if we are in utset byte mode then we restore user's rights to avoid security problems
 	{

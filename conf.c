@@ -87,6 +87,7 @@ void	load_config(char verbose)
       r = hash_get_int("SftpProtocol");
       if (r)
 	printf("SftpProtocol\t\t= %i\n", r);
+      printf("DisableAccount\t\t= %s\n", hash_get_int("DisableAccount") == 0 ? "false" : "true");
     }
 }
 
@@ -204,6 +205,8 @@ int	load_config_file(char *file, char verbose, int max_recursive_left)
                             hash_set_int(tb[0], atoi(tb[1]));
 			  else if (!strcmp(tb[0], "ConnectionMaxLife") && tb[1])
 			    hash_set_int(tb[0], convert_time_to_int(tb + 1));
+			  else if (!strcmp(tb[0], "DisableAccount") && tb[1])
+			    hash_set_int(tb[0], convert_boolean_to_int(tb[1]));
 			  else
 			    err1 = 1;
 			}

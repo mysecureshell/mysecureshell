@@ -31,6 +31,7 @@
 
 	ShowLinksAsLinks	false	#show links as their destinations
 	ConnectionMaxLife	1d	#limits connection lifetime to 1 day
+	DisableAccount		true	#disable account
 </Default>
 
 #Rules only for group ftp
@@ -57,6 +58,7 @@
 	ByPassGlobalDownload	true	#bypass GlobalDownload restriction
 	ByPassGlobalUpload	true	#bypass GlobalUpload restriction
 	Download		0
+	DisableAccount		false	#enable account
 </IpRange>
 
 
