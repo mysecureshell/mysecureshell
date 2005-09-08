@@ -31,16 +31,17 @@
 
 	ShowLinksAsLinks	false	#show links as their destinations
 	ConnectionMaxLife	1d	#limits connection lifetime to 1 day
-	DisableAccount		true	#disable account
 </Default>
 
 #Rules only for group ftp
 <Group ftp>
 	Download	25 k/s
+	IsAdmin		true		#can admin the server
 </Group>
 
 <Group old_client>
-	SftpProtocol		3
+	SftpProtocol		3	#force protocol SFTP
+	DisableAccount		true	#disable account
 </Group>
 
 #Rules only for group ftpnolimit

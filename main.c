@@ -137,7 +137,8 @@ int	main(int ac, char **av, char **env)
 	       (hash_get_int("HideNoAccess") ? SFTPWHO_HIDE_NO_ACESS : 0) +
 	       (hash_get_int("ByPassGlobalDownload") ? SFTPWHO_BYPASS_GLB_DWN : 0) +
 	       (hash_get_int("ByPassGlobalUpload") ? SFTPWHO_BYPASS_GLB_UPL : 0) +
-	       (hash_get_int("ShowLinksAsLinks") ? SFTPWHO_LINKS_AS_LINKS : 0)
+	       (hash_get_int("ShowLinksAsLinks") ? SFTPWHO_LINKS_AS_LINKS : 0) + 
+	       (hash_get_int("IsAdmin") ? SFTPWHO_IS_ADMIN : 0)
 	       );
 
       args = calloc(sizeof(*args), 40);//be aware of the buffer overflow
@@ -226,14 +227,14 @@ int	main(int ac, char **av, char **env)
           args[nb_args++] = "--max-life";
           args[nb_args++] = hash_get_int_to_char("ConnectionMaxLife");
         }
-      delete_hash();
-      //check if the server is up
-      if ((fd = open(SHUTDOWN_FILE, O_RDONLY)) >= 0)
+      //check if the server is up ans user is not admin
+      if ((fd = open(SHUTDOWN_FILE, O_RDONLY)) >= 0 && !(hash_get_int("IsAdmin")))
 	//server is down
 	{
 	  close(fd);
 	  exit(0);
 	}
+      delete_hash();
       execve(exe, args, env);
       exit (1);
     }

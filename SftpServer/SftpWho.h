@@ -36,6 +36,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define SFTPWHO_BYPASS_GLB_DWN	(1 << 16)
 #define SFTPWHO_BYPASS_GLB_UPL	(1 << 17)
 #define SFTPWHO_LINKS_AS_LINKS	(1 << 18)
+#define SFTPWHO_IS_ADMIN	(1 << 19)
 #define SFTPWHO_ARGS_MASK	0xffffff00
 
 typedef struct	s_sftpglobal

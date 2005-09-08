@@ -28,6 +28,11 @@ SRC3	= SftpServer/Buffer.c SftpServer/Encode.c	\
 	  SftpServer/Sftp.c SftpServer/Util.c
 OBJ3	= $(SRC3:.c=.o)
 
+NAME4	= utils/sftp-admin$(EXT)
+SRC4	= SftpAdmin/Main.c SftpServer/Buffer.c
+OBJ4	= $(SRC4:.c=.o)
+
+
 FILE	= sftp_config utils/sftp-kill LICENSE README-fr README-en				\
 	  install.sh locales_en locales_fr uninstaller.sh
 CFLAGS	= -Wall -Wunused -Wpointer-arith -Wno-uninitialized -O2 -D$(OS) -ISftpServer
@@ -55,7 +60,7 @@ FIND	= find
 CVS	= cvs
 GREP	= fgrep
 
-all	: $(NAME) sftpwho sftpstate sftpserver
+all	: $(NAME) sftpwho sftpstate sftpserver sftpadmin
 
 $(NAME)	: $(OBJ)
 	@echo "Compile binary	[$(NAME)]"
@@ -77,13 +82,18 @@ sftpserver: $(OBJ3)
 	@$(CC) -o $(NAME3) $(OBJ3)
 	@$(CHMOD) 711 $(NAME3)
 
+sftpadmin : $(OBJ4)
+	@echo "Compile binary   [$(NAME4)]"
+	@$(CC) -o $(NAME4) $(OBJ4)
+	@$(CHMOD) 711 $(NAME4)
+
 clean	:
 	@echo "Delete all objects"
-	@$(RM) $(OBJ) $(OBJ1) $(OBJ2) $(OBJ3)
+	@$(RM) $(OBJ) $(OBJ1) $(OBJ2) $(OBJ3) $(OBJ4)
 
 fclean	: clean
 	@echo "Delete all unecessary files"
-	@$(RM) $(NAME) $(NAME1) $(NAME2) $(NAME3)
+	@$(RM) $(NAME) $(NAME1) $(NAME2) $(NAME3) $(NAME4)
 	@$(RM) -i `$(FIND) . | grep -F '~'` *.tgz || true
 
 re	: fclean all
@@ -91,9 +101,9 @@ re	: fclean all
 
 package : re
 	@echo "Make package"
-	@$(STRIP) $(NAME) $(NAME1) $(NAME2) $(NAME3)
+	@$(STRIP) $(NAME) $(NAME1) $(NAME2) $(NAME3) $(NAME4)
 	@echo "Tar package"
-	@$(TAR) cfz $(ARCHIVE).tgz $(NAME) $(NAME1) $(NAME2) $(NAME3) $(FILE)
+	@$(TAR) cfz $(ARCHIVE).tgz $(NAME) $(NAME1) $(NAME2) $(NAME3) $(NAME4) $(FILE)
 	@echo "Package done."
 
 source	: fclean

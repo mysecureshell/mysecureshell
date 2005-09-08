@@ -24,6 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <stdio.h>
 #include <stdarg.h>
 #include <unistd.h>
+#include <signal.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/select.h>
@@ -708,6 +709,83 @@ static void	DoExtended()
   free(request);
 }
 
+static void	DoAdminListUsers()
+{
+  if ((gl_var->who->status & SFTPWHO_IS_ADMIN))
+    {
+      char	*buf = ExecCommand("/bin/sftp-who");
+
+      if (buf)
+	{
+	  tBuffer	*b;
+
+	  b = BufferNew();
+	  BufferPutInt8(b, SSH_ADMIN_LIST_USERS_REPLY);
+	  BufferPutString(b, buf);
+	  BufferPutPacket(bOut, b);
+	  DEBUG((MYLOG_DEBUG, "[DoAdminListUsers]send:'%s'", buf));
+	  BufferDelete(b);
+	  free(buf);
+	}
+    }
+  else
+    SendStatus(bOut, 0, SSH2_FX_OP_UNSUPPORTED);
+}
+
+static void	DoAdminKillUser()
+{
+  if ((gl_var->who->status & SFTPWHO_IS_ADMIN))
+    {
+      t_sftpwho	*who;
+      char      *arg = BufferGetString(bIn);
+      int	status = SSH2_FX_OK;
+
+      DEBUG((MYLOG_DEBUG, "[DoAdminKillUser]Try to kill:'%s' status:%i", arg, status));
+      who = SftWhoGetAllStructs();
+      if (who)
+	{
+	  unsigned int	pid;
+	  int		i;
+
+	  pid = getpid();
+	  for (i = 0; i < SFTPWHO_MAXCLIENT; i++)
+	    if ((who[i].status & SFTPWHO_STATUS_MASK) != SFTPWHO_EMPTY)
+	      if ((!strcmp(who[i].user, arg) || !strcmp(arg, "all")) && who[i].pid != pid)
+		if (kill(who[i].pid, SIGHUP) == -1)
+		  status = errnoToPortable(errno);
+	}
+      SendStatus(bOut, 0, status);
+    }
+  else
+    SendStatus(bOut, 0, SSH2_FX_OP_UNSUPPORTED);
+}
+
+static void	DoAdminServerStatus()
+{
+  if ((gl_var->who->status & SFTPWHO_IS_ADMIN))
+    {
+      int	isActive = BufferGetInt8(bIn);
+      int       status = SSH2_FX_OK;
+      int	fd;
+
+      if (isActive)
+	{
+	  if (unlink(SHUTDOWN_FILE) == -1)
+	    status = errnoToPortable(errno);
+	}
+      else
+	{
+	  if ((fd = open(SHUTDOWN_FILE, O_CREAT | O_TRUNC | O_RDWR, 0644)) >= 0)
+	    close(fd);
+	  else
+	    status = errnoToPortable(errno);
+	}
+      SendStatus(bOut, 0, status);
+    }
+  else
+    SendStatus(bOut, 0, SSH2_FX_OP_UNSUPPORTED);
+}
+
 static void	DoProtocol()
 {
   int		oldRead, msgLen, msgType;
@@ -791,6 +869,15 @@ static void	DoProtocol()
       break;
     case SSH2_FXP_EXTENDED:
       DoExtended();
+      break;
+    case SSH_ADMIN_LIST_USERS:
+      DoAdminListUsers();
+      break;
+    case SSH_ADMIN_KILL_USER:
+      DoAdminKillUser();
+      break;
+    case SSH_ADMIN_SERVER_STATUS:
+      DoAdminServerStatus();
       break;
       
     default:
