@@ -26,5 +26,6 @@ void	StrMode(int mode, char *d);
 char	*LsFile(const char *name, const struct stat *st);
 int	FlagsFromPortable(int pFlags);
 int	errnoToPortable(int unixErrno);
+char	*ExecCommand(char *cmd);
 
 #endif //_UTIL_H_

@@ -24,7 +24,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <pwd.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include <time.h>
+#include <unistd.h>
+#include <sys/wait.h>
 #include "Sftp.h"
 #include "Util.h"
 
@@ -189,4 +192,46 @@ int	errnoToPortable(int unixErrno)
       break;
     }
   return ret;
+}
+
+char	*ExecCommand(char *cmd)
+{
+  char	buffer[1024], *str = 0;
+  pid_t	pid;
+  int	fds[2], size = 0, ret;
+
+  if (pipe(fds) == -1)
+    return (0);
+  if (!(pid = fork()))
+    {
+      char	*args[2];
+
+      dup2(fds[1], 1);
+      dup2(fds[1], 2);
+      close(fds[0]);
+      close(fds[1]);
+      args[0] = cmd;
+      args[1] = 0;
+      execv(cmd, args);
+      exit (1);
+    }
+  else if (pid == -1)
+    {
+      close(fds[0]);
+      close(fds[1]);
+      return (0);
+    }
+  close(fds[1]);
+  while ((ret = read(fds[0], buffer, sizeof(buffer))) > 0)
+    {
+      str = realloc(str, size + ret + 1);
+      if (size)
+	strncat(str, buffer, ret);
+      else
+	strncpy(str, buffer, ret);
+      size += ret;
+    }
+  close(fds[0]);
+  waitpid(pid, &ret, 0);
+  return (str);
 }
