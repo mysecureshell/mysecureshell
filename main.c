@@ -49,7 +49,7 @@ static void	parse_args(int ac, char **av)
     else if (!strcmp(av[i], "--help"))
       {
       help:
-	printf("Build:\n\t%s is version %s build on " __DATE__ "\n\n", av[0], "0.7b2");
+	printf("Build:\n\t%s is version %s build on " __DATE__ "\n\n", av[0], "0.7b3");
 	printf("Usage:\n\t%s [verbose] [options]\n\nOptions:\n", av[0]);
 	printf("\t--configtest : test the config file and show errors\n");
 	printf("\t--help       : show this screen\n");
@@ -250,10 +250,15 @@ int	main(int ac, char **av, char **env)
 	  setegid(getgid());
 	}
       ptr = (char *)hash_get("Shell");
-      tb = calloc(2, sizeof(*tb));
+      tb = calloc(4, sizeof(*tb));
       tb[0] = ptr;
       if (ptr)
 	{
+	  if (av[1] && !strcmp(av[1], "-c"))
+	    {
+	      tb[1] = av[1];
+	      tb[2] = av[2];
+	    }
 	  execve(ptr, tb, env);
 	  exit (1);
 	}
