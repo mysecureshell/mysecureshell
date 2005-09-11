@@ -240,7 +240,6 @@ int	main(int ac, char **av, char **env)
     }
   else
     {
-      char	**tb;
       char	*ptr;
 
       if (getuid() != geteuid())
@@ -250,16 +249,10 @@ int	main(int ac, char **av, char **env)
 	  setegid(getgid());
 	}
       ptr = (char *)hash_get("Shell");
-      tb = calloc(4, sizeof(*tb));
-      tb[0] = ptr;
+      av[0] = ptr;
       if (ptr)
 	{
-	  if (av[1] && !strcmp(av[1], "-c"))
-	    {
-	      tb[1] = av[1];
-	      tb[2] = av[2];
-	    }
-	  execve(ptr, tb, env);
+	  execve(ptr, av, env);
 	  exit (1);
 	}
     }
