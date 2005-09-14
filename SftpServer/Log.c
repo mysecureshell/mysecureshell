@@ -34,6 +34,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 typedef struct	s_log
 {
   int		fd;
+  int		pid;
 #ifdef HAVE_LOG_IN_COLOR
   unsigned char	color[MYLOG_MAX][3];
 #endif
@@ -48,6 +49,7 @@ static void	log_open(char *file)
   if ((fd = open(file, O_CREAT | O_APPEND | O_WRONLY, 0644)) != -1)
     {
       _log = calloc(sizeof(*_log), 1);
+      _log->pid = getpid();
       _log->fd = fd;
       fchown(fd, 0, 0);
 /*
@@ -106,13 +108,13 @@ static void	log_printf(int level, char *str, ...)
       t = time(0);
       tm = localtime(&t);
 #ifndef HAVE_LOG_IN_COLOR
-      if (snprintf(fmt, sizeof(buffer),	"%i-%02i-%02i %02i:%02i:%02i %s\n",
+      if (snprintf(fmt, sizeof(buffer),	"%i-%02i-%02i %02i:%02i:%02i [%i]%s\n",
 		   1900 + tm->tm_year, 1 + tm->tm_mon, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec,
-		   str) > 0)
+		   _log->pid, str) > 0)
 #else
-      if (snprintf(fmt, sizeof(buffer),	"%i-%02i-%02i %02i:%02i:%02i \33[%i:%i:%im%s\33[37:40:0m\n",
+      if (snprintf(fmt, sizeof(buffer),	"%i-%02i-%02i %02i:%02i:%02i \33[%i:%i:%im[%i]%s\33[37:40:0m\n",
 		   1900 + tm->tm_year, 1 + tm->tm_mon, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec,
-		   _log->color[level][0], _log->color[level][1], _log->color[level][2], str) > 0)
+		   _log->color[level][0], _log->color[level][1], _log->color[level][2], _log->pid, str) > 0)
 #endif
 	if (vsnprintf(buffer, sizeof(buffer), fmt, ap) > 0)
 	  write(_log->fd, buffer, strlen(buffer));
