@@ -81,13 +81,18 @@ static void	InitAccess()
 {
   struct passwd	*info;
   struct group	*group;
-  gid_t		groups[42];
-  int		nb_groups = sizeof(groups) / sizeof(*groups);
+  gid_t		*groups;
+  int		nb_groups = 42;
   int		i;
 
   if ((info = getpwuid(getuid())))
     {
-      getgrouplist(info->pw_name, info->pw_gid, groups, &nb_groups);
+      groups = malloc(nb_groups * sizeof(*groups));
+      if (getgrouplist(info->pw_name, info->pw_gid, groups, &nb_groups) == -1)
+	{
+	  groups = realloc(groups, nb_groups * sizeof(*groups));
+	  getgrouplist(info->pw_name, info->pw_gid, groups, &nb_groups);
+	}
       if (nb_groups > 0)
         {
           _in_group = malloc((nb_groups + 1) * sizeof(*_in_group));
@@ -96,6 +101,7 @@ static void	InitAccess()
 	      _in_group[i] = group->gr_gid;
           _in_group[i] = 0;
         }
+      free(groups);
     }
 }
 
