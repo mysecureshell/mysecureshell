@@ -549,8 +549,8 @@ static void	DoRemove()
     {
       if (unlink(path) == -1)
 	status = errnoToPortable(errno);
-      log_printf(MYLOG_WARNING, "[%s][%s]Try to remove file '%s'",
-		 gl_var->who->user, gl_var->who->ip, path);
+      log_printf(MYLOG_WARNING, "[%s][%s]Try to remove file '%s' : %s",
+		 gl_var->who->user, gl_var->who->ip, path, (status != SSH2_FX_OK ? strerror(errno) : "success"));
     }
   DEBUG((MYLOG_DEBUG, "[DoRemove]path:'%s' -> '%i'", path, status));
   SendStatus(bOut, id, status);
@@ -573,7 +573,7 @@ static void	DoMkDir()
       if (mkdir(path, mode) == -1)
 	status = errnoToPortable(errno);
       log_printf(MYLOG_WARNING, "[%s][%s]Try to create directory '%s' : %s",
-		 gl_var->who->user, gl_var->who->ip, path, (status != SSH2_FX_OK ? "error" : "success"));
+		 gl_var->who->user, gl_var->who->ip, path, (status != SSH2_FX_OK ? strerror(errno) : "success"));
     }
   SendStatus(bOut, id, status);
   DEBUG((MYLOG_DEBUG, "[DoMkDir]path:'%s' -> '%i'", path, status));
@@ -593,7 +593,7 @@ static void	DoRmDir()
       if (rmdir(path) == -1)
 	status = errnoToPortable(errno);
       log_printf(MYLOG_WARNING, "[%s][%s]Try to remove directory '%s' : %s",
-		 gl_var->who->user, gl_var->who->ip, path, (status != SSH2_FX_OK ? "error" : "success"));
+		 gl_var->who->user, gl_var->who->ip, path, (status != SSH2_FX_OK ? strerror(errno) : "success"));
     }
   SendStatus(bOut, id, status);
   DEBUG((MYLOG_DEBUG, "[DoRmDir]path:'%s' -> '%i'", path, status));
@@ -657,7 +657,7 @@ static void	DoRename()
 	}
       log_printf(MYLOG_WARNING, "[%s][%s]Try to rename '%s' -> '%s' : %s",
 		 gl_var->who->user, gl_var->who->ip, oldPath, newPath,
-		 (status != SSH2_FX_OK ? "error" : "success"));
+		 (status != SSH2_FX_OK ? strerror(errno) : "success"));
     }
   else
     status = SSH2_FX_PERMISSION_DENIED;
