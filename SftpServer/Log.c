@@ -99,6 +99,7 @@ static void	log_printf(int level, char *str, ...)
   time_t	t;
   char		buffer[1024];
   char		fmt[1024];
+  int		size;
 
   if  (_log)
     {
@@ -116,8 +117,8 @@ static void	log_printf(int level, char *str, ...)
 		   1900 + tm->tm_year, 1 + tm->tm_mon, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec,
 		   _log->color[level][0], _log->color[level][1], _log->color[level][2], _log->pid, str) > 0)
 #endif
-	if (vsnprintf(buffer, sizeof(buffer), fmt, ap) > 0)
-	  write(_log->fd, buffer, strlen(buffer));
+	if ((size = vsnprintf(buffer, sizeof(buffer), fmt, ap)) > 0)
+	  write(_log->fd, buffer, size);
       va_end(ap);
     }
 }
