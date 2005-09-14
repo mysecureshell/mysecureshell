@@ -280,6 +280,12 @@ int		main(int ac, char **av)
   pid_t		pid;
   int		status, max;
 
+  if (ac == 1)
+    {
+      printf("Usage:\n");
+      printf("%s [ssh options] user@hostname\n", av[0]);
+      exit (0);
+    }
   bIn = BufferNew();
   bOut = BufferNew();
   pid = execSftpServer(ac, av);
