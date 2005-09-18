@@ -142,7 +142,7 @@ static void	DoReadDir()
   int		h;
 
   id = BufferGetInt32(bIn);
-  h = BufferGetInt32(bIn);
+  h = BufferGetStringAsInt(bIn);
   dir = HandleGetDir(h);
   path = HandleGetPath(h);
   DEBUG((MYLOG_DEBUG, "[DoReadDir]path:'%s' handle:%i", path, h));
@@ -217,7 +217,7 @@ static void	DoClose()
   int		h, status = (cVersion <= 3 ? SSH2_FX_FAILURE : SSH4_FX_INVALID_HANDLE);
 	
   id = BufferGetInt32(bIn);
-  h = BufferGetInt32(bIn);
+  h = BufferGetStringAsInt(bIn);
   if ((HandleClose(h)) == -1)
     status = errnoToPortable(errno);
   else
@@ -225,7 +225,7 @@ static void	DoClose()
   SendStatus(bOut, id, status);
   gl_var->who->status = (gl_var->who->status & SFTPWHO_ARGS_MASK ) | SFTPWHO_IDLE;
   gl_var->down_max = 0;
-  DEBUG((MYLOG_DEBUG, "[DoClose] -> handle:%i", h));
+  DEBUG((MYLOG_DEBUG, "[DoClose] -> handle:%i status:%i", h, status));
 }
 
 static void	DoOpen()
@@ -281,7 +281,7 @@ static void	DoOpen()
 	      }
 	  }
       }
-  DEBUG((MYLOG_DEBUG, "[DoOpen]file:'%s' pflags:%i perm:0%o fd:%i", path, pflags, mode, fd));
+  DEBUG((MYLOG_DEBUG, "[DoOpen]file:'%s' pflags:%i perm:0%o fd:%i status:%i", path, pflags, mode, fd, status));
   if (status != SSH2_FX_OK)
     SendStatus(bOut, id, status);
   free(path);
@@ -295,7 +295,7 @@ static void	DoRead()
   u_int64_t	off;
   
   id = BufferGetInt32(bIn);
-  h = BufferGetInt32(bIn);
+  h = BufferGetStringAsInt(bIn);
   off = BufferGetInt64(bIn);
   if ((len = BufferGetInt32(bIn)) > sizeof(buf))
     len = sizeof(buf);
@@ -326,7 +326,7 @@ static void	DoRead()
 	    }
 	}
     }
-  //DEBUG((MYLOG_DEBUG, "[DoRead]fd:%i off:%llu len:%i", fd, off, len));
+  //DEBUG((MYLOG_DEBUG, "[DoRead]fd:%i off:%llu len:%i status:%i", fd, off, len, status));
   if (status != SSH2_FX_OK)
     SendStatus(bOut, id, status);
 }
@@ -340,7 +340,7 @@ static void	DoWrite()
   char		*data;
 
   id = BufferGetInt32(bIn);
-  fd = HandleGetFd(BufferGetInt32(bIn), &fileIsText);
+  fd = HandleGetFd(BufferGetStringAsInt(bIn), &fileIsText);
   off = BufferGetInt64(bIn);
   data = BufferGetData(bIn, &len);
   if (fd >= 0)
@@ -365,7 +365,7 @@ static void	DoWrite()
 	    status = SSH2_FX_OK;
 	}
     }
-  //DEBUG((MYLOG_DEBUG, "[DoWrite]fd:%i off:%llu len:%i fileIsText:%i", fd, off, len, fileIsText));
+  //DEBUG((MYLOG_DEBUG, "[DoWrite]fd:%i off:%llu len:%i fileIsText:%i status:%i", fd, off, len, fileIsText, status));
   SendStatus(bOut, id, status);
 }
 
@@ -438,7 +438,7 @@ static void	DoFStat()
   int		fd, fileIsText;
 	
   id = BufferGetInt32(bIn);
-  fd = HandleGetFd(BufferGetInt32(bIn), &fileIsText);
+  fd = HandleGetFd(BufferGetStringAsInt(bIn), &fileIsText);
   if (cVersion >= 4)
     flags = BufferGetInt32(bIn);
   if (fd >= 0)
@@ -506,7 +506,7 @@ static void 	DoFSetStat()
   int		status = SSH2_FX_OK;
 
   id = BufferGetInt32(bIn);
-  path = HandleGetPath(BufferGetInt32(bIn));
+  path = HandleGetPath(BufferGetStringAsInt(bIn));
   a = GetAttributes(bIn);
   if (!path)
     status = (cVersion <= 3 ? SSH2_FX_FAILURE : SSH4_FX_INVALID_HANDLE);
@@ -737,10 +737,10 @@ static void	DoAdminKillUser()
   if ((gl_var->who->status & SFTPWHO_IS_ADMIN))
     {
       t_sftpwho	*who;
-      char      *arg = BufferGetString(bIn);
+      int	pidToKill = BufferGetInt32(bIn);
       int	status = SSH2_FX_OK;
 
-      DEBUG((MYLOG_DEBUG, "[DoAdminKillUser]Try to kill:'%s' status:%i", arg, status));
+      DEBUG((MYLOG_DEBUG, "[DoAdminKillUser]Try to kill pid:%i status:%i", pidToKill, status));
       who = SftWhoGetAllStructs();
       if (who)
 	{
@@ -750,7 +750,7 @@ static void	DoAdminKillUser()
 	  pid = getpid();
 	  for (i = 0; i < SFTPWHO_MAXCLIENT; i++)
 	    if ((who[i].status & SFTPWHO_STATUS_MASK) != SFTPWHO_EMPTY)
-	      if ((!strcmp(who[i].user, arg) || !strcmp(arg, "all")) && who[i].pid != pid)
+	      if ((who[i].pid == pidToKill || pidToKill == 0) && who[i].pid != pid)
 		if (kill(who[i].pid, SIGHUP) == -1)
 		  status = errnoToPortable(errno);
 	}
