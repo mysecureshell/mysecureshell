@@ -45,7 +45,7 @@ t_sftpwho	*SftpWhoGetStruct(int create)
   t_sftpwho	*who = 0;
   void		*ptr;
   key_t		key;
-  int		shmid, shmkey = 0x0782;
+  int		shmid, shmkey = 0x0785;
   int		eraze = 0;
   int		i, try, tryshm = 3;
 
