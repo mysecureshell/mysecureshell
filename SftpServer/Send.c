@@ -17,6 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
+#include <stdio.h>
 #include "Encode.h"
 #include "Send.h"
 
@@ -55,11 +56,13 @@ void		SendStats(tBuffer *bOut, u_int32_t id, int count, tStat *s)
 void		SendHandle(tBuffer *bOut, u_int32_t id, int h)
 {
   tBuffer	*b;
+  char		bHandle[256];
   
   b = BufferNew();
   BufferPutInt8(b, SSH2_FXP_HANDLE);
   BufferPutInt32(b, id);
-  BufferPutInt32(b, h);
+  snprintf(bHandle, sizeof(bHandle), "%i", h);
+  BufferPutString(b, bHandle);
   BufferPutPacket(bOut, b);
   BufferDelete(b);
 }
