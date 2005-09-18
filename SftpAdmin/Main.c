@@ -134,7 +134,7 @@ static void	SendKillUser(tBuffer *bOut, char *arg)
 
   b = BufferNew();
   BufferPutInt8(b, SSH_ADMIN_KILL_USER);
-  BufferPutString(b, arg);
+  BufferPutInt32(b, atoi(arg));
   BufferPutPacket(bOut, b);
   BufferDelete(b);
 }
@@ -146,6 +146,16 @@ static void	SendServerStatus(tBuffer *bOut, char *arg)
   b = BufferNew();
   BufferPutInt8(b, SSH_ADMIN_SERVER_STATUS);
   BufferPutInt8(b, !strcmp(arg, "start") ? 1 : 0);
+  BufferPutPacket(bOut, b);
+  BufferDelete(b);
+}
+
+static void	SendServerGetStatus(tBuffer *bOut)
+{
+  tBuffer	*b;
+
+  b = BufferNew();
+  BufferPutInt8(b, SSH_ADMIN_SERVER_GET_STATUS);
   BufferPutPacket(bOut, b);
   BufferDelete(b);
 }
@@ -168,6 +178,14 @@ static void	DoListUsersReply(tBuffer *bIn)
 
   printf("%s\n", lists);
   free(lists);
+}
+
+static void	DoGetServerStatusReply(tBuffer *bIn)
+{
+  char		state;
+
+  state = BufferGetInt8(bIn);
+  printf("Server is %s.\n", state == 0 ? "offline" : "online");
 }
 
 static void	DoStatus(tBuffer *bIn)
@@ -215,12 +233,17 @@ int	DoProtocol(tBuffer *bIn, tBuffer *bOut)
     case SSH_ADMIN_LIST_USERS_REPLY:
       DoListUsersReply(bIn);
       break;
+    case SSH_ADMIN_SERVER_GET_STATUS_REPLY:
+      DoGetServerStatusReply(bIn);
+      break;
+    default:
+      printf("[ERROR]Unkown message type : %i\n", msgType);
+      break;
     }
   if ((bIn->read - oldRead) < msgLen)//read entire message
       BufferReadData(bIn, msgLen - (bIn->read - oldRead));
   BufferClean(bIn);
   goto parsePacket;
-
 }
 
 static int	DoCommandLine(char *cmd, tBuffer *bIn, tBuffer *bOut)
@@ -259,11 +282,18 @@ static int	DoCommandLine(char *cmd, tBuffer *bIn, tBuffer *bOut)
 	      ReadPacket(bIn, bOut))
 	    return (1);
 	}
+      else
+	{
+	  SendServerGetStatus(bOut);
+          if (WritePacket(bOut) ||
+              ReadPacket(bIn, bOut))
+	    return (1);
+	}
     }
   else
     {
       printf("Usage:\n");
-      printf("\t kill [all or user] : kill one user or all users\n");
+      printf("\t kill [0 or PID] : kill user with PID or 0 to kill all users\n");
       printf("\t list : list online users\n");
       printf("\t quit : quit program\n");
       printf("\t server [start or stop] : start or stop server\n");
