@@ -222,13 +222,12 @@ char	*ExecCommand(char *cmd)
       return (0);
     }
   close(fds[1]);
+  str = malloc(1);
+  str[0] = 0;
   while ((ret = read(fds[0], buffer, sizeof(buffer))) > 0)
     {
       str = realloc(str, size + ret + 1);
-      if (size)
-	strncat(str, buffer, ret);
-      else
-	strncpy(str, buffer, ret);
+      strncat(str, buffer, ret);
       size += ret;
     }
   close(fds[0]);
