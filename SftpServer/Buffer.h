@@ -48,6 +48,7 @@ void	BufferPutRawData(tBuffer *b, void *data, int size);
 u_int8_t	BufferGetInt8(tBuffer *b);
 u_int32_t	BufferGetInt32(tBuffer *b);
 u_int64_t	BufferGetInt64(tBuffer *b);
+int		BufferGetStringAsInt(tBuffer *b);
 char		*BufferGetString(tBuffer *b);
 char		*BufferGetData(tBuffer *b, u_int32_t *size);
 

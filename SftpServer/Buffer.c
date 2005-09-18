@@ -192,3 +192,18 @@ char		*BufferGetString(tBuffer *b)
     }
   return (data);
 }
+
+int	BufferGetStringAsInt(tBuffer *b)
+{
+  char	*data;
+
+  data = BufferGetString(b);
+  if (data)
+    {
+      int	nb = atoi(data);
+
+      free(data);
+      return (nb);
+    }
+  return (-1);
+}
