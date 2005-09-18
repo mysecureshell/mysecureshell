@@ -694,7 +694,7 @@ static void	DoUnsupported(int msgType, int msgLen)
 		
   id = BufferGetInt32(bIn);
   SendStatus(bOut, id, SSH2_FX_OP_UNSUPPORTED);
-  DEBUG((MYLOG_DEBUG, "msgType:%i msgLen:%i", msgType, msgLen));
+  DEBUG((MYLOG_DEBUG, "[DoUnsupported]msgType:%i msgLen:%i", msgType, msgLen));
 }
 
 static void	DoExtended()
@@ -781,6 +781,29 @@ static void	DoAdminServerStatus()
 	    status = errnoToPortable(errno);
 	}
       SendStatus(bOut, 0, status);
+    }
+  else
+    SendStatus(bOut, 0, SSH2_FX_OP_UNSUPPORTED);
+}
+
+static void	DoAdminServerGetStatus()
+{
+  if ((gl_var->who->status & SFTPWHO_IS_ADMIN))
+    {
+      struct stat	st;
+      tBuffer		*b;
+      char		state;
+
+      b = BufferNew();
+      BufferPutInt8(b, SSH_ADMIN_SERVER_GET_STATUS_REPLY);
+      if (stat(SHUTDOWN_FILE, &st) == -1)
+	state = 1;
+      else
+	state = 0;
+      BufferPutInt8(b, state);
+      BufferPutPacket(bOut, b);
+      BufferDelete(b);
+      DEBUG((MYLOG_DEBUG, "[DoAdminServerGetStatus]state:'%i'", state));
     }
   else
     SendStatus(bOut, 0, SSH2_FX_OP_UNSUPPORTED);
@@ -879,7 +902,10 @@ static void	DoProtocol()
     case SSH_ADMIN_SERVER_STATUS:
       DoAdminServerStatus();
       break;
-      
+    case SSH_ADMIN_SERVER_GET_STATUS:
+      DoAdminServerGetStatus();
+      break;
+
     default:
       DoUnsupported(msgType, msgLen);
       break;
