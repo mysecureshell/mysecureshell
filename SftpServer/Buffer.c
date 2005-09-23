@@ -103,11 +103,8 @@ void	BufferPutInt64(tBuffer *b, u_int64_t nb)
 
 void	BufferPutData(tBuffer *b, void *data, int size)
 {
-  if ((b->length + size) > b->size)
-    BufferGrow(b, b->length + size - b->size + DEFAULT_GROW);
   BufferPutInt32(b, size);
-  memcpy(b->data + b->length, data, size);
-  b->length += size;
+  BufferPutRawData(b, data, size);
 }
 
 void	BufferPutRawData(tBuffer *b, void *data, int size)
@@ -183,7 +180,7 @@ char		*BufferGetString(tBuffer *b)
   size = BufferGetInt32(b);
   if ((b->read + size) > b->length)
     return (0);
-  data = malloc(size + 1);	
+  data = malloc(size + 1);
   if (data)
     {
       memcpy(data, b->data + b->read, size);
