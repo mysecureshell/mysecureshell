@@ -77,7 +77,7 @@ static void	DoRealPath()
   resolvedName[0] = 0;
   if (!path[0])
     {
-      free(path);
+      FREE(path);
       path = strdup(".");
     }
   if (!realpath(path, resolvedName))
@@ -93,7 +93,7 @@ static void	DoRealPath()
       SendStats(bOut, id, 1, &s);
     }
   DEBUG((MYLOG_DEBUG, "[DoRealPath]path:'%s' -> '%s'", path, resolvedName));
-  free(path);
+  FREE(path);
 }
 
 static void	DoOpenDir()
@@ -125,7 +125,7 @@ static void	DoOpenDir()
   DEBUG((MYLOG_DEBUG, "[DoOpenDir]path:'%s' status:%i", path, status));
   if (status != SSH2_FX_OK)
     SendStatus(bOut, id, status);
-  free(path);
+  FREE(path);
 }
 
 static void	DoReadDir()
@@ -150,13 +150,13 @@ static void	DoReadDir()
       tStat 		*s;
       int		nstats = 10, count = 0, i;
       
-      s = malloc(nstats * sizeof(tStat));
+      s = MALLOC(nstats * sizeof(tStat));
       while ((dp = readdir(dir)))
 	{
 	  if (count >= nstats)
 	    {
 	      nstats *= 2;
-	      s = realloc(s, nstats * sizeof(tStat));
+	      s = REALLOC(s, nstats * sizeof(tStat));
 	    }
 	  snprintf(pathName, sizeof(pathName), "%s%s%s", path,
 		   path[strlen(path) - 1] == '/' ? "" : "/", dp->d_name);
@@ -202,7 +202,7 @@ static void	DoReadDir()
 	}
       else
 	SendStatus(bOut, id, SSH2_FX_EOF);
-      free(s);
+      FREE(s);
     }
 }
 
@@ -253,13 +253,13 @@ static void	DoOpen()
 		if (flags & O_WRONLY)
 		  {
 		    gl_var->who->status = (gl_var->who->status & SFTPWHO_ARGS_MASK ) | SFTPWHO_PUT;
-		    log_printf(MYLOG_NORMAL, "[%s][%s]Upload into file '%s'",
+		    mylog_printf(MYLOG_NORMAL, "[%s][%s]Upload into file '%s'",
 			       gl_var->who->user, gl_var->who->ip, path);
 		  }
 		else
 		  {
 		    gl_var->who->status = (gl_var->who->status & SFTPWHO_ARGS_MASK ) | SFTPWHO_GET;
-		    log_printf(MYLOG_NORMAL, "[%s][%s]Download file '%s'",
+		    mylog_printf(MYLOG_NORMAL, "[%s][%s]Download file '%s'",
 			       gl_var->who->user, gl_var->who->ip, path);
 		  }
 		gl_var->down_size = 0;
@@ -279,7 +279,7 @@ static void	DoOpen()
   DEBUG((MYLOG_DEBUG, "[DoOpen]file:'%s' pflags:%i perm:0%o fd:%i status:%i", path, pflags, mode, fd, status));
   if (status != SSH2_FX_OK)
     SendStatus(bOut, id, status);
-  free(path);
+  FREE(path);
 }
 
 static void	DoRead()
@@ -390,7 +390,7 @@ static void	DoReadLink()
     }
   else
     SendStatus(bOut, id, status);
-  free(path);
+  FREE(path);
 }
 
 static void	DoStat(int (*f_stat)(const char *, struct stat *))
@@ -422,7 +422,7 @@ static void	DoStat(int (*f_stat)(const char *, struct stat *))
   else
     SendStatus(bOut, id, status);
   DEBUG((MYLOG_DEBUG, "[Do%sStat]path:'%s' -> '%i'", f_stat == stat ? "" : "L", path, r));
-  free(path);
+  FREE(path);
 }
 
 static void	DoFStat()
@@ -490,7 +490,7 @@ static void 	DoSetStat()
     }
   DEBUG((MYLOG_DEBUG, "[DoSetStat]path:'%s' -> '%i'", path, status));
   SendStatus(bOut, id, status);
-  free(path);
+  FREE(path);
 }
 
 static void 	DoFSetStat()
@@ -544,12 +544,12 @@ static void	DoRemove()
     {
       if (unlink(path) == -1)
 	status = errnoToPortable(errno);
-      log_printf(MYLOG_WARNING, "[%s][%s]Try to remove file '%s' : %s",
+      mylog_printf(MYLOG_WARNING, "[%s][%s]Try to remove file '%s' : %s",
 		 gl_var->who->user, gl_var->who->ip, path, (status != SSH2_FX_OK ? strerror(errno) : "success"));
     }
   DEBUG((MYLOG_DEBUG, "[DoRemove]path:'%s' -> '%i'", path, status));
   SendStatus(bOut, id, status);
-  free(path);
+  FREE(path);
 }
 
 static void	DoMkDir()
@@ -567,12 +567,12 @@ static void	DoMkDir()
     {
       if (mkdir(path, mode) == -1)
 	status = errnoToPortable(errno);
-      log_printf(MYLOG_WARNING, "[%s][%s]Try to create directory '%s' : %s",
+      mylog_printf(MYLOG_WARNING, "[%s][%s]Try to create directory '%s' : %s",
 		 gl_var->who->user, gl_var->who->ip, path, (status != SSH2_FX_OK ? strerror(errno) : "success"));
     }
   SendStatus(bOut, id, status);
   DEBUG((MYLOG_DEBUG, "[DoMkDir]path:'%s' -> '%i'", path, status));
-  free(path);
+  FREE(path);
 }
 
 static void	DoRmDir()
@@ -587,12 +587,12 @@ static void	DoRmDir()
     {
       if (rmdir(path) == -1)
 	status = errnoToPortable(errno);
-      log_printf(MYLOG_WARNING, "[%s][%s]Try to remove directory '%s' : %s",
+      mylog_printf(MYLOG_WARNING, "[%s][%s]Try to remove directory '%s' : %s",
 		 gl_var->who->user, gl_var->who->ip, path, (status != SSH2_FX_OK ? strerror(errno) : "success"));
     }
   SendStatus(bOut, id, status);
   DEBUG((MYLOG_DEBUG, "[DoRmDir]path:'%s' -> '%i'", path, status));
-  free(path);
+  FREE(path);
 }
 
 static void	DoRename()
@@ -650,7 +650,7 @@ static void	DoRename()
 	  else
 	    status = SSH2_FX_OK;
 	}
-      log_printf(MYLOG_WARNING, "[%s][%s]Try to rename '%s' -> '%s' : %s",
+      mylog_printf(MYLOG_WARNING, "[%s][%s]Try to rename '%s' -> '%s' : %s",
 		 gl_var->who->user, gl_var->who->ip, oldPath, newPath,
 		 (status != SSH2_FX_OK ? strerror(errno) : "success"));
     }
@@ -658,8 +658,8 @@ static void	DoRename()
     status = SSH2_FX_PERMISSION_DENIED;
   DEBUG((MYLOG_DEBUG, "[DoRename]oldPath:'%s' newPath:'%s' -> '%i'", oldPath, newPath, status));
   SendStatus(bOut, id, status);
-  free(oldPath);
-  free(newPath);
+  FREE(oldPath);
+  FREE(newPath);
 }
 
 static void	DoSymLink()
@@ -679,8 +679,8 @@ static void	DoSymLink()
       DEBUG((MYLOG_DEBUG, "[DoSymLink]oldPath:'%s' newPath:'%s' -> '%i'", oldPath, newPath, status));
     }
   SendStatus(bOut, id, status);
-  free(oldPath);
-  free(newPath);
+  FREE(oldPath);
+  FREE(newPath);
 }
 
 static void	DoUnsupported(int msgType, int msgLen)
@@ -701,7 +701,7 @@ static void	DoExtended()
   request = BufferGetString(bIn);
   SendStatus(bOut, id, SSH2_FX_OP_UNSUPPORTED);
   DEBUG((MYLOG_DEBUG, "[DoExtended]request:'%s'", request));
-  free(request);
+  FREE(request);
 }
 
 static void	DoAdminListUsers()
@@ -720,7 +720,7 @@ static void	DoAdminListUsers()
 	  BufferPutPacket(bOut, b);
 	  DEBUG((MYLOG_DEBUG, "[DoAdminListUsers]send:'%s'", buf));
 	  BufferDelete(b);
-	  free(buf);
+	  FREE(buf);
 	}
     }
   else
@@ -815,7 +815,7 @@ static void	DoProtocol()
   msgLen = BufferGetInt32(bIn);
   if (msgLen > (256 * 1024)) //message too long
     {
-      log_printf(MYLOG_ERROR, "[%s][%s]Error: message is too long (%i)", gl_var->who->user, gl_var->who->ip, msgLen);
+      mylog_printf(MYLOG_ERROR, "[%s][%s]Error: message is too long (%i)", gl_var->who->user, gl_var->who->ip, msgLen);
       exit (1);
     }
   if ((bIn->length - bIn->read) < msgLen) //message not complete
@@ -921,6 +921,13 @@ int			main(int ac, char **av)
   fd_set		fdR, fdW;
   int			len, ret;
 
+#ifdef DODEBUG
+  mem_open(0);
+  log_open("/var/log/sftp-server.debug", LOG_NOISY, LOG_HAVE_COLORS | LOG_PRINT_FUNCTION);
+  atexit(mem_close);
+  atexit(log_close);
+#endif
+
   bIn = BufferNew();
   bOut = BufferNew();
   HandleInit();
@@ -952,7 +959,7 @@ int			main(int ac, char **av)
 	  if (gl_var->who->time_maxidle &&
 	      gl_var->who->time_idle >= gl_var->who->time_maxidle)
 	    {
-	      log_printf(MYLOG_NORMAL, "[%s][%s]Connection time out",
+	      mylog_printf(MYLOG_NORMAL, "[%s][%s]Connection time out",
 			 gl_var->who->user, gl_var->who->ip);
 	      exit (0);
 	    }
