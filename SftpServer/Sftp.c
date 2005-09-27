@@ -40,11 +40,6 @@ int		cVersion = SSH2_FILEXFER_VERSION;
 
 #include "SftpServer.c"
 
-#ifdef DODEBUG
-#define	DEBUG(_X)	log_printf _X
-#else
-#define	DEBUG(_X)
-#endif
 
 static void	DoInit()
 {
