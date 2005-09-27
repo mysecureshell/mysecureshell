@@ -70,7 +70,7 @@ t_sftpwho	*SftpWhoGetStruct(int create)
 	      goto try_shm;
 	    }
 	}
-      if (shmid != -1 && (int )(ptr = shmat(shmid, 0, 0)) != -1)
+      if (shmid != -1 && (ptr = shmat(shmid, 0, 0)) != (void *)-1)
 	{
 	  t_shm	*shm = ptr;
 		
