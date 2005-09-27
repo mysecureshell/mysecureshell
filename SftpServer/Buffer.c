@@ -49,7 +49,7 @@ void	BufferClean(tBuffer *b)
       b->length -= b->read;
       b->read = 0;
       nextSize = b->size >> 2;
-      if (b->length < nextSize && nextSize > 0)
+      if (b->length < nextSize && nextSize >= DEFAULT_GROW)
 	{
 	  b->size = nextSize;
 	  b->data = realloc(b->data, b->size);
@@ -124,7 +124,7 @@ u_int8_t	BufferGetInt8(tBuffer *b)
 {
   u_int8_t	nb;
 	
-  if ((b->read + 4) > b->size)
+  if ((b->read + 1) > b->size)
     return 0;
   nb = (u_int8_t )b->data[b->read++];
   return (nb);
