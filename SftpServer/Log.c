@@ -17,19 +17,14 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#ifndef __LOG_C__
-#define __LOG_C__
-
 #include <fcntl.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <time.h>
-
-#define	MYLOG_NORMAL	0
-#define	MYLOG_WARNING	1
-#define	MYLOG_ERROR	2
-#define	MYLOG_DEBUG	3
-#define	MYLOG_MAX	4
+#include <stdlib.h>
+#include <unistd.h>
+#include "../defines.h"
+#include "Log.h"
 
 typedef struct	s_log
 {
@@ -42,7 +37,7 @@ typedef struct	s_log
 
 static t_log	*_log = 0;
 
-static void	log_open(char *file)
+void	log_open(char *file)
 {
   int		fd;
 
@@ -82,7 +77,7 @@ Form:
     }
 }
 
-static void	log_close()
+void	log_close()
 {
   if (_log)
     {
@@ -92,7 +87,7 @@ static void	log_close()
     }
 }
 
-static void	log_printf(int level, char *str, ...)
+void		log_printf(int level, char *str, ...)
 {
   va_list	ap;
   struct tm	*tm;
@@ -122,5 +117,3 @@ static void	log_printf(int level, char *str, ...)
       va_end(ap);
     }
 }
-
-#endif

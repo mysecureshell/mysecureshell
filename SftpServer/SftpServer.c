@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include <regex.h>
-#include "Log.c"
+#include "Log.h"
 #include "SftpWho.c"
 
 typedef struct	s_global

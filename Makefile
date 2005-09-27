@@ -25,7 +25,8 @@ OBJ2	= $(SRC2:.c=.o)
 NAME3	= sftp-server_MSS$(EXT)
 SRC3	= SftpServer/Buffer.c SftpServer/Encode.c	\
 	  SftpServer/Handle.c SftpServer/Send.c		\
-	  SftpServer/Sftp.c SftpServer/Util.c
+	  SftpServer/Sftp.c SftpServer/Util.c		\
+	  SftpServer/Log.c
 OBJ3	= $(SRC3:.c=.o)
 
 NAME4	= utils/sftp-admin$(EXT)
