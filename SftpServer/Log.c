@@ -17,13 +17,14 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
+#include "../defines.h"
 #include <fcntl.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
-#include "../defines.h"
 #include "Log.h"
 
 typedef struct	s_log
@@ -37,13 +38,14 @@ typedef struct	s_log
 
 static t_log	*_log = 0;
 
-void	log_open(char *file)
+void	mylog_open(char *file)
 {
   int		fd;
 
   if ((fd = open(file, O_CREAT | O_APPEND | O_WRONLY, 0644)) != -1)
     {
-      _log = calloc(sizeof(*_log), 1);
+      _log = MALLOC(sizeof(*_log));
+      memset(_log, 0, sizeof(*_log));
       _log->pid = getpid();
       _log->fd = fd;
       fchown(fd, 0, 0);
@@ -77,17 +79,17 @@ Form:
     }
 }
 
-void	log_close()
+void	mylog_close()
 {
   if (_log)
     {
       close(_log->fd);
-      free(_log);
+      FREE(_log);
       _log = 0;
     }
 }
 
-void		log_printf(int level, char *str, ...)
+void		mylog_printf(int level, char *str, ...)
 {
   va_list	ap;
   struct tm	*tm;

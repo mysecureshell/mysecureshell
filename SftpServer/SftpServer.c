@@ -53,20 +53,21 @@ static t_global	*gl_var = 0;
 
 static void	end_sftp()
 {
-  log_printf(MYLOG_NORMAL, "[%s][%s]Quit.", gl_var->who->user, gl_var->who->ip);
-  log_close();
+  mylog_printf(MYLOG_NORMAL, "[%s][%s]Quit.", gl_var->who->user, gl_var->who->ip);
+  mylog_close();
   gl_var->who->status = SFTPWHO_EMPTY;
   SftpWhoRelaseStruct();
   regfree(&gl_var->hide_files_regexp);
-  free(gl_var);
+  FREE(gl_var);
 }
 
 static void	parse_conf(int ac, char **av)
 {
   int		i, r;
   
-  log_open("/var/log/sftp-server.log");
-  gl_var = calloc(sizeof(*gl_var), 1);
+  mylog_open("/var/log/sftp-server.log");
+  gl_var = MALLOC(sizeof(*gl_var));
+  memset(gl_var, 0, sizeof(*gl_var));
   gl_var->who = SftpWhoGetStruct(1);
   gl_var->who->time_begin = time(0);
   gl_var->who->pid = (unsigned int)getpid();
@@ -110,7 +111,7 @@ static void	parse_conf(int ac, char **av)
 	      char	buffer[256];
 
 	      regerror(r, &gl_var->hide_files_regexp, buffer, sizeof(buffer));
-	      log_printf(MYLOG_ERROR, "[%s][%s]Couldn't compile regex : %s",
+	      mylog_printf(MYLOG_ERROR, "[%s][%s]Couldn't compile regex : %s",
 			 gl_var->who->user, gl_var->who->ip, buffer);
 	    }
 	}
@@ -133,7 +134,7 @@ static void	parse_conf(int ac, char **av)
 	      char	buffer[256];
 
 	      regerror(r, &gl_var->deny_filter_regexp, buffer, sizeof(buffer));
-	      log_printf(MYLOG_ERROR, "[%s][%s]Couldn't compile regex : %s",
+	      mylog_printf(MYLOG_ERROR, "[%s][%s]Couldn't compile regex : %s",
 			 gl_var->who->user, gl_var->who->ip, buffer);
 	    }
 	}
@@ -142,7 +143,7 @@ static void	parse_conf(int ac, char **av)
       else if (!strcmp(av[i], "--max-life") && av[i + 1])
 	gl_var->who->time_maxlife = atoi(av[i + 1]);
     }
-  log_printf(MYLOG_NORMAL, "New client [%s] from [%s]", gl_var->who->user, gl_var->who->ip);
+  mylog_printf(MYLOG_NORMAL, "New client [%s] from [%s]", gl_var->who->user, gl_var->who->ip);
   init_usersinfos();//load users / groups into memory
   InitAccess();
   chdir(gl_var->who->home);
@@ -155,7 +156,7 @@ static void	parse_conf(int ac, char **av)
 	}
       else
 	{
-	  log_printf(MYLOG_ERROR, "[%s][%s]Couldn't chroot : %s",
+	  mylog_printf(MYLOG_ERROR, "[%s][%s]Couldn't chroot : %s",
 		     gl_var->who->user, gl_var->who->ip, strerror(errno));
 	  gl_var->who->status &= ~SFTPWHO_VIRTUAL_CHROOT;
 	  gl_var->who->status |= SFTPWHO_STAY_AT_HOME;
