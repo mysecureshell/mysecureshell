@@ -30,7 +30,7 @@ typedef struct		sBuffer
 	u_int32_t	size;
 }			tBuffer;
 
-#define	DEFAULT_GROW	1024
+#define	DEFAULT_GROW	256
 
 tBuffer	*BufferNew();
 void	BufferClean(tBuffer *b);
