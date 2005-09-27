@@ -39,16 +39,17 @@ FILE	= sftp_config utils/sftp-kill LICENSE README-fr README-en				\
 CFLAGS	= -Wall -Wunused -Wpointer-arith -Wno-uninitialized -O2 -D$(OS) -ISftpServer
 DEBUG	= 0
 
-ifeq ($(DEBUG), 1)
-	CFLAGS	+= -DDODEBUG
-endif
-
 ifneq (,$(findstring $(OSTYPE), linux))
-	LIBS	=
+	LDFLAGS	=
 else
 ifneq ($(OSTYPE), )
-	LIBS	= -lkvm
+	LDFLAGS	= -lkvm
 endif
+endif
+
+ifeq ($(DEBUG), 1)
+	CFLAGS	+= -DDODEBUG
+	LDFLAGS	+= -ldebug
 endif
 
 RM	= rm -f
@@ -65,27 +66,27 @@ all	: $(NAME) sftpwho sftpstate sftpserver sftpadmin
 
 $(NAME)	: $(OBJ)
 	@echo "Compile binary	[$(NAME)]"
-	@$(CC) -o $(NAME) $(OBJ) $(LIBS)
+	@$(CC) -o $(NAME) $(OBJ) $(LDFLAGS)
 	@$(CHMOD) 711 $(NAME)
 
 sftpwho : $(OBJ1)
 	@echo "Compile binary	[$(NAME1)]"
-	@$(CC) -o $(NAME1) $(OBJ1)
+	@$(CC) -o $(NAME1) $(OBJ1) $(LDFLAGS)
 	@$(CHMOD) 711 $(NAME1)
 
 sftpstate: $(OBJ2)
 	@echo "Compile binary   [$(NAME2)]"
-	@$(CC) -o $(NAME2) $(OBJ2)
+	@$(CC) -o $(NAME2) $(OBJ2) $(LDFLAGS)
 	@$(CHMOD) 711 $(NAME2)
 
 sftpserver: $(OBJ3)
 	@echo "Compile binary   [$(NAME3)]"
-	@$(CC) -o $(NAME3) $(OBJ3)
+	@$(CC) -o $(NAME3) $(OBJ3) $(LDFLAGS)
 	@$(CHMOD) 711 $(NAME3)
 
 sftpadmin : $(OBJ4)
 	@echo "Compile binary   [$(NAME4)]"
-	@$(CC) -o $(NAME4) $(OBJ4)
+	@$(CC) -o $(NAME4) $(OBJ4) $(LDFLAGS)
 	@$(CHMOD) 711 $(NAME4)
 
 clean	:
