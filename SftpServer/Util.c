@@ -131,7 +131,7 @@ char		*LsFile(const char *name, const struct stat *st)
   snprintf(buf, sizeof(buf), "%s %3u %-*s %-*s %8llu %s %s", mode,
 	   (u_int)st->st_nlink, ulen, user, glen, group,
 	   (unsigned long long int)st->st_size, tbuf, name);
-  return strdup(buf);
+  return (strdup(buf));
 }
 
 int	FlagsFromPortable(int pFlags)
@@ -222,11 +222,11 @@ char	*ExecCommand(char *cmd)
       return (0);
     }
   close(fds[1]);
-  str = malloc(1);
+  str = MALLOC(1);
   str[0] = 0;
   while ((ret = read(fds[0], buffer, sizeof(buffer))) > 0)
     {
-      str = realloc(str, size + ret + 1);
+      str = REALLOC(str, size + ret + 1);
       strncat(str, buffer, ret);
       size += ret;
     }

@@ -17,6 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
+#include "../defines.h"
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -39,7 +40,7 @@ void	HandleInit()
 {
   int	i;
 	
-  gHandle = malloc(HANDLE_NUMBER * sizeof(*gHandle));
+  gHandle = MALLOC(HANDLE_NUMBER * sizeof(*gHandle));
   memset(gHandle, 0, HANDLE_NUMBER * sizeof(*gHandle));
   for (i = 0; i < HANDLE_NUMBER; i++)
     gHandle[i].fd = -1;

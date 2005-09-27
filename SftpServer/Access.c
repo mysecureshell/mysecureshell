@@ -17,6 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
+#include "../defines.h"
 #include <sys/types.h>
 #include <grp.h>
 #include <pwd.h>
@@ -87,21 +88,21 @@ static void	InitAccess()
 
   if ((info = getpwuid(getuid())))
     {
-      groups = malloc(nb_groups * sizeof(*groups));
+      groups = MALLOC(nb_groups * sizeof(*groups));
       if (getgrouplist(info->pw_name, info->pw_gid, groups, &nb_groups) == -1)
 	{
-	  groups = realloc(groups, nb_groups * sizeof(*groups));
+	  groups = REALLOC(groups, nb_groups * sizeof(*groups));
 	  getgrouplist(info->pw_name, info->pw_gid, groups, &nb_groups);
 	}
       if (nb_groups > 0)
         {
-          _in_group = malloc((nb_groups + 1) * sizeof(*_in_group));
+          _in_group = MALLOC((nb_groups + 1) * sizeof(*_in_group));
           for (i = 0; i < nb_groups; i++)
 	    if ((group = getgrgid(groups[i])))
 	      _in_group[i] = group->gr_gid;
           _in_group[i] = 0;
         }
-      free(groups);
+      FREE(groups);
     }
 }
 

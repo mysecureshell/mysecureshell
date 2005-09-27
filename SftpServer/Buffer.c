@@ -17,6 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
+#include "../defines.h"
 #include <stdlib.h>
 #include <string.h>
 #include "Buffer.h"
@@ -25,9 +26,9 @@ tBuffer		*BufferNew()
 {
   tBuffer	*b;
   
-  b = malloc(sizeof(*b));
+  b = MALLOC(sizeof(*b));
   b->size = DEFAULT_GROW;
-  b->data = malloc(b->size);
+  b->data = MALLOC(b->size);
   b->length = 0;
   b->read = 0;
   return (b);
@@ -36,7 +37,7 @@ tBuffer		*BufferNew()
 void	BufferGrow(tBuffer *b, u_int32_t toAdd)
 {
   b->size += toAdd;
-  b->data = realloc(b->data, b->size);
+  b->data = REALLOC(b->data, b->size);
 }
 
 void	BufferClean(tBuffer *b)
@@ -52,15 +53,15 @@ void	BufferClean(tBuffer *b)
       if (b->length < nextSize && nextSize >= DEFAULT_GROW)
 	{
 	  b->size = nextSize;
-	  b->data = realloc(b->data, b->size);
+	  b->data = REALLOC(b->data, b->size);
 	}
     }
 }
 
 void	BufferDelete(tBuffer *b)
 {
-  free(b->data);
-  free(b);
+  FREE(b->data);
+  FREE(b);
 }
 
 void	BufferReadData(tBuffer *b, u_int32_t size)
@@ -180,7 +181,7 @@ char		*BufferGetString(tBuffer *b)
   size = BufferGetInt32(b);
   if ((b->read + size) > b->length)
     return (0);
-  data = malloc(size + 1);
+  data = MALLOC(size + 1);
   if (data)
     {
       memcpy(data, b->data + b->read, size);
@@ -199,7 +200,7 @@ int	BufferGetStringAsInt(tBuffer *b)
     {
       int	nb = atoi(data);
 
-      free(data);
+      FREE(data);
       return (nb);
     }
   return (-1);

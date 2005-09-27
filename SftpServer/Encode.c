@@ -78,7 +78,7 @@ tAttributes		*GetAttributes(tBuffer *bIn)
     }
   if (a.flags & SSH2_FILEXFER_ATTR_ACL) //unsupported feature
     {
-      free(BufferGetString(bIn));
+      FREE(BufferGetString(bIn));
     }
   if (a.flags & SSH2_FILEXFER_ATTR_EXTENDED) //unsupported feature
     {
@@ -87,8 +87,8 @@ tAttributes		*GetAttributes(tBuffer *bIn)
       count = BufferGetInt32(bIn);
       for (i = 0; i < count; i++)
 	{
-	  free(BufferGetString(bIn));
-	  free(BufferGetString(bIn));
+	  FREE(BufferGetString(bIn));
+	  FREE(BufferGetString(bIn));
 	}
     }
   return (&a);
