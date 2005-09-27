@@ -170,7 +170,7 @@ void	EncodeAttributes(tBuffer *b, tAttributes *a)
 	  BufferPutInt32(b, a->mtime);
 	}
     }
-  else //version >= 4
+  else //cVersion >= 4
     {
       if (a->flags & SSH4_FILEXFER_ATTR_ACCESSTIME)
 	BufferPutInt64(b, a->atime);
