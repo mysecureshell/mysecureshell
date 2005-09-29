@@ -30,6 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <sys/wait.h>
 #include "Sftp.h"
 #include "Util.h"
+#include "GetUsersInfos.h"
 
 void	StrMode(int mode, char *d)
 {
@@ -103,14 +104,14 @@ char		*LsFile(const char *name, const struct stat *st)
   char		buf[1024], mode[11+1], tbuf[12+1], ubuf[11+1], gbuf[11+1];
   
   StrMode(st->st_mode, mode);
-  if ((pw = getpwuid(st->st_uid)))
+  if ((pw = mygetpwuid(st->st_uid)))
     user = pw->pw_name;
   else
     {
       snprintf(ubuf, sizeof(ubuf), "%u", (u_int)st->st_uid);
       user = ubuf;
     }
-  if ((gr = getgrgid(st->st_gid)))
+  if ((gr = mygetgrgid(st->st_gid)))
     group = gr->gr_name;
   else
     {
