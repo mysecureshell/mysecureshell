@@ -1,20 +1,9 @@
 #ifndef __DEFINES_H__
 #define __DEFINES_H__
 
-#ifdef DODEBUG
-#include <debug/log.h>
-#include <debug/memory.h>
-
-#define	MALLOC(_PTR)		mem_alloc(_PTR)
-#define	REALLOC(_PTR, _SIZE)	mem_realloc(_PTR, _SIZE)
-#define	FREE(_PTR)		mem_free(_PTR)
-
-#else
-
 #define	MALLOC(_PTR)		malloc(_PTR)
 #define	REALLOC(_PTR, _SIZE)	realloc(_PTR, _SIZE)
 #define	FREE(_PTR)		free(_PTR)
-#endif
 
 #define MSS_EXECFILENAME "sftp-server_MSS"
 
