@@ -47,7 +47,10 @@ void	BufferClean(tBuffer *b)
   if (b->read > 0)
     {
       memcpy(b->data, b->data + b->read, b->length - b->read);
-      b->length -= b->read;
+      if (b->length >= b->read)
+	b->length -= b->read;
+      else
+	b->length = 0;
       b->read = 0;
       nextSize = b->size >> 2;
       if (b->length < nextSize && nextSize >= DEFAULT_GROW)
