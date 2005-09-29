@@ -48,8 +48,8 @@ endif
 endif
 
 ifeq ($(DEBUG), 1)
-	CFLAGS	+= -DDODEBUG
-	LDFLAGS	+= -ldebug
+	CFLAGS	+= -DDODEBUG -g3
+	LDFLAGS	+= -lefence
 endif
 
 RM	= rm -f
