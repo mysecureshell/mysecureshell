@@ -148,16 +148,11 @@ static void	DoReadDir()
       struct stat	st;
       char		pathName[1024];
       tStat 		*s;
-      int		nstats = 10, count = 0, i;
+      int		nstats = 100, count = 0, i;
       
       s = MALLOC(nstats * sizeof(tStat));
       while ((dp = readdir(dir)))
 	{
-	  if (count >= nstats)
-	    {
-	      nstats *= 2;
-	      s = REALLOC(s, nstats * sizeof(tStat));
-	    }
 	  snprintf(pathName, sizeof(pathName), "%s%s%s", path,
 		   path[strlen(path) - 1] == '/' ? "" : "/", dp->d_name);
 	  if ((gl_var->who->status & SFTPWHO_LINKS_AS_LINKS))
@@ -185,7 +180,7 @@ static void	DoReadDir()
 	      s[count].longName = LsFile(dp->d_name, &st);
 	      DEBUG((MYLOG_DEBUG, "[DoReadDir] -> '%s' handle:%i [%i]", pathName, h, count));
 	      count++;
-	      if (count == 100)
+	      if (count == nstats)
 		break;
 	    }
 	  else
@@ -809,7 +804,7 @@ static void	DoProtocol()
   int		oldRead, msgLen, msgType;
 
  parsePacket:
-  if (bIn->length < 5) //header too small
+  if ((bIn->length - bIn->read) < 5) //header too small
     return;
   oldRead = bIn->read;
   msgLen = BufferGetInt32(bIn);
@@ -921,17 +916,18 @@ int			main(int ac, char **av)
   fd_set		fdR, fdW;
   int			len, ret;
 
-#ifdef DODEBUG
+  /*#ifdef DODEBUG
   mem_open(0);
   log_open("/var/log/sftp-server.debug", LOG_NOISY, LOG_HAVE_COLORS | LOG_PRINT_FUNCTION);
   atexit(mem_close);
   atexit(log_close);
-#endif
+  #endif*/
 
   bIn = BufferNew();
   bOut = BufferNew();
   HandleInit();
   parse_conf(ac, av);
+
   SET_TIMEOUT(tm, 1, 0);
   for (;;)
     {
