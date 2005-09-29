@@ -99,7 +99,6 @@ void	StatToAttributes(struct stat *st, tAttributes *a)
   memset(a, 0, sizeof(*a));
   a->flags = SSH2_FILEXFER_ATTR_SIZE;
   a->size = st->st_size;
-  a->flags |= SSH2_FILEXFER_ATTR_UIDGID;
   a->uid = st->st_uid;
   a->gid = st->st_gid;
   a->flags |= SSH2_FILEXFER_ATTR_PERMISSIONS;
@@ -118,10 +117,11 @@ void	StatToAttributes(struct stat *st, tAttributes *a)
 	a->type = SSH4_FILEXFER_TYPE_SYMLINK;
       else
 	a->type = SSH4_FILEXFER_TYPE_SPECIAL;
-      a->flags ^= SSH2_FILEXFER_ATTR_UIDGID;
       a->flags |= SSH4_FILEXFER_ATTR_OWNERGROUP | SSH4_FILEXFER_ATTR_ACCESSTIME
 	| SSH4_FILEXFER_ATTR_CREATETIME | SSH4_FILEXFER_ATTR_MODIFYTIME;
     }
+  else
+    a->flags |= SSH2_FILEXFER_ATTR_UIDGID;
 }
 
 void	EncodeAttributes(tBuffer *b, tAttributes *a)
@@ -142,8 +142,8 @@ void	EncodeAttributes(tBuffer *b, tAttributes *a)
       struct group	*gr;
       char		buf[11+1];
       char		*str;
-		
-      if ((pw = getpwuid(a->uid)))
+	
+      if ((pw = mygetpwuid(a->uid)))
 	str = pw->pw_name;
       else
 	{
@@ -151,7 +151,7 @@ void	EncodeAttributes(tBuffer *b, tAttributes *a)
 	  str = buf;
 	}
       BufferPutString(b, str);
-      if ((gr = getgrgid(a->gid)))
+      if ((gr = mygetgrgid(a->gid)))
 	str = gr->gr_name;
       else
 	{
