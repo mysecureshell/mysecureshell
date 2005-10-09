@@ -43,7 +43,7 @@ clear
 MyGetLocale 'uninst?'
 read ans
 if [ $ans = "y" ] ; then
-	sudo rm -f /bin/MySecureShell /usr/libexec/sftp-server_MSS /usr/bin/sftp-who /usr/bin/sftp-state	
+	sudo rm -f /bin/MySecureShell /usr/libexec/sftp-server_MSS /usr/bin/sftp-who /usr/bin/sftp-state /usr/bin/sftp-kill /usr/bin/sftp-admin
 	sudo cat /etc/shells | sudo grep -v MySecureShell > /tmp/shells~
 	sudo mv /tmp/shells~ /etc/shells
 

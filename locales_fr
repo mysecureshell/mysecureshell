@@ -46,6 +46,7 @@ sftp-who=Installation de l'utilitaire sftp-who
 unfound=ERREUR: Le fichier est introuvable
 sftp-kill=Installation de l'utilitaire sftp-kill
 sftp-state=Installation de l'utilitaire sftp-state
+sftp-admin=Installation de l'utilitaire sftp-admin
 noutilities=Aucunes installation des utilitaires de MySecureShell
 utilsnodetec=Detection des utilitaires de MySecureShell
 finishedinst=Installation Terminee !

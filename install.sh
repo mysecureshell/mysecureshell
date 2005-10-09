@@ -318,6 +318,7 @@ if [ -d ./utils ] ; then
 # sftp-who file
 		if [ -f ./utils/sftp-who ] ; then
 			cp -f ./utils/sftp-who /usr/bin
+			chmod 755 /usr/bin/sftp-who
 			sftpinst=$sftpinst`MyGetLocale 'sftp-who'`"\t\t\t"`MyGetLocale 'ok'`"\n"
 		else
 			sftpinst=$sftpinst`MyGetLocale 'sftp-who'`"\t\t\t"`MyGetLocale 'failed'`"\n"`MyGetLocale 'unfound'`"\n"
@@ -325,6 +326,7 @@ if [ -d ./utils ] ; then
 # sftp-kill file
 		if [ -f ./utils/sftp-kill ] ; then
 			cp -f ./utils/sftp-kill /usr/bin
+			chmod 755 /usr/bin/sftp-kill
 			sftpinst=$sftpinst`MyGetLocale 'sftp-kill'`"\t\t\t"`MyGetLocale 'ok'`"\n"
 		else
 			sftpinst=$sftpinst`MyGetLocale 'sftp-kill'`"\t\t\t"`MyGetLocale 'failed'`"\n"`MyGetLocale 'unfound'`"\n"
@@ -332,10 +334,19 @@ if [ -d ./utils ] ; then
 # sftp-state file
 		if [ -f ./utils/sftp-state ] ; then
 			cp -f ./utils/sftp-state /usr/bin
+			chmod 700 /usr/bin/sftp-state
 			sftpinst=$sftpinst`MyGetLocale 'sftp-state'`"\t\t\t"`MyGetLocale 'ok'`"\n"
 			/usr/bin/sftp-state start
 		else
 			sftpinst=$sftpinst`MyGetLocale 'sftp-state'`"\t\t\t"`MyGetLocale 'failed'`"\n"`MyGetLocale 'unfound'`"\n"
+		fi
+# Sftp-admin file
+		if [ -f ./utils/sftp-admin ] ; then
+			cp -f ./utils/sftp-admin /usr/bin
+			chmod 700 /usr/bin/sftp-admin
+			sftpinst=$sftpinst`MyGetLocale 'sftp-admin'`"\t\t\t"`MyGetLocale 'ok'`"\n"
+		else
+			sftpinst=$sftpinst`MyGetLocale 'sftp-admin'`"\t\t\t"`MyGetLocale 'failed'`"\n"`MyGetLocale 'unfound'`"\n"
 		fi
 	else
 		sftpinst=$sftpinst`MyGetLocale 'noutilities'`"\t"`MyGetLocale 'ok'`"\n"

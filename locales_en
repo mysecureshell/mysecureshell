@@ -46,6 +46,7 @@ sftp-who=Installation of sftp-who tool
 unfound=ERROR: file not found
 sftp-kill=Installation of sftp-kill tool
 sftp-state=Installation of sftp-state tool
+sftp-admin=Installation of sftp-admin tool
 noutilities=No installation of MySecureShell's utilities
 utilsnodetec=Detection of MySecureShell's utilities
 finishedinst=Installation Finished !
