@@ -6,6 +6,7 @@
 #define	FREE(_PTR)		free(_PTR)
 
 #define MSS_EXECFILENAME "sftp-server_MSS"
+#define MSS_SFTPWHO "/usr/bin/sftp-who"
 
 #define	_FILE_OFFSET_BITS	64
 

@@ -703,7 +703,7 @@ static void	DoAdminListUsers()
 {
   if ((gl_var->who->status & SFTPWHO_IS_ADMIN))
     {
-      char	*buf = ExecCommand("/bin/sftp-who");
+      char	*buf = ExecCommand(MSS_SFTPWHO);
 
       if (buf)
 	{
@@ -717,6 +717,8 @@ static void	DoAdminListUsers()
 	  BufferDelete(b);
 	  FREE(buf);
 	}
+      else
+	SendStatus(bOut, 0, SSH2_FX_FAILURE);
     }
   else
     SendStatus(bOut, 0, SSH2_FX_OP_UNSUPPORTED);
