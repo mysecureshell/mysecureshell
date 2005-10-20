@@ -18,6 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include <regex.h>
+#include <signal.h>
 #include "Log.h"
 #include "SftpWho.c"
 
@@ -61,6 +62,11 @@ static void	end_sftp()
   FREE(gl_var);
 }
 
+static void	end_sftp_by_signal(int signal)
+{
+  end_sftp();
+}
+
 static void	parse_conf(int ac, char **av)
 {
   int		i, r;
@@ -74,6 +80,8 @@ static void	parse_conf(int ac, char **av)
   gl_var->rights_directory = 0777;
   gl_var->rights_file = 0666;
   atexit(end_sftp);
+  signal(SIGHUP, end_sftp_by_signal);
+  signal(SIGINT, end_sftp_by_signal);
   for (i = 1; i < ac; i++)
     {
       if (!strcmp(av[i], "--home") && av[i + 1])
