@@ -713,7 +713,7 @@ static void	DoAdminListUsers()
 	  BufferPutInt8(b, SSH_ADMIN_LIST_USERS_REPLY);
 	  BufferPutString(b, buf);
 	  BufferPutPacket(bOut, b);
-	  DEBUG((MYLOG_DEBUG, "[DoAdminListUsers]send:'%s'", buf));
+	  DEBUG((MYLOG_DEBUG, "[DoAdminListUsers]send length:'%i'", strlen(buf)));
 	  BufferDelete(b);
 	  FREE(buf);
 	}
@@ -744,7 +744,7 @@ static void	DoAdminKillUser()
 	    if ((who[i].status & SFTPWHO_STATUS_MASK) != SFTPWHO_EMPTY)
 	      if ((who[i].pid == pidToKill || pidToKill == 0) && who[i].pid != pid)
 		if (kill(who[i].pid, SIGHUP) == -1)
-		  status = errnoToPortable(errno);
+		  status = errnoToPortable(errno);	  
 	}
       SendStatus(bOut, 0, status);
     }
