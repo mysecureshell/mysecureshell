@@ -170,11 +170,15 @@ static void	parse_conf(int ac, char **av)
 	  gl_var->who->status |= SFTPWHO_STAY_AT_HOME;
 	}
     }
-  if (getuid() != geteuid())
+  if (getuid() != geteuid() && !(gl_var->who->status & SFTPWHO_IS_ADMIN))
     //if we are in utset byte mode then we restore user's rights to avoid security problems
     {
-      seteuid(getuid());
-      setegid(getgid());
+      if (seteuid(getuid()) == -1 || setegid(getgid()) == -1)
+	{
+	  mylog_printf(MYLOG_ERROR, "[%s][%s]Couldn't revoke root rights : %s",
+		       gl_var->who->user, gl_var->who->ip, strerror(errno));
+	  exit(255);
+	}
     }
 }
 
