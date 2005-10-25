@@ -703,8 +703,10 @@ static void	DoAdminListUsers()
 {
   if ((gl_var->who->status & SFTPWHO_IS_ADMIN))
     {
-      char	*buf = ExecCommand(MSS_SFTPWHO);
+      char	*buf;
+      int	ret;
 
+      buf = ExecCommand(MSS_SFTPWHO, &ret);
       if (buf)
 	{
 	  tBuffer	*b;
@@ -713,7 +715,7 @@ static void	DoAdminListUsers()
 	  BufferPutInt8(b, SSH_ADMIN_LIST_USERS_REPLY);
 	  BufferPutString(b, buf);
 	  BufferPutPacket(bOut, b);
-	  DEBUG((MYLOG_DEBUG, "[DoAdminListUsers]send length:'%i'", strlen(buf)));
+	  DEBUG((MYLOG_DEBUG, "[DoAdminListUsers]send length:'%i' return:%i", strlen(buf), ret));
 	  BufferDelete(b);
 	  FREE(buf);
 	}

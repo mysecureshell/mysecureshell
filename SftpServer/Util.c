@@ -195,14 +195,15 @@ int	errnoToPortable(int unixErrno)
   return ret;
 }
 
-char	*ExecCommand(char *cmd)
+char	*ExecCommand(char *cmd, int *myRet)
 {
   char	buffer[1024], *str = 0;
   pid_t	pid;
   int	fds[2], size = 0, ret;
 
+  *myRet = -1;
   if (pipe(fds) == -1)
-    return (0);
+      return (0);
   if (!(pid = fork()))
     {
       char	*args[2];
@@ -232,6 +233,6 @@ char	*ExecCommand(char *cmd)
       size += ret;
     }
   close(fds[0]);
-  waitpid(pid, &ret, 0);
+  waitpid(pid, myRet, 0);
   return (str);
 }
