@@ -66,6 +66,21 @@ teka2nerdman@users.sourceforge.net
 
 CHANGE LOG:
 -----------
+0.7 (november 2005) :
+        + add tags : DisableAccount, IsAdmin
+        + new program :
+                - sftp-admin : remove administration
+        ~ improve memory
+        ~ improve log file :
+                - show more details to follow one connection
+                - more information on error
+        = fix bugs with old version of MySecureShell
+        = fix bug on shell
+        = fix bug if user was in too many groups
+        = fix bug in protocol
+        = fix bug in memory
+
+
 0.61 (august 2005) :
         + add tag ConnectionMaxLife
         = fix upload bug with gFtp

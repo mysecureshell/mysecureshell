@@ -85,6 +85,20 @@ teka2nerdman@users.sourceforge.net
 
 HISTORIQUE:
 -----------
+0.7 (novembre 2005) :
+	+ ajout des tags : DisableAccount, IsAdmin
+	+ ajout d'un programme :
+		- sftp-admin : permet de faire de l'administration d'un serveur MySecureShell a distance
+	~ amelioration de la gestion de la memoire
+	~ amelioration du fichier de log :
+		- on peut differencier chaque connection
+		- plus de detail en cas d'erreur
+	= fixe des bugs entre les changements de chaque version de MySecureShell
+	= fixe un bug sur le shell
+	= fixe un bug si l'utilisateur est dans trop de groupe
+	= fixe un probleme de protocol
+	= fixe un probleme de gestion de la memoire
+
 0.61 (aout 2005) :
 	+ ajout du tag ConnectionMaxLife
 	= fixe un bug sur l'upload des fichiers avec gFtp
