@@ -49,7 +49,7 @@ endif
 
 ifeq ($(DEBUG), 1)
 	CFLAGS	+= -DDODEBUG -g3
-	LDFLAGS	+= -lefence
+#	LDFLAGS	+= -lefence
 endif
 
 RM	= rm -f
