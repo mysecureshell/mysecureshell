@@ -36,7 +36,13 @@
 #Rules only for group ftp
 <Group ftp>
 	Download	25 k/s
+</Group>
+
+<Group sftp_administrator>
 	IsAdmin		true		#can admin the server
+	VirtualChroot	false		#you must disable chroot to have a full support of admin
+	StayAtHome	true
+	IdleTimeOut	0
 </Group>
 
 <Group old_client>
@@ -60,6 +66,8 @@
 	ByPassGlobalUpload	true	#bypass GlobalUpload restriction
 	Download		0
 	DisableAccount		false	#enable account
+	IdleTimeOut		0	#disable timeout
+	LimitConnectionByIP	0	#no limit
 </IpRange>
 
 
