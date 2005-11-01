@@ -4,7 +4,7 @@ English:
 
 What is it ?
 This application is a graphical fronted for all sftp
-utils (sftp-kill, sftp-state, sftp-who, ...)
+utils (sftp-kill, sftp-state, sftp-who, sftp-admin, ...)
 
 
 Warning:
@@ -27,7 +27,7 @@ French:
 Que fait l'application ?
 Cette application permet d'avoir acces dans un
 environnement graphique aux commandes utilitaires
-sftp (sftp-kill, sftp-state, sftp-who, ...)
+sftp (sftp-kill, sftp-state, sftp-who, sftp-admin, ...)
 
 
 Attention:
