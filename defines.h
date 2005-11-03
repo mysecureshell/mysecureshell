@@ -7,6 +7,7 @@
 
 #define MSS_EXECFILENAME "sftp-server_MSS"
 #define MSS_SFTPWHO "/usr/bin/sftp-who"
+#define MSS_LOG "/var/log/sftp-server.log"
 
 #define	_FILE_OFFSET_BITS	64
 

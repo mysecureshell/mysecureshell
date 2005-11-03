@@ -71,7 +71,7 @@ static void	parse_conf(int ac, char **av)
 {
   int		i, r;
   
-  mylog_open("/var/log/sftp-server.log");
+  mylog_open(MSS_LOG);
   gl_var = MALLOC(sizeof(*gl_var));
   memset(gl_var, 0, sizeof(*gl_var));
   gl_var->who = SftpWhoGetStruct(1);
