@@ -75,17 +75,17 @@ sftpwho : $(OBJ1)
 	@$(CHMOD) 711 $(NAME1)
 
 sftpstate: $(OBJ2)
-	@echo "Compile binary   [$(NAME2)]"
+	@echo "Compile binary	[$(NAME2)]"
 	@$(CC) -o $(NAME2) $(OBJ2) $(LDFLAGS)
 	@$(CHMOD) 711 $(NAME2)
 
 sftpserver: $(OBJ3)
-	@echo "Compile binary   [$(NAME3)]"
+	@echo "Compile binary	[$(NAME3)]"
 	@$(CC) -o $(NAME3) $(OBJ3) $(LDFLAGS)
 	@$(CHMOD) 711 $(NAME3)
 
 sftpadmin : $(OBJ4)
-	@echo "Compile binary   [$(NAME4)]"
+	@echo "Compile binary	[$(NAME4)]"
 	@$(CC) -o $(NAME4) $(OBJ4) $(LDFLAGS)
 	@$(CHMOD) 711 $(NAME4)
 
