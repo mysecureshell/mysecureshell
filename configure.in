@@ -1,0 +1,51 @@
+#                                               -*- Autoconf -*-
+# Process this file with autoconf to produce a configure script.
+
+AC_PREREQ(2.59)
+AC_INIT([MySecureShell],[0.8b1],[teka2nerdman@sourceforge.net])
+AC_CONFIG_HEADER(config.h)
+
+# Checks for programs.
+AC_PROG_CC
+AC_PATH_PROG(SED, sed)
+
+# Checks for libraries.
+AC_CHECK_LIB([kvm], [kvm_open])
+AC_CHECK_LIB([efence], [malloc])
+
+# Checks for header files.
+AC_GNU_SOURCE
+AC_HEADER_DIRENT
+AC_HEADER_STDC
+AC_CHECK_HEADERS([arpa/inet.h fcntl.h netdb.h netinet/in.h stdlib.h string.h strings.h sys/param.h sys/socket.h unistd.h])
+
+# Checks for typedefs, structures, and compiler characteristics.
+AC_C_CONST
+AC_TYPE_UID_T
+AC_STRUCT_TM
+AC_TYPE_SIGNAL
+AC_SYS_LARGEFILE
+
+# Checks for library functions.
+AC_FUNC_CLOSEDIR_VOID
+AC_FUNC_FORK
+AC_FUNC_STAT
+AC_CHECK_FUNCS([endgrent gethostbyaddr gethostbyname strcasecmp strchr strdup strerror strrchr strstr])
+
+#Own defines
+test "$prefix" = NONE && prefix=/
+
+A=`eval echo ${sysconfdir} | sed -e 's/\///'`
+AC_DEFINE_UNQUOTED(SHUTDOWN_FILE, "${A}/sftp.shut", Etcdir)
+AC_DEFINE_UNQUOTED(CONFIG_FILE, "${A}/ssh/sftp_config", Etcdir)
+AC_DEFINE_UNQUOTED(CONFIG_FILE2, "${A}/sshd/sftp_config", Etcdir)
+AC_DEFINE(MSS_SFTPWHO, "/usr/bin/sftp-who", Sftpwhodir)
+AC_DEFINE(MSS_LOG, "/var/log/sftp-server.log", Logdir)
+AC_DEFINE(HAVE_LOG_IN_COLOR, 1, Colorlog)
+if test -z "$HAVE_LIBKVM" ; then
+   AC_DEFINE(HAVE_NOTHING, 1, Havenothing)
+fi
+
+#End
+AC_CONFIG_FILES([Makefile])
+AC_OUTPUT

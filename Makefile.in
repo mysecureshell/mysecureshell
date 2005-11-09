@@ -1,5 +1,4 @@
-EXT	=
-VERSION = `grep Build main.c | sed -e 's/^.*"\([^"]*\)".*/\1/' | tr . _`
+VERSION = @PACKAGE_VERSION@
 CPU	= "`uname -m`"
 OS	= "__OS`uname -s | sed -e 's/[-\.]/_/g'`"
 ARCHIVE	= MySecureShell-$(OSTYPE)-$(CPU)-$(VERSION)
@@ -39,21 +38,16 @@ FILE	= sftp_config utils/sftp-kill LICENSE README-fr README-en				\
 CFLAGS	= -Wall -Wunused -Wpointer-arith -Wno-uninitialized -O2 -D$(OS) -ISftpServer
 DEBUG	= 0
 
-ifneq (,$(findstring $(OSTYPE), linux))
-	LDFLAGS	=
-else
-ifneq ($(OSTYPE), )
-	LDFLAGS	= -lkvm
-endif
-endif
+LDFLAGS	= @LIBS@
 
 ifeq ($(DEBUG), 1)
 	CFLAGS	+= -DDODEBUG -g3
-#	LDFLAGS	+= -lefence
 endif
 
+CC	= @CC@
+EXT	= @EXEEXT@
+
 RM	= rm -f
-CC	= gcc
 CHMOD	= chmod
 TAR	= tar
 CP	= cp -pf
@@ -96,6 +90,7 @@ clean	:
 fclean	: clean
 	@echo "Delete all unecessary files"
 	@$(RM) $(NAME) $(NAME1) $(NAME2) $(NAME3) $(NAME4)
+	@$(RM) config.h Makefile
 	@$(RM) -i `$(FIND) . | grep -F '~'` *.tgz || true
 
 re	: fclean all
@@ -110,7 +105,7 @@ package : re
 
 source	: fclean
 	@echo "Tar the world"
-	@$(TAR) cfz MySecureShell-$(VERSION)_source.tgz $(FILE) *.[ch] */*.[ch] Makefile
+	@$(TAR) cfz MySecureShell-$(VERSION)_source.tgz $(FILE) *.[ch] */*.[ch] Makefile.in config.h.in configure
 	@echo "Source package done."
 
 cvs	:
