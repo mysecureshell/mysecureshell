@@ -59,7 +59,7 @@ static void	end_sftp()
   gl_var->who->status = SFTPWHO_EMPTY;
   SftpWhoRelaseStruct();
   regfree(&gl_var->hide_files_regexp);
-  FREE(gl_var);
+  free(gl_var);
 }
 
 static void	end_sftp_by_signal(int signal)
@@ -72,7 +72,7 @@ static void	parse_conf(int ac, char **av)
   int		i, r;
   
   mylog_open(MSS_LOG);
-  gl_var = MALLOC(sizeof(*gl_var));
+  gl_var = malloc(sizeof(*gl_var));
   memset(gl_var, 0, sizeof(*gl_var));
   gl_var->who = SftpWhoGetStruct(1);
   gl_var->who->time_begin = time(0);

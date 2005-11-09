@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#include "../defines.h"
+#include "../config.h"
 #include <fcntl.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -44,7 +44,7 @@ void	mylog_open(char *file)
 
   if ((fd = open(file, O_CREAT | O_APPEND | O_WRONLY, 0644)) != -1)
     {
-      _log = MALLOC(sizeof(*_log));
+      _log = malloc(sizeof(*_log));
       memset(_log, 0, sizeof(*_log));
       _log->pid = getpid();
       _log->fd = fd;
@@ -84,7 +84,7 @@ void	mylog_close()
   if (_log)
     {
       close(_log->fd);
-      FREE(_log);
+      free(_log);
       _log = 0;
     }
 }

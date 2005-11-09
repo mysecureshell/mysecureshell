@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <string.h>
 #include <unistd.h>
 #include "conf.h"
-#include "defines.h"
+#include "config.h"
 #include "ip.h"
 #include "parsing.h"
 #include "prog.h"
@@ -49,7 +49,7 @@ static void	parse_args(int ac, char **av)
     else if (!strcmp(av[i], "--help"))
       {
       help:
-	printf("Build:\n\t%s is version %s build on " __DATE__ "\n\n", av[0], "0.7");
+	printf("Build:\n\t%s is version %s build on " __DATE__ "\n\n", av[0], PACKAGE_VERSION);
 	printf("Usage:\n\t%s [verbose] [options]\n\nOptions:\n", av[0]);
 	printf("\t--configtest : test the config file and show errors\n");
 	printf("\t--help       : show this screen\n");

@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#include "../defines.h"
+#include "../config.h"
 
 typedef struct	s_info
 {
@@ -37,7 +37,7 @@ void		init_usersinfos()
   setpwent();
   for (size = 0; (pw = getpwent()); size++)
     {
-      _users = REALLOC(_users, (size + 2) * sizeof(*_users));
+      _users = realloc(_users, (size + 2) * sizeof(*_users));
       _users[size].name = strdup(pw->pw_name);
       _users[size].id = pw->pw_uid;
     }
@@ -46,7 +46,7 @@ void		init_usersinfos()
   setgrent();
   for (size = 0; (grp = getgrent()); size++)
     {
-      _groups = REALLOC(_groups, (size + 2) * sizeof(*_groups));
+      _groups = realloc(_groups, (size + 2) * sizeof(*_groups));
       _groups[size].name = strdup(grp->gr_name);
       _groups[size].id = grp->gr_gid;
     }

@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#include "../defines.h"
+#include "../config.h"
 #include <grp.h>
 #include <pwd.h>
 #include <stdio.h>
@@ -78,7 +78,7 @@ tAttributes		*GetAttributes(tBuffer *bIn)
     }
   if (a.flags & SSH2_FILEXFER_ATTR_ACL) //unsupported feature
     {
-      FREE(BufferGetString(bIn));
+      free(BufferGetString(bIn));
     }
   if (a.flags & SSH2_FILEXFER_ATTR_EXTENDED) //unsupported feature
     {
@@ -87,8 +87,8 @@ tAttributes		*GetAttributes(tBuffer *bIn)
       count = BufferGetInt32(bIn);
       for (i = 0; i < count; i++)
 	{
-	  FREE(BufferGetString(bIn));
-	  FREE(BufferGetString(bIn));
+	  free(BufferGetString(bIn));
+	  free(BufferGetString(bIn));
 	}
     }
   return (&a);

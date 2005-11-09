@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#include "../defines.h"
+#include "../config.h"
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/shm.h>
@@ -105,9 +105,9 @@ t_sftpwho	*SftpWhoGetStruct(int create)
     }
   if (create == 1)
     {
-      _sftpglobal = MALLOC(sizeof(*_sftpglobal));
+      _sftpglobal = malloc(sizeof(*_sftpglobal));
       memset(_sftpglobal, 0, sizeof(*_sftpglobal));
-      who = MALLOC(sizeof(*who));
+      who = malloc(sizeof(*who));
       memset(who, 0, sizeof(*who));
     }
   return (who);

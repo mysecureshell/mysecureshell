@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#include "../defines.h"
+#include "../config.h"
 #include <errno.h>
 #include <dirent.h>
 #include <fcntl.h>
@@ -77,7 +77,7 @@ static void	DoRealPath()
   resolvedName[0] = 0;
   if (!path[0])
     {
-      FREE(path);
+      free(path);
       path = strdup(".");
     }
   if (!realpath(path, resolvedName))
@@ -93,7 +93,7 @@ static void	DoRealPath()
       SendStats(bOut, id, 1, &s);
     }
   DEBUG((MYLOG_DEBUG, "[DoRealPath]path:'%s' -> '%s'", path, resolvedName));
-  FREE(path);
+  free(path);
 }
 
 static void	DoOpenDir()
@@ -125,7 +125,7 @@ static void	DoOpenDir()
   DEBUG((MYLOG_DEBUG, "[DoOpenDir]path:'%s' status:%i", path, status));
   if (status != SSH2_FX_OK)
     SendStatus(bOut, id, status);
-  FREE(path);
+  free(path);
 }
 
 static void	DoReadDir()
@@ -150,7 +150,7 @@ static void	DoReadDir()
       tStat 		*s;
       int		nstats = 100, count = 0, i;
       
-      s = MALLOC(nstats * sizeof(tStat));
+      s = malloc(nstats * sizeof(tStat));
       while ((dp = readdir(dir)))
 	{
 	  snprintf(pathName, sizeof(pathName), "%s%s%s", path,
@@ -197,7 +197,7 @@ static void	DoReadDir()
 	}
       else
 	SendStatus(bOut, id, SSH2_FX_EOF);
-      FREE(s);
+      free(s);
     }
 }
 
@@ -274,7 +274,7 @@ static void	DoOpen()
   DEBUG((MYLOG_DEBUG, "[DoOpen]file:'%s' pflags:%i perm:0%o fd:%i status:%i", path, pflags, mode, fd, status));
   if (status != SSH2_FX_OK)
     SendStatus(bOut, id, status);
-  FREE(path);
+  free(path);
 }
 
 static void	DoRead()
@@ -385,7 +385,7 @@ static void	DoReadLink()
     }
   else
     SendStatus(bOut, id, status);
-  FREE(path);
+  free(path);
 }
 
 static void	DoStat(int (*f_stat)(const char *, struct stat *))
@@ -417,7 +417,7 @@ static void	DoStat(int (*f_stat)(const char *, struct stat *))
   else
     SendStatus(bOut, id, status);
   DEBUG((MYLOG_DEBUG, "[Do%sStat]path:'%s' -> '%i'", f_stat == stat ? "" : "L", path, r));
-  FREE(path);
+  free(path);
 }
 
 static void	DoFStat()
@@ -485,7 +485,7 @@ static void 	DoSetStat()
     }
   DEBUG((MYLOG_DEBUG, "[DoSetStat]path:'%s' -> '%i'", path, status));
   SendStatus(bOut, id, status);
-  FREE(path);
+  free(path);
 }
 
 static void 	DoFSetStat()
@@ -544,7 +544,7 @@ static void	DoRemove()
     }
   DEBUG((MYLOG_DEBUG, "[DoRemove]path:'%s' -> '%i'", path, status));
   SendStatus(bOut, id, status);
-  FREE(path);
+  free(path);
 }
 
 static void	DoMkDir()
@@ -567,7 +567,7 @@ static void	DoMkDir()
     }
   SendStatus(bOut, id, status);
   DEBUG((MYLOG_DEBUG, "[DoMkDir]path:'%s' -> '%i'", path, status));
-  FREE(path);
+  free(path);
 }
 
 static void	DoRmDir()
@@ -587,7 +587,7 @@ static void	DoRmDir()
     }
   SendStatus(bOut, id, status);
   DEBUG((MYLOG_DEBUG, "[DoRmDir]path:'%s' -> '%i'", path, status));
-  FREE(path);
+  free(path);
 }
 
 static void	DoRename()
@@ -653,8 +653,8 @@ static void	DoRename()
     status = SSH2_FX_PERMISSION_DENIED;
   DEBUG((MYLOG_DEBUG, "[DoRename]oldPath:'%s' newPath:'%s' -> '%i'", oldPath, newPath, status));
   SendStatus(bOut, id, status);
-  FREE(oldPath);
-  FREE(newPath);
+  free(oldPath);
+  free(newPath);
 }
 
 static void	DoSymLink()
@@ -674,8 +674,8 @@ static void	DoSymLink()
       DEBUG((MYLOG_DEBUG, "[DoSymLink]oldPath:'%s' newPath:'%s' -> '%i'", oldPath, newPath, status));
     }
   SendStatus(bOut, id, status);
-  FREE(oldPath);
-  FREE(newPath);
+  free(oldPath);
+  free(newPath);
 }
 
 static void	DoUnsupported(int msgType, int msgLen)
@@ -696,7 +696,7 @@ static void	DoExtended()
   request = BufferGetString(bIn);
   SendStatus(bOut, id, SSH2_FX_OP_UNSUPPORTED);
   DEBUG((MYLOG_DEBUG, "[DoExtended]request:'%s'", request));
-  FREE(request);
+  free(request);
 }
 
 static void	DoAdminListUsers()
@@ -717,7 +717,7 @@ static void	DoAdminListUsers()
 	  BufferPutPacket(bOut, b);
 	  DEBUG((MYLOG_DEBUG, "[DoAdminListUsers]send length:'%i' return:%i", strlen(buf), ret));
 	  BufferDelete(b);
-	  FREE(buf);
+	  free(buf);
 	}
       else
 	SendStatus(bOut, 0, SSH2_FX_FAILURE);

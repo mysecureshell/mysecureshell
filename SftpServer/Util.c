@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#include "../defines.h"
+#include "../config.h"
 #include <errno.h>
 #include <fcntl.h>
 #include <grp.h>
@@ -224,11 +224,11 @@ char	*ExecCommand(char *cmd, int *myRet)
       return (0);
     }
   close(fds[1]);
-  str = MALLOC(1);
+  str = malloc(1);
   str[0] = 0;
   while ((ret = read(fds[0], buffer, sizeof(buffer))) > 0)
     {
-      str = REALLOC(str, size + ret + 1);
+      str = realloc(str, size + ret + 1);
       strncat(str, buffer, ret);
       size += ret;
     }
