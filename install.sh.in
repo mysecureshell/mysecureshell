@@ -5,6 +5,8 @@
 
 ## Language local initialising
 
+BINDIR=@BINDIR@
+ETCDIR=@ETCDIR@
 LANG=
 
 ## Functions Looking for available languages
@@ -84,7 +86,7 @@ else
 	MyGetLocale 'validshellask'
 	read rep3
 	if [ $rep3 = "y" ] ; then
-		echo "/bin/MySecureShell" >>/etc/shells
+		echo "/bin/MySecureShell" >> /etc/shells
 		sftpinst=$sftpinst`MyGetLocale 'shellvalid'`"\t\t"`MyGetLocale 'ok'`"\n"
 	else
 		if [ $rep3 = "n" ] ; then
@@ -176,23 +178,23 @@ fi
 
 ## If MSS is present, stop server
 
-if [ -f /usr/bin/sftp-state ] ; then
+if [ -f $BINDIR/sftp-state ] ; then
 	MyGetLocale 'statestopquest'
-	/usr/bin/sftp-state stop
+	$BINDIR/sftp-state stop
 fi
 
 ## Existing ssh or sshd folder
 
-if [ -d /etc/sshd ] ; then
-	sshfolder=/etc/sshd
+if [ -d $ETCDIR/sshd ] ; then
+	sshfolder=$ETCDIR/sshd
 else
-	if [ -d /etc/ssh ] ; then
-		sshfolder=/etc/ssh
+	if [ -d $ETCDIR/ssh ] ; then
+		sshfolder=$ETCDIR/ssh
 	else
 		MyGetLocale 'mksshfolder'
 		read repssh
 		if [ $repssh = 'y' ] ; then
-			sshfolder=/etc/ssh
+			sshfolder=$ETCDIR/ssh
 			mkdir $sshfolder
 			sftpinst=`MyGetLocale 'lgsshfolder'`"\t\t\t\t"`MyGetLocale 'ok'`"\t\n"
 		else
@@ -242,7 +244,7 @@ fi
 cp -f ./MySecureShell /bin
 chmod 755 /bin/MySecureShell
 
-## /etc/shells detection
+## /shells detection
 
 if [ -f /etc/shells ] ; then
 	shellfunc
@@ -317,33 +319,33 @@ if [ -d ./utils ] ; then
 	if [ $rep6 = 'y' ] ; then
 # sftp-who file
 		if [ -f ./utils/sftp-who ] ; then
-			cp -f ./utils/sftp-who /usr/bin
-			chmod 755 /usr/bin/sftp-who
+			cp -f ./utils/sftp-who $BINDIR
+			chmod 755 $BINDIR/sftp-who
 			sftpinst=$sftpinst`MyGetLocale 'sftp-who'`"\t\t\t"`MyGetLocale 'ok'`"\n"
 		else
 			sftpinst=$sftpinst`MyGetLocale 'sftp-who'`"\t\t\t"`MyGetLocale 'failed'`"\n"`MyGetLocale 'unfound'`"\n"
 		fi
 # sftp-kill file
 		if [ -f ./utils/sftp-kill ] ; then
-			cp -f ./utils/sftp-kill /usr/bin
-			chmod 755 /usr/bin/sftp-kill
+			cp -f ./utils/sftp-kill $BINDIR
+			chmod 755 $BINDIR/sftp-kill
 			sftpinst=$sftpinst`MyGetLocale 'sftp-kill'`"\t\t\t"`MyGetLocale 'ok'`"\n"
 		else
 			sftpinst=$sftpinst`MyGetLocale 'sftp-kill'`"\t\t\t"`MyGetLocale 'failed'`"\n"`MyGetLocale 'unfound'`"\n"
 		fi
 # sftp-state file
 		if [ -f ./utils/sftp-state ] ; then
-			cp -f ./utils/sftp-state /usr/bin
-			chmod 700 /usr/bin/sftp-state
+			cp -f ./utils/sftp-state $BINDIR
+			chmod 700 $BINDIR/sftp-state
 			sftpinst=$sftpinst`MyGetLocale 'sftp-state'`"\t\t\t"`MyGetLocale 'ok'`"\n"
-			/usr/bin/sftp-state start
+			$BINDIR/sftp-state start
 		else
 			sftpinst=$sftpinst`MyGetLocale 'sftp-state'`"\t\t\t"`MyGetLocale 'failed'`"\n"`MyGetLocale 'unfound'`"\n"
 		fi
 # Sftp-admin file
 		if [ -f ./utils/sftp-admin ] ; then
-			cp -f ./utils/sftp-admin /usr/bin
-			chmod 700 /usr/bin/sftp-admin
+			cp -f ./utils/sftp-admin $BINDIR
+			chmod 700 $BINDIR/sftp-admin
 			sftpinst=$sftpinst`MyGetLocale 'sftp-admin'`"\t\t\t"`MyGetLocale 'ok'`"\n"
 		else
 			sftpinst=$sftpinst`MyGetLocale 'sftp-admin'`"\t\t\t"`MyGetLocale 'failed'`"\n"`MyGetLocale 'unfound'`"\n"

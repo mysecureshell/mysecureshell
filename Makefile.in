@@ -33,8 +33,10 @@ SRC4	= SftpAdmin/Main.c SftpServer/Buffer.c
 OBJ4	= $(SRC4:.c=.o)
 
 
-FILE	= sftp_config utils/sftp-kill LICENSE README-fr README-en				\
+FILE	= sftp_config utils/sftp-kill LICENSE README-fr README-en	\
 	  install.sh locales_en locales_fr uninstaller.sh
+FILESRC	= sftp_config utils/sftp-kill LICENSE README-fr README-en	\
+	  Makefile.in config.h.in configure install.sh.in uninstaller.sh.in
 CFLAGS	= -Wall -Wunused -Wpointer-arith -Wno-uninitialized -O2 -D$(OS) -ISftpServer
 DEBUG	= 0
 
@@ -105,7 +107,7 @@ package : re
 
 source	: fclean
 	@echo "Tar the world"
-	@$(TAR) cfz MySecureShell-$(VERSION)_source.tgz $(FILE) *.[ch] */*.[ch] Makefile.in config.h.in configure
+	@$(TAR) cfz MySecureShell-$(VERSION)_source.tgz $(FILESRC) *.[ch] */*.[ch]
 	@echo "Source package done."
 
 cvs	:

@@ -34,12 +34,17 @@ AC_CHECK_FUNCS([endgrent gethostbyaddr gethostbyname strcasecmp strchr strdup st
 
 #Own defines
 test "$prefix" = NONE && prefix=/
+if test -z "$BINDIR" ; then
+BINDIR="/usr/bin"
+fi
 
 A=`eval echo ${sysconfdir} | sed -e 's/\///'`
+AC_SUBST(ETCDIR, "${A}")
+AC_SUBST(BINDIR, "${BINDIR}")
 AC_DEFINE_UNQUOTED(SHUTDOWN_FILE, "${A}/sftp.shut", Etcdir)
 AC_DEFINE_UNQUOTED(CONFIG_FILE, "${A}/ssh/sftp_config", Etcdir)
 AC_DEFINE_UNQUOTED(CONFIG_FILE2, "${A}/sshd/sftp_config", Etcdir)
-AC_DEFINE(MSS_SFTPWHO, "/usr/bin/sftp-who", Sftpwhodir)
+AC_DEFINE(MSS_SFTPWHO, "${BINDIR}/sftp-who", Sftpwhodir)
 AC_DEFINE(MSS_LOG, "/var/log/sftp-server.log", Logdir)
 AC_DEFINE(HAVE_LOG_IN_COLOR, 1, Colorlog)
 if test -z "$HAVE_LIBKVM" ; then
@@ -48,4 +53,13 @@ fi
 
 #End
 AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([install.sh], [chmod +x install.sh])
+AC_CONFIG_FILES([uninstaller.sh], [chmod +x uninstaller.sh])
 AC_OUTPUT
+
+A=`eval echo ${sysconfdir} | sed -e 's/\///'`
+echo ""
+echo "MySecureShell has been configured with the following options:"
+echo "      User binaries: $BINDIR"
+echo "      Shutdown file: ${A}/sftp.shut";
+echo "Configuration files: ${A}/ssh/sftp_config ${A}/sshd/sftp_config"

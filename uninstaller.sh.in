@@ -5,6 +5,8 @@
 
 ## Language local initialising
 
+BINDIR=@BINDIR@
+ETCDIR=@ETCDIR@
 LANG=
 
 ## Functions Looking for available languages
@@ -43,7 +45,7 @@ clear
 MyGetLocale 'uninst?'
 read ans
 if [ $ans = "y" ] ; then
-	sudo rm -f /bin/MySecureShell /usr/libexec/sftp-server_MSS /usr/bin/sftp-who /usr/bin/sftp-state /usr/bin/sftp-kill /usr/bin/sftp-admin
+	sudo rm -f /bin/MySecureShell /usr/libexec/sftp-server_MSS $BINDIR/sftp-who $BINDIR/sftp-state $BINDIR/sftp-kill $BINDIR/sftp-admin
 	sudo cat /etc/shells | sudo grep -v MySecureShell > /tmp/shells~
 	sudo mv /tmp/shells~ /etc/shells
 
@@ -63,7 +65,7 @@ if [ $ans = "y" ] ; then
 	MyGetLocale 'delconf?'
 	read ans2
 	if [ $ans2 = "y" ] ; then
-		sudo rm -f /etc/ssh/sftp-config
+		sudo rm -f $ETCDIR/ssh/sftp-config $ETCDIR/sshd/sftp-config
 	else
 		break
 	fi
