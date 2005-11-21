@@ -33,6 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Util.h"
 #include "Send.h"
 #include "Sftp.h"
+#include "Encoding.h"
 
 static tBuffer	*bIn = 0;
 static tBuffer	*bOut = 0;
@@ -73,7 +74,7 @@ static void	DoRealPath()
   char		*path;
 	
   id = BufferGetInt32(bIn);
-  path = BufferGetString(bIn);
+  path = convertFromUtf8(BufferGetString(bIn), 1);
   resolvedName[0] = 0;
   if (!path[0])
     {
@@ -89,8 +90,15 @@ static void	DoRealPath()
       memset(&s, 0, sizeof(s));
       if (strcmp(path, ".") && strcmp(path, "./."))
 	ResolvPath(path, resolvedName);
-      s.name = s.longName = resolvedName;
+      if (cVersion >= 4)
+	s.name = convertToUtf8(resolvedName, 0);
+      else
+	{
+	  s.name = s.longName = resolvedName;
+	}
       SendStats(bOut, id, 1, &s);
+      if (cVersion >= 4)
+	free(s.name);
     }
   DEBUG((MYLOG_DEBUG, "[DoRealPath]path:'%s' -> '%s'", path, resolvedName));
   free(path);
@@ -104,7 +112,7 @@ static void	DoOpenDir()
   int		status = (cVersion <= 3 ? SSH2_FX_FAILURE : SSH4_FX_INVALID_HANDLE);
 	
   id = BufferGetInt32(bIn);
-  path = BufferGetString(bIn);
+  path = convertFromUtf8(BufferGetString(bIn), 1);
   if ((status = CheckRules(path, RULES_DIRECTORY, 0, O_RDONLY)) == SSH2_FX_OK)
     {
       if (!(dir = opendir(path)))
@@ -176,8 +184,12 @@ static void	DoReadDir()
 	    {
 	      ChangeRights(&st);
 	      StatToAttributes(&st, &(s[count].attributes));
-	      s[count].name = strdup(dp->d_name);
-	      s[count].longName = LsFile(dp->d_name, &st);
+	      if (cVersion <= 3)
+		s[count].name = strdup(dp->d_name);
+	      else
+		s[count].name = convertToUtf8(dp->d_name, 0);
+	      if (cVersion <= 3)
+		s[count].longName = LsFile(dp->d_name, &st);
 	      DEBUG((MYLOG_DEBUG, "[DoReadDir] -> '%s' handle:%i [%i]", pathName, h, count));
 	      count++;
 	      if (count == nstats)
@@ -192,7 +204,8 @@ static void	DoReadDir()
 	  for (i = 0; i < count; i++)
 	    {
 	      free(s[i].name);
-	      free(s[i].longName);
+	      if (cVersion <= 3)
+		free(s[i].longName);
 	    }
 	}
       else
@@ -226,7 +239,7 @@ static void	DoOpen()
   int		fd, flags, mode, status = SSH2_FX_FAILURE;
 
   id = BufferGetInt32(bIn);
-  path = BufferGetString(bIn);
+  path = convertFromUtf8(BufferGetString(bIn), 1);
   pflags = BufferGetInt32(bIn);
   a = GetAttributes(bIn);
   flags = FlagsFromPortable(pflags);
@@ -367,7 +380,7 @@ static void	DoReadLink()
   int		len;
 
   id = BufferGetInt32(bIn);
-  path = BufferGetString(bIn);
+  path = convertFromUtf8(BufferGetString(bIn), 1);
   if ((status = CheckRules(path, RULES_FILE, 0, O_RDONLY)) == SSH2_FX_OK)
     {
       if ((len = readlink(path, readLink, sizeof(readLink) - 1)) == -1)
@@ -397,7 +410,7 @@ static void	DoStat(int (*f_stat)(const char *, struct stat *))
   int		r;
   
   id = BufferGetInt32(bIn);
-  path = BufferGetString(bIn);
+  path = convertFromUtf8(BufferGetString(bIn), 1);
   if (cVersion >= 4)
     flags = BufferGetInt32(bIn);
   if ((status = CheckRules(path, RULES_NONE, 0, 0)) == SSH2_FX_OK)
@@ -458,7 +471,7 @@ static void 	DoSetStat()
   int		status = SSH2_FX_OK;
 
   id = BufferGetInt32(bIn);
-  path = BufferGetString(bIn);
+  path = convertFromUtf8(BufferGetString(bIn), 1);
   a = GetAttributes(bIn);
   if ((status = CheckRules(path, RULES_NONE, 0, 0)) == SSH2_FX_OK)
     {
@@ -534,7 +547,7 @@ static void	DoRemove()
   int		status = SSH2_FX_OK;
 
   id = BufferGetInt32(bIn);
-  path = BufferGetString(bIn);
+  path = convertFromUtf8(BufferGetString(bIn), 1);
   if ((status = CheckRules(path, RULES_RMFILE, 0, 0)) == SSH2_FX_OK)
     {
       if (unlink(path) == -1)
@@ -555,7 +568,7 @@ static void	DoMkDir()
   int		mode, status = SSH2_FX_OK;
 
   id = BufferGetInt32(bIn);
-  path = BufferGetString(bIn);
+  path = convertFromUtf8(BufferGetString(bIn), 1);
   a = GetAttributes(bIn);
   mode = (a->flags & SSH2_FILEXFER_ATTR_PERMISSIONS) ? a->perm & 0777 : gl_var->rights_directory;
   if ((status = CheckRules(path, RULES_DIRECTORY, 0, O_WRONLY)) == SSH2_FX_OK)
@@ -577,7 +590,7 @@ static void	DoRmDir()
   int		status = SSH2_FX_OK;
 
   id = BufferGetInt32(bIn);
-  path = BufferGetString(bIn);
+  path = convertFromUtf8(BufferGetString(bIn), 1);
   if ((status = CheckRules(path, RULES_RMDIRECTORY, 0, 0)) == SSH2_FX_OK)
     {
       if (rmdir(path) == -1)
@@ -598,8 +611,8 @@ static void	DoRename()
   int		status = SSH2_FX_FAILURE;
 
   id = BufferGetInt32(bIn);
-  oldPath = BufferGetString(bIn);
-  newPath = BufferGetString(bIn);
+  oldPath = convertFromUtf8(BufferGetString(bIn), 1);
+  newPath = convertFromUtf8(BufferGetString(bIn), 1);
   if ((status = CheckRules(oldPath, RULES_RMFILE, 0, 0)) == SSH2_FX_OK
       && (status = CheckRules(newPath, RULES_FILE, 0, O_WRONLY)) == SSH2_FX_OK)
     {
@@ -664,8 +677,8 @@ static void	DoSymLink()
   int		status = SSH2_FX_OK;
 
   id = BufferGetInt32(bIn);
-  oldPath = BufferGetString(bIn);
-  newPath = BufferGetString(bIn);
+  oldPath = convertFromUtf8(BufferGetString(bIn), 1);
+  newPath = convertFromUtf8(BufferGetString(bIn), 1);
   if ((status = CheckRules(oldPath, RULES_FILE, 0, O_RDONLY)) == SSH2_FX_OK
       && (status = CheckRules(newPath, RULES_FILE, 0, O_WRONLY)) == SSH2_FX_OK)
     {
@@ -926,6 +939,23 @@ int			main(int ac, char **av)
   atexit(mem_close);
   atexit(log_close);
   #endif*/
+  if (0)
+    {
+      int fd;
+      
+      fd = open("/root/gatewayIn", O_RDWR);
+      if (fd >= 0)
+	{
+	  dup2(fd, 0);
+	  close(fd);
+	}
+      fd = open("/root/gatewayOut", O_RDWR);
+      if (fd >= 0)
+	{
+	  dup2(fd, 1);
+	  close(fd);
+	}
+    }
 
   bIn = BufferNew();
   bOut = BufferNew();

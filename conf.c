@@ -89,6 +89,7 @@ void	load_config(char verbose)
 	printf("SftpProtocol\t\t= %i\n", r);
       printf("DisableAccount\t\t= %s\n", hash_get_int("DisableAccount") == 0 ? "false" : "true");
       printf("IsAdmin\t\t\t= %s\n", hash_get_int("IsAdmin") == 0 ? "false" : "true");
+      printf("Charset\t\t\t= %s\n", (char *)hash_get("Charset"));
     }
 }
 
@@ -210,6 +211,8 @@ int	load_config_file(char *file, char verbose, int max_recursive_left)
 			    hash_set_int(tb[0], convert_boolean_to_int(tb[1]));
 			  else if (!strcmp(tb[0], "IsAdmin") && tb[1])
                             hash_set_int(tb[0], convert_boolean_to_int(tb[1]));
+			  else if (!strcmp(tb[0], "Charset") && tb[1])
+			    hash_set(tb[0], (void *)strdup(tb[1]));
 			  else
 			    err1 = 1;
 			}

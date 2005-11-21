@@ -141,7 +141,7 @@ int	main(int ac, char **av, char **env)
 	       (hash_get_int("IsAdmin") ? SFTPWHO_IS_ADMIN : 0)
 	       );
 
-      args = calloc(sizeof(*args), 40);//be aware of the buffer overflow
+      args = calloc(sizeof(*args), 42);//be aware of the buffer overflow
       nb_args = 0;
       args[nb_args++] = exe;
       args[nb_args++] = "--user";
@@ -227,6 +227,11 @@ int	main(int ac, char **av, char **env)
           args[nb_args++] = "--max-life";
           args[nb_args++] = hash_get_int_to_char("ConnectionMaxLife");
         }
+      if (hash_get("Charset"))
+	{
+	  args[nb_args++] = "--charset";
+          args[nb_args++] = strdup((char *)hash_get("Charset"));
+	}
       //check if the server is up ans user is not admin
       if ((fd = open(SHUTDOWN_FILE, O_RDONLY)) >= 0 && !(hash_get_int("IsAdmin")))
 	//server is down
@@ -236,12 +241,12 @@ int	main(int ac, char **av, char **env)
 	}
       delete_hash();
 
-      /*#ifdef DODEBUG
+#ifdef HAVE_LIBEFENCE
       env[0] = "EF_DISABLE_BANNER=1";
       env[1] = "EF_FREE_WIPES=1";
       env[2] = "EF_PROTECT_FREE=1";
       env[3] = "EF_ALLOW_MALLOC_0=1";
-      #endif*/
+#endif
 
       execve(exe, args, env);
       exit (1);
