@@ -36,12 +36,12 @@ tAttributes		*GetAttributes(tBuffer *bIn)
     a.type = BufferGetInt8(bIn);
   if (a.flags & SSH2_FILEXFER_ATTR_SIZE)
     a.size = BufferGetInt64(bIn);
-  if (a.flags & SSH2_FILEXFER_ATTR_UIDGID)
+  if (cVersion <= 3 && (a.flags & SSH2_FILEXFER_ATTR_UIDGID))
     {
       a.uid = BufferGetInt32(bIn);
       a.gid = BufferGetInt32(bIn);
     }
-  if (a.flags & SSH4_FILEXFER_ATTR_OWNERGROUP)
+  if (cVersion >= 4 && (a.flags & SSH4_FILEXFER_ATTR_OWNERGROUP))
     {
       struct passwd	*pw;
       struct group	*gr;
