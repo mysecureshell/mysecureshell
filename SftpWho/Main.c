@@ -118,6 +118,22 @@ static char	*make_speed(char *b2, int size, unsigned int s, int can_unlimit)
   return (b2);
 }
 
+static int	getRealDown(t_sftpwho *who)
+{
+  if (_sftpglobal->download_by_client && !(who->status & SFTPWHO_BYPASS_GLB_DWN) &&
+      ((_sftpglobal->download_by_client < who->download_max) || !who->download_max))
+      return (_sftpglobal->download_by_client);
+  return (who->download_max);
+}
+
+static int	getRealUp(t_sftpwho *who)
+{
+  if (_sftpglobal->upload_by_client && !(who->status & SFTPWHO_BYPASS_GLB_UPL) &&
+      ((_sftpglobal->upload_by_client < who->upload_max) || !who->upload_max))
+      return (_sftpglobal->upload_by_client);
+  return (who->upload_max);
+}
+
 int		main(int ac, char **av)
 {
   t_sftpwho	*who;
@@ -203,9 +219,9 @@ int		main(int ac, char **av)
 			   make_time(who[i].time_begin), make_idle_time(who[i].time_total));
 		    printf("\tSpeed: Download: %s [%s]  Upload: %s [%s]\n",
 			   make_speed(b1, sizeof(b1), who[i].download_current, 0),
-			   make_speed(b2, sizeof(b2), who[i].download_max, 1),
+			   make_speed(b2, sizeof(b2), getRealDown(&who[i]), 1),
 			   make_speed(b3, sizeof(b3), who[i].upload_current, 0),
-			   make_speed(b4, sizeof(b4), who[i].upload_max, 1));
+			   make_speed(b4, sizeof(b4), getRealUp(&who[i]), 1));
 		    printf("\tTotal: Download: %u bytes   Upload: %u bytes\n",
 			   who[i].download_total, who[i].upload_total);
 		    printf("\n");
