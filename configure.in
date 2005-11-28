@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT([MySecureShell],[0.8b1],[teka2nerdman@sourceforge.net])
+AC_INIT([MySecureShell],[0.8a1],[teka2nerdman@sourceforge.net])
 AC_CONFIG_HEADER(config.h)
 
 # Checks for programs.
@@ -12,6 +12,7 @@ AC_PATH_PROG(SED, sed)
 # Checks for libraries.
 AC_CHECK_LIB([kvm], [kvm_open])
 AC_CHECK_LIB([efence], [malloc])
+AC_CHECK_LIB([idn], [stringprep_convert])
 
 # Checks for header files.
 AC_GNU_SOURCE
@@ -32,24 +33,55 @@ AC_FUNC_FORK
 AC_FUNC_STAT
 AC_CHECK_FUNCS([endgrent gethostbyaddr gethostbyname strcasecmp strchr strdup strerror strrchr strstr])
 
+#Help
+AC_ARG_WITH(conffile,
+	[  --with-conffile=xxx      Change config file (default: /etc/ssh/sftp_config)],
+	[
+		if test "x$withval" != "$no" ; then
+		   MSS_CONF=$withval
+		fi
+        ])
+AC_ARG_WITH(logfile,
+	[  --with-logfile=xxx      Change log file (default: /var/log/sftp-server.log)],
+	[
+		if test "x$withval" != "$no" ; then
+		   MSS_LOG=$withval
+		fi
+        ])
+AC_ARG_WITH(logcolor,
+        [  --with-logcolor=xxx     Active color in log file (default: no)],
+        [
+		
+                if test "x$withval" != "$no" ; then
+		   MSS_COLOR=1
+                fi
+        ])
+AC_ARG_WITH(shutfile,
+	[  --with-shutfile=xxx      Change shut file (default: /etc/sftp.shut)],
+	[
+		if test "x$withval" != "$no" ; then
+		   MSS_SHUT=$withval
+		fi
+        ])
+
+
 #Own defines
 test "$prefix" = NONE && prefix=/
-if test -z "$BINDIR" ; then
-BINDIR="/usr/bin"
-fi
+test -z "$BINDIR" && BINDIR="/usr/bin"
+test -z "$MSS_LOG" && MSS_LOG="/var/log/sftp-server.log";
+test -z "$MSS_CONF" && MSS_CONF="/etc/ssh/sftp_config";
+test -z "$MSS_SHUT" && MSS_SHUT="/etc/sftp.shut";
 
-A=`eval echo ${sysconfdir} | sed -e 's/\///'`
+A=`eval echo ${sysconfdir}`
 AC_SUBST(ETCDIR, "${A}")
 AC_SUBST(BINDIR, "${BINDIR}")
-AC_DEFINE_UNQUOTED(SHUTDOWN_FILE, "${A}/sftp.shut", Etcdir)
-AC_DEFINE_UNQUOTED(CONFIG_FILE, "${A}/ssh/sftp_config", Etcdir)
-AC_DEFINE_UNQUOTED(CONFIG_FILE2, "${A}/sshd/sftp_config", Etcdir)
-AC_DEFINE(MSS_SFTPWHO, "${BINDIR}/sftp-who", Sftpwhodir)
-AC_DEFINE(MSS_LOG, "/var/log/sftp-server.log", Logdir)
-AC_DEFINE(HAVE_LOG_IN_COLOR, 1, Colorlog)
-if test -z "$HAVE_LIBKVM" ; then
-   AC_DEFINE(HAVE_NOTHING, 1, Havenothing)
-fi
+AC_DEFINE_UNQUOTED(MSS_LOG, "${MSS_LOG}", Logdir)
+AC_DEFINE_UNQUOTED(SHUTDOWN_FILE, "${MSS_SHUT}", Etcdir)
+AC_DEFINE_UNQUOTED(CONFIG_FILE, "${MSS_CONF}", Etcdir)
+AC_DEFINE(CONFIG_FILE2, "/etc/sshd/sftp_config", Etcdir)
+AC_DEFINE_UNQUOTED(MSS_SFTPWHO, "${BINDIR}/sftp-who", Sftpwhodir)
+test -z "$HAVE_LOG_IN_COLOR" && AC_DEFINE_UNQUOTED(HAVE_LOG_IN_COLOR, ${MSS_COLOR}, Colorlog)
+test -z "$HAVE_LIBKVM" && AC_DEFINE(HAVE_NOTHING, 1, Havenothing)
 
 #End
 AC_CONFIG_FILES([Makefile])
@@ -57,9 +89,10 @@ AC_CONFIG_FILES([install.sh], [chmod +x install.sh])
 AC_CONFIG_FILES([uninstaller.sh], [chmod +x uninstaller.sh])
 AC_OUTPUT
 
-A=`eval echo ${sysconfdir} | sed -e 's/\///'`
+A=`eval echo ${sysconfdir}`
 echo ""
 echo "MySecureShell has been configured with the following options:"
-echo "      User binaries: $BINDIR"
-echo "      Shutdown file: ${A}/sftp.shut";
-echo "Configuration files: ${A}/ssh/sftp_config ${A}/sshd/sftp_config"
+echo "          Log file: $MSS_LOG"
+echo "     User binaries: $BINDIR"
+echo "     Shutdown file: $MSS_SHUT";
+echo "Configuration file: $MSS_CONF"
