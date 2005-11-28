@@ -67,6 +67,12 @@ static void	end_sftp_by_signal(int signal)
   end_sftp();
 }
 
+static void	reopen_log_file(int signal)
+{
+  mylog_close();
+  mylog_open(MSS_LOG);
+}
+
 static void	parse_conf(int ac, char **av)
 {
   int		i, r;
@@ -82,6 +88,8 @@ static void	parse_conf(int ac, char **av)
   atexit(end_sftp);
   signal(SIGHUP, end_sftp_by_signal);
   signal(SIGINT, end_sftp_by_signal);
+  signal(SIGUSR1, reopen_log_file);
+  signal(SIGUSR2, reopen_log_file);
   for (i = 1; i < ac; i++)
     {
       if (!strcmp(av[i], "--home") && av[i + 1])
