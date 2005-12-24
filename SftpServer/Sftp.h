@@ -40,7 +40,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define SSH2_MAX_READ	(64 * 1024)
 
 /* version */
-#define	SSH2_FILEXFER_VERSION		4
+#define	SSH2_FILEXFER_VERSION		5
 
 /* client to server */
 #define SSH2_FXP_INIT			1
@@ -92,7 +92,22 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define SSH2_FILEXFER_ATTR_ACL			0x00000040
 #define SSH4_FILEXFER_ATTR_OWNERGROUP		0x00000080
 #define SSH4_FILEXFER_ATTR_SUBSECOND_TIMES	0x00000100
+#define SSH5_FILEXFER_ATTR_BITS			0x00000200
 #define SSH2_FILEXFER_ATTR_EXTENDED		0x80000000
+#define SSH5_FILEXFER_ATTR__MASK		0x8FFFFFFF
+#define SSH5_FILEXFER_ATTR__BITS		0x800003FF
+
+#define SSH5_FILEXFER_ATTR_FLAGS_READONLY	0x00000001
+#define SSH5_FILEXFER_ATTR_FLAGS_SYSTEM		0x00000002
+#define SSH5_FILEXFER_ATTR_FLAGS_HIDDEN		0x00000004
+#define SSH5_FILEXFER_ATTR_FLAGS_CASE_INSENSITIVE 0x00000008
+#define SSH5_FILEXFER_ATTR_FLAGS_ARCHIVE	0x00000010
+#define SSH5_FILEXFER_ATTR_FLAGS_ENCRYPTED	0x00000020
+#define SSH5_FILEXFER_ATTR_FLAGS_COMPRESSED	0x00000040
+#define SSH5_FILEXFER_ATTR_FLAGS_SPARSE		0x00000080
+#define SSH5_FILEXFER_ATTR_FLAGS_APPEND_ONLY	0x00000100
+#define SSH5_FILEXFER_ATTR_FLAGS_IMMUTABLE	0x00000200
+#define SSH5_FILEXFER_ATTR_FLAGS_SYNC		0x00000400
 
 /* portable open modes */
 #define SSH2_FXF_READ			0x00000001
@@ -102,6 +117,26 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define SSH2_FXF_TRUNC			0x00000010
 #define SSH2_FXF_EXCL			0x00000020
 #define SSH4_FXF_TEXT			0x00000040
+
+#define SSH5_FXF_CREATE_NEW		0x00000000
+#define SSH5_FXF_CREATE_TRUNCATE	0x00000001
+#define SSH5_FXF_OPEN_EXISTING		0x00000002
+#define SSH5_FXF_OPEN_OR_CREATE		0x00000003
+#define SSH5_FXF_TRUNCATE_EXISTING	0x00000004
+#define SSH5_FXF_ACCESS_DISPOSITION	0x00000007
+#define SSH5_FXF__FLAGS			0x0000007F
+#define SSH5_FXF_ACCESS_APPEND_DATA		0x00000008
+#define SSH5_FXF_ACCESS_APPEND_DATA_ATOMIC	0x00000010
+#define SSH5_FXF_ACCESS_TEXT_MODE		0x00000020
+#define SSH5_FXF_ACCESS_READ_LOCK		0x00000040
+#define SSH5_FXF_ACCESS_WRITE_LOCK		0x00000080
+#define SSH5_FXF_ACCESS_DELETE_LOCK		0x00000100
+#define SSH5_FXF_ACCESS__FLAGS			0x000001F8
+
+/* message flags */
+#define SSH5_FXP_RENAME_OVERWRITE	0x00000001
+#define SSH5_FXP_RENAME_ATOMIC		0x00000002
+#define SSH5_FXP_RENAME_NATIVE		0x00000004
 
 /* status messages */
 #define SSH2_FX_OK			0
@@ -118,7 +153,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define SSH4_FX_FILE_ALREADY_EXISTS	11
 #define SSH4_FX_WRITE_PROTECT		12
 #define SSH4_FX_NO_MEDIA		13
+
 #define SSH2_FX_MAX			13
+#define SSH5_FX_NO_SPACE_ON_FILESYSTEM	14
+#define SSH5_FX_QUOTA_EXCEEDED		15
+#define SSH5_FX_UNKNOWN_PRINCIPLE	16
+#define SSH5_FX_LOCK_CONFlICT		17
+
 
 /* file type */
 #define SSH4_FILEXFER_TYPE_REGULAR	1
@@ -126,26 +167,31 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define SSH4_FILEXFER_TYPE_SYMLINK	3
 #define SSH4_FILEXFER_TYPE_SPECIAL	4
 #define SSH4_FILEXFER_TYPE_UNKNOWN	5
+#define SSH5_FILEXFER_TYPE_SOCKET	6
+#define SSH5_FILEXFER_TYPE_CHAR_DEVICE	7
+#define SSH5_FILEXFER_TYPE_BLOCK_DEVICE	8
+#define SSH5_FILEXFER_TYPE_FIFO		9
 
-typedef struct		sAttributes
+typedef struct	sAttributes
 {
-	u_int32_t	flags;
-	u_int8_t	type;
-	u_int64_t	size;
-	u_int32_t	uid;
-	u_int32_t	gid;
-	u_int32_t	perm;
-	u_int32_t	atime;
-	u_int32_t	ctime;
-	u_int32_t	mtime;
-}			tAttributes;
+  u_int32_t	flags;
+  u_int8_t	type;
+  u_int64_t	size;
+  u_int32_t	uid;
+  u_int32_t	gid;
+  u_int32_t	perm;
+  u_int32_t	atime;
+  u_int32_t	ctime;
+  u_int32_t	mtime;
+  u_int32_t	attrib;
+}		tAttributes;
 
-typedef struct		sStat
+typedef struct	sStat
 {
-	char		*name;
-	char		*longName;
-	tAttributes	attributes;
-}			tStat;
+  char		*name;
+  char		*longName;
+  tAttributes	attributes;
+}		tStat;
  
 extern	int	cVersion;
  
