@@ -160,6 +160,8 @@ static void	parse_conf(int ac, char **av)
 	gl_var->who->time_maxlife = atoi(av[i + 1]);
       else if (!strcmp(av[i], "--charset") && av[i + 1])
 	setCharset(av[i + 1]);
+      else if (!strcmp(av[i], "--time") && av[i + 1])
+	mylog_time(atoi(av[i + 1]));
     }
   mylog_printf(MYLOG_NORMAL, "New client [%s] from [%s]", gl_var->who->user, gl_var->who->ip);
   init_usersinfos();//load users / groups into memory

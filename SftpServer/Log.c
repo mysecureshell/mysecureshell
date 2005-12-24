@@ -31,6 +31,7 @@ typedef struct	s_log
 {
   int		fd;
   int		pid;
+  int		time;
 #ifdef HAVE_LOG_IN_COLOR
   unsigned char	color[MYLOG_MAX][3];
 #endif
@@ -44,9 +45,12 @@ void	mylog_open(char *file)
 
   if ((fd = open(file, O_CREAT | O_APPEND | O_WRONLY, 0644)) != -1)
     {
-      _log = malloc(sizeof(*_log));
-      memset(_log, 0, sizeof(*_log));
-      _log->pid = getpid();
+      if (!_log)
+	{
+	  _log = malloc(sizeof(*_log));
+	  memset(_log, 0, sizeof(*_log));
+	  _log->pid = getpid();
+	}
       _log->fd = fd;
       fchown(fd, 0, 0);
 /*
@@ -82,11 +86,13 @@ Form:
 void	mylog_close()
 {
   if (_log)
-    {
-      close(_log->fd);
-      free(_log);
-      _log = 0;
-    }
+    close(_log->fd);
+}
+
+void    mylog_time(int hours)
+{
+  if (_log)
+    _log->time = hours * 3600;
 }
 
 void		mylog_printf(int level, char *str, ...)
@@ -103,7 +109,7 @@ void		mylog_printf(int level, char *str, ...)
       if (level < 0 || level >= MYLOG_MAX)
 	level = MYLOG_ERROR;
       va_start(ap, str);
-      t = time(0);
+      t = time(0) + _log->time;
       tm = localtime(&t);
 #ifndef HAVE_LOG_IN_COLOR
       if (snprintf(fmt, sizeof(buffer),	"%i-%02i-%02i %02i:%02i:%02i [%i]%s\n",

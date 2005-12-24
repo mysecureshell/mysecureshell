@@ -141,7 +141,7 @@ int	main(int ac, char **av, char **env)
 	       (hash_get_int("IsAdmin") ? SFTPWHO_IS_ADMIN : 0)
 	       );
 
-      args = calloc(sizeof(*args), 42);//be aware of the buffer overflow
+      args = calloc(sizeof(*args), 44);//be aware of the buffer overflow
       nb_args = 0;
       args[nb_args++] = exe;
       args[nb_args++] = "--user";
@@ -231,6 +231,11 @@ int	main(int ac, char **av, char **env)
 	{
 	  args[nb_args++] = "--charset";
           args[nb_args++] = strdup((char *)hash_get("Charset"));
+	}
+      if (hash_get("GMTTime"))
+	{
+	  args[nb_args++] = "--time";
+	  args[nb_args++] = strdup((char *)hash_get("GMTTime"));
 	}
       //check if the server is up ans user is not admin
       if ((fd = open(SHUTDOWN_FILE, O_RDONLY)) >= 0 && !(hash_get_int("IsAdmin")))
