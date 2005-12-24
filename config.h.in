@@ -1,5 +1,8 @@
 /* config.h.in.  Generated from configure.in by autoheader.  */
 
+/* Bits per long */
+#undef BITS_PER_LONG
+
 /* Define to 1 if the `closedir' function returns void instead of `int'. */
 #undef CLOSEDIR_VOID
 
@@ -37,8 +40,14 @@
 /* Define to 1 if you have the `efence' library (-lefence). */
 #undef HAVE_LIBEFENCE
 
+/* Define to 1 if you have the `idn' library (-lidn). */
+#undef HAVE_LIBIDN
+
 /* Define to 1 if you have the `kvm' library (-lkvm). */
 #undef HAVE_LIBKVM
+
+/* Etcdir */
+#undef HAVE_LINUX_EXT2_FS_H
 
 /* Colorlog */
 #undef HAVE_LOG_IN_COLOR
@@ -157,6 +166,9 @@
 
 /* Etcdir */
 #undef SHUTDOWN_FILE
+
+/* The size of a `long', as computed by sizeof. */
+#undef SIZEOF_LONG
 
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
