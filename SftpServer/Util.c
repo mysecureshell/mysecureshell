@@ -135,23 +135,46 @@ char		*LsFile(const char *name, const struct stat *st)
   return (strdup(buf));
 }
 
-int	FlagsFromPortable(int pFlags)
+int	FlagsFromPortable(int pFlags, int *textMode)
 {
   int	flags = 0;
 
-  if ((pFlags & SSH2_FXF_READ) && (pFlags & SSH2_FXF_WRITE))
-    flags = O_RDWR;
-  else if (pFlags & SSH2_FXF_READ)
-    flags = O_RDONLY;
-  else if (pFlags & SSH2_FXF_WRITE)
-    flags = O_WRONLY;
-  
-  if (pFlags & SSH2_FXF_CREAT)
-    flags |= O_CREAT;
-  if (pFlags & SSH2_FXF_TRUNC)
-    flags |= O_TRUNC;
-  if (pFlags & SSH2_FXF_EXCL)
-    flags |= O_EXCL;
+  *textMode = 0;
+  if (cVersion >= 5)
+    {
+      if (pFlags & SSH5_FXF_CREATE_NEW)
+	flags = O_EXCL | O_CREAT;
+      else if (pFlags & SSH5_FXF_TRUNCATE_EXISTING)
+	flags = O_TRUNC | O_EXCL | O_CREAT;
+      else if (pFlags & SSH5_FXF_CREATE_TRUNCATE)
+	flags = O_TRUNC | O_CREAT;
+      else if (pFlags & SSH5_FXF_OPEN_OR_CREATE)
+	flags = O_CREAT;
+
+      if ((pFlags & SSH5_FXF_ACCESS_APPEND_DATA) ||
+	  (pFlags & SSH5_FXF_ACCESS_APPEND_DATA_ATOMIC))
+	flags = O_RDWR | O_APPEND;
+      if (pFlags & SSH5_FXF_ACCESS_TEXT_MODE)
+	*textMode = 1;
+    }
+  else
+    {
+      if ((pFlags & SSH2_FXF_READ) && (pFlags & SSH2_FXF_WRITE))
+	flags = O_RDWR;
+      else if (pFlags & SSH2_FXF_READ)
+	flags = O_RDONLY;
+      else if (pFlags & SSH2_FXF_WRITE)
+	flags = O_WRONLY;
+      
+      if (pFlags & SSH2_FXF_CREAT)
+	flags |= O_CREAT;
+      if (pFlags & SSH2_FXF_TRUNC)
+	flags |= O_TRUNC;
+      if (pFlags & SSH2_FXF_EXCL)
+	flags |= O_EXCL;
+      if (pFlags & SSH4_FXF_TEXT)
+	*textMode = 1;
+    }
   return (flags);
 }
 
