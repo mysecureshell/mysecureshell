@@ -69,13 +69,6 @@ void	BufferDelete(tBuffer *b)
   free(b);
 }
 
-void	BufferReadData(tBuffer *b, u_int32_t size)
-{
-  if ((b->read + size) <= b->length)
-    b->read += size;
-}
-
-
 void	BufferPutInt8(tBuffer *b, u_int8_t nb)
 {
   if ((b->length + 1) > b->size)
@@ -126,12 +119,55 @@ void	BufferPutString(tBuffer *b, char *data)
   BufferPutData(b, data, strlen(data));
 }
 
+#ifdef DODEBUG
+#include "Log.h"
+
+static char	*ASCII = "0123456789ABCDEF";
+
+static void	dumpPacket(tBuffer *b, int trySize)
+{
+  char	*buffer;
+  int   i, pos;
+
+  
+  mylog_printf(MYLOG_DEBUG, "[dumpPacket][length:%i][read:%i][size:%i][trySize:%i]",
+	       b->length, b->read, b->size, trySize);
+  buffer = malloc(b->size * 2 + 1);
+  for (i = 0, pos = 0; i < b->size; i++)
+    {
+      unsigned char	c = (unsigned char)b->data[i];
+
+      buffer[pos++] = ASCII[c / 16];
+      buffer[pos++] = ASCII[c % 16];
+    }
+  buffer[pos] = 0;
+  mylog_printf(MYLOG_DEBUG, "[%s]", buffer);
+  free(buffer);
+}
+
+#endif
+
+void	BufferReadData(tBuffer *b, u_int32_t size)
+{
+  if ((b->read + size) <= b->length)
+    b->read += size;
+#ifdef DODEBUG
+  else
+    dumpPacket(b, size);
+#endif
+}
+
 u_int8_t	BufferGetInt8(tBuffer *b)
 {
   u_int8_t	nb;
 	
-  if ((b->read + 1) > b->size)
-    return 0;
+  if ((b->read + 1) > b->length)
+    {
+#ifdef DODEBUG
+      dumpPacket(b, 1);
+#endif
+      return (0);
+    }
   nb = (u_int8_t )b->data[b->read++];
   return (nb);
 }
@@ -140,8 +176,13 @@ u_int32_t	BufferGetInt32(tBuffer *b)
 {
   u_int32_t	nb;
 	
-  if ((b->read + 4) > b->size)
-    return 0;
+  if ((b->read + 4) > b->length)
+    {
+#ifdef DODEBUG
+      dumpPacket(b, 4);
+#endif
+      return (0);
+    }
   nb = (u_int32_t )b->data[b->read++] << 24;
   nb += (u_int32_t )b->data[b->read++] << 16;
   nb += (u_int32_t )b->data[b->read++] << 8;
@@ -153,8 +194,13 @@ u_int64_t	BufferGetInt64(tBuffer *b)
 {
   u_int64_t	nb;
 	
-  if ((b->read + 8) > b->size)
-    return 0;
+  if ((b->read + 8) > b->length)
+    {
+#ifdef DODEBUG
+      dumpPacket(b, 8);
+#endif
+      return (0);
+    }
   nb = (u_int64_t )b->data[b->read++] << 56;
   nb += (u_int64_t )b->data[b->read++] << 48;
   nb += (u_int64_t )b->data[b->read++] << 40;
@@ -172,7 +218,12 @@ char	*BufferGetData(tBuffer *b, u_int32_t *size)
 
   *size = BufferGetInt32(b);
   if ((b->read + *size) > b->length)
+    {
+#ifdef DODEBUG
+      dumpPacket(b, *size);
+#endif
     return (0);
+    }
   data = (char *)(b->data + b->read);
   b->read += *size;
   return (data);
@@ -185,7 +236,12 @@ char		*BufferGetString(tBuffer *b)
   
   size = BufferGetInt32(b);
   if ((b->read + size) > b->length)
-    return (0);
+    {
+#ifdef DODEBUG
+      dumpPacket(b, size);
+#endif
+      return (0);
+    }
   data = malloc(size + 1);
   if (data)
     {
