@@ -74,7 +74,7 @@ tAttributes		*GetAttributes(tBuffer *bIn)
 
   memset(&a, 0, sizeof(a));
   a.flags = BufferGetInt32(bIn);
-  DEBUG((MYLOG_DEBUG, "FLAGS[%x][%i]", a.flags, a.flags));
+  //DEBUG((MYLOG_DEBUG, "FLAGS[%x][%i]", a.flags, a.flags));
   if (cVersion >= 4)
     a.type = BufferGetInt8(bIn);
   if (a.flags & SSH2_FILEXFER_ATTR_SIZE)
