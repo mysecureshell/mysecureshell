@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Buffer.h"
 
 tAttributes	*GetAttributes(tBuffer *bIn);
-void		StatToAttributes(struct stat *st, tAttributes *a);
+void		StatToAttributes(struct stat *st, tAttributes *a, char *fileName);
 void		EncodeAttributes(tBuffer *b, tAttributes *a);
 struct timeval	*AttributesToTimeval(const tAttributes *a);
 
