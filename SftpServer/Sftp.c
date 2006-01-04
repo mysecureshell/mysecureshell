@@ -58,10 +58,24 @@ static void	DoInit()
     cVersion = SSH2_FILEXFER_VERSION;
   BufferPutInt32(b, cVersion);
   DEBUG((MYLOG_DEBUG, "[DoInit]New client version %i [use: %i]", clientVersion, cVersion));
-  if (cVersion == 4)
+  if (cVersion >= 4)
     {
       BufferPutString(b, "newline");
       BufferPutString(b, "\n");
+      if (cVersion >= 5)
+	{
+	  tBuffer	*opt;
+
+	  BufferPutString(b, "supported");
+	  opt = BufferNew();
+	  BufferPutInt32(opt, SSH5_FILEXFER_ATTR__MASK);
+	  BufferPutInt32(opt, SSH5_FILEXFER_ATTR__BITS);
+	  BufferPutInt32(opt, SSH5_FXF__FLAGS);
+	  BufferPutInt32(opt, SSH5_FXF_ACCESS__FLAGS);
+	  BufferPutInt32(opt, SSH2_MAX_READ);
+	  BufferPutInt32(opt, 0); //no extension
+	  BufferPutPacket(b, opt);
+	}
     }
   BufferPutPacket(bOut, b);
   BufferDelete(b);
@@ -183,7 +197,7 @@ static void	DoReadDir()
 	      || CheckRules(pathName, RULES_LISTING, &st, 0) == SSH2_FX_OK)
 	    {
 	      ChangeRights(&st);
-	      StatToAttributes(&st, &(s[count].attributes));
+	      StatToAttributes(&st, &(s[count].attributes), pathName);
 	      if (cVersion <= 3)
 		s[count].name = strdup(dp->d_name);
 	      else
@@ -236,14 +250,19 @@ static void	DoOpen()
   u_int32_t	id, pflags;
   tAttributes	*a;
   char		*path;
-  int		fd, flags, mode, status = SSH2_FX_FAILURE;
+  int		fd, flags, mode, textMode, status = SSH2_FX_FAILURE;
 
   id = BufferGetInt32(bIn);
   path = convertFromUtf8(BufferGetString(bIn), 1);
+  if (cVersion >= 5)
+    flags = FlagsFromAccess(BufferGetInt32(bIn));
+  else
+    flags = 0;
   pflags = BufferGetInt32(bIn);
   a = GetAttributes(bIn);
-  flags = FlagsFromPortable(pflags);
-  mode = (a->flags & SSH2_FILEXFER_ATTR_PERMISSIONS) ? a->perm : gl_var->rights_file;
+  flags |= FlagsFromPortable(pflags, &textMode);
+  mode = gl_var->rights_file ? gl_var->rights_file :
+    (a->flags & SSH2_FILEXFER_ATTR_PERMISSIONS) ? a->perm : 644;
   if ((status = CheckRules(path, RULES_FILE, 0, flags)) == SSH2_FX_OK)
     if ((status = CheckRulesAboutMaxFiles()) == SSH2_FX_OK)
       {
@@ -253,7 +272,7 @@ static void	DoOpen()
 	  {
 	    int	h;
 	    
-	    if ((h = HandleNew(HANDLE_FILE, path, fd, NULL, pflags & SSH4_FXF_TEXT ? 1 : 0)) < 0)
+	    if ((h = HandleNew(HANDLE_FILE, path, fd, NULL, textMode)) < 0)
 	      close(fd);
 	    else
 	      {
@@ -307,17 +326,19 @@ static void	DoRead()
       if (lseek(fd, off, SEEK_SET) < 0)
 	status = errnoToPortable(errno);
       else
-	{
+	{ 
 	  int	ret;
 	  
 	  ret = read(fd, buf, len);
 	  if (fileIsText)
-	    for (len = 0; len < ret; len++)
-	      if (buf[len] == '\r')
-		{
-		  memcpy(buf + len + 1, buf + len, ret - len - 1);
-		  ret--;
-		}
+	    {
+	      for (len = 0; len < ret; len++)
+		if (buf[len] == '\r')
+		  {
+		    memcpy(buf + len + 1, buf + len, ret - len - 1);
+		    ret--;
+		  }
+	    }
 	  if (ret < 0)
 	    status = errnoToPortable(errno);
 	  else if (ret == 0)
@@ -327,9 +348,9 @@ static void	DoRead()
 	      SendData(bOut, id, buf, ret);
 	      status = SSH2_FX_OK;
 	    }
+	  DEBUG((MYLOG_WARNING, "[DoRead]fd:%i off:%llu len:%i (ret:%i) status:%i", fd, off, len, ret, status));
 	}
     }
-  //DEBUG((MYLOG_DEBUG, "[DoRead]fd:%i off:%llu len:%i status:%i", fd, off, len, status));
   if (status != SSH2_FX_OK)
     SendStatus(bOut, id, status);
 }
@@ -421,7 +442,7 @@ static void	DoStat(int (*f_stat)(const char *, struct stat *))
       else
 	{
 	  ChangeRights(&st);
-	  StatToAttributes(&st, &a);
+	  StatToAttributes(&st, &a, path);
 	  if (cVersion >= 4)
 	    a.flags = flags;
 	  SendAttributes(bOut, id, &a);
@@ -438,10 +459,11 @@ static void	DoFStat()
   tAttributes	a;
   struct stat	st;
   u_int32_t	id, flags = 0;
-  int		fd, fileIsText;
+  int		fd, fh, fileIsText;
 	
   id = BufferGetInt32(bIn);
-  fd = HandleGetFd(BufferGetStringAsInt(bIn), &fileIsText);
+  fh = BufferGetStringAsInt(bIn);
+  fd = HandleGetFd(fh, &fileIsText);
   if (cVersion >= 4)
     flags = BufferGetInt32(bIn);
   if (fd >= 0)
@@ -452,7 +474,7 @@ static void	DoFStat()
 	SendStatus(bOut, id, errnoToPortable(errno));
       else
 	{
-	  StatToAttributes(&st, &a);
+	  StatToAttributes(&st, &a, HandleGetPath(fh));
 	  if (cVersion >= 4)
 	    a.flags = flags;
 	  SendAttributes(bOut, id, &a);
@@ -570,7 +592,8 @@ static void	DoMkDir()
   id = BufferGetInt32(bIn);
   path = convertFromUtf8(BufferGetString(bIn), 1);
   a = GetAttributes(bIn);
-  mode = (a->flags & SSH2_FILEXFER_ATTR_PERMISSIONS) ? a->perm & 0777 : gl_var->rights_directory;
+  mode = gl_var->rights_directory ? gl_var->rights_directory :
+    (a->flags & SSH2_FILEXFER_ATTR_PERMISSIONS) ? a->perm & 0777 : 0755;
   if ((status = CheckRules(path, RULES_DIRECTORY, 0, O_WRONLY)) == SSH2_FX_OK)
     {
       if (mkdir(path, mode) == -1)
@@ -933,13 +956,7 @@ int			main(int ac, char **av)
   fd_set		fdR, fdW;
   int			len, ret;
 
-  /*#ifdef DODEBUG
-  mem_open(0);
-  log_open("/var/log/sftp-server.debug", LOG_NOISY, LOG_HAVE_COLORS | LOG_PRINT_FUNCTION);
-  atexit(mem_close);
-  atexit(log_close);
-  #endif*/
-  if (0)
+  /*if (0)
     {
       int fd;
       
@@ -955,7 +972,7 @@ int			main(int ac, char **av)
 	  dup2(fd, 1);
 	  close(fd);
 	}
-    }
+	}*/
 
   bIn = BufferNew();
   bOut = BufferNew();
@@ -974,7 +991,10 @@ int			main(int ac, char **av)
 			       || (gl_var->download_current < gl_var->download_max)))
 	FD_SET(1, &fdW);
       if ((ret = select(2, &fdR, &fdW, 0, &tm)) == -1)
-	exit (1);
+	{
+	  if (errno != EINTR)
+	    exit (1);
+	}
       else if (!ret)
 	{
 	  if (gl_var->upload_current || gl_var->download_current)
