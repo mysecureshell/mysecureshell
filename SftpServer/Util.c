@@ -178,6 +178,28 @@ int	FlagsFromPortable(int pFlags, int *textMode)
   return (flags);
 }
 
+int	FlagsFromAccess(int access)
+{
+  int	flags = 0;
+
+  if (access & SSH5_ACE4_READ_DATA)
+    {
+      if (access & SSH5_ACE4_WRITE_DATA)
+	flags |= O_RDWR;
+      else
+	flags |= O_RDONLY;
+    }
+  if (access & SSH5_ACE4_WRITE_DATA)
+    flags |= O_WRONLY;
+  if (access & 0x00000004)
+    flags |= O_APPEND;
+  else
+    flags |= O_TRUNC; //not sure about this line ...
+  if (access & SSH5_ACE4_SYNCHRONIZE)
+    flags |= O_SYNC;
+  return (flags);
+}
+
 int	errnoToPortable(int unixErrno)
 {
   int	ret = 0;
