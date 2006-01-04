@@ -186,13 +186,13 @@ void	StatToAttributes(struct stat *st, tAttributes *a, char *fileName)
       while (pos >= 1 && fileName[pos - 1] != '/')
 	pos--;
       if (pos >= 0 && fileName[pos] == '.')
-      a->attrib |= SSH5_FILEXFER_ATTR_FLAGS_HIDDEN;
+	a->attrib |= SSH5_FILEXFER_ATTR_FLAGS_HIDDEN;
 #ifdef HAVE_LINUX_EXT2_FS_H
       if ((fd = open(fileName, O_RDONLY)) >= 0)
 	{
 	  int	flags;
 
-	  if (ioctl(fd, EXT2_IOC_GETFLAGS, flags) != -1)
+	  if (ioctl(fd, EXT2_IOC_GETFLAGS, &flags) != -1)
 	    {
 	      if (flags & EXT2_COMPR_FL)
 		a->attrib |= SSH5_FILEXFER_ATTR_FLAGS_COMPRESSED;
@@ -270,10 +270,10 @@ void	EncodeAttributes(tBuffer *b, tAttributes *a)
       if (a->flags & SSH4_FILEXFER_ATTR_SUBSECOND_TIMES)
 	BufferPutInt32(b, 0);
     }
-  if (a->flags & SSH5_FILEXFER_ATTR_BITS)
-    BufferPutInt32(b, a->attrib);
   if (a->flags & SSH2_FILEXFER_ATTR_ACL)
     BufferPutString(b, ""); //unsupported feature
+  if (a->flags & SSH5_FILEXFER_ATTR_BITS)
+    BufferPutInt32(b, a->attrib);
   if (a->flags & SSH2_FILEXFER_ATTR_EXTENDED)
     BufferPutInt32(b, 0); //unsupported feature
 }
