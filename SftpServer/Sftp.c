@@ -851,7 +851,7 @@ static void	DoProtocol()
   if (msgLen > (256 * 1024)) //message too long
     {
       mylog_printf(MYLOG_ERROR, "[%s][%s]Error: message is too long (%i)", gl_var->who->user, gl_var->who->ip, msgLen);
-      exit (1);
+      exit(1);
     }
   if ((bIn->length - bIn->read) < msgLen) //message not complete
     {
@@ -993,7 +993,7 @@ int			main(int ac, char **av)
       if ((ret = select(2, &fdR, &fdW, 0, &tm)) == -1)
 	{
 	  if (errno != EINTR)
-	    exit (1);
+	    exit(1);
 	}
       else if (!ret)
 	{
@@ -1011,7 +1011,7 @@ int			main(int ac, char **av)
 	    {
 	      mylog_printf(MYLOG_NORMAL, "[%s][%s]Connection time out",
 			 gl_var->who->user, gl_var->who->ip);
-	      exit (0);
+	      exit(0);
 	    }
 	  if (gl_var->who->time_idle > 2)
 	    {
@@ -1035,7 +1035,11 @@ int			main(int ac, char **av)
 	    {
 	      gl_var->who->time_maxlife--;
 	      if (!gl_var->who->time_maxlife)
-		exit (0);
+		{
+		  mylog_printf(MYLOG_NORMAL, "[%s][%s]Connection max life !",
+			       gl_var->who->user, gl_var->who->ip);
+		  exit(0);
+		}
 	    }
 	}
       else
