@@ -303,7 +303,8 @@ static void	DoOpen()
 	      }
 	  }
       }
-  DEBUG((MYLOG_DEBUG, "[DoOpen]file:'%s' pflags:%i perm:0%o fd:%i status:%i", path, pflags, mode, fd, status));
+  DEBUG((MYLOG_DEBUG, "[DoOpen]file:'%s' pflags:%i[%i] perm:0%o fd:%i status:%i",
+	 path, pflags, flags, mode, fd, status));
   if (status != SSH2_FX_OK)
     SendStatus(bOut, id, status);
   free(path);
