@@ -44,7 +44,7 @@ static void	parse_args(int ac, char **av)
       {
 	load_config(verbose);
 	printf("Config is valid.\n");
-	exit (0);
+	exit(0);
       }
     else if (!strcmp(av[i], "--help"))
       {
@@ -55,7 +55,7 @@ static void	parse_args(int ac, char **av)
 	printf("\t--help       : show this screen\n");
 	printf("\nVerbose:\n");
 	printf("\t-v           : add a level at verbose mode\n");
-	exit (0);
+	exit(0);
       }
     else if (!strcmp(av[i], "-v"))
       verbose++;
@@ -115,7 +115,7 @@ int	main(int ac, char **av, char **env)
         exit(12);
       if (hash_get_int("DisableAccount"))
 	//account is temporary disable
-	exit (13);
+	exit(13);
       if (getuid() != geteuid())
 	//if we are in utset byte mode then we restore user's rights to avoid security problems
 	{
@@ -254,7 +254,7 @@ int	main(int ac, char **av, char **env)
 #endif
 
       execve(exe, args, env);
-      exit (1);
+      exit(1);
     }
   else
     {
@@ -271,7 +271,7 @@ int	main(int ac, char **av, char **env)
       if (ptr)
 	{
 	  execve(ptr, av, env);
-	  exit (1);
+	  exit(1);
 	}
     }
   return (0);
