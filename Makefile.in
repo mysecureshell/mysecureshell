@@ -51,7 +51,7 @@ ifeq ($(DEBUG), 1)
 endif
 ifeq ($(DEBUG), 2)
 	CFLAGS	+= -DDODEBUG -g3 -pg
-	LDFLAGS	+= pg
+	LDFLAGS	+= -pg
 endif
 
 CC	= @CC@
