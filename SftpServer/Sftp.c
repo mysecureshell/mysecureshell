@@ -631,11 +631,13 @@ static void	DoRename()
   struct stat	sb;
   u_int32_t	id;
   char		*oldPath, *newPath;
-  int		status = SSH2_FX_FAILURE;
+  int		flags = 0, status = SSH2_FX_FAILURE;
 
   id = BufferGetInt32(bIn);
   oldPath = convertFromUtf8(BufferGetString(bIn), 1);
   newPath = convertFromUtf8(BufferGetString(bIn), 1);
+  if (cVersion >= 5)
+    flags = BufferGetInt32(bIn);
   if ((status = CheckRules(oldPath, RULES_RMFILE, 0, 0)) == SSH2_FX_OK
       && (status = CheckRules(newPath, RULES_FILE, 0, O_WRONLY)) == SSH2_FX_OK)
     {
@@ -643,8 +645,15 @@ static void	DoRename()
 	status = errnoToPortable(errno);
       else if (S_ISREG(sb.st_mode))
 	{
+	tryRename:
 	  if (link(oldPath, newPath) == -1)
 	    {
+	      if (errno == EEXIST &&
+		  (flags & SSH5_FXP_RENAME_OVERWRITE || flags & SSH5_FXP_RENAME_ATOMIC))
+		{
+		  if (!unlink(newPath))
+		    goto tryRename;
+		}
 	      if (errno == EOPNOTSUPP
 #ifdef LINK_OPNOTSUPP_ERRNO
 		  || errno == LINK_OPNOTSUPP_ERRNO
