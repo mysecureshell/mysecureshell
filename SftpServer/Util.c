@@ -144,12 +144,12 @@ int	FlagsFromPortable(int pFlags, int *textMode)
     {
       if (pFlags & SSH5_FXF_CREATE_NEW)
 	flags = O_EXCL | O_CREAT;
-      else if (pFlags & SSH5_FXF_TRUNCATE_EXISTING)
-	flags = O_TRUNC | O_EXCL | O_CREAT;
       else if (pFlags & SSH5_FXF_CREATE_TRUNCATE)
 	flags = O_TRUNC | O_CREAT;
       else if (pFlags & SSH5_FXF_OPEN_OR_CREATE)
 	flags = O_CREAT;
+      else if (pFlags & SSH5_FXF_TRUNCATE_EXISTING)
+	flags = O_TRUNC | O_EXCL | O_CREAT;
 
       if ((pFlags & SSH5_FXF_ACCESS_APPEND_DATA) ||
 	  (pFlags & SSH5_FXF_ACCESS_APPEND_DATA_ATOMIC))
@@ -191,10 +191,10 @@ int	FlagsFromAccess(int access)
     }
   if (access & SSH5_ACE4_WRITE_DATA)
     flags |= O_WRONLY;
-  if (access & 0x00000004)
+  if (access & SSH5_ACE4_APPEND_DATA)
     flags |= O_APPEND;
-  else
-    flags |= O_TRUNC; //not sure about this line ...
+  else if (access & SSH5_ACE4_WRITE_DATA)
+    flags |= O_TRUNC;
   if (access & SSH5_ACE4_SYNCHRONIZE)
     flags |= O_SYNC;
   return (flags);
