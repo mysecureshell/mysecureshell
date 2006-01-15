@@ -69,14 +69,16 @@ void		SendHandle(tBuffer *bOut, u_int32_t id, int h)
 
 void		SendData(tBuffer *bOut, u_int32_t id, char *data, int len)
 {
-  tBuffer	*b;
-	
-  b = BufferNew();
-  BufferPutInt8(b, SSH2_FXP_DATA);
+  static tBuffer	*b = 0;
+  
+  if (!b)
+    b = BufferNew();
+  else
+    b->length = 0;
+  BufferPutInt8FAST(b, SSH2_FXP_DATA);
   BufferPutInt32(b, id);
   BufferPutData(b, data, len);
   BufferPutPacket(bOut, b);
-  BufferDelete(b);
 }
 
 void		SendStatus(tBuffer *bOut, u_int32_t id, u_int32_t status)
