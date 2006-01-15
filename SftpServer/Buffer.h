@@ -52,6 +52,10 @@ int		BufferGetStringAsInt(tBuffer *b);
 char		*BufferGetString(tBuffer *b);
 char		*BufferGetData(tBuffer *b, u_int32_t *size);
 
+#define BufferPutInt8FAST(_D, _INT8) (_D)->data[(_D)->length++] = _INT8;
 #define BufferPutPacket(_D, _S)	BufferPutData((_D), (_S)->data, (_S)->length)
+
+
+#define BufferGetInt8FAST(_D) (u_int8_t )(_D)->data[(_D)->read++]
 
 #endif //_BUFFER_H_
