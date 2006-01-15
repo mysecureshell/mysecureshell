@@ -31,6 +31,9 @@
 
 	ShowLinksAsLinks	false	#show links as their destinations
 	ConnectionMaxLife	1d	#limits connection lifetime to 1 day
+
+	Charset			"ISO-8859-15"	#set charset of computer
+	#GMTTime			+1	#set GMT Time (change if necessary)
 </Default>
 
 #Rules only for group ftp
@@ -77,7 +80,11 @@
 
 
 <VirtualHost *:22> 
-        Home	"/home"
+	DirFakeUser	false	#show real user on file/directory
+	DirFakeGroup	false	#show real group on file/directory
+	DirFakeMode	0	#show real rights on file/directory
+	HideNoAccess	false
+	IgnoreHidden	false
 </VirtualHost>
 
 #Include /etc/my_sftp_config_file	#include this valid configuration file
