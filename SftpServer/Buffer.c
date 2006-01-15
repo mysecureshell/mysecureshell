@@ -116,7 +116,11 @@ void	BufferPutRawData(tBuffer *b, void *data, int size)
 
 void	BufferPutString(tBuffer *b, char *data)
 {
-  BufferPutData(b, data, strlen(data));
+  int	size;
+
+  size = strlen(data);
+  BufferPutInt32(b, size);
+  BufferPutRawData(b, data, size);
 }
 
 #ifdef DODEBUG
