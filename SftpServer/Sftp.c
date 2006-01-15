@@ -349,7 +349,8 @@ static void	DoRead()
 	      SendData(bOut, id, buf, ret);
 	      status = SSH2_FX_OK;
 	    }
-	  DEBUG((MYLOG_WARNING, "[DoRead]fd:%i off:%llu len:%i (ret:%i) status:%i", fd, off, len, ret, status));
+	  DEBUG((MYLOG_WARNING, "[DoRead]fd:%i[isText:%i] off:%llu len:%i (ret:%i) status:%i",
+		 fd, fileIsText, off, len, ret, status));
 	}
     }
   if (status != SSH2_FX_OK)
@@ -869,7 +870,7 @@ static void	DoProtocol()
       return;
     }
   oldRead += 4; //ignore size of msgLen
-  msgType = BufferGetInt8(bIn);
+  msgType = BufferGetInt8FAST(bIn);
   DEBUG((MYLOG_DEBUG, "[DoProtocol] msgType:%i msgLen:%i", msgType, msgLen));
   switch (msgType)
     {
