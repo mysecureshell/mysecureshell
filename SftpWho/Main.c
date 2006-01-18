@@ -112,9 +112,9 @@ static char	*make_speed(char *b2, int size, unsigned int s, int can_unlimit)
   else if (s < 1024)
     snprintf(b2, size, "%u bytes/s", s);
   else if (s < (1024 * 1024))
-    snprintf(b2, size, "%u kbytes/s", s / 1024);
+    snprintf(b2, size, "%.2f kbytes/s", (float )s / 1024.0f);
   else
-    snprintf(b2, size, "%u mbytes/s", s / (1024 * 1024));
+    snprintf(b2, size, "%.3f mbytes/s", (float )s / 1048576.0f);
   return (b2);
 }
 
