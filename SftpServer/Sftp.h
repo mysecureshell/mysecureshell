@@ -37,7 +37,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define S_ISVTX	01000
 #endif
 
-#define SSH2_MAX_WRITE	65536
+#define SSH2_MAX_PACKET	65536
 #define SSH2_MAX_READ	65536
 
 /* version */

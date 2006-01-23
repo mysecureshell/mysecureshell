@@ -1058,7 +1058,7 @@ int			main(int ac, char **av)
 	  gl_var->who->time_idle = 0;
 	  if (FD_ISSET(0, &fdR))
 	    {
-	      char	buffer[SSH2_MAX_WRITE];
+	      char	buffer[SSH2_MAX_PACKET];
 	      int	todo;
 	      
 	      if (gl_var->upload_max)
