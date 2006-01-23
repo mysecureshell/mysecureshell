@@ -65,7 +65,7 @@ static void	DoInit()
       if (cVersion >= 5)
 	{
 	  tBuffer	*opt;
-
+	  
 	  BufferPutString(b, "supported");
 	  opt = BufferNew();
 	  BufferPutInt32(opt, SSH5_FILEXFER_ATTR__MASK);
@@ -1058,7 +1058,7 @@ int			main(int ac, char **av)
 	  gl_var->who->time_idle = 0;
 	  if (FD_ISSET(0, &fdR))
 	    {
-	      char	buffer[16384];
+	      char	buffer[SSH2_MAX_WRITE];
 	      int	todo;
 	      
 	      if (gl_var->upload_max)
