@@ -24,9 +24,10 @@ char    *convertFromUtf8(char *str, int freeAfter);
 void	setCharset(char *charset);
 
 #else
+#include <string.h>
 
-#define convertToUtf8(_X, _Y)	(_X)
-#define convertFromUtf8(_X, _Y)	(_X)
+#define convertToUtf8(_X, _Y)	((_Y) ? _X : strdup(_X))
+#define convertFromUtf8(_X, _Y)	((_Y) ? _X : strdup(_X))
 #define setCharset(_X)
 
 #endif
