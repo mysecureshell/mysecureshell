@@ -86,3 +86,4 @@ t_sftpwho	*SftWhoGetAllStructs();
 t_sftpwho	*SftpWhoGetStruct(int create);
 int		SftpWhoCleanBuggedClient();
 void		SftpWhoRelaseStruct();
+int		SftpWhoDeleteStructs();

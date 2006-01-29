@@ -27,6 +27,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <time.h>
 #include <unistd.h>
 
+static char	*_shmfile = "/dev/null";
+static int	_shmkey = 0x0785;
+
 typedef struct		s_shm
 {
 	t_sftpglobal	global;
@@ -41,17 +44,31 @@ t_sftpwho	*SftWhoGetAllStructs()
   return	(_sftpwho_ptr);
 }
 
+int	SftpWhoDeleteStructs()
+{
+  key_t	key;
+  int	shmid;
+
+  if ((key = ftok(_shmfile, _shmkey)) != -1
+      && (shmid = shmget(key, sizeof(t_shm), 0)) != -1)
+    {
+      if (shmctl(shmid, IPC_RMID, 0) == -1)
+	return (0);
+    }
+  return (1);
+}
+
 t_sftpwho	*SftpWhoGetStruct(int create)
 {
   t_sftpwho	*who = 0;
   void		*ptr;
   key_t		key;
-  int		shmid, shmkey = 0x0785;
+  int		shmid;
   int		eraze = 0;
   int		i, try, tryshm = 3;
 
  try_shm:
-  if ((key = ftok("/dev/null", shmkey)) != -1)
+  if ((key = ftok(_shmfile, _shmkey)) != -1)
     {
       //try to join to existing shm
       if ((shmid = shmget(key, sizeof(t_shm), 0)) == -1)
@@ -67,7 +84,7 @@ t_sftpwho	*SftpWhoGetStruct(int create)
 	  if (tryshm)
 	    {
 	      tryshm--;
-	      shmkey++;
+	      _shmkey++;
 	      goto try_shm;
 	    }
 	}
