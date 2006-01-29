@@ -25,16 +25,25 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <sys/stat.h>
 #include <unistd.h>
 #include "../config.h"
+#include "SftpWho.h"
 
 int	main(int ac, char **av)
 {
-  int	i, fd, assume_yes_to_all;
+  int	i, fd, assume_yes_to_all, do_clean;
 
   assume_yes_to_all = 0;
+  do_clean = 0;
   if (ac > 1)
     for (i = 1; i < ac; i++)
-      if (!strcmp(av[i], "shutdown") || !strcmp(av[i], "stop"))
+      if (!strcmp(av[i], "fullshutdown"))
 	{
+	  assume_yes_to_all = 1;
+	  do_clean = 1;
+	  goto doShutdown;
+	}
+      else if (!strcmp(av[i], "shutdown") || !strcmp(av[i], "stop"))
+	{
+	doShutdown:
 	  if ((fd = open(SHUTDOWN_FILE, O_CREAT | O_TRUNC | O_RDWR, 0644)) >= 0)
 	    {
 	      char	buf[4];
@@ -50,7 +59,14 @@ int	main(int ac, char **av)
 		printf("yes\n");
 	      buf[i >= 1 ? i - 1 : 0] = 0;
 	      if (assume_yes_to_all || !strcasecmp(buf, "yes") || !strcasecmp(buf, "y"))
-		system("sftp-kill all");
+		{
+		  system("sftp-kill all > /dev/null");
+		  if (do_clean)
+		    {
+		      if (SftpWhoDeleteStructs() == 0)
+			printf("Can't clean server: %s\n", strerror(errno));
+		    }
+		}
 	      else
 		printf("Clients aren't disconnected\n");
 	      close(fd);
@@ -78,6 +94,7 @@ int	main(int ac, char **av)
 	  printf("\t- start : same as 'active'\n");
 	  printf("\t- shutdown : shutdown the server (but don't kill current connections)\n");
 	  printf("\t- stop : same as 'shutdown'\n");
+	  printf("\t- fullshutdown : shutdown the server (kill all connections and clean memory)\n");
 	}
   else
     {
