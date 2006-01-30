@@ -35,7 +35,7 @@ int	main(int ac, char **av)
   do_clean = 0;
   if (ac > 1)
     for (i = 1; i < ac; i++)
-      if (!strcmp(av[i], "fullshutdown"))
+      if (!strcmp(av[i], "fullstop"))
 	{
 	  assume_yes_to_all = 1;
 	  do_clean = 1;
@@ -94,7 +94,7 @@ int	main(int ac, char **av)
 	  printf("\t- start : same as 'active'\n");
 	  printf("\t- shutdown : shutdown the server (but don't kill current connections)\n");
 	  printf("\t- stop : same as 'shutdown'\n");
-	  printf("\t- fullshutdown : shutdown the server (kill all connections and clean memory)\n");
+	  printf("\t- fullstop : shutdown the server (kill all connections and clean memory)\n");
 	}
   else
     {
