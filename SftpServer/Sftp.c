@@ -28,6 +28,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <stdlib.h>
 #include <string.h>
 #include <sys/select.h>
+#ifdef HAVE_SYS_STATVFS_H
+#include <sys/statvfs.h>
+#endif
 #include "Encode.h"
 #include "Handle.h"
 #include "Util.h"
@@ -73,8 +76,13 @@ static void	DoInit()
 	  BufferPutInt32(opt, SSH5_FXF__FLAGS);
 	  BufferPutInt32(opt, SSH5_FXF_ACCESS__FLAGS);
 	  BufferPutInt32(opt, SSH2_MAX_READ);
-	  BufferPutInt32(opt, 0); //no extension
+	  BufferPutString(opt, "space-available");
 	  BufferPutPacket(b, opt);
+	}
+      else
+	{
+	  BufferPutString(b, "space-available");
+	  BufferPutString(b, "");
 	}
     }
   BufferPutPacket(bOut, b);
@@ -438,7 +446,6 @@ static void	DoStat(int (*f_stat)(const char *, struct stat *))
     flags = BufferGetInt32(bIn);
   if ((status = CheckRules(path, RULES_NONE, 0, 0)) == SSH2_FX_OK)
     {
-      DEBUG((MYLOG_DEBUG, "CheckRules => OK", status));
       if ((r = f_stat(path, &st)) < 0)
 	SendStatus(bOut, id, errnoToPortable(errno));
       else
@@ -741,8 +748,35 @@ static void	DoExtended()
 	
   id = BufferGetInt32(bIn);
   request = BufferGetString(bIn);
-  SendStatus(bOut, id, SSH2_FX_OP_UNSUPPORTED);
   DEBUG((MYLOG_DEBUG, "[DoExtended]request:'%s'", request));
+#ifdef HAVE_STATVFS
+  if (!strcmp(request, "space-available"))
+    {
+      struct statvfs	stvfs;
+      char		*path;
+
+      path = convertFromUtf8(BufferGetString(bIn), 1);
+      if (!statvfs(path, &stvfs))
+	{
+	  tBuffer       *b;
+	  
+	  b = BufferNew();
+	  BufferPutInt8(b, SSH2_FXP_EXTENDED_REPLY);
+	  BufferPutInt32(b, id);
+	  BufferPutInt64(b, (u_int64_t )stvfs.f_blocks * (u_int64_t )stvfs.f_bsize);
+	  BufferPutInt64(b, (u_int64_t )stvfs.f_bfree * (u_int64_t )stvfs.f_bsize);
+	  BufferPutInt64(b, 0);
+	  BufferPutInt64(b, (u_int64_t )stvfs.f_bavail * (u_int64_t )stvfs.f_bsize);
+	  BufferPutInt32(b, stvfs.f_bsize);
+	  BufferPutPacket(bOut, b);
+	}
+      else
+	SendStatus(bOut, id, errnoToPortable(errno));
+      free(path);
+    }
+  else
+#endif
+    SendStatus(bOut, id, SSH2_FX_OP_UNSUPPORTED);
   free(request);
 }
 
