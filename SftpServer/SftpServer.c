@@ -218,7 +218,7 @@ static int	CheckRules(char *pwd, char operation, struct stat *st, int flags)
     }
   if (gl_var->who->status & SFTPWHO_STAY_AT_HOME)
     {
-      if (!strncmp(pwd, gl_var->who->home, strlen(gl_var->who->home))
+      if ((!strncmp(pwd, gl_var->who->home, strlen(gl_var->who->home)) || pwd[0] != '/')
 	  && (strlen(pwd) < 3 || strcmp(pwd + strlen(pwd) - 3, "/..")))
 	;
       else
