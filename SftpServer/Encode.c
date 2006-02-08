@@ -179,7 +179,9 @@ void	StatToAttributes(struct stat *st, tAttributes *a, char *fileName)
   if (cVersion >= 5 && fileName)
     {
       int	pos = strlen(fileName) - 1;
+#ifdef HAVE_LINUX_EXT2_FS_H
       int	fd;
+#endif
 
       a->attrib = 0;
       a->flags |= SSH5_FILEXFER_ATTR_BITS;
