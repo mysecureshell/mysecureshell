@@ -26,7 +26,7 @@ AC_CHECK_SIZEOF(long)
 # Checks for header files.
 AC_HEADER_DIRENT
 AC_HEADER_STDC
-AC_CHECK_HEADERS([arpa/inet.h fcntl.h netdb.h netinet/in.h stdlib.h string.h strings.h sys/param.h sys/socket.h unistd.h sys/statfs.h])
+AC_CHECK_HEADERS([arpa/inet.h fcntl.h netdb.h netinet/in.h stdlib.h string.h strings.h sys/param.h sys/socket.h unistd.h sys/statfs.h sys/param.h sys/mount.h])
 
 test -e "/usr/include/linux/ext2_fs.h" && AC_DEFINE(HAVE_LINUX_EXT2_FS_H, 1, Etcdir)
 
@@ -51,12 +51,13 @@ AC_ARG_WITH(logfile,
 		   MSS_LOG=$withval
 		fi
         ])
+MSS_COLOR=no
 AC_ARG_WITH(logcolor,
         [  --with-logcolor=xxx     Active color in log file (default: no)],
         [
 		
                 if test "x$withval" != "$no" ; then
-		   MSS_COLOR=1
+		   MSS_COLOR=yes
                 fi
         ])
 AC_ARG_WITH(shutfile,
@@ -84,7 +85,7 @@ AC_DEFINE_UNQUOTED(SHUTDOWN_FILE, "${MSS_SHUT}", Etcdir)
 AC_DEFINE_UNQUOTED(CONFIG_FILE, "${MSS_CONF}", Etcdir)
 AC_DEFINE(CONFIG_FILE2, "/etc/sshd/sftp_config", Etcdir)
 AC_DEFINE_UNQUOTED(MSS_SFTPWHO, "${BINDIR}/sftp-who", Sftpwhodir)
-test -z "$HAVE_LOG_IN_COLOR" && AC_DEFINE_UNQUOTED(HAVE_LOG_IN_COLOR, ${MSS_COLOR}, Colorlog)
+test "$MSS_COLOR" = "yes" && AC_DEFINE_UNQUOTED(HAVE_LOG_IN_COLOR, ${MSS_COLOR}, Colorlog)
 test -z "$HAVE_LIBKVM" && AC_DEFINE(HAVE_NOTHING, 1, Havenothing)
 
 #End
@@ -96,7 +97,7 @@ AC_OUTPUT
 A=`eval echo ${sysconfdir}`
 echo ""
 echo "MySecureShell has been configured with the following options:"
-echo "          Log file: $MSS_LOG"
+echo "          Log file: $MSS_LOG (color: $MSS_COLOR)"
 echo "     User binaries: $BINDIR"
 echo "     Shutdown file: $MSS_SHUT";
 echo "Configuration file: $MSS_CONF"
