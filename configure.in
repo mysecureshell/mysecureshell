@@ -11,7 +11,7 @@ AC_PATH_PROG(SED, sed)
 
 # Checks for libraries.
 AC_GNU_SOURCE
-AC_CHECK_LIB([kvm], [kvm_open])
+#AC_CHECK_LIB([kvm], [kvm_open])
 #AC_CHECK_LIB([efence], [malloc])
 AC_CHECK_LIB([idn], [stringprep_convert])
 
@@ -26,7 +26,7 @@ AC_CHECK_SIZEOF(long)
 # Checks for header files.
 AC_HEADER_DIRENT
 AC_HEADER_STDC
-AC_CHECK_HEADERS([arpa/inet.h fcntl.h netdb.h netinet/in.h stdlib.h string.h strings.h sys/param.h sys/socket.h unistd.h sys/statvfs.h])
+AC_CHECK_HEADERS([arpa/inet.h fcntl.h netdb.h netinet/in.h stdlib.h string.h strings.h sys/param.h sys/socket.h unistd.h sys/statfs.h])
 
 test -e "/usr/include/linux/ext2_fs.h" && AC_DEFINE(HAVE_LINUX_EXT2_FS_H, 1, Etcdir)
 
@@ -34,7 +34,7 @@ test -e "/usr/include/linux/ext2_fs.h" && AC_DEFINE(HAVE_LINUX_EXT2_FS_H, 1, Etc
 AC_FUNC_CLOSEDIR_VOID
 AC_FUNC_FORK
 AC_FUNC_STAT
-AC_CHECK_FUNCS([endgrent gethostbyaddr gethostbyname strcasecmp strchr strdup strerror strrchr strstr statvfs])
+AC_CHECK_FUNCS([endgrent gethostbyaddr gethostbyname strcasecmp strchr strdup strerror strrchr strstr statfs])
 
 #Help
 AC_ARG_WITH(conffile,
@@ -74,8 +74,7 @@ test -z "$BINDIR" && BINDIR="/usr/bin"
 test -z "$MSS_LOG" && MSS_LOG="/var/log/sftp-server.log";
 test -z "$MSS_CONF" && MSS_CONF="/etc/ssh/sftp_config";
 test -z "$MSS_SHUT" && MSS_SHUT="/etc/sftp.shut";
-MSS_UTF=NO
-test -z "$HAVE_LIBIDN" && MSS_UTF=YES
+MSS_UTF=$ac_cv_lib_idn_stringprep_convert
 
 A=`eval echo ${sysconfdir}`
 AC_SUBST(ETCDIR, "${A}")
@@ -101,5 +100,6 @@ echo "          Log file: $MSS_LOG"
 echo "     User binaries: $BINDIR"
 echo "     Shutdown file: $MSS_SHUT";
 echo "Configuration file: $MSS_CONF"
+echo ""
 echo "Supported:"
 echo "UTF-8 Encoding    : $MSS_UTF";

@@ -28,8 +28,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <stdlib.h>
 #include <string.h>
 #include <sys/select.h>
-#ifdef HAVE_SYS_STATVFS_H
-#include <sys/statvfs.h>
+#ifdef HAVE_SYS_STATFS_H
+#include <sys/statfs.h>
 #endif
 #include "Encode.h"
 #include "Handle.h"
@@ -749,25 +749,25 @@ static void	DoExtended()
   id = BufferGetInt32(bIn);
   request = BufferGetString(bIn);
   DEBUG((MYLOG_DEBUG, "[DoExtended]request:'%s'", request));
-#ifdef HAVE_STATVFS
+#ifdef HAVE_STATFS
   if (!strcmp(request, "space-available"))
     {
-      struct statvfs	stvfs;
+      struct statfs	stfs;
       char		*path;
 
       path = convertFromUtf8(BufferGetString(bIn), 1);
-      if (!statvfs(path, &stvfs))
+      if (!statfs(path, &stfs))
 	{
 	  tBuffer       *b;
 	  
 	  b = BufferNew();
 	  BufferPutInt8(b, SSH2_FXP_EXTENDED_REPLY);
 	  BufferPutInt32(b, id);
-	  BufferPutInt64(b, (u_int64_t )stvfs.f_blocks * (u_int64_t )stvfs.f_bsize);
-	  BufferPutInt64(b, (u_int64_t )stvfs.f_bfree * (u_int64_t )stvfs.f_bsize);
+	  BufferPutInt64(b, (u_int64_t )stfs.f_blocks * (u_int64_t )stfs.f_bsize);
+	  BufferPutInt64(b, (u_int64_t )stfs.f_bfree * (u_int64_t )stfs.f_bsize);
 	  BufferPutInt64(b, 0);
-	  BufferPutInt64(b, (u_int64_t )stvfs.f_bavail * (u_int64_t )stvfs.f_bsize);
-	  BufferPutInt32(b, stvfs.f_bsize);
+	  BufferPutInt64(b, (u_int64_t )stfs.f_bavail * (u_int64_t )stfs.f_bsize);
+	  BufferPutInt32(b, stfs.f_bsize);
 	  BufferPutPacket(bOut, b);
 	}
       else
