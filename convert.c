@@ -45,11 +45,12 @@ char	*convert_str_with_resolv_env_to_str(char *str)
 	end = i;
 	env_str = malloc(end - beg + 1);
 	strncpy(env_str, str + beg, end - beg);
+	env_str[end - beg] = 0;
 	if ((env_var = getenv(env_str)))
 	  {
 	    new = malloc(strlen(str) - (end - beg) + strlen(env_var) + 1);
-
 	    strncpy(new, str, beg - 1);
+	    new[beg - 1] = 0;
 	    strcat(new, env_var);
 	    strcat(new, str + end);
 	    free(str);
