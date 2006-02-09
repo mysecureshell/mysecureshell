@@ -28,22 +28,27 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <stdlib.h>
 #include <string.h>
 #include <sys/select.h>
-#ifdef HAVE_SYS_STATFS_H
-#include <sys/statfs.h>
-#define STATFS  statfs
-#endif
+
 #ifdef HAVE_SYS_STATVFS_H
 #include <sys/statvfs.h>
-#ifndef STATFS
 #define STATFS	statvfs
 #endif
+
+#ifdef HAVE_SYS_STATFS_H
+#include <sys/statfs.h>
+#ifndef STATFS
+#define STATFS  statfs
 #endif
+#endif
+
 #ifdef HAVE_SYS_PARAM_H
 #include <sys/param.h>
 #endif
+
 #ifdef HAVE_SYS_MOUNT_H
 #include <sys/mount.h>
 #endif
+
 #include "Encode.h"
 #include "Handle.h"
 #include "Util.h"
