@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT([MySecureShell],[0.8b4],[teka2nerdman@sourceforge.net])
+AC_INIT([MySecureShell],[0.8b5],[teka2nerdman@sourceforge.net])
 AC_CONFIG_HEADER(config.h)
 
 # Checks for programs.
@@ -14,6 +14,7 @@ AC_GNU_SOURCE
 #AC_CHECK_LIB([kvm], [kvm_open])
 #AC_CHECK_LIB([efence], [malloc])
 AC_CHECK_LIB([idn], [stringprep_convert])
+AC_CHECK_LIB([nsl], [gethostbyaddr])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -22,11 +23,14 @@ AC_STRUCT_TM
 AC_TYPE_SIGNAL
 AC_SYS_LARGEFILE
 AC_CHECK_SIZEOF(long)
+AC_CHECK_TYPES(u_int8_t)
+AC_CHECK_TYPES(u_int32_t)
+AC_CHECK_TYPES(u_int64_t)
 
 # Checks for header files.
 AC_HEADER_DIRENT
 AC_HEADER_STDC
-AC_CHECK_HEADERS([arpa/inet.h fcntl.h netdb.h netinet/in.h stdlib.h string.h strings.h sys/param.h sys/socket.h unistd.h sys/statfs.h sys/param.h sys/mount.h])
+AC_CHECK_HEADERS([arpa/inet.h fcntl.h netdb.h netinet/in.h stdlib.h string.h strings.h sys/param.h sys/socket.h unistd.h sys/statfs.h sys/param.h sys/mount.h sys/statvfs.h cygwin/socket.h sys/socket netinet/in.h])
 
 test -e "/usr/include/linux/ext2_fs.h" && AC_DEFINE(HAVE_LINUX_EXT2_FS_H, 1, Etcdir)
 
@@ -34,7 +38,7 @@ test -e "/usr/include/linux/ext2_fs.h" && AC_DEFINE(HAVE_LINUX_EXT2_FS_H, 1, Etc
 AC_FUNC_CLOSEDIR_VOID
 AC_FUNC_FORK
 AC_FUNC_STAT
-AC_CHECK_FUNCS([endgrent gethostbyaddr gethostbyname strcasecmp strchr strdup strerror strrchr strstr statfs])
+AC_CHECK_FUNCS([endgrent gethostbyaddr gethostbyname strcasecmp strchr strdup strerror strrchr strstr statfs getgrouplist])
 
 #Help
 AC_ARG_WITH(conffile,
@@ -86,7 +90,16 @@ AC_DEFINE_UNQUOTED(CONFIG_FILE, "${MSS_CONF}", Etcdir)
 AC_DEFINE(CONFIG_FILE2, "/etc/sshd/sftp_config", Etcdir)
 AC_DEFINE_UNQUOTED(MSS_SFTPWHO, "${BINDIR}/sftp-who", Sftpwhodir)
 test "$MSS_COLOR" = "yes" && AC_DEFINE_UNQUOTED(HAVE_LOG_IN_COLOR, ${MSS_COLOR}, Colorlog)
-test -z "$HAVE_LIBKVM" && AC_DEFINE(HAVE_NOTHING, 1, Havenothing)
+AC_DEFINE(HAVE_NOTHING, 1, Havenothing)
+if test "$ac_cv_type_u_int8_t" = "no" ; then
+   AC_DEFINE_UNQUOTED(u_int8_t, uint8_t, uint8)
+fi
+if test "$ac_cv_type_u_int32_t" = "no" ; then
+   AC_DEFINE_UNQUOTED(u_int32_t, uint32_t, uint32)
+fi
+if test "$ac_cv_type_u_int64_t" = "no" ; then
+   AC_DEFINE_UNQUOTED(u_int64_t, uint64_t, uint64)
+fi
 
 #End
 AC_CONFIG_FILES([Makefile])

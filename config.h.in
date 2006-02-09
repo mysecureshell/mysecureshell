@@ -12,6 +12,9 @@
 /* Define to 1 if you have the <arpa/inet.h> header file. */
 #undef HAVE_ARPA_INET_H
 
+/* Define to 1 if you have the <cygwin/socket.h> header file. */
+#undef HAVE_CYGWIN_SOCKET_H
+
 /* Define to 1 if you have the <dirent.h> header file, and it defines `DIR'.
    */
 #undef HAVE_DIRENT_H
@@ -25,6 +28,9 @@
 /* Define to 1 if you have the `fork' function. */
 #undef HAVE_FORK
 
+/* Define to 1 if you have the `getgrouplist' function. */
+#undef HAVE_GETGROUPLIST
+
 /* Define to 1 if you have the `gethostbyaddr' function. */
 #undef HAVE_GETHOSTBYADDR
 
@@ -36,6 +42,9 @@
 
 /* Define to 1 if you have the `idn' library (-lidn). */
 #undef HAVE_LIBIDN
+
+/* Define to 1 if you have the `nsl' library (-lnsl). */
+#undef HAVE_LIBNSL
 
 /* Etcdir */
 #undef HAVE_LINUX_EXT2_FS_H
@@ -109,11 +118,17 @@
 /* Define to 1 if you have the <sys/param.h> header file. */
 #undef HAVE_SYS_PARAM_H
 
+/* Define to 1 if you have the <sys/socket> header file. */
+#undef HAVE_SYS_SOCKET
+
 /* Define to 1 if you have the <sys/socket.h> header file. */
 #undef HAVE_SYS_SOCKET_H
 
 /* Define to 1 if you have the <sys/statfs.h> header file. */
 #undef HAVE_SYS_STATFS_H
+
+/* Define to 1 if you have the <sys/statvfs.h> header file. */
+#undef HAVE_SYS_STATVFS_H
 
 /* Define to 1 if you have the <sys/stat.h> header file. */
 #undef HAVE_SYS_STAT_H
@@ -123,6 +138,15 @@
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
+
+/* Define to 1 if the system has the type `u_int32_t'. */
+#undef HAVE_U_INT32_T
+
+/* Define to 1 if the system has the type `u_int64_t'. */
+#undef HAVE_U_INT64_T
+
+/* Define to 1 if the system has the type `u_int8_t'. */
+#undef HAVE_U_INT8_T
 
 /* Define to 1 if you have the `vfork' function. */
 #undef HAVE_VFORK
@@ -195,6 +219,15 @@
 
 /* Define to `int' if <sys/types.h> does not define. */
 #undef pid_t
+
+/* uint32 */
+#undef u_int32_t
+
+/* uint64 */
+#undef u_int64_t
+
+/* uint8 */
+#undef u_int8_t
 
 /* Define to `int' if <sys/types.h> doesn't define. */
 #undef uid_t
