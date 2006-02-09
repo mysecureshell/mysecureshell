@@ -17,12 +17,15 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#ifdef __OSCYGWIN_NT_5_1
+#include "config.h"
+#ifdef HAVE_CYGWIN_SOCKET_H
 #include <cygwin/socket.h>
 #endif
-#if(defined(__OSOpenBSD)||defined(__OSNetBSD)||defined(__OSFreeBSD))
 #include <sys/types.h>
+#ifdef HAVE_NETINET_IN_H
 #include <netinet/in.h>
+#endif
+#ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
 #endif
 #include <arpa/inet.h>
