@@ -1,7 +1,6 @@
 VERSION = @PACKAGE_VERSION@
 DEST	= MySecureShell_$(VERSION)
 CPU	= "`uname -m`"
-OS	= "__OS`uname -s | sed -e 's/[-\.]/_/g'`"
 ARCHIVE	= MySecureShell-$(OSTYPE)-$(CPU)-$(VERSION)
 
 NAME	= MySecureShell$(EXT)
@@ -41,7 +40,7 @@ FILESRC	= $(DEST)/sftp_config $(DEST)/utils/sftp-kill $(DEST)/LICENSE	\
 	  $(DEST)/README-fr $(DEST)/README-en $(DEST)/Makefile.in	\
 	  $(DEST)/config.h.in $(DEST)/configure $(DEST)/install.sh.in	\
 	  $(DEST)/uninstaller.sh.in $(DEST)/locales_en $(DEST)/locales_fr
-CFLAGS	= -Wall -Wunused -Wpointer-arith -Wno-uninitialized -O2 -D$(OS) -ISftpServer
+CFLAGS	= -Wall -Wunused -Wpointer-arith -Wno-uninitialized -O2 -ISftpServer
 DEBUG	= 0
 
 LDFLAGS	= @LIBS@
