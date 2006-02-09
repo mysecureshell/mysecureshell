@@ -30,6 +30,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <sys/select.h>
 #ifdef HAVE_SYS_STATFS_H
 #include <sys/statfs.h>
+#define STATFS  statfs
+#endif
+#ifdef HAVE_SYS_STATVFS_H
+#include <sys/statvfs.h>
+#ifndef STATFS
+#define STATFS	statvfs
+#endif
 #endif
 #ifdef HAVE_SYS_PARAM_H
 #include <sys/param.h>
@@ -755,17 +762,17 @@ static void	DoExtended()
   id = BufferGetInt32(bIn);
   request = BufferGetString(bIn);
   DEBUG((MYLOG_DEBUG, "[DoExtended]request:'%s'", request));
-#ifdef HAVE_STATFS
+#ifdef STATFS
   if (!strcmp(request, "space-available"))
     {
-      struct statfs	stfs;
+      struct STATFS	stfs;
       char		*path;
       int		status;
 
       path = convertFromUtf8(BufferGetString(bIn), 1);
       if ((status = CheckRules(path, RULES_DIRECTORY, 0, O_RDONLY)) == SSH2_FX_OK)
 	{
-	  if (!statfs(path, &stfs))
+	  if (!STATFS(path, &stfs))
 	    {
 	      tBuffer       *b;
 	      
