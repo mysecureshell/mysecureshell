@@ -760,24 +760,30 @@ static void	DoExtended()
     {
       struct statfs	stfs;
       char		*path;
+      int		status;
 
       path = convertFromUtf8(BufferGetString(bIn), 1);
-      if (!statfs(path, &stfs))
+      if ((status = CheckRules(path, RULES_DIRECTORY, 0, O_RDONLY)) == SSH2_FX_OK)
 	{
-	  tBuffer       *b;
-	  
-	  b = BufferNew();
-	  BufferPutInt8(b, SSH2_FXP_EXTENDED_REPLY);
-	  BufferPutInt32(b, id);
-	  BufferPutInt64(b, (u_int64_t )stfs.f_blocks * (u_int64_t )stfs.f_bsize);
-	  BufferPutInt64(b, (u_int64_t )stfs.f_bfree * (u_int64_t )stfs.f_bsize);
-	  BufferPutInt64(b, 0);
-	  BufferPutInt64(b, (u_int64_t )stfs.f_bavail * (u_int64_t )stfs.f_bsize);
-	  BufferPutInt32(b, stfs.f_bsize);
-	  BufferPutPacket(bOut, b);
+	  if (!statfs(path, &stfs))
+	    {
+	      tBuffer       *b;
+	      
+	      b = BufferNew();
+	      BufferPutInt8(b, SSH2_FXP_EXTENDED_REPLY);
+	      BufferPutInt32(b, id);
+	      BufferPutInt64(b, (u_int64_t )stfs.f_blocks * (u_int64_t )stfs.f_bsize);
+	      BufferPutInt64(b, (u_int64_t )stfs.f_bfree * (u_int64_t )stfs.f_bsize);
+	      BufferPutInt64(b, 0);
+	      BufferPutInt64(b, (u_int64_t )stfs.f_bavail * (u_int64_t )stfs.f_bsize);
+	      BufferPutInt32(b, stfs.f_bsize);
+	      BufferPutPacket(bOut, b);
+	    }
+	  else
+	    SendStatus(bOut, id, errnoToPortable(errno));
 	}
       else
-	SendStatus(bOut, id, errnoToPortable(errno));
+	SendStatus(bOut, id, status);
       free(path);
     }
   else
