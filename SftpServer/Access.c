@@ -27,7 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 static gid_t	*_in_group = 0;
 
-#ifdef __OSCYGWIN_NT_5_1
+#ifndef HAVE_GETGROUPLIST
 static int getgrouplist(const char *uname, gid_t agroup, register gid_t *groups, int *grpcnt)
 {
   register struct group *grp;

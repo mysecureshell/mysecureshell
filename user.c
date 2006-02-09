@@ -32,7 +32,7 @@ static char	*user_name = 0;
 static char	**user_group = 0;
 static char	restrictions = REST_ALL;
 
-#ifdef __OSCYGWIN_NT_5_1
+#ifndef HAVE_GETGROUPLIST
 static int getgrouplist(const char *uname, gid_t agroup, register gid_t *groups, int *grpcnt)
 {
   register struct group *grp;
