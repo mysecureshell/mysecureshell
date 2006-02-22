@@ -74,7 +74,7 @@ AC_ARG_WITH(shutfile,
 
 
 #Own defines
-test -z "$prefix" && prefix=/
+test "$prefix" = "NONE" && prefix=
 test -z "$BINDIR" && BINDIR="/usr/bin"
 test -z "$MSS_LOG" && MSS_LOG="/var/log/sftp-server.log";
 test -z "$MSS_CONF" && MSS_CONF="/etc/ssh/sftp_config";
