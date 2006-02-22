@@ -34,12 +34,14 @@ SRC4	= SftpAdmin/Main.c SftpServer/Buffer.c SftpServer/Log.c
 OBJ4	= $(SRC4:.c=.o)
 
 
-FILE	= sftp_config utils/sftp-kill LICENSE README-fr README-en	\
-	  install.sh locales_en locales_fr uninstaller.sh
+FILE	= sftp_config utils/sftp-kill utils/sftp-verif LICENSE	\
+	  README-fr README-en install.sh locales_en locales_fr	\
+	  uninstaller.sh
 FILESRC	= $(DEST)/sftp_config $(DEST)/utils/sftp-kill $(DEST)/LICENSE	\
 	  $(DEST)/README-fr $(DEST)/README-en $(DEST)/Makefile.in	\
 	  $(DEST)/config.h.in $(DEST)/configure $(DEST)/install.sh.in	\
-	  $(DEST)/uninstaller.sh.in $(DEST)/locales_en $(DEST)/locales_fr
+	  $(DEST)/uninstaller.sh.in $(DEST)/locales_en $(DEST)/locales_fr\
+	  $(DEST)/utils/sftp-verif.in
 CFLAGS	= -Wall -Wunused -Wpointer-arith -Wno-uninitialized -O2 -ISftpServer
 DEBUG	= 0
 

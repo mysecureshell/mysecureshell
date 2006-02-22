@@ -74,7 +74,7 @@ AC_ARG_WITH(shutfile,
 
 
 #Own defines
-test "$prefix" = NONE && prefix=/
+test -z "$prefix" && prefix=/
 test -z "$BINDIR" && BINDIR="/usr/bin"
 test -z "$MSS_LOG" && MSS_LOG="/var/log/sftp-server.log";
 test -z "$MSS_CONF" && MSS_CONF="/etc/ssh/sftp_config";
@@ -84,6 +84,7 @@ MSS_UTF=$ac_cv_lib_idn_stringprep_convert
 A=`eval echo ${sysconfdir}`
 AC_SUBST(ETCDIR, "${A}")
 AC_SUBST(BINDIR, "${BINDIR}")
+AC_SUBST(MSS_CONF, "${MSS_CONF}")
 AC_DEFINE_UNQUOTED(MSS_LOG, "${MSS_LOG}", Logdir)
 AC_DEFINE_UNQUOTED(SHUTDOWN_FILE, "${MSS_SHUT}", Etcdir)
 AC_DEFINE_UNQUOTED(CONFIG_FILE, "${MSS_CONF}", Etcdir)
@@ -105,6 +106,7 @@ fi
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([install.sh], [chmod +x install.sh])
 AC_CONFIG_FILES([uninstaller.sh], [chmod +x uninstaller.sh])
+AC_CONFIG_FILES([utils/sftp-verif], [chmod +x utils/sftp-verif])
 AC_OUTPUT
 
 A=`eval echo ${sysconfdir}`

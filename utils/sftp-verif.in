@@ -1,0 +1,62 @@
+#!/bin/sh
+
+## MySecureShell Verification Tool v0.1 - Made by MySecureShell Team
+## MySecureShell Team <teka2nerdman@users.sourceforge.net>
+
+BINDIR=@BINDIR@
+MSS_CONF=@MSS_CONF@
+
+## Root detection
+
+if [ `whoami` == "root" ] ; then
+	break
+else
+	echo -e "\n################################################################"
+	echo -e "\tSorry "`whoami`" but you must be root to continue"
+	echo -e "################################################################\n"
+        exit 1
+fi
+
+## Funtion
+
+multiplepath () {
+test "$MSS_mult" = "1" && resum=$resum"Verifing file existance of $file2verify\t\t[ OK ]\n" || resum=$resum"Verifing file existance of sftp-server_MSS\t\t\t[ Failed ]\n"
+}
+
+## Starting validation
+
+echo "#################################################"
+echo -e "#\tMySecureShell Verification Tool\t\t#"
+echo -e "#################################################\n"
+
+# Singles files
+resum=$resum"** Verifing file existance **\n"
+for file2verify in "/bin/MySecureShell" "$BINDIR/sftp-who" "$BINDIR/sftp-kill" "$BINDIR/sftp-state" "$BINDIR/sftp-admin" "$BINDIR/sftp-verif" ; do
+	test -e $file2verify && resum=$resum"Verifing file existance of $file2verify\t\t\t[ OK ]\n" || resum=$resum"Verifing file existance of $file2verify\t\t\t[ Failed ]\n"
+done
+
+for file2verify in "/usr/lib/sftp-server_MSS" "/usr/libexec/sftp-server_MSS" "/usr/lib/ssh/sftp-server_MSS" "/usr/lib/openssh/sftp-server_MSS" "/usr/libexec/openssh/sftp-server_MSS" ; do
+	test -e $file2verify && MSS_mult=1 && chmod -f 4755 $file2verify && break
+done
+multiplepath
+
+MSS_mult=0
+for file2verify in "$MSS_CONF/sftp_config" "/etc/sshd/sftp_config" ; do
+	test -e $file2verify && MSS_mult=1 && chmod -f 644 $file2verify && break
+done
+multiplepath
+
+# Rights
+resum=$resum"\n** Reasigning good rights **\nReasignement of good rights\t\t\t\t\t[ OK ]\n"
+chmod 755 $BINDIR/sftp-who $BINDIR/sftp-kill ; chmod 700 $BINDIR/sftp-state $BINDIR/sftp-admin
+
+# Server status
+resum=$resum"\n** Verifing server status **\n"
+test "`$BINDIR/sftp-state`" = "Server is up" && resum=$resum"Verifing server status (ONLINE)\t\t\t\t\t[ OK ]\n" || resum=$resum"Verifing server status (ONLINE)\t\t\t\t\t[ FAILED ]\n"
+echo -e "$resum"
+if [ "`$BINDIR/sftp-state`" = "Server is down" ] ; then
+	echo "Do you want to start server ? (Y/n)"
+	read repstart
+	test $repstart = "y" && $BINDIR/sftp-state start || break
+fi
+
