@@ -20,7 +20,7 @@ fi
 ## Funtion
 
 multiplepath () {
-test "$MSS_mult" = "1" && resum=$resum"Verifing file existance of $file2verify\t\t[ OK ]\n" || resum=$resum"Verifing file existance of sftp-server_MSS\t\t\t[ Failed ]\n"
+test "$MSS_mult" = "1" && resum=$resum"Verifing file existance of $file2verify\t\t[ OK ]\n" || resum=$resum"Verifing file existance of $1\t\t\t[ Failed ]\n"
 }
 
 ## Starting validation
@@ -38,13 +38,13 @@ done
 for file2verify in "/usr/lib/sftp-server_MSS" "/usr/libexec/sftp-server_MSS" "/usr/lib/ssh/sftp-server_MSS" "/usr/lib/openssh/sftp-server_MSS" "/usr/libexec/openssh/sftp-server_MSS" ; do
 	test -e $file2verify && MSS_mult=1 && chmod -f 4755 $file2verify && break
 done
-multiplepath
+multiplepath sftp-server_MSS
 
 MSS_mult=0
-for file2verify in "$MSS_CONF/sftp_config" "/etc/sshd/sftp_config" ; do
+for file2verify in "$MSS_CONF" "/etc/sshd/sftp_config" ; do
 	test -e $file2verify && MSS_mult=1 && chmod -f 644 $file2verify && break
 done
-multiplepath
+multiplepath sftp_config
 
 # Rights
 resum=$resum"\n** Reasigning good rights **\nReasignement of good rights\t\t\t\t\t[ OK ]\n"
@@ -55,7 +55,7 @@ resum=$resum"\n** Verifing server status **\n"
 test "`$BINDIR/sftp-state`" = "Server is up" && resum=$resum"Verifing server status (ONLINE)\t\t\t\t\t[ OK ]\n" || resum=$resum"Verifing server status (ONLINE)\t\t\t\t\t[ FAILED ]\n"
 echo -e "$resum"
 if [ "`$BINDIR/sftp-state`" = "Server is down" ] ; then
-	echo "Do you want to start server ? (Y/n)"
+	echo "Do you want to start server ? (y/n)"
 	read repstart
 	test $repstart = "y" && $BINDIR/sftp-state start || break
 fi
