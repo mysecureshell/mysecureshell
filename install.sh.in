@@ -223,7 +223,7 @@ else
 		sshfolder=$ETCDIR/ssh
 	else
 		MyGetLocale 'mksshfolder'
-		if [ $yesall = "1" ] ; then
+		if [ $fyesall = "1" ] ; then
 			repssh="y"
 		else
 			read repssh
