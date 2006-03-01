@@ -110,6 +110,9 @@ cleanall:
 mrproper: fclean cleanall
 
 
+install	:
+	@./install.sh yesall
+
 re	: fclean all
 
 
