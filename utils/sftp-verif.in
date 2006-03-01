@@ -5,6 +5,7 @@
 
 BINDIR=@BINDIR@
 MSS_CONF=@MSS_CONF@
+MSS_LOG=@MSS_LOG@
 
 ## Root detection
 
@@ -49,6 +50,27 @@ multiplepath sftp_config
 # Rights
 resum=$resum"\n** Reasigning good rights **\nReasignement of good rights\t\t\t\t\t[ OK ]\n"
 chmod 755 $BINDIR/sftp-who $BINDIR/sftp-kill ; chmod 700 $BINDIR/sftp-state $BINDIR/sftp-admin
+
+# Logrotate
+resum=$resum"\n** Verifing rotation logs **\n"
+if [ -d /etc/logrotate.d ] ; then
+	if [ -f /etc/logrotate.d/mysecureshell ] ; then
+		break
+	else
+		echo -e "$MSS_LOG {\n\tweekly\n\tsize=500k\n\trotate 10\n\tcompress\n\tdelaycompress\n\tmissingok\n\tnotifempty\n}" > /etc/logrotate.d/mysecureshell
+		chmod 644 /etc/logrotate.d/mysecureshell
+	fi
+	resum=$resum"MySecureShell rotation logs\t\t\t\t\t[ OK ]\n"
+else
+	if [ -f /etc/weekly ] ; then
+		logstat=1
+		grep -e '^for' < /etc/weekly | grep -ve sftp-server.log > /dev/null
+		if [ "$?" = "0" ] ; then
+			sed -e 's/^\(for i in.*\)\(; do\)$/\1 $MSS_LOG\2/' /etc/weekly > /tmp/weekly.tmp && mv /tmp/weekly.tmp /etc/weekly
+		fi
+	fi
+	test "$logstat" = "1" && resum=$resum"MySecureShell rotation logs\t\t\t\t\t[ OK ]\n" || resum=$resum"MySecureShell rotation logs\t\t\t\t\t[ FAILED ]\n"
+fi
 
 # Server status
 resum=$resum"\n** Verifing server status **\n"
