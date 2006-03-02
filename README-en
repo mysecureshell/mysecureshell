@@ -37,6 +37,11 @@ Utilities:
 In the directory utils, we can found:
 - sftp-who : usefull to print informations of connected client
 - sftp-kill : we can deconnect client or all clients
+- sftp-state : turn on/off sftp server
+- sftp-verif : run tests on MySecureShell if you have some problems
+
+
+--
 
 
 INFO IMPORTANTES:
@@ -60,12 +65,31 @@ IMPOSSIBLE TO ADD:
 
 CONTACTS AND INFORMATIONS:
 -------------------------
-http://mysecureshell.sourceforge.net
-teka2nerdman@users.sourceforge.net
+Web Site:    http://mysecureshell.sourceforge.net
+E-Mail:      teka2nerdman@users.sourceforge.net
+Forum:       http://mysecureshell.free.fr
 
 
 CHANGE LOG:
 -----------
+0.8 (march 2006) :
+        + add tags : GMTTime, Charset
+        + support of utf-8 for files / directories
+        + support of logrotate
+        + support of protocol SFTP v5
+        + sftp-admin : add possibility to shutdown MySecureShell and clean persistent objects
+        + sftp extensions : support of free disk space
+        + add util sftp-verif for testing MySecureShell
+        ~ optimization on MySecureShell
+        ~ improve sftp-who : speed is showing with more precision
+        ~ increase support of compatibility with sftp clients (WebDrive works now)
+        ~ improve install (support of logrotate)
+	~ improve install for mac
+        = sftp-who: fix bug on max speed
+        = fix bug on memory
+        = fix bug on rights when creating files / directories
+        = fix bug for MySecureShell administrator
+
 0.7 (november 2005) :
         + add tags : DisableAccount, IsAdmin
         + new program :
@@ -79,7 +103,6 @@ CHANGE LOG:
         = fix bug if user was in too many groups
         = fix bug in protocol
         = fix bug in memory
-
 
 0.61 (august 2005) :
         + add tag ConnectionMaxLife

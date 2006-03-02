@@ -11,13 +11,14 @@ Compilation:
 Necessite : gnu-make (par defaut sous linux)
 
 1/ Taper la commande:
+	./configure
 	make all
 
 2/ Et ensuite, taper la commande :
 	./install.sh fr
 
 
-Require:
+Requiere:
 --------
 OpenSSH 3.8.1 (ou superieur)
 
@@ -36,11 +37,12 @@ Utilitaires:
 ------------
 Dans le repertoire utils, il existe l'utilitaire suivant:
 - sftp-who : permet de savoir qui est connecte puis affiche le PID du processus du client,
- 	 	l'heure de connection, le temps de connection et d'autre informations
+ 	 	l'heure de connexion, le temps de connection et d'autres informations
 		concernant les limites utilisees pour le client
-- sftp-kill : permet de deconnecter un ou plusieurs utilisateur juste en passant
+- sftp-kill : permet de deconnecter un ou plusieurs utilisateurs juste en passant
 		le nom de l'utilisateur ou all en argument
 - sftp-state : permet d'activer ou de desactiver le serveur sftp
+- sftp-verif : permet de tester et corriger MySecureShell quand vous rencontrez un probleme
 
 
 ---
@@ -57,34 +59,46 @@ La configuration prise pour un compte possede les priorites suivantes
 - Restriction sur une plage d'IP
 - Restriction sur l'utilisateur
 Si un utilisateur est dans plusieurs groupes alors la derniere configuration
-appliquable sera utilisee.
+applicable sera utilisee.
 
 2/ Le chroot:
 Le chroot enferme l'utilisateur dans son repertoire home, l'utilisateur voit son home
 en tant que repertoire racine du serveur.
 
 
-A VENIR
--------
-- Ajout de fichier de log personnalisable
-- Possibilite de cacher des fichiers (par createur / groupe du fichier)
-- Ajout de ratio
-- Ajout d'un quota
-
-
 IMPOSSIBLE A IMPLEMENTER:
 -------------------------
-- interdir les personnes qui brutent force un compte (deja implemente dans PAM et OpenSSH)
+- interdire les personnes qui brutent force un compte (deja implemente dans PAM et OpenSSH)
 
 
 CONTACTS ET INFORMATIONS:
 -------------------------
-http://mysecureshell.sourceforge.net
-teka2nerdman@users.sourceforge.net
+Site web:    http://mysecureshell.sourceforge.net
+E-Mail:      teka2nerdman@users.sourceforge.net
+Forum:       http://mysecureshell.free.fr 
 
 
 HISTORIQUE:
 -----------
+0.8 (mars 2006) :
+	+ ajout des tags : GMTTime, Charset
+	+ support de l'utf-8 pour les noms des fichiers / repertoires
+	+ support du renouvellement du fichier de log
+	+ support du protocol SFTP v5
+	+ sftp-admin : ajout de la possibilite de fermer TOUT MySecureShell
+	+ sftp extentions : support des informations sur l'espace libre des disques durs
+	+ ajout d'un outil sftp-verif pour verifier que MySecureShell fonctionne bien et corrige les eventuels erreurs
+	+ ajout du package Universal Binaries pour les macs
+	~ optimization global sur MySecureShell
+	~ amelioration sftp-who : la vitesse affiche des nombres a virgules
+	~ meilleur support des clients sftp (WebDrive fonctionne maintenant)
+	~ amelioration de l'installeur (support du logrotate)
+	~ amelioration globale sur l'installateur mac
+	= sftp-who: fixe un bug sur la vitesse maximum affiche
+	= fixe un bug dans la gestion de la memoire
+	= fixe un bug sur les droits lors de la creation de fichier / repertoire
+	= fixe un bug pour les utilisateurs qui sont administrateur de MySecureShell
+
 0.7 (novembre 2005) :
 	+ ajout des tags : DisableAccount, IsAdmin
 	+ ajout d'un programme :
