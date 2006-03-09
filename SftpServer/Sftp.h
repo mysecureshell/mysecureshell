@@ -214,5 +214,7 @@ typedef struct	sStat
 }		tStat;
  
 extern	int	cVersion;
+
+int	SftpMain(int ac, char **av);
  
 #endif //_SFTP_H_

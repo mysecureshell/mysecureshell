@@ -7,8 +7,13 @@ NAME	= MySecureShell$(EXT)
 SRC	= main.c string.c	\
 	  parsing.c hash.c	\
 	  conf.c convert.c	\
-	  user.c prog.c	\
-	  ip.c
+	  user.c prog.c		\
+	  ip.c			\
+	  SftpServer/Buffer.c SftpServer/Encode.c	\
+	  SftpServer/Handle.c SftpServer/Send.c		\
+	  SftpServer/Sftp.c SftpServer/Util.c		\
+	  SftpServer/Log.c SftpServer/Encoding.c
+
 OBJ	= $(SRC:.c=.o)
 
 NAME1	= utils/sftp-who$(EXT)
@@ -21,17 +26,10 @@ NAME2	= utils/sftp-state$(EXT)
 SRC2	= SftpState/Main.c SftpServer/SftpWho.c
 OBJ2	= $(SRC2:.c=.o)
 
-NAME3	= sftp-server_MSS$(EXT)
-SRC3	= SftpServer/Buffer.c SftpServer/Encode.c	\
-	  SftpServer/Handle.c SftpServer/Send.c		\
-	  SftpServer/Sftp.c SftpServer/Util.c		\
-	  SftpServer/Log.c SftpServer/Encoding.c
-OBJ3	= $(SRC3:.c=.o)
-
-NAME4	= utils/sftp-admin$(EXT)
-SRC4	= SftpAdmin/Main.c SftpServer/Buffer.c SftpServer/Log.c
+NAME3	= utils/sftp-admin$(EXT)
+SRC3	= SftpAdmin/Main.c SftpServer/Buffer.c SftpServer/Log.c
 #juste pour les tests
-OBJ4	= $(SRC4:.c=.o)
+OBJ3	= $(SRC3:.c=.o)
 
 
 FILE	= sftp_config utils/sftp-kill utils/sftp-verif LICENSE	\
@@ -68,7 +66,7 @@ CVS	= cvs
 GREP	= fgrep
 LN	= ln
 
-all	: $(NAME) sftpwho sftpstate sftpserver sftpadmin
+all	: $(NAME) sftpwho sftpstate sftpadmin
 
 $(NAME)	: $(OBJ)
 	@echo "Compile binary	[$(NAME)]"
@@ -85,23 +83,18 @@ sftpstate: $(OBJ2)
 	@$(CC) -o $(NAME2) $(OBJ2) $(LDFLAGS)
 	@$(CHMOD) 711 $(NAME2)
 
-sftpserver: $(OBJ3)
+sftpadmin : $(OBJ3)
 	@echo "Compile binary	[$(NAME3)]"
 	@$(CC) -o $(NAME3) $(OBJ3) $(LDFLAGS)
 	@$(CHMOD) 711 $(NAME3)
 
-sftpadmin : $(OBJ4)
-	@echo "Compile binary	[$(NAME4)]"
-	@$(CC) -o $(NAME4) $(OBJ4) $(LDFLAGS)
-	@$(CHMOD) 711 $(NAME4)
-
 clean	:
 	@echo "Delete all objects"
-	@$(RM) $(OBJ) $(OBJ1) $(OBJ2) $(OBJ3) $(OBJ4)
+	@$(RM) $(OBJ) $(OBJ1) $(OBJ2) $(OBJ3)
 
 fclean	: clean
 	@echo "Delete all unecessary files"
-	@$(RM) $(NAME) $(NAME1) $(NAME2) $(NAME3) $(NAME4)
+	@$(RM) $(NAME) $(NAME1) $(NAME2) $(NAME3)
 	@$(RM) -i `$(FIND) . | grep -F '~'` *.tgz || true
 
 cleanall:
@@ -118,9 +111,9 @@ re	: fclean all
 
 package : re
 	@echo "Make package"
-	@$(STRIP) $(NAME) $(NAME1) $(NAME2) $(NAME3) $(NAME4)
+	@$(STRIP) $(NAME) $(NAME1) $(NAME2) $(NAME3)
 	@echo "Tar package"
-	@$(TAR) cfz $(ARCHIVE).tgz $(NAME) $(NAME1) $(NAME2) $(NAME3) $(NAME4) $(FILE)
+	@$(TAR) cfz $(ARCHIVE).tgz $(NAME) $(NAME1) $(NAME2) $(NAME3) $(FILE)
 	@echo "Package done."
 
 source	:

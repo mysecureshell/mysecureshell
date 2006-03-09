@@ -28,6 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "parsing.h"
 #include "prog.h"
 #include "string.h"
+#include "SftpServer/Sftp.h"
 #include "SftpServer/SftpWho.h"
 
 static void	parse_args(int ac, char **av)
@@ -68,29 +69,11 @@ static void	parse_args(int ac, char **av)
 
 int	main(int ac, char **av, char **env)
 {
-  char	*exe = "";
   int	is_sftp = 0;
 
   create_hash();
-  if (ac == 3 && av[1] && av[2] &&
-      !strcmp("-c", av[1]) &&
-      strstr(av[2], "sftp-server"))
-    {
-      int	len = strlen(av[2]);
-      int	is_exe = 0;
-
-      if (!strcmp(av[2] + len - 4, ".exe"))
-	{
-	  is_exe = 1;
-	  av[2][len - 4] = 0;
-	}
-      exe = malloc(strlen(av[2]) + 5 + (is_exe == 1 ? 4 : 0));
-      strcpy(exe, av[2]);
-      strcat(exe, "_MSS");
-      if (is_exe)
-	strcat(exe, ".exe");
+  if (ac == 3 && av[1] && av[2] && !strcmp("-c", av[1]) && strstr(av[2], "sftp-server"))
       is_sftp = 1;
-    }
   else
     parse_args(ac, av);
   load_config(0);
@@ -143,7 +126,7 @@ int	main(int ac, char **av, char **env)
 
       args = calloc(sizeof(*args), 44);//be aware of the buffer overflow
       nb_args = 0;
-      args[nb_args++] = exe;
+      args[nb_args++] = 0;
       args[nb_args++] = "--user";
       args[nb_args++] = strdup((char *)hash_get("User"));
       args[nb_args++] = "--home";
@@ -245,16 +228,7 @@ int	main(int ac, char **av, char **env)
 	  exit(0);
 	}
       delete_hash();
-
-#ifdef HAVE_LIBEFENCE
-      env[0] = "EF_DISABLE_BANNER=1";
-      env[1] = "EF_FREE_WIPES=1";
-      env[2] = "EF_PROTECT_FREE=1";
-      env[3] = "EF_ALLOW_MALLOC_0=1";
-#endif
-
-      execve(exe, args, env);
-      exit(1);
+      SftpMain(nb_args, args);
     }
   else
     {

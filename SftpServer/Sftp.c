@@ -1025,7 +1025,7 @@ static void	DoProtocol()
   goto parsePacket;
 }
 
-int			main(int ac, char **av)
+int			SftpMain(int ac, char **av)
 {
   struct timeval	tm;
   fd_set		fdR, fdW;
