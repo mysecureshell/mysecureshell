@@ -214,7 +214,7 @@ static int	CheckRulesAboutMaxFiles()
   return SSH2_FX_OK;
 }
 
-static void     ResolvPath(char *path, char *dst)
+static void     ResolvPath(char *path, char *dst, int dstMaxSize)
 {
   char          *ptr, *s = path;
   int           i, beg, end, len;
@@ -222,7 +222,7 @@ static void     ResolvPath(char *path, char *dst)
   dst[0] = 0;
   beg = 0;
   len = strlen(path);
-  strcpy(dst, path);
+  STRCPY(dst, path, dstMaxSize);
   s = dst;
   while ((ptr = strstr(s, "..")))
     {
@@ -237,7 +237,7 @@ static void     ResolvPath(char *path, char *dst)
               break;
           if (i < 0) i = 0;
           if (dst[end])
-            strcpy(dst + i, dst + end);
+            STRCPY(dst + i, dst + end, dstMaxSize);
           else
 	    dst[i] = 0;
           len = strlen(dst);
@@ -261,6 +261,6 @@ static void     ResolvPath(char *path, char *dst)
       struct stat       st;
 
       if (stat(dst, &st) != -1 && (st.st_mode & S_IFMT) != S_IFREG)
-        strcat(dst, "/");
+        STRCAT(dst, "/", dstMaxSize);
     }
 }

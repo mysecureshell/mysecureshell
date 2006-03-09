@@ -2,12 +2,13 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT([MySecureShell],[0.8],[teka2nerdman@sourceforge.net])
+AC_INIT([MySecureShell],[0.9b1],[teka2nerdman@sourceforge.net])
 AC_CONFIG_HEADER(config.h)
 
 # Checks for programs.
 AC_PROG_CC
 AC_PATH_PROG(SED, sed)
+AC_REQUIRE_CPP
 
 # Checks for libraries.
 AC_GNU_SOURCE
@@ -38,7 +39,7 @@ test -e "/usr/include/linux/ext2_fs.h" && AC_DEFINE(HAVE_LINUX_EXT2_FS_H, 1, Etc
 AC_FUNC_CLOSEDIR_VOID
 AC_FUNC_FORK
 AC_FUNC_STAT
-AC_CHECK_FUNCS([endgrent gethostbyaddr gethostbyname strcasecmp strchr strdup strerror strrchr strstr statfs getgrouplist])
+AC_CHECK_FUNCS([endgrent gethostbyaddr gethostbyname strcasecmp strchr strdup strerror strrchr strstr statfs getgrouplist strlcpy strlcat])
 
 #Help
 AC_ARG_WITH(conffile,
@@ -101,8 +102,6 @@ fi
 if test "$ac_cv_type_u_int64_t" = "no" ; then
    AC_DEFINE_UNQUOTED(u_int64_t, uint64_t, uint64)
 fi
-
-#End
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([install.sh], [chmod +x install.sh])
 AC_CONFIG_FILES([uninstaller.sh], [chmod +x uninstaller.sh])

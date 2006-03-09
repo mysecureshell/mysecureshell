@@ -18,6 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "../config.h"
+#include "Defines.h"
 #include <errno.h>
 #include <dirent.h>
 #include <fcntl.h>
@@ -129,7 +130,7 @@ static void	DoRealPath()
       
       memset(&s, 0, sizeof(s));
       if (strcmp(path, ".") && strcmp(path, "./."))
-	ResolvPath(path, resolvedName);
+	ResolvPath(path, resolvedName, sizeof(resolvedName));
       if (cVersion >= 4)
 	s.name = convertToUtf8(resolvedName, 0);
       else

@@ -18,6 +18,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include <string.h>
+#include "config.h"
+#include "SftpServer/Defines.h"
 #include "string.h"
 
 char	*clean_buffer(char *buffer)
@@ -63,14 +65,14 @@ char	*clean_string(char *buffer)
       if (buffer[i] == '"' || buffer[i] == '\'')
 	{
 	  c = buffer[i];
-	  strcpy(buffer + i, buffer + i + 1);
+	  STRCPY(buffer + i, buffer + i + 1, max);
 	  while (c != buffer[i] && i < max)
 	    i++;
 	  if (c == buffer[i])
-	    strcpy(buffer + i, buffer + i + 1);
+	    STRCPY(buffer + i, buffer + i + 1, max);
 	}
       else if (buffer[i] == '\\')
-	strcpy(buffer + i, buffer + i + 1);
+	STRCPY(buffer + i, buffer + i + 1, max);
     }
   return (buffer);
 }

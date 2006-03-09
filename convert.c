@@ -17,6 +17,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
+#include "config.h"
+#include "SftpServer/Defines.h"
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -48,11 +50,13 @@ char	*convert_str_with_resolv_env_to_str(char *str)
 	env_str[end - beg] = 0;
 	if ((env_var = getenv(env_str)))
 	  {
-	    new = malloc(strlen(str) - (end - beg) + strlen(env_var) + 1);
+	    int	len = strlen(str) - (end - beg) + strlen(env_var) + 1;
+
+	    new = malloc(len);
 	    strncpy(new, str, beg - 1);
 	    new[beg - 1] = 0;
-	    strcat(new, env_var);
-	    strcat(new, str + end);
+	    STRCAT(new, env_var, len);
+	    STRCAT(new, str + end, len);
 	    free(str);
 	    str = new;
 	    i = 0;
