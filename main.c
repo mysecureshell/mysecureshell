@@ -119,19 +119,20 @@ int	main(int ac, char **av, char **env)
       if ((deny_filter = (char *)hash_get("PathDenyFilter"))) deny_filter = strdup(deny_filter);
 
       params->who->status =
-	       (hash_get_int("StayAtHome") ? SFTPWHO_STAY_AT_HOME : 0) +
-	       (hash_get_int("VirtualChroot") ? SFTPWHO_VIRTUAL_CHROOT : 0) +
-	       (hash_get_int("ResolveIP") ? SFTPWHO_RESOLVE_IP : 0) +
-	       (hash_get_int("IgnoreHidden") ? SFTPWHO_IGNORE_HIDDEN : 0) +
-	       (hash_get_int("DirFakeUser") ? SFTPWHO_FAKE_USER : 0) +
-	       (hash_get_int("DirFakeGroup") ? SFTPWHO_FAKE_GROUP : 0) +
-	       (hash_get_int("DirFakeMode") ? SFTPWHO_FAKE_MODE : 0) +
-	       (hash_get_int("HideNoAccess") ? SFTPWHO_HIDE_NO_ACESS : 0) +
-	       (hash_get_int("ByPassGlobalDownload") ? SFTPWHO_BYPASS_GLB_DWN : 0) +
-	       (hash_get_int("ByPassGlobalUpload") ? SFTPWHO_BYPASS_GLB_UPL : 0) +
-	       (hash_get_int("ShowLinksAsLinks") ? SFTPWHO_LINKS_AS_LINKS : 0) + 
-	       (hash_get_int("IsAdmin") ? SFTPWHO_IS_ADMIN : 0)
-	       ;
+	(hash_get_int("StayAtHome") ? SFTPWHO_STAY_AT_HOME : 0) +
+	(hash_get_int("VirtualChroot") ? SFTPWHO_VIRTUAL_CHROOT : 0) +
+	(hash_get_int("ResolveIP") ? SFTPWHO_RESOLVE_IP : 0) +
+	(hash_get_int("IgnoreHidden") ? SFTPWHO_IGNORE_HIDDEN : 0) +
+	(hash_get_int("DirFakeUser") ? SFTPWHO_FAKE_USER : 0) +
+	(hash_get_int("DirFakeGroup") ? SFTPWHO_FAKE_GROUP : 0) +
+	(hash_get_int("DirFakeMode") ? SFTPWHO_FAKE_MODE : 0) +
+	(hash_get_int("HideNoAccess") ? SFTPWHO_HIDE_NO_ACESS : 0) +
+	(hash_get_int("ByPassGlobalDownload") ? SFTPWHO_BYPASS_GLB_DWN : 0) +
+	(hash_get_int("ByPassGlobalUpload") ? SFTPWHO_BYPASS_GLB_UPL : 0) +
+	(hash_get_int("ShowLinksAsLinks") ? SFTPWHO_LINKS_AS_LINKS : 0) + 
+	(hash_get_int("IsAdmin") ? SFTPWHO_IS_ADMIN : 0) +
+	(hash_get_int("CanRemoveDir") ? SFTPWHO_CAN_RMDIR : 0)
+	;
       snprintf(params->who->home, sizeof(params->who->home), "%s", (char *)hash_get("Home"));
       snprintf(params->who->user, sizeof(params->who->user), "%s", (char *)hash_get("User"));
       snprintf(params->who->ip, sizeof(params->who->ip), "%s", get_ip(hash_get_int("ResolveIP")));

@@ -647,10 +647,15 @@ static void	DoRmDir()
   path = convertFromUtf8(BufferGetString(bIn), 1);
   if ((status = CheckRules(path, RULES_RMDIRECTORY, 0, 0)) == SSH2_FX_OK)
     {
-      if (rmdir(path) == -1)
-	status = errnoToPortable(errno);
-      mylog_printf(MYLOG_WARNING, "[%s][%s]Try to remove directory '%s' : %s",
-		 gl_var->who->user, gl_var->who->ip, path, (status != SSH2_FX_OK ? strerror(errno) : "success"));
+      if ((gl_var->who->status & SFTPWHO_CAN_RMDIR))
+	{
+	  if (rmdir(path) == -1)
+	    status = errnoToPortable(errno);
+	  mylog_printf(MYLOG_WARNING, "[%s][%s]Try to remove directory '%s' : %s",
+		       gl_var->who->user, gl_var->who->ip, path, (status != SSH2_FX_OK ? strerror(errno) : "success"));
+	}
+      else
+	status = SSH2_FX_PERMISSION_DENIED;
     }
   SendStatus(bOut, id, status);
   DEBUG((MYLOG_DEBUG, "[DoRmDir]path:'%s' -> '%i'", path, status));
