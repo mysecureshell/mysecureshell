@@ -64,9 +64,6 @@
 /* Define to 1 if you have the <netinet/in.h> header file. */
 #undef HAVE_NETINET_IN_H
 
-/* Havenothing */
-#undef HAVE_NOTHING
-
 /* Define to 1 if you have the `statfs' function. */
 #undef HAVE_STATFS
 

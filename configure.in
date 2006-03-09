@@ -92,7 +92,6 @@ AC_DEFINE_UNQUOTED(CONFIG_FILE, "${MSS_CONF}", Etcdir)
 AC_DEFINE(CONFIG_FILE2, "/etc/sshd/sftp_config", Etcdir)
 AC_DEFINE_UNQUOTED(MSS_SFTPWHO, "${BINDIR}/sftp-who", Sftpwhodir)
 test "$MSS_COLOR" = "yes" && AC_DEFINE_UNQUOTED(HAVE_LOG_IN_COLOR, ${MSS_COLOR}, Colorlog)
-AC_DEFINE(HAVE_NOTHING, 1, Havenothing)
 if test "$ac_cv_type_u_int8_t" = "no" ; then
    AC_DEFINE_UNQUOTED(u_int8_t, uint8_t, uint8)
 fi
