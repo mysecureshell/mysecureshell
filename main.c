@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <unistd.h>
 #include "conf.h"
 #include "config.h"
@@ -30,6 +31,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "string.h"
 #include "SftpServer/Sftp.h"
 #include "SftpServer/SftpWho.h"
+#include "SftpServer/Encoding.h"
+#include "SftpServer/Log.h"
 
 static void	parse_args(int ac, char **av)
 {
@@ -79,10 +82,9 @@ int	main(int ac, char **av, char **env)
   load_config(0);
   if (is_sftp)
     {
-      char	**args;
+      tGlobal	*params;
       char	*hide_files, *deny_filter;
-      char	bmode[12];
-      int	max, nb_args, fd;
+      int	max, fd, sftp_version;
 
       max = hash_get_int("LimitConnectionByUser");
       if (max > 0 && count_program_for_uid(getuid(), (char *)hash_get("User")) >= max)
@@ -99,17 +101,24 @@ int	main(int ac, char **av, char **env)
       if (hash_get_int("DisableAccount"))
 	//account is temporary disable
 	exit(13);
-      if (getuid() != geteuid())
-	//if we are in utset byte mode then we restore user's rights to avoid security problems
+      //check if the server is up ans user is not admin
+      if ((fd = open(SHUTDOWN_FILE, O_RDONLY)) >= 0 && !(hash_get_int("IsAdmin")))
+	//server is down
 	{
-	  seteuid(getuid());
-	  setegid(getgid());
+	  close(fd);
+	  exit(0);
 	}
+      params = malloc(sizeof(*params));
+      memset(params, 0, sizeof(*params));
+      mylog_open(MSS_LOG);
+      params->who = SftpWhoGetStruct(1);
+      params->who->time_begin = time(0);
+      params->who->pid = (unsigned int)getpid();
 
       if ((hide_files = (char *)hash_get("HideFiles"))) hide_files = strdup(hide_files);
       if ((deny_filter = (char *)hash_get("PathDenyFilter"))) deny_filter = strdup(deny_filter);
 
-      snprintf(bmode, sizeof(bmode), "%i",
+      params->who->status =
 	       (hash_get_int("StayAtHome") ? SFTPWHO_STAY_AT_HOME : 0) +
 	       (hash_get_int("VirtualChroot") ? SFTPWHO_VIRTUAL_CHROOT : 0) +
 	       (hash_get_int("ResolveIP") ? SFTPWHO_RESOLVE_IP : 0) +
@@ -122,113 +131,81 @@ int	main(int ac, char **av, char **env)
 	       (hash_get_int("ByPassGlobalUpload") ? SFTPWHO_BYPASS_GLB_UPL : 0) +
 	       (hash_get_int("ShowLinksAsLinks") ? SFTPWHO_LINKS_AS_LINKS : 0) + 
 	       (hash_get_int("IsAdmin") ? SFTPWHO_IS_ADMIN : 0)
-	       );
-
-      args = calloc(sizeof(*args), 44);//be aware of the buffer overflow
-      nb_args = 0;
-      args[nb_args++] = 0;
-      args[nb_args++] = "--user";
-      args[nb_args++] = strdup((char *)hash_get("User"));
-      args[nb_args++] = "--home";
-      args[nb_args++] = strdup((char *)hash_get("Home"));
-      args[nb_args++] = "--ip";
-      args[nb_args++] = get_ip(hash_get_int("ResolveIP"));
-      args[nb_args++] = "--mode";
-      args[nb_args++] = bmode;
+	       ;
+      snprintf(params->who->home, sizeof(params->who->home), "%s", (char *)hash_get("Home"));
+      snprintf(params->who->user, sizeof(params->who->user), "%s", (char *)hash_get("User"));
+      snprintf(params->who->ip, sizeof(params->who->ip), "%s", get_ip(hash_get_int("ResolveIP")));
       if (hash_get_int("GlobalDownload"))
-	{
-	  args[nb_args++] = "--global-download";
-	  args[nb_args++] = hash_get_int_to_char("GlobalDownload");
-	}
+	_sftpglobal->download_max = hash_get_int("GlobalDownload");
       if (hash_get_int("GlobalUpload"))
-	{
-	  args[nb_args++] = "--global-upload";
-          args[nb_args++] = hash_get_int_to_char("GlobalUpload");
-	}
+	_sftpglobal->upload_max = hash_get_int("GlobalUpload");
       if (hash_get_int("Download"))
 	{
-	  args[nb_args++] = "--download";
-	  args[nb_args++] = hash_get_int_to_char("Download");
+	  params->download_max = hash_get_int("Download");
+	  params->who->download_max = params->download_max;
 	}
       if (hash_get_int("Upload"))
 	{
-	  args[nb_args++] = "--upload";
-          args[nb_args++] = hash_get_int_to_char("Upload");
+	  params->upload_max = hash_get_int("Upload");
+	  params->who->upload_max = params->upload_max;
 	}
       if (hash_get_int("IdleTimeOut"))
-	{
-	  args[nb_args++] = "--idle";
-	  args[nb_args++] = hash_get_int_to_char("IdleTimeOut");
-	}
+	params->who->time_maxidle = hash_get_int("IdleTimeOut");
       if (hash_get_int("DirFakeMode"))
-	{
-	  args[nb_args++] = "--fake-mode";
-	  args[nb_args++] = hash_get_int_to_char("DirFakeMode");
-	}
+	params->who->mode = hash_get_int("DirFakeMode");
       if (hide_files && strlen(hide_files) > 0)
 	{
-	  args[nb_args++] = "--hide-files";
-          args[nb_args++] = hide_files;
-	}
-      if (hash_get_int("MaxOpenFilesForUser"))
-	{
-	  args[nb_args++] = "--max-open-files";
-	  args[nb_args++] = hash_get_int_to_char("MaxOpenFilesForUser");
-	}
-      if (hash_get_int("MaxReadFilesForUser"))
-	{
-	  args[nb_args++] = "--max-read-files";
-	  args[nb_args++] = hash_get_int_to_char("MaxReadFilesForUser");
-	}
-      if (hash_get_int("MaxWriteFilesForUser"))
-	{
-	  args[nb_args++] = "--max-write-files";
-	  args[nb_args++] = hash_get_int_to_char("MaxWriteFilesForUser");
-	}
-      if (hash_get_int("DefaultRightsDirectory"))
-	{
-	  args[nb_args++] = "--rights-directory";
-	  args[nb_args++] = hash_get_int_to_char("DefaultRightsDirectory");
-	}
-      if (hash_get_int("DefaultRightsFile"))
-	{
-	  args[nb_args++] = "--rights-file";
-	  args[nb_args++] = hash_get_int_to_char("DefaultRightsFile");
+	  int	r;
+
+	  if (!(r = regcomp(&params->hide_files_regexp, hide_files, REG_EXTENDED | REG_NOSUB | REG_NEWLINE)))
+            params->hide_files = strdup(hide_files);
+          else
+            {
+              char	buffer[256];
+
+              regerror(r, &params->hide_files_regexp, buffer, sizeof(buffer));
+              mylog_printf(MYLOG_ERROR, "[%s][%s]Couldn't compile regex : %s",
+			   params->who->user, params->who->ip, buffer);
+            }
 	}
       if (deny_filter && strlen(deny_filter) > 0)
 	{
-	  args[nb_args++] = "--deny-filter";
-	  args[nb_args++] = deny_filter;
+	  int	r;
+
+	  if (!(r = regcomp(&params->hide_files_regexp, deny_filter, REG_EXTENDED | REG_NOSUB | REG_NEWLINE)))
+            params->hide_files = strdup(deny_filter);
+          else
+            {
+              char      buffer[256];
+
+              regerror(r, &params->hide_files_regexp, buffer, sizeof(buffer));
+              mylog_printf(MYLOG_ERROR, "[%s][%s]Couldn't compile regex : %s",
+			   params->who->user, params->who->ip, buffer);
+            }
 	}
-      if (hash_get_int("SftpProtocol"))
-	{
-	  args[nb_args++] = "--protocol";
-          args[nb_args++] = hash_get_int_to_char("SftpProtocol");
-	}
+      sftp_version = hash_get_int("SftpProtocol");
       if (hash_get_int("ConnectionMaxLife"))
-	{
-          args[nb_args++] = "--max-life";
-          args[nb_args++] = hash_get_int_to_char("ConnectionMaxLife");
-        }
+	params->who->time_maxlife = hash_get_int("ConnectionMaxLife");
+      if (hash_get_int("MaxOpenFilesForUser"))
+	params->max_openfiles = hash_get_int("MaxOpenFilesForUser");
+      if (hash_get_int("MaxReadFilesForUser"))
+	params->max_readfiles = hash_get_int("MaxReadFilesForUser");
+      if (hash_get_int("MaxWriteFilesForUser"))
+	params->max_writefiles = hash_get_int("MaxWriteFilesForUser");
+      if (hash_get_int("DefaultRightsDirectory"))
+	params->rights_directory = hash_get_int("DefaultRightsDirectory");
+      else
+	params->rights_directory = 0777;
+      if (hash_get_int("DefaultRightsFile"))
+	params->rights_file = hash_get_int("DefaultRightsFile");
+      else
+	params->rights_file = 0666;
       if (hash_get("Charset"))
-	{
-	  args[nb_args++] = "--charset";
-          args[nb_args++] = strdup((char *)hash_get("Charset"));
-	}
+	  setCharset(strdup((char *)hash_get("Charset")));
       if (hash_get("GMTTime"))
-	{
-	  args[nb_args++] = "--time";
-	  args[nb_args++] = strdup((char *)hash_get("GMTTime"));
-	}
-      //check if the server is up ans user is not admin
-      if ((fd = open(SHUTDOWN_FILE, O_RDONLY)) >= 0 && !(hash_get_int("IsAdmin")))
-	//server is down
-	{
-	  close(fd);
-	  exit(0);
-	}
+	  mylog_time(atoi((char *)hash_get("GMTTime")));
       delete_hash();
-      SftpMain(nb_args, args);
+      SftpMain(params, sftp_version);
     }
   else
     {

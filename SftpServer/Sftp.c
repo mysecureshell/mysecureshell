@@ -1025,34 +1025,16 @@ static void	DoProtocol()
   goto parsePacket;
 }
 
-int			SftpMain(int ac, char **av)
+int			SftpMain(tGlobal *params, int sftpProtocol)
 {
   struct timeval	tm;
   fd_set		fdR, fdW;
   int			len, ret;
 
-  /*if (0)
-    {
-      int fd;
-      
-      fd = open("/root/gatewayIn", O_RDWR);
-      if (fd >= 0)
-	{
-	  dup2(fd, 0);
-	  close(fd);
-	}
-      fd = open("/root/gatewayOut", O_RDWR);
-      if (fd >= 0)
-	{
-	  dup2(fd, 1);
-	  close(fd);
-	}
-	}*/
-
   bIn = BufferNew();
   bOut = BufferNew();
   HandleInit();
-  parse_conf(ac, av);
+  parse_conf(params, sftpProtocol);
 
   SET_TIMEOUT(tm, 1, 0);
   for (;;)

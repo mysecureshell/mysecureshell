@@ -17,33 +17,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#include <regex.h>
 #include <signal.h>
 #include "Log.h"
 #include "SftpWho.c"
 
-typedef struct	s_global
-{
-  t_sftpwho	*who;
 
-  char		*hide_files;
-  char		*deny_filter;
-  regex_t	hide_files_regexp;
-  regex_t	deny_filter_regexp;
-  int		max_openfiles;
-  int		max_readfiles;
-  int		max_writefiles;
-  int		rights_file;
-  int		rights_directory;
-  unsigned int	download_current;
-  unsigned int	upload_current;
-  unsigned int	download_max;
-  unsigned int	upload_max;
-  off_t		down_size;
-  off_t		down_max;
-}		t_global;
-
-static t_global	*gl_var = 0;
+static tGlobal	*gl_var = 0;
 
 #include "Access.c"
 #include "GetUsersInfos.h"
@@ -73,96 +52,15 @@ static void	reopen_log_file(int signal)
   mylog_open(MSS_LOG);
 }
 
-static void	parse_conf(int ac, char **av)
-{
-  int		i, r;
-  
-  mylog_open(MSS_LOG);
-  gl_var = malloc(sizeof(*gl_var));
-  memset(gl_var, 0, sizeof(*gl_var));
-  gl_var->who = SftpWhoGetStruct(1);
-  gl_var->who->time_begin = time(0);
-  gl_var->who->pid = (unsigned int)getpid();
-  gl_var->rights_directory = 0777;
-  gl_var->rights_file = 0666;
+static void	parse_conf(tGlobal *params, int sftpProtocol)
+{ 
+  gl_var = params;
   atexit(end_sftp);
   signal(SIGHUP, end_sftp_by_signal);
   signal(SIGINT, end_sftp_by_signal);
   signal(SIGUSR1, reopen_log_file);
   signal(SIGUSR2, reopen_log_file);
-  for (i = 1; i < ac; i++)
-    {
-      if (!strcmp(av[i], "--home") && av[i + 1])
-	snprintf(gl_var->who->home, sizeof(gl_var->who->home), "%s", av[i + 1]);
-      else if (!strcmp(av[i], "--user") && av[i + 1])
-	snprintf(gl_var->who->user, sizeof(gl_var->who->user), "%s", av[i + 1]);
-      else if (!strcmp(av[i], "--ip") && av[i + 1])
-	snprintf(gl_var->who->ip, sizeof(gl_var->who->ip), "%s", av[i + 1]);
-      else if (!strcmp(av[i], "--mode") && av[i + 1])
-	gl_var->who->status |= atoi(av[i + 1]);
-      else if (!strcmp(av[i], "--upload") && av[i + 1])
-	{
-	  gl_var->who->upload_max = atoi(av[i + 1]);
-	  gl_var->upload_max = gl_var->who->upload_max;
-	}
-      else if (!strcmp(av[i], "--download") && av[i + 1])
-	{
-	  gl_var->who->download_max = atoi(av[i + 1]);
-	  gl_var->download_max = gl_var->who->download_max;
-	}
-      else if (!strcmp(av[i], "--global-upload") && av[i + 1])
-	_sftpglobal->upload_max = atoi(av[i + 1]);
-      else if (!strcmp(av[i], "--global-download") && av[i + 1])
-	_sftpglobal->download_max = atoi(av[i + 1]);
-      else if (!strcmp(av[i], "--idle") && av[i + 1])
-	gl_var->who->time_maxidle = atoi(av[i + 1]);
-      else if (!strcmp(av[i], "--fake-mode") && av[i + 1])
-	gl_var->who->mode = atoi(av[i + 1]);
-      else if (!strcmp(av[i], "--hide-files") && av[i + 1])
-	{
-	  if (!(r = regcomp(&gl_var->hide_files_regexp, av[i + 1], REG_EXTENDED | REG_NOSUB | REG_NEWLINE)))
-	    gl_var->hide_files = av[i + 1];
-	  else
-	    {
-	      char	buffer[256];
-
-	      regerror(r, &gl_var->hide_files_regexp, buffer, sizeof(buffer));
-	      mylog_printf(MYLOG_ERROR, "[%s][%s]Couldn't compile regex : %s",
-			 gl_var->who->user, gl_var->who->ip, buffer);
-	    }
-	}
-       else if (!strcmp(av[i], "--max-open-files") && av[i + 1])
-	gl_var->max_openfiles = atoi(av[i + 1]);
-      else if (!strcmp(av[i], "--max-read-files") && av[i + 1])
-	gl_var->max_readfiles = atoi(av[i + 1]);
-      else if (!strcmp(av[i], "--max-write-files") && av[i + 1])
-	gl_var->max_writefiles = atoi(av[i + 1]);
-      else if (!strcmp(av[i], "--rights-directory") && av[i + 1])
-	gl_var->rights_directory = atoi(av[i + 1]);
-      else if (!strcmp(av[i], "--rights-file") && av[i + 1])
-	gl_var->rights_file = atoi(av[i + 1]);
-      else if (!strcmp(av[i], "--deny-filter") && av[i + 1])
-	{
-	  if (!(r = regcomp(&gl_var->deny_filter_regexp, av[i + 1], REG_EXTENDED | REG_NOSUB | REG_NEWLINE)))
-	    gl_var->deny_filter = av[i + 1];
-	  else
-	    {
-	      char	buffer[256];
-
-	      regerror(r, &gl_var->deny_filter_regexp, buffer, sizeof(buffer));
-	      mylog_printf(MYLOG_ERROR, "[%s][%s]Couldn't compile regex : %s",
-			 gl_var->who->user, gl_var->who->ip, buffer);
-	    }
-	}
-      else if (!strcmp(av[i], "--protocol") && av[i + 1])
-	cVersion = atoi(av[i + 1]);
-      else if (!strcmp(av[i], "--max-life") && av[i + 1])
-	gl_var->who->time_maxlife = atoi(av[i + 1]);
-      else if (!strcmp(av[i], "--charset") && av[i + 1])
-	setCharset(av[i + 1]);
-      else if (!strcmp(av[i], "--time") && av[i + 1])
-	mylog_time(atoi(av[i + 1]));
-    }
+  cVersion = sftpProtocol;
   mylog_printf(MYLOG_NORMAL, "New client [%s] from [%s]", gl_var->who->user, gl_var->who->ip);
   init_usersinfos();//load users / groups into memory
   InitAccess();

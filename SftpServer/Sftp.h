@@ -21,6 +21,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define _SFTP_H_
 
 #include <sys/types.h>
+#include <regex.h>
+#include "SftpWho.h"
 
 #ifndef MIN
 #define MIN(_A, _B)	((_A) < (_B) ? (_A) : (_B))
@@ -212,9 +214,31 @@ typedef struct	sStat
   char		*longName;
   tAttributes	attributes;
 }		tStat;
+
+typedef struct	sGlobal
+{
+  t_sftpwho	*who;
+
+  char		*hide_files;
+  char		*deny_filter;
+  regex_t	hide_files_regexp;
+  regex_t	deny_filter_regexp;
+  int		max_openfiles;
+  int		max_readfiles;
+  int		max_writefiles;
+  int		rights_file;
+  int		rights_directory;
+  unsigned int	download_current;
+  unsigned int	upload_current;
+  unsigned int	download_max;
+  unsigned int	upload_max;
+  off_t		down_size;
+  off_t		down_max;
+}		tGlobal;
+
  
 extern	int	cVersion;
 
-int	SftpMain(int ac, char **av);
+int	SftpMain(tGlobal *params, int sftpProtocol);
  
 #endif //_SFTP_H_
