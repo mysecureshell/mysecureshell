@@ -17,6 +17,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
+#ifndef __SFTPWHO_H__
+#define __SFTPWHO_H__
+
 #define	SFTPWHO_MAXCLIENT	128 //128 x 512o = 64 ko
 
 #define	SFTPWHO_EMPTY		0
@@ -87,3 +90,5 @@ t_sftpwho	*SftpWhoGetStruct(int create);
 int		SftpWhoCleanBuggedClient();
 void		SftpWhoRelaseStruct();
 int		SftpWhoDeleteStructs();
+
+#endif
