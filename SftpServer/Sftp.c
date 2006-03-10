@@ -608,10 +608,15 @@ static void	DoRemove()
   path = convertFromUtf8(BufferGetString(bIn), 1);
   if ((status = CheckRules(path, RULES_RMFILE, 0, 0)) == SSH2_FX_OK)
     {
-      if (unlink(path) == -1)
-	status = errnoToPortable(errno);
-      mylog_printf(MYLOG_WARNING, "[%s][%s]Try to remove file '%s' : %s",
-		 gl_var->who->user, gl_var->who->ip, path, (status != SSH2_FX_OK ? strerror(errno) : "success"));
+      if ((gl_var->who->status & SFTPWHO_CAN_RMFILE))
+	{
+	  if (unlink(path) == -1)
+	    status = errnoToPortable(errno);
+	  mylog_printf(MYLOG_WARNING, "[%s][%s]Try to remove file '%s' : %s",
+		       gl_var->who->user, gl_var->who->ip, path, (status != SSH2_FX_OK ? strerror(errno) : "success"));
+	}
+      else
+	status = SSH2_FX_PERMISSION_DENIED;
     }
   DEBUG((MYLOG_DEBUG, "[DoRemove]path:'%s' -> '%i'", path, status));
   SendStatus(bOut, id, status);

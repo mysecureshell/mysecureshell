@@ -64,6 +64,7 @@ void	load_config(char verbose)
       printf("LimitConnectionByIP\t= %i\n", hash_get_int("LimitConnectionByIP"));
       printf("IdleTimeOut\t\t= %is\n", hash_get_int("IdleTimeOut"));
       printf("CanRemoveDir\t\t= %s\n", hash_get_int("CanRemoveDir") == 0 ? "false" : "true");
+      printf("CanRemoveFile\t\t= %s\n", hash_get_int("CanRemoveFile") == 0 ? "false" : "true");
       printf("ResolveIP\t\t= %s\n", hash_get_int("ResolveIP") == 0 ? "false" : "true");
       printf("DirFakeUser\t\t= %s\n", hash_get_int("DirFakeUser") == 0 ? "false" : "true");
       printf("DirFakeGroup\t\t= %s\n", hash_get_int("DirFakeGroup") == 0 ? "false" : "true");
@@ -218,6 +219,8 @@ int	load_config_file(char *file, char verbose, int max_recursive_left)
 			  else if (!strcmp(tb[0], "GMTTime") && tb[1])
 			    hash_set(tb[0], (void *)strdup(tb[1]));
 			  else if (!strcmp(tb[0], "CanRemoveDir") && tb[1])
+			    hash_set_int(tb[0], convert_boolean_to_int(tb[1]));
+			  else if (!strcmp(tb[0], "CanRemoveFile") && tb[1])
 			    hash_set_int(tb[0], convert_boolean_to_int(tb[1]));
 			  else
 			    err1 = 1;

@@ -131,7 +131,8 @@ int	main(int ac, char **av, char **env)
 	(hash_get_int("ByPassGlobalUpload") ? SFTPWHO_BYPASS_GLB_UPL : 0) +
 	(hash_get_int("ShowLinksAsLinks") ? SFTPWHO_LINKS_AS_LINKS : 0) + 
 	(hash_get_int("IsAdmin") ? SFTPWHO_IS_ADMIN : 0) +
-	(hash_get_int("CanRemoveDir") ? SFTPWHO_CAN_RMDIR : 0)
+	(hash_get_int("CanRemoveDir") ? SFTPWHO_CAN_RMDIR : 0) +
+	(hash_get_int("CanRemoveFile") ? SFTPWHO_CAN_RMFILE : 0)
 	;
       snprintf(params->who->home, sizeof(params->who->home), "%s", (char *)hash_get("Home"));
       snprintf(params->who->user, sizeof(params->who->user), "%s", (char *)hash_get("User"));
