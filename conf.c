@@ -28,6 +28,67 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "string.h"
 #include "user.h"
 
+#define CONF_IS_EMPTY			0
+#define CONF_IS_STRING			1
+#define CONF_IS_STRING_MAYBE_EMPTY	2
+#define CONF_IS_STRING_RESOLVE_ENV	3
+#define CONF_IS_INT			4
+#define CONF_IS_BOOLEAN			5
+#define CONF_IS_SPEED			6
+#define CONF_IS_MODE			7
+#define CONF_IS_TIME			8
+
+#define CONF_SHOW		0
+#define CONF_SHOW_IF_NOT_NULL	1
+#define CONF_NOT_SHOW		2
+
+typedef struct	sConf
+{
+  char		*name;
+  char		type;
+  char		show;
+}		tConf;
+
+static tConf	confParams[] =
+  {
+    { "GlobalDownload", CONF_IS_SPEED, CONF_SHOW },
+    { "GlobalUpload", CONF_IS_SPEED, CONF_SHOW },
+    { "Download", CONF_IS_SPEED, CONF_SHOW },
+    { "Upload", CONF_IS_SPEED, CONF_SHOW },
+    { "StayAtHome", CONF_IS_BOOLEAN, CONF_SHOW },
+    { "VirtualChroot", CONF_IS_BOOLEAN, CONF_SHOW },
+    { "LimitConnection", CONF_IS_INT, CONF_SHOW },
+    { "LimitConnectionByUser", CONF_IS_INT, CONF_SHOW },
+    { "LimitConnectionByIP", CONF_IS_INT, CONF_SHOW },
+    { "Home", CONF_IS_STRING_RESOLVE_ENV, CONF_SHOW },
+    { "Shell", CONF_IS_STRING, CONF_SHOW },
+    { "ResolveIP", CONF_IS_BOOLEAN, CONF_SHOW },
+    { "IdleTimeOut", CONF_IS_INT, CONF_SHOW },
+    { "IgnoreHidden", CONF_IS_BOOLEAN, CONF_SHOW },
+    { "DirFakeUser", CONF_IS_BOOLEAN, CONF_SHOW },
+    { "DirFakeGroup", CONF_IS_BOOLEAN, CONF_SHOW },
+    { "DirFakeMode", CONF_IS_MODE, CONF_SHOW },
+    { "HideFiles", CONF_IS_STRING_MAYBE_EMPTY, CONF_SHOW },
+    { "HideNoAccess", CONF_IS_BOOLEAN, CONF_SHOW },
+    { "ByPassGlobalDownload", CONF_IS_BOOLEAN, CONF_SHOW },
+    { "ByPassGlobalUpload", CONF_IS_BOOLEAN, CONF_SHOW },
+    { "MaxOpenFilesForUser", CONF_IS_INT, CONF_SHOW },
+    { "MaxReadFilesForUser", CONF_IS_INT, CONF_SHOW },
+    { "MaxWriteFilesForUser", CONF_IS_INT, CONF_SHOW },
+    { "ShowLinksAsLinks", CONF_IS_BOOLEAN, CONF_SHOW },
+
+    { "PathDenyFilter", CONF_IS_STRING, CONF_SHOW },
+    { "SftpProtocol", CONF_IS_INT, CONF_SHOW_IF_NOT_NULL },
+    { "ConnectionMaxLife", CONF_IS_TIME, CONF_SHOW },
+    { "DisableAccount", CONF_IS_BOOLEAN, CONF_SHOW },
+    { "IsAdmin", CONF_IS_BOOLEAN, CONF_SHOW },
+    { "Charset", CONF_IS_STRING, CONF_SHOW },
+    { "GMTTime", CONF_IS_STRING, CONF_SHOW },
+    { "CanRemoveDir", CONF_IS_BOOLEAN, CONF_SHOW },
+    { "CanRemoveFile", CONF_IS_BOOLEAN, CONF_SHOW },
+    { 0, CONF_IS_EMPTY },
+  };
+
 void	load_config(char verbose)
 {
   if (!init_user_info())
@@ -46,53 +107,62 @@ void	load_config(char verbose)
   free_user_info();
   if (verbose)
     {
-      char	*ptr;
-      int	r, r2;
+      int	i, r, r2, maxLen;
 
       printf("--- %s ---\n", (char *)hash_get("User"));
-      printf("Home\t\t\t= %s\n", (char *)hash_get("Home"));
-      printf("ByPassGlobalDownload\t= %s\n", hash_get_int("ByPassGlobalDownload") == 0 ? "false" : "true");
-      printf("ByPassGlobalUpload\t= %s\n", hash_get_int("ByPassGlobalUpload") == 0 ? "false" : "true");
-      printf("GlobalDownload\t\t= %i bytes/s\n", hash_get_int("GlobalDownload"));
-      printf("GlobalUpload\t\t= %i bytes/s\n", hash_get_int("GlobalUpload"));
-      printf("Download\t\t= %i bytes/s\n", hash_get_int("Download"));
-      printf("Upload\t\t\t= %i bytes/s\n", hash_get_int("Upload"));
-      printf("StayAtHome\t\t= %s\n", hash_get_int("StayAtHome") == 0 ? "false" : "true");
-      printf("VirtualChroot\t\t= %s\n", hash_get_int("VirtualChroot") == 0 ? "false" : "true");
-      printf("LimitConnection\t\t= %i\n", hash_get_int("LimitConnection"));
-      printf("LimitConnectionByUser\t= %i\n", hash_get_int("LimitConnectionByUser"));
-      printf("LimitConnectionByIP\t= %i\n", hash_get_int("LimitConnectionByIP"));
-      printf("IdleTimeOut\t\t= %is\n", hash_get_int("IdleTimeOut"));
-      printf("CanRemoveDir\t\t= %s\n", hash_get_int("CanRemoveDir") == 0 ? "false" : "true");
-      printf("CanRemoveFile\t\t= %s\n", hash_get_int("CanRemoveFile") == 0 ? "false" : "true");
-      printf("ResolveIP\t\t= %s\n", hash_get_int("ResolveIP") == 0 ? "false" : "true");
-      printf("DirFakeUser\t\t= %s\n", hash_get_int("DirFakeUser") == 0 ? "false" : "true");
-      printf("DirFakeGroup\t\t= %s\n", hash_get_int("DirFakeGroup") == 0 ? "false" : "true");
-      r = hash_get_int("DirFakeMode");
-      printf("DirFakeMode\t\t= %i%i%i%i\n", r / (8 * 8 * 8), (r / ( 8 * 8)) % 8, (r / 8) % 8, r % 8);
-      ptr = (char *)hash_get("HideFiles");
-      printf("HideFiles\t\t= %s\n", ptr ? ptr : "{nothing to hide}");
-      printf("HideNoAccess\t\t= %s\n", hash_get_int("HideNoAccess") == 0 ? "false" : "true");
-      printf("MaxOpenFilesForUser\t= %i\n", hash_get_int("MaxOpenFilesForUser"));
-      printf("MaxReadFilesForUser\t= %i\n", hash_get_int("MaxReadFilesForUser"));
-      printf("MaxWriteFilesForUser\t= %i\n", hash_get_int("MaxWriteFilesForUser"));
-      printf("PathDenyFilter\t\t= %s\n", (char *)hash_get("PathDenyFilter"));
-      ptr = (char *)hash_get("Shell");
-      printf("Shell\t\t\t= %s\n", ptr ? ptr : "{no shell}");
-      printf("ShowLinksAsLinks\t= %s\n", hash_get_int("ShowLinksAsLinks") == 0 ? "false" : "true");
+      for (i = 0, maxLen = 0; confParams[i].type != CONF_IS_EMPTY; i++)
+	{
+	  int	len = strlen(confParams[i].name);
+
+	  if (len > maxLen)
+	    maxLen = len;
+	}
+      for (i = 0; confParams[i].type != CONF_IS_EMPTY; i++)
+	{
+	  char	*ptr;
+	  int	vInt, j;
+
+	  printf("%s", confParams[i].name);
+	  for (j = maxLen - strlen(confParams[i].name); j >= 0; j--)
+	    printf(" ");
+	  printf("= ");
+	  switch (confParams[i].type)
+	    {
+	    case CONF_IS_STRING:
+	    case CONF_IS_STRING_RESOLVE_ENV:
+	      printf("%s", (char *)hash_get(confParams[i].name));
+	      break;
+	    case CONF_IS_STRING_MAYBE_EMPTY:
+	      ptr = (char *)hash_get(confParams[i].name);
+	      printf("%s", ptr ? ptr : "{nothing}");
+	      break;
+	    case CONF_IS_INT:
+	      vInt = hash_get_int(confParams[i].name);
+	      if (vInt == 0 && confParams[i].show == CONF_SHOW_IF_NOT_NULL)
+		printf("{default}");
+	      else
+		printf("%i", vInt);
+	      break;
+	    case CONF_IS_BOOLEAN:
+	      printf("%s", hash_get_int(confParams[i].name) == 0 ? "false" : "true");
+	      break;
+	    case CONF_IS_SPEED:
+	      printf("%i bytes/s", hash_get_int(confParams[i].name));
+	      break;
+	    case CONF_IS_MODE:
+	    case CONF_IS_TIME:
+	      printf("%is", hash_get_int(confParams[i].name));
+	      break;
+	    default:
+	      printf("*****************");
+	    }
+	  printf("\n");
+	}
       r = hash_get_int("DefaultRightsFile");
       r2 = hash_get_int("DefaultRightsDirectory");
-      printf("DefaultRights\t\t= %i%i%i%i %i%i%i%i\n",
+      printf("DefaultRights         = %i%i%i%i %i%i%i%i\n",
 	     r / (8 * 8 * 8), (r / ( 8 * 8)) % 8, (r / 8) % 8, r % 8,
 	     r2 / (8 * 8 * 8), (r2 / ( 8 * 8)) % 8, (r2 / 8) % 8, r2 % 8);
-      printf("ConnectionMaxLife\t= %is\n", hash_get_int("ConnectionMaxLife"));
-      r = hash_get_int("SftpProtocol");
-      if (r)
-	printf("SftpProtocol\t\t= %i\n", r);
-      printf("DisableAccount\t\t= %s\n", hash_get_int("DisableAccount") == 0 ? "false" : "true");
-      printf("IsAdmin\t\t\t= %s\n", hash_get_int("IsAdmin") == 0 ? "false" : "true");
-      printf("Charset\t\t\t= %s\n", (char *)hash_get("Charset"));
-      printf("GMTTime\t\t\t= %s\n", (char *)hash_get("GMTTime"));
     }
 }
 
@@ -148,82 +218,50 @@ int	load_config_file(char *file, char verbose, int max_recursive_left)
 			  						verbose)
 			  || hash_get_int("DEFAULT") == 1)
 			{
-			  if (!strcmp(tb[0], "GlobalDownload") && tb[1])
-			    hash_set_int(tb[0], convert_speed_to_int(tb + 1));
-			  else if (!strcmp(tb[0], "GlobalUpload") && tb[1])
-			    hash_set_int(tb[0], convert_speed_to_int(tb + 1));
-			  else if (!strcmp(tb[0], "Download") && tb[1])
-			    hash_set_int(tb[0], convert_speed_to_int(tb + 1));
-			  else if (!strcmp(tb[0], "Upload") && tb[1])
-			    hash_set_int(tb[0], convert_speed_to_int(tb + 1));
-			  else if (!strcmp(tb[0], "StayAtHome") && tb[1])
-			    hash_set_int(tb[0], convert_boolean_to_int(tb[1]));
-			  else if (!strcmp(tb[0], "VirtualChroot") && tb[1])
-			    hash_set_int(tb[0], convert_boolean_to_int(tb[1]));
-			  else if (!strcmp(tb[0], "LimitConnection") && tb[1])
-			    hash_set_int(tb[0], atoi(tb[1]));
-			  else if (!strcmp(tb[0], "LimitConnectionByUser") && tb[1])
-			    hash_set_int(tb[0], atoi(tb[1]));
-			  else if (!strcmp(tb[0], "LimitConnectionByIP") && tb[1])
-			    hash_set_int(tb[0], atoi(tb[1]));
-			  else if (!strcmp(tb[0], "Home") && tb[1])
-			    hash_set(tb[0], (void *)convert_str_with_resolv_env_to_str(tb[1]));
-			  else if (!strcmp(tb[0], "Shell") && tb[1])
-			    hash_set(tb[0], (void *)strdup(tb[1]));
-			  else if (!strcmp(tb[0], "ResolveIP") && tb[1])
-			    hash_set_int(tb[0], convert_boolean_to_int(tb[1]));
-			  else if (!strcmp(tb[0], "IdleTimeOut") && tb[1])
-			    hash_set_int(tb[0], atoi(tb[1]));
-			  else if (!strcmp(tb[0], "IgnoreHidden") && tb[1])
-			    hash_set_int(tb[0], convert_boolean_to_int(tb[1]));
-			  else if (!strcmp(tb[0], "DirFakeUser") && tb[1])
-			    hash_set_int(tb[0], convert_boolean_to_int(tb[1]));
-			  else if (!strcmp(tb[0], "DirFakeGroup") && tb[1])
-			    hash_set_int(tb[0], convert_boolean_to_int(tb[1]));
-			  else if (!strcmp(tb[0], "DirFakeMode") && tb[1])
-			    hash_set_int(tb[0], convert_mode_to_int(tb[1]));
-			  else if (!strcmp(tb[0], "HideFiles"))
-			    hash_set(tb[0], (void *)(tb[1] ? strdup(tb[1]) : 0));
-			  else if (!strcmp(tb[0], "HideNoAccess") && tb[1])
-			    hash_set_int(tb[0], convert_boolean_to_int(tb[1]));
-			  else if (!strcmp(tb[0], "ByPassGlobalDownload") && tb[1])
-			    hash_set_int(tb[0], convert_boolean_to_int(tb[1]));
-			  else if (!strcmp(tb[0], "ByPassGlobalUpload") && tb[1])
-			    hash_set_int(tb[0], convert_boolean_to_int(tb[1]));
-			  else if (!strcmp(tb[0], "MaxOpenFilesForUser") && tb[1])
-			    hash_set_int(tb[0], atoi(tb[1]));
-			  else if (!strcmp(tb[0], "MaxReadFilesForUser") && tb[1])
-			    hash_set_int(tb[0], atoi(tb[1]));
-			  else if (!strcmp(tb[0], "MaxWriteFilesForUser") && tb[1])
-			    hash_set_int(tb[0], atoi(tb[1]));
-			  else if (!strcmp(tb[0], "ShowLinksAsLinks") && tb[1])
-                            hash_set_int(tb[0], convert_boolean_to_int(tb[1]));
-			  else if (!strcmp(tb[0], "DefaultRights") && tb[1])
+			  int	i;
+
+			  err1 = 1;
+			  for (i = 0; confParams[i].type != CONF_IS_EMPTY; i++)
+			    if (!strcmp(tb[0], confParams[i].name)
+				&& (tb[1] || confParams[i].type == CONF_IS_STRING_MAYBE_EMPTY))
+			      {
+				err1 = 0;
+				switch (confParams[i].type)
+				  {
+				  case CONF_IS_STRING:
+				    hash_set(tb[0], (void *)strdup(tb[1]));
+				    break;
+				  case CONF_IS_STRING_MAYBE_EMPTY:
+				    hash_set(tb[0], (void *)(tb[1] ? strdup(tb[1]) : 0));
+				    break;
+				  case CONF_IS_STRING_RESOLVE_ENV:
+				    hash_set(tb[0], (void *)convert_str_with_resolv_env_to_str(tb[1]));
+				    break;
+				  case CONF_IS_INT:
+				    hash_set_int(tb[0], atoi(tb[1]));
+				    break;
+				  case CONF_IS_BOOLEAN:
+				    hash_set_int(tb[0], convert_boolean_to_int(tb[1]));
+				    break;
+				  case CONF_IS_SPEED:
+				    hash_set_int(tb[0], convert_speed_to_int(tb + 1));
+				    break;
+				  case CONF_IS_MODE:
+				    hash_set_int(tb[0], convert_mode_to_int(tb[1]));
+                                    break;
+				  case CONF_IS_TIME:
+				    hash_set_int(tb[0], convert_time_to_int(tb + 1));
+				    break;
+				  }
+				break;
+			      }
+			  if (err1 && !strcmp(tb[0], "DefaultRights") && tb[1])
 			    {
+			      err1 = 0;
 			      hash_set_int("DefaultRightsFile", convert_mode_to_int(tb[1]));
-			      if (tb[2])
-				hash_set_int("DefaultRightsDirectory", convert_mode_to_int(tb[2]));
+                              if (tb[2])
+                                hash_set_int("DefaultRightsDirectory", convert_mode_to_int(tb[2]));
 			    }
-			  else if (!strcmp(tb[0], "PathDenyFilter") && tb[1])
-			    hash_set(tb[0], (void *)strdup(tb[1]));
-			  else if (!strcmp(tb[0], "SftpProtocol") && tb[1])
-                            hash_set_int(tb[0], atoi(tb[1]));
-			  else if (!strcmp(tb[0], "ConnectionMaxLife") && tb[1])
-			    hash_set_int(tb[0], convert_time_to_int(tb + 1));
-			  else if (!strcmp(tb[0], "DisableAccount") && tb[1])
-			    hash_set_int(tb[0], convert_boolean_to_int(tb[1]));
-			  else if (!strcmp(tb[0], "IsAdmin") && tb[1])
-                            hash_set_int(tb[0], convert_boolean_to_int(tb[1]));
-			  else if (!strcmp(tb[0], "Charset") && tb[1])
-			    hash_set(tb[0], (void *)strdup(tb[1]));
-			  else if (!strcmp(tb[0], "GMTTime") && tb[1])
-			    hash_set(tb[0], (void *)strdup(tb[1]));
-			  else if (!strcmp(tb[0], "CanRemoveDir") && tb[1])
-			    hash_set_int(tb[0], convert_boolean_to_int(tb[1]));
-			  else if (!strcmp(tb[0], "CanRemoveFile") && tb[1])
-			    hash_set_int(tb[0], convert_boolean_to_int(tb[1]));
-			  else
-			    err1 = 1;
 			}
 		      err2 = 0;
 		      if (!strcmp(tb[0], "Include") && tb[1])
