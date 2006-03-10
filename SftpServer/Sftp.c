@@ -163,7 +163,10 @@ static void	DoOpenDir()
 	  int	h;
 	  
 	  if ((h = HandleNew(HANDLE_DIR, path, -1, dir, 0)) < 0)
-	    closedir(dir);
+	    {
+	      closedir(dir);
+	      errnoToPortable(EMFILE);
+	    }
 	  else
 	    {
 	      SendHandle(bOut, id, h);
@@ -300,7 +303,10 @@ static void	DoOpen()
 	    int	h;
 	    
 	    if ((h = HandleNew(HANDLE_FILE, path, fd, NULL, textMode)) < 0)
-	      close(fd);
+	      {
+		close(fd);
+		errnoToPortable(EMFILE);
+	      }
 	    else
 	      {
 		snprintf(gl_var->who->path, sizeof(gl_var->who->path), "%s", path);
