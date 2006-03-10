@@ -955,78 +955,30 @@ static void	DoProtocol()
   DEBUG((MYLOG_DEBUG, "[DoProtocol] msgType:%i msgLen:%i", msgType, msgLen));
   switch (msgType)
     {
-    case SSH2_FXP_INIT:
-      DoInit();
-      break;
-    case SSH2_FXP_OPEN:
-      DoOpen();
-      break;
-    case SSH2_FXP_CLOSE:
-      DoClose();
-      break;
-    case SSH2_FXP_READ:
-      DoRead();
-      break;
-    case SSH2_FXP_WRITE:
-      DoWrite();
-      break;
-    case SSH2_FXP_LSTAT:
-      DoStat(lstat);
-      break;
-    case SSH2_FXP_FSTAT:
-      DoFStat();
-      break;
-    case SSH2_FXP_SETSTAT:
-      DoSetStat();
-      break;
-    case SSH2_FXP_FSETSTAT:
-      DoFSetStat();
-      break;
-    case SSH2_FXP_OPENDIR:
-      DoOpenDir();
-      break;
-    case SSH2_FXP_READDIR:
-      DoReadDir();
-      break;
-    case SSH2_FXP_REMOVE:
-      DoRemove();
-      break;
-    case SSH2_FXP_MKDIR:
-      DoMkDir();
-      break;
-    case SSH2_FXP_RMDIR:
-      DoRmDir();
-      break;
-    case SSH2_FXP_REALPATH:
-      DoRealPath();
-      break;
-    case SSH2_FXP_STAT:
-      DoStat(stat);
-      break;
-    case SSH2_FXP_RENAME:
-      DoRename();
-      break;
-    case SSH2_FXP_READLINK:
-      DoReadLink();
-      break;
-    case SSH2_FXP_SYMLINK:
-      DoSymLink();
-      break;
-    case SSH2_FXP_EXTENDED:
-      DoExtended();
-      break;
-    case SSH_ADMIN_LIST_USERS:
-      DoAdminListUsers();
-      break;
-    case SSH_ADMIN_KILL_USER:
-      DoAdminKillUser();
-      break;
-    case SSH_ADMIN_SERVER_STATUS:
-      DoAdminServerStatus();
-      break;
-    case SSH_ADMIN_SERVER_GET_STATUS:
-      DoAdminServerGetStatus();
-      break;
+    case SSH2_FXP_INIT: DoInit(); break;
+    case SSH2_FXP_OPEN: DoOpen(); break;
+    case SSH2_FXP_CLOSE: DoClose(); break;
+    case SSH2_FXP_READ: DoRead(); break;
+    case SSH2_FXP_WRITE: DoWrite(); break;
+    case SSH2_FXP_LSTAT: DoStat(lstat); break;
+    case SSH2_FXP_FSTAT: DoFStat(); break;
+    case SSH2_FXP_SETSTAT: DoSetStat(); break;
+    case SSH2_FXP_FSETSTAT: DoFSetStat(); break;
+    case SSH2_FXP_OPENDIR: DoOpenDir(); break;
+    case SSH2_FXP_READDIR: DoReadDir(); break;
+    case SSH2_FXP_REMOVE: DoRemove(); break;
+    case SSH2_FXP_MKDIR: DoMkDir(); break;
+    case SSH2_FXP_RMDIR: DoRmDir(); break;
+    case SSH2_FXP_REALPATH: DoRealPath(); break;
+    case SSH2_FXP_STAT: DoStat(stat); break;
+    case SSH2_FXP_RENAME: DoRename(); break;
+    case SSH2_FXP_READLINK: DoReadLink(); break;
+    case SSH2_FXP_SYMLINK: DoSymLink(); break;
+    case SSH2_FXP_EXTENDED: DoExtended(); break;
+    case SSH_ADMIN_LIST_USERS: DoAdminListUsers(); break;
+    case SSH_ADMIN_KILL_USER: DoAdminKillUser(); break;
+    case SSH_ADMIN_SERVER_STATUS: DoAdminServerStatus(); break;
+    case SSH_ADMIN_SERVER_GET_STATUS: DoAdminServerGetStatus(); break;
 
     default:
       DoUnsupported(msgType, msgLen);
