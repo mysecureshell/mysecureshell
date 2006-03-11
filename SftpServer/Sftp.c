@@ -338,8 +338,6 @@ static void	DoOpen()
 		snprintf(gl_var->who->path, sizeof(gl_var->who->path), "%s", path);
 		if (flags & O_WRONLY)
 		  {
-		    if (gl_var->who->status & SFTPWHO_IS_ADMIN)
-		      fchown(fd, getuid(), getgid());
 		    gl_var->who->status = (gl_var->who->status & SFTPWHO_ARGS_MASK ) | SFTPWHO_PUT;
 		    mylog_printf(MYLOG_NORMAL, "[%s][%s]Upload into file '%s'",
 			       gl_var->who->user, gl_var->who->ip, path);
@@ -665,8 +663,6 @@ static void	DoMkDir()
     {
       if (mkdir(path, mode) == -1)
 	status = errnoToPortable(errno);
-      else if (gl_var->who->status & SFTPWHO_IS_ADMIN)
-	chown(path, getuid(), getgid());
       mylog_printf(MYLOG_WARNING, "[%s][%s]Try to create directory '%s' : %s",
 		 gl_var->who->user, gl_var->who->ip, path, (status != SSH2_FX_OK ? strerror(errno) : "success"));
     }
@@ -790,8 +786,6 @@ static void	DoSymLink()
     {
       if (symlink(oldPath, newPath) == -1)
 	status = errnoToPortable(errno);
-      else if (gl_var->who->status & SFTPWHO_IS_ADMIN)
-        lchown(newPath, getuid(), getgid());
       DEBUG((MYLOG_DEBUG, "[DoSymLink]oldPath:'%s' newPath:'%s' -> '%i'", oldPath, newPath, status));
     }
   SendStatus(bOut, id, status);
