@@ -157,10 +157,9 @@ MyGetLocale 'text2'
 MyGetLocale 'text3'
 MyGetLocale 'text4'
 MyGetLocale 'text5'
-MyGetLocale 'text6'
 echo ""
 MyGetLocale 'statestopquest'
-MyGetLocale 'text7'
+MyGetLocale 'text6'
 
 ## Starting or ending installation
 
