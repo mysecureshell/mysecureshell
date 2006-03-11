@@ -113,7 +113,7 @@ static void	SendInit(tBuffer *bOut)
 
   b = BufferNew();
   BufferPutInt8(b, SSH2_FXP_INIT);
-  BufferPutInt32(b, SSH2_FILEXFER_VERSION);
+  BufferPutInt32(b, SSH2_ADMIN_VERSION);
   BufferPutPacket(bOut, b);
   BufferDelete(b);
   WritePacket(bOut);

@@ -57,8 +57,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Sftp.h"
 #include "Encoding.h"
 
+#define CONN_INIT	0
+#define CONN_SFTP	1
+#define	CONN_ADMIN	2
+
 static tBuffer	*bIn = 0;
 static tBuffer	*bOut = 0;
+static char	connectionStatus = CONN_INIT;
 int		cVersion = SSH2_FILEXFER_VERSION;
 
 #include "SftpServer.c"
@@ -72,36 +77,57 @@ static void	DoInit()
   clientVersion = BufferGetInt32(bIn);
   b = BufferNew();
   BufferPutInt8(b, SSH2_FXP_VERSION);
+  connectionStatus = CONN_SFTP;
   if (cVersion >= clientVersion)
     cVersion = clientVersion;
-  if (cVersion < 3)
-    cVersion = 3;
-  else if (cVersion > SSH2_FILEXFER_VERSION)
-    cVersion = SSH2_FILEXFER_VERSION;
-  BufferPutInt32(b, cVersion);
-  DEBUG((MYLOG_DEBUG, "[DoInit]New client version %i [use: %i]", clientVersion, cVersion));
-  if (cVersion >= 4)
+  else if (clientVersion == SSH2_ADMIN_VERSION)
     {
-      BufferPutString(b, "newline");
-      BufferPutString(b, "\n");
-      if (cVersion >= 5)
+      connectionStatus = CONN_ADMIN;
+      cVersion = clientVersion;
+      DEBUG((MYLOG_DEBUG, "[DoInit]New admin [use version: %i]", cVersion));
+      BufferPutInt32(b, cVersion);
+    }
+  if (connectionStatus == CONN_SFTP)
+    {
+      if (cVersion < 3)
+	cVersion = 3;
+      else if (cVersion > SSH2_FILEXFER_VERSION)
+	cVersion = SSH2_FILEXFER_VERSION;
+      BufferPutInt32(b, cVersion);
+      DEBUG((MYLOG_DEBUG, "[DoInit]New client version: %i [use: %i]", clientVersion, cVersion));
+      if (cVersion >= 4)
 	{
-	  tBuffer	*opt;
-	  
-	  BufferPutString(b, "supported");
-	  opt = BufferNew();
-	  BufferPutInt32(opt, SSH5_FILEXFER_ATTR__MASK);
-	  BufferPutInt32(opt, SSH5_FILEXFER_ATTR__BITS);
-	  BufferPutInt32(opt, SSH5_FXF__FLAGS);
-	  BufferPutInt32(opt, SSH5_FXF_ACCESS__FLAGS);
-	  BufferPutInt32(opt, SSH2_MAX_READ);
-	  BufferPutString(opt, "space-available");
-	  BufferPutPacket(b, opt);
+	  BufferPutString(b, "newline");
+	  BufferPutString(b, "\n");
+	  if (cVersion >= 5)
+	    {
+	      tBuffer	*opt;
+	      
+	      BufferPutString(b, "supported");
+	      opt = BufferNew();
+	      BufferPutInt32(opt, SSH5_FILEXFER_ATTR__MASK);
+	      BufferPutInt32(opt, SSH5_FILEXFER_ATTR__BITS);
+	      BufferPutInt32(opt, SSH5_FXF__FLAGS);
+	      BufferPutInt32(opt, SSH5_FXF_ACCESS__FLAGS);
+	      BufferPutInt32(opt, SSH2_MAX_READ);
+	      BufferPutString(opt, "space-available");
+	      BufferPutPacket(b, opt);
+	    }
+	  else
+	    {
+	      BufferPutString(b, "space-available");
+	      BufferPutString(b, "");
+	    }
 	}
-      else
+      if (getuid() != geteuid())
+	//revoke root rights because we are in 'sftp mode'
 	{
-	  BufferPutString(b, "space-available");
-	  BufferPutString(b, "");
+	  if (seteuid(getuid()) == -1 || setegid(getgid()) == -1)
+	    {
+	      mylog_printf(MYLOG_ERROR, "[%s][%s]Couldn't revoke root rights : %s",
+			   gl_var->who->user, gl_var->who->ip, strerror(errno));
+	      exit(255);
+	    }
 	}
     }
   BufferPutPacket(bOut, b);
@@ -953,36 +979,50 @@ static void	DoProtocol()
   oldRead += 4; //ignore size of msgLen
   msgType = BufferGetInt8FAST(bIn);
   DEBUG((MYLOG_DEBUG, "[DoProtocol] msgType:%i msgLen:%i", msgType, msgLen));
-  switch (msgType)
+  if (connectionStatus == CONN_INIT)
     {
-    case SSH2_FXP_INIT: DoInit(); break;
-    case SSH2_FXP_OPEN: DoOpen(); break;
-    case SSH2_FXP_CLOSE: DoClose(); break;
-    case SSH2_FXP_READ: DoRead(); break;
-    case SSH2_FXP_WRITE: DoWrite(); break;
-    case SSH2_FXP_LSTAT: DoStat(lstat); break;
-    case SSH2_FXP_FSTAT: DoFStat(); break;
-    case SSH2_FXP_SETSTAT: DoSetStat(); break;
-    case SSH2_FXP_FSETSTAT: DoFSetStat(); break;
-    case SSH2_FXP_OPENDIR: DoOpenDir(); break;
-    case SSH2_FXP_READDIR: DoReadDir(); break;
-    case SSH2_FXP_REMOVE: DoRemove(); break;
-    case SSH2_FXP_MKDIR: DoMkDir(); break;
-    case SSH2_FXP_RMDIR: DoRmDir(); break;
-    case SSH2_FXP_REALPATH: DoRealPath(); break;
-    case SSH2_FXP_STAT: DoStat(stat); break;
-    case SSH2_FXP_RENAME: DoRename(); break;
-    case SSH2_FXP_READLINK: DoReadLink(); break;
-    case SSH2_FXP_SYMLINK: DoSymLink(); break;
-    case SSH2_FXP_EXTENDED: DoExtended(); break;
-    case SSH_ADMIN_LIST_USERS: DoAdminListUsers(); break;
-    case SSH_ADMIN_KILL_USER: DoAdminKillUser(); break;
-    case SSH_ADMIN_SERVER_STATUS: DoAdminServerStatus(); break;
-    case SSH_ADMIN_SERVER_GET_STATUS: DoAdminServerGetStatus(); break;
-
-    default:
-      DoUnsupported(msgType, msgLen);
-      break;
+      switch (msgType)
+        {
+        case SSH2_FXP_INIT: DoInit(); break;
+	default: DoUnsupported(msgType, msgLen); break;
+	}
+    }
+  else if (connectionStatus == CONN_SFTP)
+    {
+      switch (msgType)
+	{
+	case SSH2_FXP_OPEN: DoOpen(); break;
+	case SSH2_FXP_CLOSE: DoClose(); break;
+	case SSH2_FXP_READ: DoRead(); break;
+	case SSH2_FXP_WRITE: DoWrite(); break;
+	case SSH2_FXP_LSTAT: DoStat(lstat); break;
+	case SSH2_FXP_FSTAT: DoFStat(); break;
+	case SSH2_FXP_SETSTAT: DoSetStat(); break;
+	case SSH2_FXP_FSETSTAT: DoFSetStat(); break;
+	case SSH2_FXP_OPENDIR: DoOpenDir(); break;
+	case SSH2_FXP_READDIR: DoReadDir(); break;
+	case SSH2_FXP_REMOVE: DoRemove(); break;
+	case SSH2_FXP_MKDIR: DoMkDir(); break;
+	case SSH2_FXP_RMDIR: DoRmDir(); break;
+	case SSH2_FXP_REALPATH: DoRealPath(); break;
+	case SSH2_FXP_STAT: DoStat(stat); break;
+	case SSH2_FXP_RENAME: DoRename(); break;
+	case SSH2_FXP_READLINK: DoReadLink(); break;
+	case SSH2_FXP_SYMLINK: DoSymLink(); break;
+	case SSH2_FXP_EXTENDED: DoExtended(); break;
+	default: DoUnsupported(msgType, msgLen); break;
+	}
+    }
+  else if (connectionStatus == CONN_ADMIN)
+    {
+      switch (msgType)
+	{
+	case SSH_ADMIN_LIST_USERS: DoAdminListUsers(); break;
+	case SSH_ADMIN_KILL_USER: DoAdminKillUser(); break;
+	case SSH_ADMIN_SERVER_STATUS: DoAdminServerStatus(); break;
+	case SSH_ADMIN_SERVER_GET_STATUS: DoAdminServerGetStatus(); break;
+	default: DoUnsupported(msgType, msgLen); break;
+	}
     }
   if ((bIn->read - oldRead) < msgLen)//read entire message
     {

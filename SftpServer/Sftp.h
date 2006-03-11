@@ -44,6 +44,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /* version */
 #define	SSH2_FILEXFER_VERSION		5
+#define SSH2_ADMIN_VERSION		255
 
 /* client to server */
 #define SSH2_FXP_INIT			1
