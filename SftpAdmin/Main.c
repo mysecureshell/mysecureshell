@@ -161,6 +161,17 @@ static void	SendServerGetStatus(tBuffer *bOut)
   BufferDelete(b);
 }
 
+static void	SendGetLog(tBuffer *bOut, int size)
+{
+  tBuffer	*b;
+
+  b = BufferNew();
+  BufferPutInt8(b, SSH_ADMIN_GET_LOG_CONTENT);
+  BufferPutInt32(b, size);
+  BufferPutPacket(bOut, b);
+  BufferDelete(b);
+}
+
 static void	DoVersion(tBuffer *bIn)
 {
   int		nb;
@@ -187,6 +198,23 @@ static void	DoGetServerStatusReply(tBuffer *bIn)
 
   state = BufferGetInt8(bIn);
   printf("Server is %s.\n", state == 0 ? "offline" : "online");
+}
+
+static void	DoGetLogContentReply(tBuffer *bIn)
+{
+  u_int32_t	size;
+  void		*str;
+
+  str = BufferGetData(bIn, &size);
+  if (size > 0)
+    {
+      fflush(stdout);
+      write(1, str, size);
+      write(1, "\n", 1);
+#ifdef HAVE_LOG_IN_COLOR
+      printf("\33[37:40:0m");
+#endif
+    }
 }
 
 static void	DoStatus(tBuffer *bIn)
@@ -237,6 +265,9 @@ int	DoProtocol(tBuffer *bIn, tBuffer *bOut)
     case SSH_ADMIN_SERVER_GET_STATUS_REPLY:
       DoGetServerStatusReply(bIn);
       break;
+    case SSH_ADMIN_GET_LOG_CONTENT_REPLY:
+      DoGetLogContentReply(bIn);
+      break;
     default:
       printf("[ERROR]Unkown message type : %i\n", msgType);
       break;
@@ -272,6 +303,23 @@ static int	DoCommandLine(char *cmd, tBuffer *bIn, tBuffer *bOut)
 	  ReadPacket(bIn, bOut))
 	return (1);
     }
+  else if (!strncmp(cmd, "log", 3))
+    {
+      char	*arg = strchr(cmd, ' ');
+ 
+      if (arg)
+	{
+	  int	size;
+
+	  while (*arg == ' ')
+            arg++;
+	  size = atoi(arg);
+	  SendGetLog(bOut, size);
+	  if (WritePacket(bOut) ||
+	      ReadPacket(bIn, bOut))
+	    return (1);
+	}
+    }
   else if (!strncmp(cmd, "server", 6))
     {
       char      *arg = strchr(cmd, ' ');
@@ -296,6 +344,7 @@ static int	DoCommandLine(char *cmd, tBuffer *bIn, tBuffer *bOut)
       printf("Usage:\n");
       printf("\t kill [0 or PID] : kill user with PID or 0 to kill all users\n");
       printf("\t list : list online users\n");
+      printf("\t log [x bytes] : show last x bytes of log\n");
       printf("\t quit : quit program\n");
       printf("\t server [start or stop] : start or stop server\n");
       printf("\n");
