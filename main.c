@@ -207,7 +207,7 @@ int	main(int ac, char **av, char **env)
       if (hash_get("GMTTime"))
 	  mylog_time(atoi((char *)hash_get("GMTTime")));
       delete_hash();
-      SftpMain(params, sftp_version);
+      return (SftpMain(params, sftp_version));
     }
   else
     {
