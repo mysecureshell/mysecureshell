@@ -56,13 +56,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Send.h"
 #include "Sftp.h"
 #include "Encoding.h"
+#include "Admin.h"
 
 #define CONN_INIT	0
 #define CONN_SFTP	1
 #define	CONN_ADMIN	2
 
-static tBuffer	*bIn = 0;
-static tBuffer	*bOut = 0;
+tBuffer	*bIn = 0;
+tBuffer	*bOut = 0;
 static char	connectionStatus = CONN_INIT;
 int		cVersion = SSH2_FILEXFER_VERSION;
 
@@ -847,110 +848,6 @@ static void	DoExtended()
   free(request);
 }
 
-static void	DoAdminListUsers()
-{
-  if ((gl_var->who->status & SFTPWHO_IS_ADMIN))
-    {
-      char	*buf;
-      int	ret;
-
-      buf = ExecCommand(MSS_SFTPWHO, &ret);
-      if (buf)
-	{
-	  tBuffer	*b;
-
-	  b = BufferNew();
-	  BufferPutInt8(b, SSH_ADMIN_LIST_USERS_REPLY);
-	  BufferPutString(b, buf);
-	  BufferPutPacket(bOut, b);
-	  DEBUG((MYLOG_DEBUG, "[DoAdminListUsers]send length:'%i' return:%i", strlen(buf), ret));
-	  BufferDelete(b);
-	  free(buf);
-	}
-      else
-	SendStatus(bOut, 0, SSH2_FX_FAILURE);
-    }
-  else
-    SendStatus(bOut, 0, SSH2_FX_OP_UNSUPPORTED);
-}
-
-static void	DoAdminKillUser()
-{
-  if ((gl_var->who->status & SFTPWHO_IS_ADMIN))
-    {
-      t_sftpwho	*who;
-      int	pidToKill = BufferGetInt32(bIn);
-      int	status = SSH2_FX_OK;
-
-      DEBUG((MYLOG_DEBUG, "[DoAdminKillUser]Try to kill pid:%i status:%i", pidToKill, status));
-      who = SftWhoGetAllStructs();
-      if (who)
-	{
-	  unsigned int	pid;
-	  int		i;
-
-	  pid = getpid();
-	  for (i = 0; i < SFTPWHO_MAXCLIENT; i++)
-	    if ((who[i].status & SFTPWHO_STATUS_MASK) != SFTPWHO_EMPTY)
-	      if ((who[i].pid == pidToKill || pidToKill == 0) && who[i].pid != pid)
-		if (kill(who[i].pid, SIGHUP) == -1)
-		  status = errnoToPortable(errno);	  
-	}
-      SendStatus(bOut, 0, status);
-    }
-  else
-    SendStatus(bOut, 0, SSH2_FX_OP_UNSUPPORTED);
-}
-
-static void	DoAdminServerStatus()
-{
-  if ((gl_var->who->status & SFTPWHO_IS_ADMIN))
-    {
-      int	isActive = BufferGetInt8(bIn);
-      int       status = SSH2_FX_OK;
-      int	fd;
-
-      if (isActive)
-	{
-	  if (unlink(SHUTDOWN_FILE) == -1)
-	    status = errnoToPortable(errno);
-	}
-      else
-	{
-	  if ((fd = open(SHUTDOWN_FILE, O_CREAT | O_TRUNC | O_RDWR, 0644)) >= 0)
-	    close(fd);
-	  else
-	    status = errnoToPortable(errno);
-	}
-      SendStatus(bOut, 0, status);
-    }
-  else
-    SendStatus(bOut, 0, SSH2_FX_OP_UNSUPPORTED);
-}
-
-static void	DoAdminServerGetStatus()
-{
-  if ((gl_var->who->status & SFTPWHO_IS_ADMIN))
-    {
-      struct stat	st;
-      tBuffer		*b;
-      char		state;
-
-      b = BufferNew();
-      BufferPutInt8(b, SSH_ADMIN_SERVER_GET_STATUS_REPLY);
-      if (stat(SHUTDOWN_FILE, &st) == -1)
-	state = 1;
-      else
-	state = 0;
-      BufferPutInt8(b, state);
-      BufferPutPacket(bOut, b);
-      BufferDelete(b);
-      DEBUG((MYLOG_DEBUG, "[DoAdminServerGetStatus]state:'%i'", state));
-    }
-  else
-    SendStatus(bOut, 0, SSH2_FX_OP_UNSUPPORTED);
-}
-
 static void	DoProtocol()
 {
   int		oldRead, msgLen, msgType;
@@ -1015,6 +912,7 @@ static void	DoProtocol()
 	case SSH_ADMIN_KILL_USER: DoAdminKillUser(); break;
 	case SSH_ADMIN_SERVER_STATUS: DoAdminServerStatus(); break;
 	case SSH_ADMIN_SERVER_GET_STATUS: DoAdminServerGetStatus(); break;
+	case SSH_ADMIN_GET_LOG_CONTENT: DoAdminGetLogContent(); break;
 	default: DoUnsupported(msgType, msgLen); break;
 	}
     }
