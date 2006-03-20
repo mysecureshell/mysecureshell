@@ -142,9 +142,10 @@ void	DoAdminGetLogContent()
 {
   if ((gl_var->who->status & SFTPWHO_IS_ADMIN))
     {
-      u_int32_t	size, r;
+      u_int32_t	r;
       tBuffer	*b;
       char	*buffer;
+      off_t	size;
 
       b = BufferNew();
       BufferPutInt8(b, SSH_ADMIN_GET_LOG_CONTENT_REPLY);
@@ -153,9 +154,9 @@ void	DoAdminGetLogContent()
 	{
 	  int	fd;
 
-	  if ((fd = open(MSS_LOG, O_CREAT | O_TRUNC | O_RDWR, 0644)) >= 0)
+	  if ((fd = open(MSS_LOG, O_RDONLY)) >= 0)
 	    {
-	      lseek(fd, SEEK_END, size);
+	      lseek(fd, -size, SEEK_END);
 	      r = read(fd, buffer, size);
 	      if (r < 0)
 		BufferPutInt32(b, 0);
