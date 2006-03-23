@@ -142,13 +142,10 @@ void	DoAdminGetLogContent()
 {
   if ((gl_var->who->status & SFTPWHO_IS_ADMIN))
     {
-      u_int32_t	r;
-      tBuffer	*b;
+      u_int32_t	r, status = SSH2_FX_FAILURE;
       char	*buffer;
       off_t	size;
 
-      b = BufferNew();
-      BufferPutInt8(b, SSH_ADMIN_GET_LOG_CONTENT_REPLY);
       size = BufferGetInt32(bIn);
       if ((buffer = malloc(size)))
 	{
@@ -158,16 +155,76 @@ void	DoAdminGetLogContent()
 	    {
 	      lseek(fd, -size, SEEK_END);
 	      r = read(fd, buffer, size);
-	      if (r < 0)
-		BufferPutInt32(b, 0);
-	      else
-		BufferPutData(b, buffer, r);
-	      close(fd);
+	      SendData(bOut, 0, buffer, r);
+	      status = SSH2_FX_OK;
+	      free(buffer);
 	    }
+	  else
+	    status = errnoToPortable(errno);
 	}
-      BufferPutPacket(bOut, b);
-      BufferDelete(b);
       DEBUG((MYLOG_DEBUG, "[DoAdminGetLogContent]wanted:%i / read:%i", size, r));
+      if (status != SSH2_FX_OK)
+	SendStatus(bOut, 0, status);
+    }
+  else
+    SendStatus(bOut, 0, SSH2_FX_OP_UNSUPPORTED);
+}
+
+void	DoAdminConfigSet()
+{
+  if ((gl_var->who->status & SFTPWHO_IS_ADMIN))
+    {
+      u_int32_t		r, size, status = SSH2_FX_FAILURE;
+      char		*buffer;
+      
+      buffer = BufferGetData(bIn, &size);
+      if (buffer)
+	{
+	  int	fd;
+
+	  if ((fd = open(CONFIG_FILE, O_WRONLY | O_TRUNC | O_CREAT, 0644)) >= 0)
+	    {
+	      fchown(fd, 0, 0);
+	      r = write(fd, buffer, size);
+	      status = SSH2_FX_OK;
+	    }
+	  else
+	    status = errnoToPortable(errno);
+	}
+      DEBUG((MYLOG_DEBUG, "[DoAdminSetLogContent]send:%i / write:%i", size, r));
+      SendStatus(bOut, 0, status);
+    }
+  else
+    SendStatus(bOut, 0, SSH2_FX_OP_UNSUPPORTED);
+}
+
+void	DoAdminConfigGet()
+{
+  if ((gl_var->who->status & SFTPWHO_IS_ADMIN))
+    {
+      struct stat	st;
+      u_int32_t		r, status = SSH2_FX_FAILURE;
+      char		*buffer;
+      
+      if (stat(CONFIG_FILE, &st) == -1)
+	status = errnoToPortable(errno);
+      else if ((buffer = malloc(st.st_size)))
+	{
+	  int	fd;
+
+	  if ((fd = open(CONFIG_FILE, O_RDONLY)) >= 0)
+	    {
+	      r = read(fd, buffer, st.st_size);
+	      SendData(bOut, 0, buffer, r);
+	      status = SSH2_FX_OK;
+	      free(buffer);
+	    }
+	  else
+	    status = errnoToPortable(errno);
+	}
+      DEBUG((MYLOG_DEBUG, "[DoAdminGetLogContent]wanted:%i / read:%i", size, r));
+      if (status != SSH2_FX_OK)
+	SendStatus(bOut, 0, status);
     }
   else
     SendStatus(bOut, 0, SSH2_FX_OP_UNSUPPORTED);

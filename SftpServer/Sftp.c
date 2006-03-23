@@ -255,10 +255,7 @@ static void	DoReadDir()
 	    {
 	      ChangeRights(&st);
 	      StatToAttributes(&st, &(s[count].attributes), pathName);
-	      if (cVersion <= 3)
-		s[count].name = strdup(dp->d_name);
-	      else
-		s[count].name = convertToUtf8(dp->d_name, 0);
+	      s[count].name = convertToUtf8(dp->d_name, 0);
 	      if (cVersion <= 3)
 		s[count].longName = LsFile(dp->d_name, &st);
 	      DEBUG((MYLOG_DEBUG, "[DoReadDir] -> '%s' handle:%i [%i]", pathName, h, count));
@@ -332,7 +329,7 @@ static void	DoOpen()
 	    if ((h = HandleNew(HANDLE_FILE, path, fd, NULL, textMode)) < 0)
 	      {
 		close(fd);
-		errnoToPortable(EMFILE);
+		status = errnoToPortable(EMFILE);
 	      }
 	    else
 	      {
@@ -913,6 +910,8 @@ static void	DoProtocol()
 	case SSH_ADMIN_SERVER_STATUS: DoAdminServerStatus(); break;
 	case SSH_ADMIN_SERVER_GET_STATUS: DoAdminServerGetStatus(); break;
 	case SSH_ADMIN_GET_LOG_CONTENT: DoAdminGetLogContent(); break;
+	case SSH_ADMIN_CONFIG_GET: DoAdminConfigGet(); break;
+	case SSH_ADMIN_CONFIG_SET: DoAdminConfigSet(); break;
 	default: DoUnsupported(msgType, msgLen); break;
 	}
     }

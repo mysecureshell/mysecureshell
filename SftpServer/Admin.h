@@ -25,5 +25,7 @@ void	DoAdminKillUser();
 void	DoAdminServerStatus();
 void	DoAdminServerGetStatus();
 void	DoAdminGetLogContent();
+void	DoAdminConfigGet();
+void	DoAdminConfigSet();
 
 #endif
