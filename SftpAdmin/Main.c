@@ -205,6 +205,7 @@ static void	DoGetLogContentReply(tBuffer *bIn)
   u_int32_t	size;
   void		*str;
 
+  BufferGetInt32(bIn);
   str = BufferGetData(bIn, &size);
   if (size > 0)
     {
@@ -265,7 +266,7 @@ int	DoProtocol(tBuffer *bIn, tBuffer *bOut)
     case SSH_ADMIN_SERVER_GET_STATUS_REPLY:
       DoGetServerStatusReply(bIn);
       break;
-    case SSH_ADMIN_GET_LOG_CONTENT_REPLY:
+    case SSH2_FXP_DATA:
       DoGetLogContentReply(bIn);
       break;
     default:
