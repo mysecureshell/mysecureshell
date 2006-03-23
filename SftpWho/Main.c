@@ -152,11 +152,13 @@ int		main(int ac, char **av)
       nb_clients = 0;
       if (who)
 	{
-	  for (i = 0; i < SFTPWHO_MAXCLIENT; i++)
-	    if ((who[i].status & SFTPWHO_STATUS_MASK) != SFTPWHO_EMPTY)
-	      nb_clients++;
 	  if (!_only_show_pid_and_name)
-	    printf("--- %i / %i clients ---\n", nb_clients, hash_get_int("LimitConnection"));
+	    {
+	      for (i = 0; i < SFTPWHO_MAXCLIENT; i++)
+		if ((who[i].status & SFTPWHO_STATUS_MASK) != SFTPWHO_EMPTY)
+		  nb_clients++;
+	      printf("--- %i / %i clients ---\n", nb_clients, hash_get_int("LimitConnection"));
+	    }
 	  for (i = 0; i < SFTPWHO_MAXCLIENT; i++)
 	    if ((who[i].status & SFTPWHO_STATUS_MASK) != SFTPWHO_EMPTY)
 	      {
