@@ -93,7 +93,7 @@ clean	:
 	@echo "Delete all objects"
 	@$(RM) $(OBJ) $(OBJ1) $(OBJ2) $(OBJ3)
 
-fclean	: clean
+distclean: clean
 	@echo "Delete all unecessary files"
 	@$(RM) $(NAME) $(NAME1) $(NAME2) $(NAME3)
 	@$(RM) -i `$(FIND) . | grep -F '~'` *.tgz || true
@@ -101,13 +101,13 @@ fclean	: clean
 cleanall:
 	@$(RM) config.h Makefile configure
 
-mrproper: fclean cleanall
+mrproper: distclean cleanall
 
 
 install	:
 	@./install.sh yesall
 
-re	: fclean all
+re	: distclean all
 
 
 package : re
