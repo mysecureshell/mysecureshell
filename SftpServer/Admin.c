@@ -210,19 +210,40 @@ void	DoAdminConfigGet()
 	status = errnoToPortable(errno);
       else if ((buffer = malloc(st.st_size)))
 	{
-	  int	fd;
+	  tBuffer	*b = BufferNew();
+	  int		fd;
 
+	  BufferPutInt8FAST(b, SSH2_FXP_DATA);
+	  BufferPutInt32(b, 0);
 	  if ((fd = open(CONFIG_FILE, O_RDONLY)) >= 0)
 	    {
 	      r = read(fd, buffer, st.st_size);
-	      SendData(bOut, 0, buffer, r);
+	      close(fd);
+	      BufferPutData(b, buffer, r);
 	      status = SSH2_FX_OK;
 	      free(buffer);
+	      if (stat("/etc/shells", &st) != -1
+		  && (fd = open("/etc/shells", O_RDONLY)) >= 0)
+		{
+		  if ((buffer = malloc(st.st_size)))
+		    {
+		      r = read(fd, buffer, st.st_size);
+		      close(fd);
+		      BufferPutData(b, buffer, r);
+		    }
+		  else
+		    BufferPutInt32(b, 0);
+		  close(fd);
+		  BufferPutPacket(bOut, b);
+		}
+	      else
+		BufferPutInt32(b, 0);
 	    }
 	  else
 	    status = errnoToPortable(errno);
+	  BufferDelete(b);
 	}
-      DEBUG((MYLOG_DEBUG, "[DoAdminGetLogContent]wanted:%i / read:%i", size, r));
+      DEBUG((MYLOG_DEBUG, "[DoAdminGetLogContent]status: %i", status));
       if (status != SSH2_FX_OK)
 	SendStatus(bOut, 0, status);
     }
