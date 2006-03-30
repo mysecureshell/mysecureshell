@@ -76,12 +76,13 @@ static tConf	confParams[] =
     { "MaxReadFilesForUser", CONF_IS_INT, CONF_SHOW },
     { "MaxWriteFilesForUser", CONF_IS_INT, CONF_SHOW },
     { "ShowLinksAsLinks", CONF_IS_BOOLEAN, CONF_SHOW },
-
     { "PathDenyFilter", CONF_IS_STRING, CONF_SHOW },
     { "SftpProtocol", CONF_IS_INT, CONF_SHOW_IF_NOT_NULL },
     { "ConnectionMaxLife", CONF_IS_TIME, CONF_SHOW },
     { "DisableAccount", CONF_IS_BOOLEAN, CONF_SHOW },
+#ifdef MSS_HAVE_ADMIN
     { "IsAdmin", CONF_IS_BOOLEAN, CONF_SHOW },
+#endif
     { "Charset", CONF_IS_STRING, CONF_SHOW },
     { "GMTTime", CONF_IS_STRING, CONF_SHOW },
     { "CanRemoveDir", CONF_IS_BOOLEAN, CONF_SHOW },

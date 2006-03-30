@@ -167,6 +167,9 @@
    slash. */
 #undef LSTAT_FOLLOWS_SLASHED_SYMLINK
 
+/* Admin */
+#undef MSS_HAVE_ADMIN
+
 /* Logdir */
 #undef MSS_LOG
 

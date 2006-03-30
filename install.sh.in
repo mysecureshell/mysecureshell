@@ -262,7 +262,7 @@ else
 	sftpinst=$sftpinst`MyGetLocale 'mkconffile'`"\t\t\t\t"`MyGetLocale 'ok'`"\t\n"
 fi
 cp -f ./MySecureShell /bin
-chmod 4755 /bin/MySecureShell
+chmod @MSS_RIGHTS@ /bin/MySecureShell
 
 ## /shells detection
 

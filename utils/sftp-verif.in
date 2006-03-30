@@ -37,7 +37,7 @@ for file2verify in "$BINDIR/sftp-who" "$BINDIR/sftp-kill" "$BINDIR/sftp-state" "
 done
 
 for file2verify in "/bin/MySecureShell" ; do
-	test -e $file2verify && MSS_mult=1 && chmod -f 4755 $file2verify && break
+	test -e $file2verify && MSS_mult=1 && chmod -f @MSS_RIGHTS@ $file2verify && break
 done
 multiplepath sftp-server_MSS
 

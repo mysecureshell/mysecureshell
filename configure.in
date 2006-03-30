@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT([MySecureShell],[0.9b1],[teka2nerdman@sourceforge.net])
+AC_INIT([MySecureShell],[0.9b2],[teka2nerdman@sourceforge.net])
 AC_CONFIG_HEADER(config.h)
 
 # Checks for programs.
@@ -12,8 +12,6 @@ AC_REQUIRE_CPP
 
 # Checks for libraries.
 AC_GNU_SOURCE
-#AC_CHECK_LIB([kvm], [kvm_open])
-#AC_CHECK_LIB([efence], [malloc])
 AC_CHECK_LIB([idn], [stringprep_convert])
 AC_CHECK_LIB([nsl], [gethostbyaddr])
 
@@ -72,6 +70,14 @@ AC_ARG_WITH(shutfile,
 		   MSS_SHUT=$withval
 		fi
         ])
+MSS_ADMIN=yes
+AC_ARG_WITH(admin,
+	[  --with-admin=xxx      Disable remote admin (default: yes)],
+	[
+		if test "x$withval" != "$yes" ; then
+		   MSS_ADMIN=$withval
+		fi
+        ])
 
 
 #Own defines
@@ -93,6 +99,9 @@ AC_DEFINE_UNQUOTED(CONFIG_FILE, "${MSS_CONF}", Etcdir)
 AC_DEFINE(CONFIG_FILE2, "/etc/sshd/sftp_config", Etcdir)
 AC_DEFINE_UNQUOTED(MSS_SFTPWHO, "${BINDIR}/sftp-who", Sftpwhodir)
 test "$MSS_COLOR" = "yes" && AC_DEFINE_UNQUOTED(HAVE_LOG_IN_COLOR, ${MSS_COLOR}, Colorlog)
+test "$MSS_ADMIN" = "yes" && AC_DEFINE(MSS_HAVE_ADMIN, 1, Admin)
+test "$MSS_ADMIN" = "yes" && AC_SUBST(MSS_RIGHTS, "4755")
+test "$MSS_ADMIN" != "yes" && AC_SUBST(MSS_RIGHTS, "755")
 if test "$ac_cv_type_u_int8_t" = "no" ; then
    AC_DEFINE_UNQUOTED(u_int8_t, uint8_t, uint8)
 fi
@@ -117,4 +126,5 @@ echo "     Shutdown file: $MSS_SHUT";
 echo "Configuration file: $MSS_CONF"
 echo ""
 echo "Supported:"
+echo "Remote Admin      : $MSS_ADMIN";
 echo "UTF-8 Encoding    : $MSS_UTF";

@@ -18,6 +18,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "../config.h"
+
+#ifdef MSS_HAVE_ADMIN
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <errno.h>
@@ -250,3 +252,5 @@ void	DoAdminConfigGet()
   else
     SendStatus(bOut, 0, SSH2_FX_OP_UNSUPPORTED);
 }
+
+#endif

@@ -81,6 +81,7 @@ static void	DoInit()
   connectionStatus = CONN_SFTP;
   if (cVersion >= clientVersion)
     cVersion = clientVersion;
+#ifdef MSS_HAVE_ADMIN
   else if (clientVersion == SSH2_ADMIN_VERSION)
     {
       connectionStatus = CONN_ADMIN;
@@ -88,6 +89,7 @@ static void	DoInit()
       DEBUG((MYLOG_DEBUG, "[DoInit]New admin [use version: %i]", cVersion));
       BufferPutInt32(b, cVersion);
     }
+#endif
   if (connectionStatus == CONN_SFTP)
     {
       if (cVersion < 3)
@@ -901,6 +903,7 @@ static void	DoProtocol()
 	default: DoUnsupported(msgType, msgLen); break;
 	}
     }
+#ifdef MSS_HAVE_ADMIN
   else if (connectionStatus == CONN_ADMIN)
     {
       switch (msgType)
@@ -915,6 +918,7 @@ static void	DoProtocol()
 	default: DoUnsupported(msgType, msgLen); break;
 	}
     }
+#endif
   if ((bIn->read - oldRead) < msgLen)//read entire message
     {
       DEBUG((MYLOG_DEBUG, "ZAP DATA len:%i [bIn->read=%i, oldRead=%i msgLen=%i]",
