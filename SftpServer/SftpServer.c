@@ -64,6 +64,19 @@ static void	parse_conf(tGlobal *params, int sftpProtocol)
   mylog_printf(MYLOG_NORMAL, "New client [%s] from [%s]", gl_var->who->user, gl_var->who->ip);
   init_usersinfos();//load users / groups into memory
   InitAccess();
+  if (getuid() != geteuid() && !(gl_var->who->status & SFTPWHO_IS_ADMIN))
+    //if we are in utset byte mode then we restore user's rights to avoid security problems
+    {
+      if (seteuid(getuid()) == -1 || setegid(getgid()) == -1)
+	{
+	  mylog_printf(MYLOG_ERROR, "[%s][%s]Couldn't revoke root rights : %s",
+		       gl_var->who->user, gl_var->who->ip, strerror(errno));
+	  exit(255);
+	}
+}
+
+static void	DoInitUser()
+{
   chdir(gl_var->who->home);
   if (gl_var->who->status & SFTPWHO_VIRTUAL_CHROOT)
     {
@@ -80,8 +93,7 @@ static void	parse_conf(tGlobal *params, int sftpProtocol)
 	  gl_var->who->status |= SFTPWHO_STAY_AT_HOME;
 	}
     }
-  if (getuid() != geteuid() && !(gl_var->who->status & SFTPWHO_IS_ADMIN))
-    //if we are in utset byte mode then we restore user's rights to avoid security problems
+  if (getuid() != geteuid()) //revoke root rights in user mode !
     {
       if (seteuid(getuid()) == -1 || setegid(getgid()) == -1)
 	{

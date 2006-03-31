@@ -92,6 +92,7 @@ static void	DoInit()
 #endif
   if (connectionStatus == CONN_SFTP)
     {
+      DoInitUser();
       if (cVersion < 3)
 	cVersion = 3;
       else if (cVersion > SSH2_FILEXFER_VERSION)
@@ -120,16 +121,6 @@ static void	DoInit()
 	    {
 	      BufferPutString(b, "space-available");
 	      BufferPutString(b, "");
-	    }
-	}
-      if (getuid() != geteuid())
-	//revoke root rights because we are in 'sftp mode'
-	{
-	  if (seteuid(getuid()) == -1 || setegid(getgid()) == -1)
-	    {
-	      mylog_printf(MYLOG_ERROR, "[%s][%s]Couldn't revoke root rights : %s",
-			   gl_var->who->user, gl_var->who->ip, strerror(errno));
-	      exit(255);
 	    }
 	}
     }
