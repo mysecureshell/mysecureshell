@@ -70,7 +70,7 @@ int		cVersion = SSH2_FILEXFER_VERSION;
 #include "SftpServer.c"
 
 
-static void	DoInit()
+void	DoInit()
 {
   tBuffer	*b;
   int		clientVersion;
@@ -128,7 +128,7 @@ static void	DoInit()
   BufferDelete(b);
 }
 
-static void	DoRealPath()
+void	DoRealPath()
 {
   u_int32_t	id;
   char		resolvedName[PATH_MAX];
@@ -165,7 +165,7 @@ static void	DoRealPath()
   free(path);
 }
 
-static void	DoOpenDir()
+void	DoOpenDir()
 {
   u_int32_t	id;
   char		*path;
@@ -200,7 +200,7 @@ static void	DoOpenDir()
   free(path);
 }
 
-static void	DoReadDir()
+void	DoReadDir()
 {
   struct dirent	*dp;
   u_int32_t	id;
@@ -275,7 +275,7 @@ static void	DoReadDir()
     }
 }
 
-static void	DoClose()
+void	DoClose()
 {
   u_int32_t	id;
   int		h, status = (cVersion <= 3 ? SSH2_FX_FAILURE : SSH4_FX_INVALID_HANDLE);
@@ -292,7 +292,7 @@ static void	DoClose()
   DEBUG((MYLOG_DEBUG, "[DoClose] -> handle:%i status:%i", h, status));
 }
 
-static void	DoOpen()
+void	DoOpen()
 {
   u_int32_t	id, pflags;
   tAttributes	*a;
@@ -332,6 +332,9 @@ static void	DoOpen()
 		    gl_var->who->status = (gl_var->who->status & SFTPWHO_ARGS_MASK ) | SFTPWHO_PUT;
 		    mylog_printf(MYLOG_NORMAL, "[%s][%s]Upload into file '%s'",
 			       gl_var->who->user, gl_var->who->ip, path);
+		    if (fchmod(fd, mode) == -1)
+		      mylog_printf(MYLOG_WARNING, "[%s][%s]Unable to set %i rights for file '%s'",
+				   gl_var->who->user, gl_var->who->ip, mode, path);
 		  }
 		else
 		  {
@@ -360,7 +363,7 @@ static void	DoOpen()
   free(path);
 }
 
-static void	DoRead()
+void	DoRead()
 {
   u_int32_t	id, len;
   char		buf[SSH2_MAX_READ];
@@ -407,7 +410,7 @@ static void	DoRead()
     SendStatus(bOut, id, status);
 }
 
-static void	DoWrite()
+void	DoWrite()
 {
   u_int32_t	id;
   u_int64_t	off;
@@ -445,7 +448,7 @@ static void	DoWrite()
   SendStatus(bOut, id, status);
 }
 
-static void	DoReadLink()
+void	DoReadLink()
 {
   u_int32_t	id, status;
   char		readLink[PATH_MAX];
@@ -474,7 +477,7 @@ static void	DoReadLink()
   free(path);
 }
 
-static void	DoStat(int (*f_stat)(const char *, struct stat *))
+void	DoStat(int (*f_stat)(const char *, struct stat *))
 {
   tAttributes	a;
   struct stat	st;
@@ -505,7 +508,7 @@ static void	DoStat(int (*f_stat)(const char *, struct stat *))
   free(path);
 }
 
-static void	DoFStat()
+void	DoFStat()
 {
   tAttributes	a;
   struct stat	st;
@@ -536,7 +539,7 @@ static void	DoFStat()
     SendStatus(bOut, id, (cVersion <= 3 ? SSH2_FX_FAILURE : SSH4_FX_INVALID_HANDLE));
 }
 
-static void 	DoSetStat()
+void 	DoSetStat()
 {
   tAttributes	*a;
   u_int32_t	id;
@@ -574,7 +577,7 @@ static void 	DoSetStat()
   free(path);
 }
 
-static void 	DoFSetStat()
+void 	DoFSetStat()
 {
   tAttributes	*a;
   u_int32_t	id;
@@ -613,7 +616,7 @@ static void 	DoFSetStat()
   SendStatus(bOut, id, status);
 }
 
-static void	DoRemove()
+void	DoRemove()
 {
   u_int32_t	id;
   char		*path;
@@ -638,7 +641,7 @@ static void	DoRemove()
   free(path);
 }
 
-static void	DoMkDir()
+void	DoMkDir()
 {
   tAttributes	*a;
   u_int32_t	id;
@@ -656,13 +659,16 @@ static void	DoMkDir()
 	status = errnoToPortable(errno);
       mylog_printf(MYLOG_WARNING, "[%s][%s]Try to create directory '%s' : %s",
 		 gl_var->who->user, gl_var->who->ip, path, (status != SSH2_FX_OK ? strerror(errno) : "success"));
+      if (chmod(path, mode) == -1)
+	mylog_printf(MYLOG_WARNING, "[%s][%s]Unable to set %i rights for directory '%s'",
+		     gl_var->who->user, gl_var->who->ip, mode, path);
     }
   SendStatus(bOut, id, status);
   DEBUG((MYLOG_DEBUG, "[DoMkDir]path:'%s' -> '%i'", path, status));
   free(path);
 }
 
-static void	DoRmDir()
+void	DoRmDir()
 {
   u_int32_t	id;
   char		*path;
@@ -687,7 +693,7 @@ static void	DoRmDir()
   free(path);
 }
 
-static void	DoRename()
+void	DoRename()
 {
   struct stat	sb;
   u_int32_t	id;
@@ -763,7 +769,7 @@ static void	DoRename()
   free(newPath);
 }
 
-static void	DoSymLink()
+void	DoSymLink()
 {
   u_int32_t	id;
   char		*oldPath, *newPath;
@@ -784,7 +790,7 @@ static void	DoSymLink()
   free(newPath);
 }
 
-static void	DoUnsupported(int msgType, int msgLen)
+void	DoUnsupported(int msgType, int msgLen)
 {
   u_int32_t	id;
 		
@@ -793,7 +799,7 @@ static void	DoUnsupported(int msgType, int msgLen)
   DEBUG((MYLOG_DEBUG, "[DoUnsupported]msgType:%i msgLen:%i", msgType, msgLen));
 }
 
-static void	DoExtended()
+void	DoExtended()
 {
   u_int32_t	id;
   char		*request;
@@ -838,7 +844,7 @@ static void	DoExtended()
   free(request);
 }
 
-static void	DoProtocol()
+void	DoSFTPProtocol()
 {
   int		oldRead, msgLen, msgType;
 
@@ -859,7 +865,7 @@ static void	DoProtocol()
     }
   oldRead += 4; //ignore size of msgLen
   msgType = BufferGetInt8FAST(bIn);
-  DEBUG((MYLOG_DEBUG, "[DoProtocol] msgType:%i msgLen:%i", msgType, msgLen));
+  DEBUG((MYLOG_DEBUG, "[DoSFTPProtocol] msgType:%i msgLen:%i", msgType, msgLen));
   if (connectionStatus == CONN_INIT)
     {
       switch (msgType)
@@ -1018,7 +1024,7 @@ int			SftpMain(tGlobal *params, int sftpProtocol)
 		  gl_var->upload_current += len;
 		  gl_var->who->upload_total += len;
 		}
-	      DoProtocol();
+	      DoSFTPProtocol();
 	    }
 	  if (FD_ISSET(1, &fdW))
 	    {

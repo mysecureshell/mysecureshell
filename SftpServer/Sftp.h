@@ -244,5 +244,26 @@ typedef struct	sGlobal
 extern	int	cVersion;
 
 int	SftpMain(tGlobal *params, int sftpProtocol);
+void	DoInit();
+void	DoRealPath();
+void	DoOpenDir();
+void	DoReadDir();
+void	DoClose();
+void	DoOpen();
+void	DoRead();
+void	DoWrite();
+void	DoReadLink();
+void	DoStat();
+void	DoFStat();
+void	DoSetStat();
+void	DoFSetStat();
+void	DoRemove();
+void	DoMkDir();
+void	DoRmDir();
+void	DoRename();
+void	DoSymLink();
+void	DoUnsupported();
+void	DoExtended();
+void	DoSFTPProtocol();
  
 #endif //_SFTP_H_

@@ -29,6 +29,13 @@ tGlobal	*gl_var = 0;
 #include "GetUsersInfos.c"
 
 
+void	DoInitUser();
+int	CheckRules(char *pwd, char operation, struct stat *st, int flags);
+void	ChangeRights(struct stat *st);
+int	CheckRulesAboutMaxFiles();
+void	ResolvPath(char *path, char *dst, int dstMaxSize);
+
+
 #define	SET_TIMEOUT(_TM, _TSEC, _TUSEC)		_TM .tv_sec = _TSEC; _TM .tv_usec = _TUSEC
 
 static void	end_sftp()
@@ -53,7 +60,7 @@ static void	reopen_log_file(int signal)
 }
 
 static void	parse_conf(tGlobal *params, int sftpProtocol)
-{ 
+{
   gl_var = params;
   atexit(end_sftp);
   signal(SIGHUP, end_sftp_by_signal);
@@ -73,9 +80,10 @@ static void	parse_conf(tGlobal *params, int sftpProtocol)
 		       gl_var->who->user, gl_var->who->ip, strerror(errno));
 	  exit(255);
 	}
+    }
 }
 
-static void	DoInitUser()
+void	DoInitUser()
 {
   chdir(gl_var->who->home);
   if (gl_var->who->status & SFTPWHO_VIRTUAL_CHROOT)
@@ -111,7 +119,7 @@ static void	DoInitUser()
 #define	RULES_RMFILE		4
 #define	RULES_RMDIRECTORY	5
 
-static int	CheckRules(char *pwd, char operation, struct stat *st, int flags)
+int	CheckRules(char *pwd, char operation, struct stat *st, int flags)
 {
   char		*str;
 
@@ -172,7 +180,7 @@ static int	CheckRules(char *pwd, char operation, struct stat *st, int flags)
   return SSH2_FX_OK;
 }
 
-static void	ChangeRights(struct stat *st)
+void	ChangeRights(struct stat *st)
 {
   if (gl_var->who->status & SFTPWHO_FAKE_USER)
     st->st_uid = getuid();
@@ -193,7 +201,7 @@ static void	ChangeRights(struct stat *st)
     }
 }
 
-static int	CheckRulesAboutMaxFiles()
+int	CheckRulesAboutMaxFiles()
 {
   t_sftpwho	*who;
   int		i, fileread, filewrite, fileall;
@@ -226,7 +234,7 @@ static int	CheckRulesAboutMaxFiles()
   return SSH2_FX_OK;
 }
 
-static void     ResolvPath(char *path, char *dst, int dstMaxSize)
+void	ResolvPath(char *path, char *dst, int dstMaxSize)
 {
   char          *ptr, *s = path;
   int           i, beg, end, len;
