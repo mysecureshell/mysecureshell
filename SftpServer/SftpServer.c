@@ -67,7 +67,8 @@ static void	parse_conf(tGlobal *params, int sftpProtocol)
   signal(SIGINT, end_sftp_by_signal);
   signal(SIGUSR1, reopen_log_file);
   signal(SIGUSR2, reopen_log_file);
-  cVersion = sftpProtocol;
+  if (sftpProtocol)
+    cVersion = sftpProtocol;
   mylog_printf(MYLOG_NORMAL, "New client [%s] from [%s]", gl_var->who->user, gl_var->who->ip);
   init_usersinfos();//load users / groups into memory
   InitAccess();
