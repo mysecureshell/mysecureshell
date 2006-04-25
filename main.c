@@ -137,10 +137,8 @@ int	main(int ac, char **av, char **env)
       snprintf(params->who->home, sizeof(params->who->home), "%s", (char *)hash_get("Home"));
       snprintf(params->who->user, sizeof(params->who->user), "%s", (char *)hash_get("User"));
       snprintf(params->who->ip, sizeof(params->who->ip), "%s", get_ip(hash_get_int("ResolveIP")));
-      if (hash_get_int("GlobalDownload"))
-	_sftpglobal->download_max = hash_get_int("GlobalDownload");
-      if (hash_get_int("GlobalUpload"))
-	_sftpglobal->upload_max = hash_get_int("GlobalUpload");
+      _sftpglobal->download_max = hash_get_int("GlobalDownload");
+      _sftpglobal->upload_max = hash_get_int("GlobalUpload");
       if (hash_get_int("Download"))
 	{
 	  params->download_max = hash_get_int("Download");
