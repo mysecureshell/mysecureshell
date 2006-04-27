@@ -198,23 +198,23 @@ int		main(int ac, char **av)
 			     (who[i].status & SFTPWHO_FAKE_MODE) ? " FakeMode" : "",
 			     (who[i].status & SFTPWHO_HIDE_NO_ACESS) ? " HideNoAccess" : ""
 			     );
+		    printf("\tStatus: %s %s%s%s   Path: %s\n", status,
+			   _verbose ? "[since " : "",
+			   _verbose ? make_idle_time(
+						     (who[i].status & SFTPWHO_STATUS_MASK) == SFTPWHO_IDLE ?
+						     who[i].time_idle : who[i].time_transf) : "",
+			   _verbose ? "]" : "",
+			   who[i].path);
+
 		    if ((who[i].status & SFTPWHO_STATUS_MASK) != SFTPWHO_GET)
 		      {
-			printf("\tStatus: %s %s%s%s   Path: %s\n", status, _verbose ? "[since " : "",
-			       _verbose ? make_idle_time(
-							 (who[i].status & SFTPWHO_STATUS_MASK) == SFTPWHO_IDLE ?
-							 who[i].time_idle : who[i].time_transf) : "",
-			       _verbose ? "]" : "",
-			       (who[i].status & SFTPWHO_STATUS_MASK) == SFTPWHO_IDLE ?  "" : who[i].path);
+			printf("\tFile: %s\n",
+			       (who[i].status & SFTPWHO_STATUS_MASK) == SFTPWHO_IDLE ?  "" : who[i].file);
 		      }
 		    else
 		      {
-			printf("\tStatus: %s %s%s%s   Path: %s [%i%%]\n", status, _verbose ? "[since " : "",
-			       _verbose ? make_idle_time(
-							 (who[i].status & SFTPWHO_STATUS_MASK) == SFTPWHO_IDLE ?
-							 who[i].time_idle : who[i].time_transf) : "",
-			       _verbose ? "]" : "",
-			       (who[i].status & SFTPWHO_STATUS_MASK) == SFTPWHO_IDLE ?  "" : who[i].path,
+			printf("\tFile: %s [%i%%]\n",
+			       (who[i].status & SFTPWHO_STATUS_MASK) == SFTPWHO_IDLE ?  "" : who[i].file,
 			       who[i].dowload_pos);
 		      }
 		    printf("\tConnected: %s [since %s]\n",

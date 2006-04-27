@@ -189,6 +189,7 @@ void	DoOpenDir()
 	    }
 	  else
 	    {
+	      snprintf(gl_var->who->path, sizeof(gl_var->who->path), "%s", path);
 	      SendHandle(bOut, id, h);
 	      status = SSH2_FX_OK;
 	    }
@@ -326,7 +327,7 @@ void	DoOpen()
 	      }
 	    else
 	      {
-		snprintf(gl_var->who->path, sizeof(gl_var->who->path), "%s", path);
+		snprintf(gl_var->who->file, sizeof(gl_var->who->file), "%s", path);
 		if (flags & O_WRONLY)
 		  {
 		    gl_var->who->status = (gl_var->who->status & SFTPWHO_ARGS_MASK ) | SFTPWHO_PUT;

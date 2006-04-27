@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __SFTPWHO_H__
 #define __SFTPWHO_H__
 
-#define	SFTPWHO_MAXCLIENT	128 //128 x 512o = 64 ko
+#define	SFTPWHO_MAXCLIENT	128 //128 x 712o = 89 ko
 
 #define	SFTPWHO_EMPTY		0
 #define	SFTPWHO_IDLE		1
@@ -54,10 +54,11 @@ typedef struct	s_sftpglobal
 
 typedef struct	s_sftpwho
 {
-//4 items = 456 octets
+//4 items = 656 octets
   char		user[30];
   char		ip[30];
   char		path[200];
+  char		file[200];
   char		home[196];
 
 //3 items = 10 octets
