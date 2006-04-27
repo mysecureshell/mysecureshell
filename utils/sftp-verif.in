@@ -39,7 +39,7 @@ done
 for file2verify in "/bin/MySecureShell" ; do
 	test -e $file2verify && MSS_mult=1 && chmod -f @MSS_RIGHTS@ $file2verify && break
 done
-multiplepath sftp-server_MSS
+multiplepath MySecureShell
 
 MSS_mult=0
 for file2verify in "$MSS_CONF" "/etc/sshd/sftp_config" ; do
