@@ -57,7 +57,10 @@ void	DoAdminListUsers()
           free(buf);
         }
       else
-        SendStatus(bOut, 0, SSH2_FX_FAILURE);
+	{
+	  SendStatus(bOut, 0, SSH2_FX_FAILURE);
+          DEBUG((MYLOG_DEBUG, "[DoAdminListUsers]Error: %s", strerror(errno)));
+	}
     }
   else
     SendStatus(bOut, 0, SSH2_FX_OP_UNSUPPORTED);
