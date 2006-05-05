@@ -142,15 +142,24 @@ int	FlagsFromPortable(int pFlags, int *textMode)
   *textMode = 0;
   if (cVersion >= 5)
     {
-      if (pFlags & SSH5_FXF_CREATE_NEW)
-	flags = O_EXCL | O_CREAT;
-      else if (pFlags & SSH5_FXF_CREATE_TRUNCATE)
-	flags = O_TRUNC | O_CREAT;
-      else if (pFlags & SSH5_FXF_OPEN_OR_CREATE)
-	flags = O_CREAT;
-      else if (pFlags & SSH5_FXF_TRUNCATE_EXISTING)
-	flags = O_TRUNC | O_EXCL | O_CREAT;
-
+      switch (pFlags & SSH5_FXF_ACCESS_DISPOSITION)
+	{
+	case SSH5_FXF_CREATE_NEW:
+	  flags = O_EXCL | O_CREAT;
+	  break;
+	case SSH5_FXF_CREATE_TRUNCATE:
+	  flags = O_TRUNC | O_CREAT;
+	  break;
+	case SSH5_FXF_OPEN_EXISTING:
+	  flags = O_EXCL | O_CREAT;
+	  break;
+	case SSH5_FXF_OPEN_OR_CREATE:
+	  flags = O_CREAT;
+	  break;
+	case SSH5_FXF_TRUNCATE_EXISTING:
+	  flags = O_TRUNC | O_EXCL | O_CREAT;
+	  break;
+	}
       if ((pFlags & SSH5_FXF_ACCESS_APPEND_DATA) ||
 	  (pFlags & SSH5_FXF_ACCESS_APPEND_DATA_ATOMIC))
 	flags = O_RDWR | O_APPEND;
