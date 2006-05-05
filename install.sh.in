@@ -15,11 +15,11 @@ LANG=
 
 MyGetLocale()
 {
-	if [ "$LANG" == "" ] ; then
+	if [ "$LANG" = "" ] ; then
 		echo $1
 	else
 		tmp=`grep -F "$1=" locales_$LANG | cut -d= -f2-`
-		if [ "$tmp" == "" ] ; then
+		if [ "$tmp" = "" ] ; then
 			echo $1
 		else
 			echo $tmp
@@ -40,7 +40,7 @@ if [ "$1" = "yesall" ] ; then
 	fyesall="1"
 	break
 else
-	if [ "$1" == "" ] ; then
+	if [ "$1" = "" ] ; then
 		MyListLocale
 		exit 1
 	else
@@ -53,7 +53,7 @@ fi
 
 ## Root detection
 
-if [ `whoami` == "root" ] ; then
+if [ `whoami` = "root" ] ; then
 	echo ""
 else
 	echo -e "\n###################################################################"
@@ -80,7 +80,7 @@ filefound() {
 
 shellfunc() {
 grepshell=`grep /bin/MySecureShell /etc/shells`
-if [ $? == 0 ] ; then
+if [ "$?" = "0" ] ; then
 	sftpinst=$sftpinst`MyGetLocale 'shellalreadyvd'`"\t\t"`MyGetLocale 'ok'`"\n"
 else
 	MyGetLocale 'validshellask'
