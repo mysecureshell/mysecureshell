@@ -131,6 +131,24 @@ int		hash_get_int(char *key)
   return (0);
 }
 
+int		hash_get_int_with_default(char *key, int dft)
+{
+  t_element	*t = _hash->hash[(int )*key];
+
+  if (_last_key && !strcmp(key, _last_key->key))
+    return (_last_key->number);
+  while (t)
+    {
+      if (!strcmp(key, t->key))
+        {
+          _last_key = t;
+          return (t->number);
+        }
+      t = t->next;
+    }
+  return (dft);
+}
+
 char	*hash_get_int_to_char(char *key)
 {
   char	*str;

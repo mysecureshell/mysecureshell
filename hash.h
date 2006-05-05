@@ -36,6 +36,7 @@ void	delete_hash();
 char	*hash_get_int_to_char(char *key);
 void	*hash_get(char *key);
 int	hash_get_int(char *key);
+int	hash_get_int_with_default(char *key, int dft);
 void	hash_set(char *key, void *value);
 void	hash_set_int(char *key, int value);
 void	create_hash();

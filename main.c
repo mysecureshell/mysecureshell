@@ -94,23 +94,32 @@ int	main(int ac, char **av, char **env)
 
       max = hash_get_int("LimitConnectionByUser");
       if (max > 0 && count_program_for_uid(getuid(), (char *)hash_get("User")) >= max)
-	//too many connection for the account
-	exit(10);
+	{//too many connection for the account
+	  delete_hash();
+	  exit(10);
+	}
       max = hash_get_int("LimitConnectionByIP");
       if (max > 0 && count_program_for_ip(getuid(), get_ip(hash_get_int("ResolveIP"))) >= max)
-	//too many connection for this IP
-	exit(11);
+	{//too many connection for this IP
+	  delete_hash();
+	  exit(11);
+	}
       max = hash_get_int("LimitConnection");
       if (max > 0 && count_program_for_uid(-1, 0) >= max)
-	//too many connection for the server
-        exit(12);
+	{//too many connection for the server
+	  delete_hash();
+	  exit(12);
+	}
       if (hash_get_int("DisableAccount"))
-	//account is temporary disable
-	exit(13);
+	{//account is temporary disable
+	  delete_hash();
+	  exit(13);
+	}
       //check if the server is up ans user is not admin
       if ((fd = open(SHUTDOWN_FILE, O_RDONLY)) >= 0 && !(hash_get_int("IsAdmin")))
 	//server is down
 	{
+	  delete_hash();
 	  close(fd);
 	  exit(0);
 	}
@@ -137,8 +146,8 @@ int	main(int ac, char **av, char **env)
 	(hash_get_int("ByPassGlobalUpload") ? SFTPWHO_BYPASS_GLB_UPL : 0) +
 	(hash_get_int("ShowLinksAsLinks") ? SFTPWHO_LINKS_AS_LINKS : 0) + 
 	(hash_get_int("IsAdmin") ? SFTPWHO_IS_ADMIN : 0) +
-	(hash_get_int("CanRemoveDir") ? SFTPWHO_CAN_RMDIR : 0) +
-	(hash_get_int("CanRemoveFile") ? SFTPWHO_CAN_RMFILE : 0)
+	(hash_get_int_with_default("CanRemoveDir", 1) ? SFTPWHO_CAN_RMDIR : 0) +
+	(hash_get_int_with_default("CanRemoveFile", 1) ? SFTPWHO_CAN_RMFILE : 0)
 	;
       snprintf(params->who->home, sizeof(params->who->home), "%s", (char *)hash_get("Home"));
       snprintf(params->who->user, sizeof(params->who->user), "%s", (char *)hash_get("User"));
