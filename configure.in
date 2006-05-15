@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT([MySecureShell],[0.9b2],[teka2nerdman@sourceforge.net])
+AC_INIT([MySecureShell],[0.9b4],[teka2nerdman@sourceforge.net])
 AC_CONFIG_HEADER(config.h)
 
 # Checks for programs.
@@ -21,7 +21,6 @@ AC_TYPE_UID_T
 AC_STRUCT_TM
 AC_TYPE_SIGNAL
 AC_SYS_LARGEFILE
-AC_CHECK_SIZEOF(long)
 AC_CHECK_TYPES(u_int8_t)
 AC_CHECK_TYPES(u_int32_t)
 AC_CHECK_TYPES(u_int64_t)
