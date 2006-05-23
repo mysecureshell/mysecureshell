@@ -53,7 +53,13 @@ static void	parse_args(int ac, char **av)
     else if (!strcmp(av[i], "--help"))
       {
       help:
-	printf("Build:\n\tMySecureShell is version %s build on " __DATE__ "\n\n", PACKAGE_VERSION);
+	printf("Build:\n\tMySecureShell is version "PACKAGE_VERSION" build on " __DATE__ "%s\n\n",
+#ifdef DODEBUG
+	       " with DEBUG"
+#else
+	       ""
+#endif
+	       );
 	printf("Usage:\n\t%s [verbose] [options]\n\nOptions:\n", av[0]);
 	printf("\t--configtest : test the config file and show errors\n");
 	printf("\t--help       : show this screen\n");
@@ -64,7 +70,13 @@ static void	parse_args(int ac, char **av)
       }
     else if (!strcmp(av[i], "--version"))
       {
-	printf("MySecureShell is version %s build on " __DATE__ "\n", PACKAGE_VERSION);
+	printf("MySecureShell is version "PACKAGE_VERSION" build on " __DATE__ "%s\n",
+#ifdef DODEBUG
+	       " with DEBUG"
+#else
+	       ""
+#endif
+	       );
 	exit(0);
       }
     else if (!strcmp(av[i], "-v"))
