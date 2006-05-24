@@ -151,7 +151,7 @@ int	FlagsFromPortable(int pFlags, int *textMode)
 	  flags = O_TRUNC | O_CREAT;
 	  break;
 	case SSH5_FXF_OPEN_EXISTING:
-	  flags = O_EXCL | O_CREAT;
+	  flags = 0;
 	  break;
 	case SSH5_FXF_OPEN_OR_CREATE:
 	  flags = O_CREAT;
