@@ -34,6 +34,24 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "SftpServer/Encoding.h"
 #include "SftpServer/Log.h"
 
+static void	showVersion()
+{
+  printf("MySecureShell is version "PACKAGE_VERSION" build on " __DATE__ "%s",
+#ifdef DODEBUG
+	       " with DEBUG"
+#else
+	       ""
+#endif
+	       );
+  printf(" (UTF-8 support: %s)\n",
+#ifdef HAVE_LIBIDN
+	 "yes"
+#else
+	 "no"
+#endif
+	 );
+}
+
 static void	parse_args(int ac, char **av)
 {
   int		verbose = 1;
@@ -53,14 +71,9 @@ static void	parse_args(int ac, char **av)
     else if (!strcmp(av[i], "--help"))
       {
       help:
-	printf("Build:\n\tMySecureShell is version "PACKAGE_VERSION" build on " __DATE__ "%s\n\n",
-#ifdef DODEBUG
-	       " with DEBUG"
-#else
-	       ""
-#endif
-	       );
-	printf("Usage:\n\t%s [verbose] [options]\n\nOptions:\n", av[0]);
+	printf("Build:\n\t");
+	showVersion();
+	printf("\nUsage:\n\t%s [verbose] [options]\n\nOptions:\n", av[0]);
 	printf("\t--configtest : test the config file and show errors\n");
 	printf("\t--help       : show this screen\n");
 	printf("\t--version    : show version of MySecureShell\n"); 
@@ -70,13 +83,7 @@ static void	parse_args(int ac, char **av)
       }
     else if (!strcmp(av[i], "--version"))
       {
-	printf("MySecureShell is version "PACKAGE_VERSION" build on " __DATE__ "%s\n",
-#ifdef DODEBUG
-	       " with DEBUG"
-#else
-	       ""
-#endif
-	       );
+	showVersion();
 	exit(0);
       }
     else if (!strcmp(av[i], "-v"))
