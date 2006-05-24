@@ -64,11 +64,20 @@ Form:
   text_color:background_color:style
 */
 #ifdef HAVE_LOG_IN_COLOR
+      _log->color[MYLOG_CONNECTION][0] = 32;
+      _log->color[MYLOG_CONNECTION][1] = 40;
+      _log->color[MYLOG_CONNECTION][2] = 1;
+
+      _log->color[MYLOG_TRANSFERT][0] = 30;
+      _log->color[MYLOG_TRANSFERT][1] = 43;
+      _log->color[MYLOG_TRANSFERT][2] = 7;
+
+
       _log->color[MYLOG_NORMAL][0] = 37;
       _log->color[MYLOG_NORMAL][1] = 40;
       _log->color[MYLOG_NORMAL][2] = 0;
 
-      _log->color[MYLOG_WARNING][0] = 33;
+      _log->color[MYLOG_WARNING][0] = 30;
       _log->color[MYLOG_WARNING][1] = 40;
       _log->color[MYLOG_WARNING][2] = 1;
 

@@ -331,7 +331,7 @@ void	DoOpen()
 		if (flags & O_WRONLY)
 		  {
 		    gl_var->who->status = (gl_var->who->status & SFTPWHO_ARGS_MASK ) | SFTPWHO_PUT;
-		    mylog_printf(MYLOG_NORMAL, "[%s][%s]Upload into file '%s'",
+		    mylog_printf(MYLOG_TRANSFERT, "[%s][%s]Upload into file '%s'",
 			       gl_var->who->user, gl_var->who->ip, path);
 		    if (fchmod(fd, mode) == -1)
 		      mylog_printf(MYLOG_WARNING, "[%s][%s]Unable to set %i rights for file '%s'",
@@ -340,7 +340,7 @@ void	DoOpen()
 		else
 		  {
 		    gl_var->who->status = (gl_var->who->status & SFTPWHO_ARGS_MASK ) | SFTPWHO_GET;
-		    mylog_printf(MYLOG_NORMAL, "[%s][%s]Download file '%s'",
+		    mylog_printf(MYLOG_TRANSFERT, "[%s][%s]Download file '%s'",
 			       gl_var->who->user, gl_var->who->ip, path);
 		  }
 		gl_var->down_size = 0;
@@ -968,7 +968,7 @@ int			SftpMain(tGlobal *params, int sftpProtocol)
 	  if (gl_var->who->time_maxidle &&
 	      gl_var->who->time_idle >= gl_var->who->time_maxidle)
 	    {
-	      mylog_printf(MYLOG_NORMAL, "[%s][%s]Connection time out",
+	      mylog_printf(MYLOG_CONNECTION, "[%s][%s]Connection time out",
 			 gl_var->who->user, gl_var->who->ip);
 	      exit(0);
 	    }
@@ -995,7 +995,7 @@ int			SftpMain(tGlobal *params, int sftpProtocol)
 	      gl_var->who->time_maxlife--;
 	      if (!gl_var->who->time_maxlife)
 		{
-		  mylog_printf(MYLOG_NORMAL, "[%s][%s]Connection max life !",
+		  mylog_printf(MYLOG_CONNECTION, "[%s][%s]Connection max life !",
 			       gl_var->who->user, gl_var->who->ip);
 		  exit(0);
 		}

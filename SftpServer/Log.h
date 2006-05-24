@@ -20,11 +20,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __LOG_H__
 #define __LOG_H__
 
-#define	MYLOG_NORMAL	0
-#define	MYLOG_WARNING	1
-#define	MYLOG_ERROR	2
-#define	MYLOG_DEBUG	3
-#define	MYLOG_MAX	4
+#define MYLOG_CONNECTION	0
+#define MYLOG_TRANSFERT		1
+#define	MYLOG_NORMAL		2
+#define	MYLOG_WARNING		3
+#define	MYLOG_ERROR		4
+#define	MYLOG_DEBUG		5
+#define	MYLOG_MAX		6
 
 void	mylog_open(char *file);
 void	mylog_time(int hours);
