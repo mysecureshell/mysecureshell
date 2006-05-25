@@ -19,24 +19,37 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "../config.h"
 
-#ifdef HAVE_LIBIDN
-
-static char	*_charset = 0;
+#if(HAVE_ICONV||HAVE_LIBICONV)
 
 #include <stdlib.h>
 #include <string.h>
-#include <stringprep.h>
+#include <iconv.h>
 #include "Encoding.h"
+
+static iconv_t	_toUTF8 = (iconv_t )-1;
+static iconv_t	_fromUTF8 = (iconv_t )-1;
 
 
 char	*convertToUtf8(char *str, int freeAfter)
 {
   char	*newStr = 0;
 
-  if (_charset)
+  if (_toUTF8 != (iconv_t )-1 && str[0])
     {
-      if (!(newStr = stringprep_convert(str, "UTF-8", _charset)))
-	goto justdup;
+      char	*oldPtr = str;
+      char	*newPtr;
+      size_t	iLen, oLen;
+
+      iLen = strlen(str);
+      oLen = iLen << 1;
+      newStr = malloc(oLen + 1);
+      newPtr = newStr;
+      if (iconv(_toUTF8, &oldPtr, &iLen, &newPtr, &oLen) == (size_t )-1)
+	{
+	  free(newStr);
+	  goto justdup;
+	}
+      *newPtr = 0;
     }
   else
     {
@@ -52,10 +65,21 @@ char	*convertFromUtf8(char *str, int freeAfter)
 {
   char	*newStr = 0;
 
-  if (_charset)
-    {      
-      if (!(newStr = stringprep_convert(str, _charset, "UTF-8")))
-	goto justdup2;
+  if (_fromUTF8 != (iconv_t )-1 && str[0])
+    {
+      char	*oldPtr = str;
+      char	*newPtr;
+      size_t	iLen, oLen;
+
+      iLen = oLen = strlen(str);
+      newStr = strdup(str);
+      newPtr = newStr;
+      if (iconv(_fromUTF8, &oldPtr, &iLen, &newPtr, &oLen) == (size_t )-1)
+	{
+	  free(newStr);
+	  goto justdup2;
+	}
+      *newPtr = 0;
     }
   else
     {
@@ -69,7 +93,20 @@ char	*convertFromUtf8(char *str, int freeAfter)
 
 void	setCharset(char *charset)
 {
-  _charset = charset;
+  if (charset)
+    {
+      _toUTF8 = iconv_open("UTF-8", charset);
+      _fromUTF8 = iconv_open(charset, "UTF-8");
+    }
+  else
+    {
+      if (_toUTF8 != (iconv_t )-1)
+	iconv_close(_toUTF8);
+      if (_fromUTF8 != (iconv_t )-1)
+	iconv_close(_fromUTF8);
+      _toUTF8 = (iconv_t )-1;
+      _fromUTF8 = (iconv_t )-1;
+    }
 }
 
 #endif

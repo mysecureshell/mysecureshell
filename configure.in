@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT([MySecureShell],[0.9b4],[teka2nerdman@sourceforge.net])
+AC_INIT([MySecureShell],[0.9b5],[teka2nerdman@sourceforge.net])
 AC_CONFIG_HEADER(config.h)
 
 # Checks for programs.
@@ -12,8 +12,8 @@ AC_REQUIRE_CPP
 
 # Checks for libraries.
 AC_GNU_SOURCE
-AC_CHECK_LIB([idn], [stringprep_convert])
 AC_CHECK_LIB([nsl], [gethostbyaddr])
+AC_CHECK_LIB([iconv], [libiconv_open libiconv_close iconv])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -36,7 +36,7 @@ test -e "/usr/include/linux/ext2_fs.h" && AC_DEFINE(HAVE_LINUX_EXT2_FS_H, 1, Etc
 AC_FUNC_CLOSEDIR_VOID
 AC_FUNC_FORK
 AC_FUNC_STAT
-AC_CHECK_FUNCS([endgrent gethostbyaddr gethostbyname strcasecmp strchr strdup strerror strrchr strstr statfs getgrouplist strlcpy strlcat])
+AC_CHECK_FUNCS([endgrent gethostbyaddr gethostbyname strcasecmp strchr strdup strerror strrchr strstr statfs getgrouplist strlcpy strlcat iconv_open iconv_close iconv])
 
 #Help
 AC_ARG_WITH(conffile,
@@ -85,7 +85,8 @@ test -z "$BINDIR" && BINDIR="/usr/bin"
 test -z "$MSS_LOG" && MSS_LOG="/var/log/sftp-server.log";
 test -z "$MSS_CONF" && MSS_CONF="/etc/ssh/sftp_config";
 test -z "$MSS_SHUT" && MSS_SHUT="/etc/sftp.shut";
-MSS_UTF=$ac_cv_lib_idn_stringprep_convert
+MSS_UTF=$ac_cv_func_iconv
+test -z "$MSS_UTF" && MSS_UTF="$ac_cv_lib_iconv_libiconv_open_libiconv_close_iconv";
 
 A=`eval echo ${sysconfdir}`
 AC_SUBST(ETCDIR, "${A}")

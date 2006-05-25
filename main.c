@@ -44,7 +44,7 @@ static void	showVersion()
 #endif
 	       );
   printf(" (UTF-8 support: %s)\n",
-#ifdef HAVE_LIBIDN
+#if(HAVE_ICONV||HAVE_LIBICONV)
 	 "yes"
 #else
 	 "no"
