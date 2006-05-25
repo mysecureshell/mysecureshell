@@ -46,6 +46,7 @@ static void	end_sftp()
   SftpWhoRelaseStruct();
   regfree(&gl_var->hide_files_regexp);
   free(gl_var);
+  setCharset(0);
   exit(0);
 }
 
