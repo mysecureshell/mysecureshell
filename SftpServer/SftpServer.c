@@ -40,7 +40,8 @@ void	ResolvPath(char *path, char *dst, int dstMaxSize);
 
 static void	end_sftp()
 {
-  mylog_printf(MYLOG_CONNECTION, "[%s][%s]Quit.", gl_var->who->user, gl_var->who->ip);
+  if (cVersion != SSH2_ADMIN_VERSION)
+    mylog_printf(MYLOG_CONNECTION, "[%s][%s]Quit.", gl_var->who->user, gl_var->who->ip);
   mylog_close();
   gl_var->who->status = SFTPWHO_EMPTY;
   SftpWhoRelaseStruct();
@@ -71,13 +72,13 @@ static void	parse_conf(tGlobal *params, int sftpProtocol)
   signal(SIGUSR2, reopen_log_file);
   if (sftpProtocol)
     cVersion = sftpProtocol;
-  mylog_printf(MYLOG_CONNECTION, "New client [%s] from [%s]", gl_var->who->user, gl_var->who->ip);
   init_usersinfos();//load users / groups into memory
   InitAccess();
 }
 
 void	DoInitUser()
 {
+  mylog_printf(MYLOG_CONNECTION, "New client [%s] from [%s]", gl_var->who->user, gl_var->who->ip);
   chdir(gl_var->who->home);
   if (gl_var->who->status & SFTPWHO_VIRTUAL_CHROOT)
     {
