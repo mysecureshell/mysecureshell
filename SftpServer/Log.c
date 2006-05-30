@@ -68,22 +68,22 @@ Form:
       _log->color[MYLOG_CONNECTION][1] = 40;
       _log->color[MYLOG_CONNECTION][2] = 1;
 
-      _log->color[MYLOG_TRANSFERT][0] = 30;
-      _log->color[MYLOG_TRANSFERT][1] = 43;
-      _log->color[MYLOG_TRANSFERT][2] = 7;
+      _log->color[MYLOG_TRANSFERT][0] = 34;
+      _log->color[MYLOG_TRANSFERT][1] = 40;
+      _log->color[MYLOG_TRANSFERT][2] = 1;
 
 
       _log->color[MYLOG_NORMAL][0] = 37;
       _log->color[MYLOG_NORMAL][1] = 40;
       _log->color[MYLOG_NORMAL][2] = 0;
 
-      _log->color[MYLOG_WARNING][0] = 30;
+      _log->color[MYLOG_WARNING][0] = 31;
       _log->color[MYLOG_WARNING][1] = 40;
       _log->color[MYLOG_WARNING][2] = 1;
 
       _log->color[MYLOG_ERROR][0] = 31;
       _log->color[MYLOG_ERROR][1] = 40;
-      _log->color[MYLOG_ERROR][2] = 1;
+      _log->color[MYLOG_ERROR][2] = 7;
 
       _log->color[MYLOG_DEBUG][0] = 30;
       _log->color[MYLOG_DEBUG][1] = 47;
