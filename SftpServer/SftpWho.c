@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <unistd.h>
 
 static char	*_shmfile = "/dev/null";
-static int	_shmkey = 0x0785;
+static int	_shmkey = 0x0786;
 
 typedef struct		s_shm
 {
@@ -72,13 +72,12 @@ t_sftpwho	*SftpWhoGetStruct(int create)
     {
       //try to join to existing shm
       if ((shmid = shmget(key, sizeof(t_shm), 0)) == -1)
-	{
-	  if (create == 1)
+	if (create == 1)
+	  {
 	    shmid = shmget(key, sizeof(t_shm), IPC_CREAT | IPC_EXCL | 0666);
-	  eraze = 1;
-	}
-      if (shmid == -1 && create == 1 &&
-	  (errno == EINVAL || errno == EEXIST))
+	    eraze = 1;
+	  }
+      if (shmid == -1 && (errno == EINVAL || errno == EEXIST))
 	{
 	  //huho we have a old shm memory
 	  if (tryshm)
