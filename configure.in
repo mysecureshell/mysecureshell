@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT([MySecureShell],[0.9b5],[teka2nerdman@sourceforge.net])
+AC_INIT([MySecureShell],[0.9b6],[teka2nerdman@sourceforge.net])
 AC_CONFIG_HEADER(config.h)
 
 # Checks for programs.
@@ -110,6 +110,11 @@ if test "$ac_cv_type_u_int32_t" = "no" ; then
 fi
 if test "$ac_cv_type_u_int64_t" = "no" ; then
    AC_DEFINE_UNQUOTED(u_int64_t, uint64_t, uint64)
+fi
+if test "$GCC" = "yes" ; then
+   AC_SUBST(LINKER_OPT, "-Xlinker --as-needed")
+else
+   AC_SUBST(LINKER_OPT, "")
 fi
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([install.sh], [chmod +x install.sh])

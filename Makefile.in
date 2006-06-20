@@ -44,7 +44,7 @@ FILESRC	= $(DEST)/sftp_config $(DEST)/utils/sftp-kill $(DEST)/LICENSE	\
 CFLAGS	= -Wall -Wunused -Wpointer-arith -Wno-uninitialized -O2 -ISftpServer
 DEBUG	= 0
 
-LDFLAGS	= @LIBS@
+LDFLAGS	= @LIBS@ @LINKER_OPT@
 
 ifeq ($(DEBUG), 1)
 	CFLAGS	+= -DDODEBUG -g3
@@ -71,22 +71,22 @@ all	: $(NAME) sftpwho sftpstate sftpadmin
 
 $(NAME)	: $(OBJ)
 	@echo "Compile binary	[$(NAME)]"
-	@$(CC) -o $(NAME) $(OBJ) $(LDFLAGS)
+	@$(CC) $(LDFLAGS) -o $(NAME) $(OBJ)
 	@$(CHMOD) 711 $(NAME)
 
 sftpwho : $(OBJ1)
 	@echo "Compile binary	[$(NAME1)]"
-	@$(CC) -o $(NAME1) $(OBJ1) $(LDFLAGS)
+	@$(CC) $(LDFLAGS) -o $(NAME1) $(OBJ1)
 	@$(CHMOD) 711 $(NAME1)
 
 sftpstate: $(OBJ2)
 	@echo "Compile binary	[$(NAME2)]"
-	@$(CC) -o $(NAME2) $(OBJ2) $(LDFLAGS)
+	@$(CC) $(LDFLAGS) -o $(NAME2) $(OBJ2)
 	@$(CHMOD) 711 $(NAME2)
 
 sftpadmin : $(OBJ3)
 	@echo "Compile binary	[$(NAME3)]"
-	@$(CC) -o $(NAME3) $(OBJ3) $(LDFLAGS)
+	@$(CC) $(LDFLAGS) -o $(NAME3) $(OBJ3)
 	@$(CHMOD) 711 $(NAME3)
 
 clean	:
