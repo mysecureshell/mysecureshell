@@ -1,0 +1,156 @@
+#!/bin/sh
+
+## Users Script Manager v0.1 - Made by MySecureShell Team
+## MySecureShell Team <teka2nerdman@users.sourceforge.net>
+
+# Root Detection
+if [ "$USER" != "root" ] ; then
+	echo -e "\n###################################################################"
+	echo -e "\t\tSorry $USER but you are not root"
+	echo -e "###################################################################\n"
+	exit 1
+fi
+
+# Saving vars
+nameuser=$2
+#homeuser=$3
+hideuser=$3
+
+# OS Detection
+osdetection=`uname -s`
+
+# Error messages
+badarg="Sorry but you gave me a bad argument !"
+alreadyexist="Sorry but this user already exist !"
+doesntexist="Sorry but this user doesn't exist !"
+
+##########################
+## User sftp-user verif ##
+##########################
+name=`id -un $nameuser`
+
+vrf_create() {
+	for i in $nameuser $homeuser ; do
+		if [ -z $i ] ; then
+			echo $bardarg
+			exit 0
+		fi
+	done
+}
+
+vrf_delhide() {
+	if [ $name -ne $nameuser ] ; then
+		echo $doesntexist
+		exit 1
+	fi
+}
+
+##########################
+## Darwin users manager ##
+##########################
+
+# Creation
+dar_add() {
+	newid=$[`nireport / /users uid | tail -1`+1]
+	# Add User
+	niutil -create -R / /users/$nameuser
+	niutil -createprop -R / /users/$nameuser passwd "*"
+	niutil -createprop -R / /users/$nameuser gid $newid
+	niutil -createprop -R / /users/$nameuser uid $newid
+	niutil -createprop -R / /users/$nameuser realname "$nameuser"
+	niutil -createprop -R / /users/$nameuser shell "/bin/MySecureShell"
+	niutil -createprop -R / /users/$nameuser picture "/Library/Caches/com.sourceforge.mysecureshell.picture.tiff"
+	#niutil -createprop -R / /users/$nameuser home "/Users/invite"
+	# Home create future versions
+	#cp -R /System/Library/User\ Template/French.lproj /Users/$nameuser
+	#chown -R $nameuser:staff /Users/$nameuser
+	passwd $nameuser
+	# Hide user
+	test $hideuser = 1 && defaults write /Library/Preferences/com.apple.loginwindow HiddenUsersList -array $nameuser && defaults write /Library/Preferences/com.apple.loginwindow HiddenUsersList -array-add $nameuser
+}
+
+# List users with MySecureShell Shell
+dar_list() {
+	nireport / /users name shell | grep /MySecureShell | awk '{ print $1 }'
+}
+
+# Deletion
+dar_del() {
+	niutil -destroy -R / /users/$nameuser
+	# Shshell is remove home directory
+	#test $homeuser = 1 && rm -Rf /Users/$nameuser
+}
+
+# Hidding
+dar_hid() {
+	# Home is choice
+	if [ $hideuser = 0 ] ; then
+		defaults write /Library/Preferences/com.apple.loginwindow HiddenUsersList $nameuser
+	else
+		defaults write /Library/Preferences/com.apple.loginwindow HiddenUsersList -array $nameuser
+		defaults write /Library/Preferences/com.apple.loginwindow HiddenUsersList -array-add $nameuser
+	fi
+}
+
+
+#########################
+## Linux users manager ##
+#########################
+
+# Creation
+nux_add() {
+	useradd -s /bin/MySecureShell $nameuser
+	passwd $nameuser
+}
+
+# Deletion
+nux_list() {
+	grep -F /MySecureShell /etc/passwd | cut -d: -f1
+}
+
+# Deletion
+nux_del() {
+	userdel -f $nameuser
+}
+
+###############
+## User Menu ##
+###############
+
+case $1 in
+	create)
+		vrf_create
+		if [ $osdetection = Darwin ] ; then
+			dar_add
+		else
+			nux_add
+		fi
+	;;
+	delete)
+		vrf_delhide
+		if [ $osdetection = Darwin ] ; then
+			dar_del
+		else
+			nux_del
+		fi
+	;;
+	list)
+		if [ $osdetection = Darwin ] ; then
+			dar_list
+		else
+			nux_list
+		fi
+	;;
+	hide)
+		if [ $osdetection = Darwin ] ; then
+		    vrf_delhide
+		    dar_hid
+		fi
+	;;
+	*)
+	echo -e "Usage 1: sftp-user create [user] [hide user]\nUsage 2: sftp-user delete [user]\nUsage 3: sftp-user list\nUsage 4: sftp-user hide [user] [hide] (Mac OS X Only)\n\n\tOptions\t\tChoices\t\tDescriptions"
+	echo -e "\tuser\t\tUsername\tUser Name\n\thide user\t1/0\t\thide user from login panel and user managements (Max OS X Only)\n\tdelete home\t1/0\t\tRemove user Home directory\n\thide\t\t1/0\t\tHide/Unhide (Mac OS X Only)"
+	;;
+esac
+
+exit 0

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-## Installation Script v0.8 - Made by Pierre
+## Installation Script v0.9 - Made by MySecureShell Team
 ## MySecureShell Team <teka2nerdman@users.sourceforge.net>
 
 ## Language local initialising
@@ -53,12 +53,10 @@ fi
 
 ## Root detection
 
-if [ `whoami` = "root" ] ; then
-	echo ""
-else
+if [ "$USER" != "root" ] ; then
 	echo -e "\n###################################################################"
 	tmp=`MyGetLocale 'sorry'`
-	echo -e "\t\t\t"$tmp `whoami`
+	echo -e "\t\t\t"$tmp $USER
 	MyGetLocale 'Warning root ask'
 	echo -e "###################################################################\n"
 	exit 1
@@ -299,6 +297,7 @@ if [ -d ./utils ] ; then
 	chmod 700 $BINDIR/sftp-state
 	chmod 700 $BINDIR/sftp-admin
 	chmod 755 $BINDIR/sftp-verif
+	chmod 755 $BINDIR/sftp-user
 else
 	sftpinst=$sftpinst`MyGetLocale 'noutilities'`"\t"`MyGetLocale 'ok'`"\n"
 fi
@@ -332,7 +331,7 @@ fi
 
 # End of Installation
 
-# Only for version < 0.6 --> 0.8 & +
+# Only needed for version < 0.6 --> 0.8 & +
 $BINDIR/sftp-state fullshutdown > /dev/null
 $BINDIR/sftp-state start > /dev/null
 
