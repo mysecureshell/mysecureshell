@@ -8,9 +8,7 @@ MSS_CONF=@MSS_CONF@
 MSS_LOG=@MSS_LOG@
 
 ## Root detection
-if [ "$USER" == "root" ] ; then
-	break
-else
+if [ "$USER" != "root" ] ; then
 	echo -e "\n################################################################"
 	echo -e "\tSorry $USER but you must be root to continue"
 	echo -e "################################################################\n"
