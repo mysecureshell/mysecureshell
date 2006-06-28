@@ -27,7 +27,8 @@ doesntexist="Sorry but this user doesn't exist !"
 ##########################
 ## User sftp-user verif ##
 ##########################
-name=`id -un $nameuser`
+name=`id -un $nameuser &>1`
+encPass='*'
 
 vrf_create() {
 	for i in $nameuser $homeuser ; do
@@ -45,6 +46,32 @@ vrf_delhide() {
 	fi
 }
 
+vrf_getpass() {
+	dirPerl=
+	for dir in `echo $PATH | tr : "\n"` ; do
+		if [ -x $dir/perl ] ; then
+			dirPerl=$dir;
+			break
+		fi
+	done
+	if [ "$dirPerl" != '' ] ; then
+		echo -n "Enter password:"
+		stty -echo
+		read pass
+		stty echo
+		echo
+		encPass=`$dirPerl/perl <<EOF
+my \\$itoa64 = './0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+my \\$salt = '';
+for (1..2) { \\$salt .= substr \\$itoa64, rand(length(\\$itoa64)), 1; }
+print crypt("$pass", \\$salt);
+EOF`
+	else
+		echo "Please install 'perl' to have full features of $0";
+		echo "Or use the commande 'passwd {user}' to set the password of the user"
+	fi
+}
+
 ##########################
 ## Darwin users manager ##
 ##########################
@@ -54,7 +81,7 @@ dar_add() {
 	newid=$[`nireport / /users uid | tail -1`+1]
 	# Add User
 	niutil -create -R / /users/$nameuser
-	niutil -createprop -R / /users/$nameuser passwd "*"
+	niutil -createprop -R / /users/$nameuser passwd "$encPass"
 	niutil -createprop -R / /users/$nameuser gid $newid
 	niutil -createprop -R / /users/$nameuser uid $newid
 	niutil -createprop -R / /users/$nameuser realname "$nameuser"
@@ -64,7 +91,7 @@ dar_add() {
 	# Home create future versions
 	#cp -R /System/Library/User\ Template/French.lproj /Users/$nameuser
 	#chown -R $nameuser:staff /Users/$nameuser
-	passwd $nameuser
+
 	# Hide user
 	test $hideuser = 1 && defaults write /Library/Preferences/com.apple.loginwindow HiddenUsersList -array $nameuser && defaults write /Library/Preferences/com.apple.loginwindow HiddenUsersList -array-add $nameuser
 }
@@ -99,8 +126,7 @@ dar_hid() {
 
 # Creation
 nux_add() {
-	useradd -s /bin/MySecureShell $nameuser
-	passwd $nameuser
+	useradd -p $encPass -s /bin/MySecureShell $nameuser
 }
 
 # Deletion
@@ -120,6 +146,7 @@ nux_del() {
 case $1 in
 	create)
 		vrf_create
+		vrf_getpass
 		if [ $osdetection = Darwin ] ; then
 			dar_add
 		else
