@@ -288,7 +288,7 @@ fi
 ## Utilities installation
 
 if [ -d ./utils ] ; then
-	for tool in "sftp-who" "sftp-kill" "sftp-state" "sftp-admin" "sftp-verif" ; do	
+	for tool in "sftp-who" "sftp-kill" "sftp-state" "sftp-admin" "sftp-verif" "sftp-user" ; do
 		cp -f ./utils/$tool $BINDIR
 		sftpinst=$sftpinst`MyGetLocale 'tool'`" $tool\t\t\t"`MyGetLocale 'ok'`"\n"
 	done
