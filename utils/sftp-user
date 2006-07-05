@@ -27,7 +27,7 @@ doesntexist="Sorry but this user doesn't exist !"
 ##########################
 ## User sftp-user verif ##
 ##########################
-name=`id -un $nameuser &>1`
+name=`id -un $nameuser 2&>1`
 encPass='*'
 
 vrf_create() {
