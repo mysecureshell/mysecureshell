@@ -42,6 +42,7 @@ Dans le repertoire utils, il existe l'utilitaire suivant:
 - sftp-kill : permet de deconnecter un ou plusieurs utilisateurs juste en passant
 		le nom de l'utilisateur ou all en argument
 - sftp-state : permet d'activer ou de desactiver le serveur sftp
+- sftp-user : permet de creer / supprimer des comptes MySecureShell
 - sftp-verif : permet de tester et corriger MySecureShell quand vous rencontrez un probleme
 
 
@@ -80,6 +81,26 @@ Forum:       http://mysecureshell.free.fr
 
 HISTORIQUE:
 -----------
+0.9 (juillet 2006) :
+	+ ajout du tag : CanRemoveDir, CanRemoveFile
+	+ UTF-8 actif sur le protocol SFTP v3 (evite des erreurs sous FileZilla)
+	+ ajout du repertoire courant dans le sftp-who
+	+ ajout du parametre --version (permet de voir la version mais aussi si le support UTF-8 est actif)
+	+ ajout de nouvelle couleur pour le fichier de log
+	~ fusion des executables sftp-server_MSS et MySecureShell (evite les problemes des mise a jour OpenSSH)
+	~ meilleur support des fonctions de securite sous Unix
+	~ amelioration de l'administration a distance
+	~ amelioration du sftp-kill
+	~ possibilite de ne pas compiler l'administration a distance
+	~ amelioration du support de l'UTF-8 (marche sur tout les linux et unix)
+	= fixe un bug lors d'un trop grand nombre de fichiers / repertoires ouvert
+	= fixe des bugs avec les accomptes en mode administrateur
+	= fixe un bug quand l'option VirtualChroot est actif en mode administration a distance
+	= fixe un bug sur la restriction DefaultRights
+	= fixe le script d'installation sur FreeBSD 6 et Solaris 9 (merci Kyle)
+	= fixe un bug sur les creations / ouvertures des fichiers
+	= fixe un bug sur les clients fantomes
+
 0.8 (mars 2006) :
 	+ ajout des tags : GMTTime, Charset
 	+ support de l'utf-8 pour les noms des fichiers / repertoires

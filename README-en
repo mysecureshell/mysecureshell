@@ -72,6 +72,27 @@ Forum:       http://mysecureshell.free.fr
 
 CHANGE LOG:
 -----------
+
+0.9 (jully 2006) :
+        + add tag : CanRemoveDir, CanRemoveFile
+        + UTF-8 is enable for protocol SFTP v3 (improve support for  FileZilla)
+        + add current directory for user in the sftp-who
+        + add argument --version (to get current version of MySecureShell and to known if UTF-8 is enable at compilation)
+        + add new color for log file
+        ~ fusion of binaries sftp-server_MSS and MySecureShell (fix bug with update of OpenSSH)
+        ~ improve support of security for Unix
+        ~ improve remote administration
+        ~ improve sftp-kill
+        ~ add the possibility to not compile remote administration
+        ~ improve support of UTF-8 (works for all Linux / Unix)
+        = fix bug when too many files / directories are open
+        = fix bugs on mode administrator
+        = fix bug when VirtualChroot is enable for an remote administrator
+        = fix bug on tag DefaultRights
+        = fix installation script for FreeBSD 6 and Solaris 9 (thanks Kyle)
+        = fix bug on creation for files
+        = fix bug on ghost clients
+
 0.8 (march 2006) :
         + add tags : GMTTime, Charset
         + support of utf-8 for files / directories
