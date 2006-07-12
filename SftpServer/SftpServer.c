@@ -40,14 +40,19 @@ void	ResolvPath(char *path, char *dst, int dstMaxSize);
 
 static void	end_sftp()
 {
-  if (cVersion != SSH2_ADMIN_VERSION)
-    mylog_printf(MYLOG_CONNECTION, "[%s][%s]Quit.", gl_var->who->user, gl_var->who->ip);
-  mylog_close();
-  gl_var->who->status = SFTPWHO_EMPTY;
-  SftpWhoRelaseStruct();
-  regfree(&gl_var->hide_files_regexp);
-  free(gl_var);
-  setCharset(0);
+  if (gl_var)
+    {
+      if (cVersion != SSH2_ADMIN_VERSION)
+	mylog_printf(MYLOG_CONNECTION, "[%s][%s]Quit.", gl_var->who->user, gl_var->who->ip);
+      mylog_close();
+      gl_var->who->status = SFTPWHO_EMPTY;
+      SftpWhoRelaseStruct();
+      gl_var->who = 0;
+      regfree(&gl_var->hide_files_regexp);
+      //free(gl_var);
+      gl_var = 0;
+      setCharset(0);
+    }
   exit(0);
 }
 
