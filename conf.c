@@ -49,7 +49,7 @@ typedef struct	sConf
   char		show;
 }		tConf;
 
-static tConf	confParams[] =
+static const tConf	confParams[] =
   {
     { "GlobalDownload", CONF_IS_SPEED, CONF_SHOW },
     { "GlobalUpload", CONF_IS_SPEED, CONF_SHOW },
