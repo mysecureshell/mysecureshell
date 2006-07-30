@@ -127,7 +127,7 @@ int	CheckRules(char *pwd, char operation, struct stat *st, int flags)
 			     || (operation == RULES_FILE && (flags & O_RDONLY))))
     {
       if ((str = strrchr(pwd, '/')))
-	str++;
+	str = &str[1];
       else //should not exist...
 	str = pwd;
       if (regexec(&gl_var->hide_files_regexp, str, 0, 0, 0) != REG_NOMATCH)
@@ -153,13 +153,12 @@ int	CheckRules(char *pwd, char operation, struct stat *st, int flags)
 			      || (operation == RULES_DIRECTORY && (flags & O_WRONLY))))
     {
       if ((str = strrchr(pwd, '/')))
-	str++;
+	str = &str[1];
       else
 	str = pwd;
       if (regexec(&gl_var->deny_filter_regexp, str, 0, 0, 0) != REG_NOMATCH)
 	return SSH2_FX_PERMISSION_DENIED;
     }
-  
   //This code should always be at the end of this function
   if ((gl_var->who->status & SFTPWHO_HIDE_NO_ACESS) && operation == RULES_LISTING && st)
     {
