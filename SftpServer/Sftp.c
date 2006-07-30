@@ -378,7 +378,7 @@ void	DoRead()
     len = sizeof(buf);
   if ((fd = HandleGetFd(h, &fileIsText)) >= 0)
     {
-      if (lseek(fd, off, SEEK_SET) < 0)
+      if (!fileIsText && lseek(fd, off, SEEK_SET) < 0)
 	status = errnoToPortable(errno);
       else
 	{ 
@@ -425,7 +425,7 @@ void	DoWrite()
   data = BufferGetData(bIn, &len);
   if (fd >= 0)
     {
-      if (lseek(fd, off, SEEK_SET) < 0)
+      if (!fileIsText && lseek(fd, off, SEEK_SET) < 0)
 	status = errnoToPortable(errno);
       else
 	{
@@ -716,8 +716,7 @@ void	DoRename()
 	tryRename:
 	  if (link(oldPath, newPath) == -1)
 	    {
-	      if (errno == EEXIST &&
-		  (flags & SSH5_FXP_RENAME_OVERWRITE || flags & SSH5_FXP_RENAME_ATOMIC))
+	      if (errno == EEXIST && (flags & SSH5_FXP_RENAME_OVERWRITE))
 		{
 		  if (!unlink(newPath))
 		    goto tryRename;
