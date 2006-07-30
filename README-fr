@@ -93,6 +93,7 @@ HISTORIQUE:
 	~ amelioration du sftp-kill
 	~ possibilite de ne pas compiler l'administration a distance
 	~ amelioration du support de l'UTF-8 (marche sur tout les linux et unix)
+	= fixe un bug lors de la lecture / ecriture d'un fichier texte
 	= fixe un bug lors d'un trop grand nombre de fichiers / repertoires ouvert
 	= fixe des bugs avec les accomptes en mode administrateur
 	= fixe un bug quand l'option VirtualChroot est actif en mode administration a distance

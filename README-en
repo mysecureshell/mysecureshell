@@ -85,6 +85,7 @@ CHANGE LOG:
         ~ improve sftp-kill
         ~ add the possibility to not compile remote administration
         ~ improve support of UTF-8 (works for all Linux / Unix)
+	= fix bug when read / write in text file
         = fix bug when too many files / directories are open
         = fix bugs on mode administrator
         = fix bug when VirtualChroot is enable for an remote administrator
