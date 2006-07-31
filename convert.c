@@ -25,6 +25,18 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <string.h>
 #include "conf.h"
 
+char	*convert_to_path(char *path)
+{
+  int	len = strlen(path);
+
+  if (len > 0)
+    {
+      if (path[len - 1] == '/' || path[len - 1] == '\\')
+	path[len - 1] = 0;
+    }
+  return (path);
+}
+
 char	*convert_str_with_resolv_env_to_str(char *str)
 {
   char	*env_var, *env_str, *new;

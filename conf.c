@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define CONF_IS_EMPTY			0
 #define CONF_IS_STRING			1
 #define CONF_IS_STRING_MAYBE_EMPTY	2
-#define CONF_IS_STRING_RESOLVE_ENV	3
+#define CONF_IS_PATH_RESOLVE_ENV	3
 #define CONF_IS_INT			4
 #define CONF_IS_BOOLEAN			5
 #define CONF_IS_SPEED			6
@@ -60,7 +60,7 @@ static const tConf	confParams[] =
     { "LimitConnection", CONF_IS_INT, CONF_SHOW },
     { "LimitConnectionByUser", CONF_IS_INT, CONF_SHOW },
     { "LimitConnectionByIP", CONF_IS_INT, CONF_SHOW },
-    { "Home", CONF_IS_STRING_RESOLVE_ENV, CONF_SHOW },
+    { "Home", CONF_IS_PATH_RESOLVE_ENV, CONF_SHOW },
     { "Shell", CONF_IS_STRING, CONF_SHOW },
     { "ResolveIP", CONF_IS_BOOLEAN, CONF_SHOW },
     { "IdleTimeOut", CONF_IS_INT, CONF_SHOW },
@@ -130,7 +130,7 @@ void	load_config(char verbose)
 	  switch (confParams[i].type)
 	    {
 	    case CONF_IS_STRING:
-	    case CONF_IS_STRING_RESOLVE_ENV:
+	    case CONF_IS_PATH_RESOLVE_ENV:
 	      printf("%s", (char *)hash_get(confParams[i].name));
 	      break;
 	    case CONF_IS_STRING_MAYBE_EMPTY:
@@ -235,8 +235,12 @@ int	load_config_file(char *file, char verbose, int max_recursive_left)
 				  case CONF_IS_STRING_MAYBE_EMPTY:
 				    hash_set(tb[0], (void *)(tb[1] ? strdup(tb[1]) : 0));
 				    break;
-				  case CONF_IS_STRING_RESOLVE_ENV:
-				    hash_set(tb[0], (void *)convert_str_with_resolv_env_to_str(tb[1]));
+				  case CONF_IS_PATH_RESOLVE_ENV:
+				    {
+				      char	*path = convert_str_with_resolv_env_to_str(tb[1]);
+
+				      hash_set(tb[0], (void *)convert_to_path(path));
+				    }
 				    break;
 				  case CONF_IS_INT:
 				    hash_set_int(tb[0], atoi(tb[1]));
