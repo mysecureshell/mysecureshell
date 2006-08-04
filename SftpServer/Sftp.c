@@ -709,57 +709,20 @@ void	DoRename()
   if ((status = CheckRules(oldPath, RULES_RMFILE, 0, 0)) == SSH2_FX_OK
       && (status = CheckRules(newPath, RULES_FILE, 0, O_WRONLY)) == SSH2_FX_OK)
     {
-      if (lstat(oldPath, &sb) == -1)
-	status = errnoToPortable(errno);
-      else if (S_ISREG(sb.st_mode))
-	{
-	tryRename:
-	  if (link(oldPath, newPath) == -1)
-	    {
-	      if (errno == EEXIST && (flags & SSH5_FXP_RENAME_OVERWRITE))
-		{
-		  if (!unlink(newPath))
-		    goto tryRename;
-		}
-	      if (errno == EOPNOTSUPP
-#ifdef LINK_OPNOTSUPP_ERRNO
-		  || errno == LINK_OPNOTSUPP_ERRNO
-#endif
-		  )
-		{
-		  struct stat	st;
-		  
-		  if (stat(newPath, &st) == -1)
-		    {
-		      if (rename(oldPath, newPath) == -1)
-			status = errnoToPortable(errno);
-		      else
-			status = SSH2_FX_OK;
-		    }
-		}
-	      else
-		{
-		  status = errnoToPortable(errno);
-		}
-	    }
-	  else if (unlink(oldPath) == -1)
-	    {
-	      status = errnoToPortable(errno);
-	      unlink(newPath);
-	    }
-	  else
-	    status = SSH2_FX_OK;
-	}
-      else if (stat(newPath, &sb) == -1)
-	{
-	  if (rename(oldPath, newPath) == -1)
+      if (!stat(newPath, &sb) && (flags & SSH5_FXP_RENAME_OVERWRITE))
+	if (unlink(newPath) == -1)
+	  {
 	    status = errnoToPortable(errno);
-	  else
-	    status = SSH2_FX_OK;
-	}
+	    goto dont_rename;
+	  }
+      if (rename(oldPath, newPath) == -1)
+	status = errnoToPortable(errno);
+      else
+	status = SSH2_FX_OK;
+    dont_rename:
       mylog_printf(MYLOG_WARNING, "[%s][%s]Try to rename '%s' -> '%s' : %s",
-		 gl_var->who->user, gl_var->who->ip, oldPath, newPath,
-		 (status != SSH2_FX_OK ? strerror(errno) : "success"));
+		   gl_var->who->user, gl_var->who->ip, oldPath, newPath,
+		   (status != SSH2_FX_OK ? strerror(errno) : "success"));
     }
   else
     status = SSH2_FX_PERMISSION_DENIED;
