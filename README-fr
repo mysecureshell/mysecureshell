@@ -81,12 +81,13 @@ Forum:       http://mysecureshell.free.fr
 
 HISTORIQUE:
 -----------
-0.9 (juillet 2006) :
+0.9 (aout 2006) :
 	+ ajout du tag : CanRemoveDir, CanRemoveFile
 	+ UTF-8 actif sur le protocol SFTP v3 (evite des erreurs sous FileZilla)
 	+ ajout du repertoire courant dans le sftp-who
 	+ ajout du parametre --version (permet de voir la version mais aussi si le support UTF-8 est actif)
 	+ ajout de nouvelle couleur pour le fichier de log
+	+ ajout des pages de man (francais et anglais)
 	~ fusion des executables sftp-server_MSS et MySecureShell (evite les problemes des mise a jour OpenSSH)
 	~ meilleur support des fonctions de securite sous Unix
 	~ amelioration de l'administration a distance

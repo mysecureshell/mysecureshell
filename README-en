@@ -73,12 +73,13 @@ Forum:       http://mysecureshell.free.fr
 CHANGE LOG:
 -----------
 
-0.9 (jully 2006) :
+0.9 (august 2006) :
         + add tag : CanRemoveDir, CanRemoveFile
         + UTF-8 is enable for protocol SFTP v3 (improve support for  FileZilla)
         + add current directory for user in the sftp-who
         + add argument --version (to get current version of MySecureShell and to known if UTF-8 is enable at compilation)
         + add new color for log file
+	+ add man pages (french and english)
         ~ fusion of binaries sftp-server_MSS and MySecureShell (fix bug with update of OpenSSH)
         ~ improve support of security for Unix
         ~ improve remote administration

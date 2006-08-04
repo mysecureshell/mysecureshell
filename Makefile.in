@@ -35,12 +35,12 @@ OBJ3	= $(SRC3:.c=.o)
 
 FILE	= utils/sftp-user utils/sftp-kill utils/sftp-verif	\
 	  README-fr README-en install.sh locales_en locales_fr	\
-	  uninstaller.sh sftp_config LICENSE
+	  uninstaller.sh sftp_config LICENSE man
 FILESRC	= $(DEST)/sftp_config $(DEST)/utils/sftp-kill $(DEST)/LICENSE	\
 	  $(DEST)/README-fr $(DEST)/README-en $(DEST)/Makefile.in	\
 	  $(DEST)/config.h.in $(DEST)/configure $(DEST)/install.sh.in	\
 	  $(DEST)/uninstaller.sh.in $(DEST)/locales_en $(DEST)/locales_fr\
-	  $(DEST)/utils/sftp-verif.in $(DEST)/utils/sftp-user
+	  $(DEST)/utils/sftp-verif.in $(DEST)/utils/sftp-user $(DEST)/man
 CFLAGS	= -Wall -Wunused -Wpointer-arith -Wno-uninitialized -O2 -ISftpServer
 DEBUG	= 0
 
