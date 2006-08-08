@@ -9,11 +9,7 @@ AC_CONFIG_HEADER(config.h)
 AC_PROG_CC
 AC_PATH_PROG(SED, sed)
 AC_REQUIRE_CPP
-
-# Checks for libraries.
 AC_GNU_SOURCE
-AC_CHECK_LIB([nsl], [gethostbyaddr])
-AC_CHECK_LIB([iconv], [libiconv_open libiconv_close iconv])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -32,15 +28,9 @@ AC_CHECK_HEADERS([arpa/inet.h fcntl.h netdb.h netinet/in.h stdlib.h string.h str
 
 test -e "/usr/include/linux/ext2_fs.h" && AC_DEFINE(HAVE_LINUX_EXT2_FS_H, 1, Etcdir)
 
-# Checks for library functions.
-AC_FUNC_CLOSEDIR_VOID
-AC_FUNC_FORK
-AC_FUNC_STAT
-AC_CHECK_FUNCS([endgrent gethostbyaddr gethostbyname strcasecmp strchr strdup strerror strrchr strstr statfs getgrouplist strlcpy strlcat iconv_open iconv_close iconv])
-
 #Help
 AC_ARG_WITH(conffile,
-	[  --with-conffile=xxx      Change config file (default: /etc/ssh/sftp_config)],
+	[  --with-conffile=xxx     Change config file (default: /etc/ssh/sftp_config)],
 	[
 		if test "x$withval" != "$no" ; then
 		   MSS_CONF=$withval
@@ -63,7 +53,7 @@ AC_ARG_WITH(logcolor,
                 fi
         ])
 AC_ARG_WITH(shutfile,
-	[  --with-shutfile=xxx      Change shut file (default: /etc/sftp.shut)],
+	[  --with-shutfile=xxx     Change shut file (default: /etc/sftp.shut)],
 	[
 		if test "x$withval" != "$no" ; then
 		   MSS_SHUT=$withval
@@ -71,13 +61,38 @@ AC_ARG_WITH(shutfile,
         ])
 MSS_ADMIN=yes
 AC_ARG_WITH(admin,
-	[  --with-admin=xxx      Disable remote admin (default: yes)],
+	[  --with-admin=xxx        Disable remote admin (default: yes)],
 	[
 		if test "x$withval" != "$yes" ; then
 		   MSS_ADMIN=$withval
 		fi
         ])
+AC_ARG_WITH(libiconv,
+	[  --with-libiconv=PATH    Use libiconv in PATH],
+	[
+		if test "x$withval" != "$no" ; then
+		   if test -d "$withval/lib"; then
+		      LDFLAGS="-L${withval}/lib ${LDFLAGS}"
+		   else
+		      LDFLAGS="-L${withval} ${LDFLAGS}"
+		   fi
+		   if test -d "$withval/include"; then
+		      CPPFLAGS="-I${withval}/include ${CPPFLAGS}"
+		   else
+		      CPPFLAGS="-I${withval} ${CPPFLAGS}"
+		   fi
+		fi
+	])
 
+# Checks for library functions.
+AC_FUNC_CLOSEDIR_VOID
+AC_FUNC_FORK
+AC_FUNC_STAT
+AC_CHECK_FUNCS([endgrent gethostbyaddr gethostbyname strcasecmp strchr strdup strerror strrchr strstr statfs getgrouplist strlcpy strlcat iconv_open iconv_close iconv])
+
+# Checks for libraries.
+AC_CHECK_LIB([nsl], [gethostbyaddr])
+AC_CHECK_LIB([iconv], [libiconv_open libiconv_close iconv])
 
 #Own defines
 test "$prefix" = "NONE" && prefix=
