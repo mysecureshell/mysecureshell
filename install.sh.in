@@ -329,6 +329,19 @@ if [ $rep8 = 'y' ] ; then
 	fi
 fi
 
+## Mans
+
+if [ -d ./man ] ; then
+        cp ./man/en/man8/* /usr/share/man/man8
+        if [ -d /usr/share/man/fr ] ; then
+                cp ./man/fr/man8/* /usr/share/man/fr/man8
+        fi
+        sftpinst=$sftpinst`MyGetLocale 'mans'`"\t\t\t\t"`MyGetLocale 'ok'`"\n"
+else
+        sftpinst=$sftpinst`MyGetLocale 'mans'`"\t\t\t\t"`MyGetLocale 'failed'`"\n"
+fi
+
+
 # End of Installation
 
 # Only needed for version < 0.6 --> 0.8 & +

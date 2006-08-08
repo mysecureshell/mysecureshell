@@ -45,3 +45,4 @@ uninst?=Etes vous sur de vouloir desinstaller MySecureShell ? (y,N)
 delconf?=Voulez vous supprimer votre fichier de configuration aussi ? (y/N)
 mssuninstok!=MySecureShell a ete desinstaller avec succes !
 mssuninstfail=La desinstallation de MySecureShell a echouee !
+mans=Installation des Manuels
