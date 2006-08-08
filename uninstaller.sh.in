@@ -61,6 +61,11 @@ if [ $ans = "y" ] ; then
 		break
 	fi
 
+# Delete mans
+	test -d /usr/share/man/man8 && cd /usr/share/man/man8 && rm sftp-admin.8 sftp-kill.8 sftp-state.8 sftp-verif.8
+	test -d /usr/share/man/en/man8 && cd /usr/share/man/man8 && rm sftp-admin.8 sftp-kill.8 sftp-state.8 sftp-verif.8
+	test -d /usr/share/man/fr/man8 && cd /usr/share/man/man8 && rm sftp-admin.8 sftp-kill.8 sftp-state.8 sftp-verif.8
+
 # Delete configuration ?
 	MyGetLocale 'delconf?'
 	read ans2
