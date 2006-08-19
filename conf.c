@@ -151,11 +151,15 @@ void	load_config(char verbose)
 	      printf("%i bytes/s", hash_get_int(confParams[i].name));
 	      break;
 	    case CONF_IS_MODE:
+	      vInt = hash_get_int(confParams[i].name);
+	      if (vInt == 0)
+		printf("{default}");
+	      else
+		printf("%i", vInt);
+	      break;
 	    case CONF_IS_TIME:
 	      printf("%is", hash_get_int(confParams[i].name));
 	      break;
-	    default:
-	      printf("*****************");
 	    }
 	  printf("\n");
 	}
