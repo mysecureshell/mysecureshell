@@ -43,7 +43,12 @@ static void	showVersion()
 	       ""
 #endif
 	       );
-  printf(" (UTF-8 support: %s)\n",
+  printf(" (ACL support: %s, UTF-8 support: %s)\n",
+#if(HAVE_LIBACL)
+	 "yes",
+#else
+	 "no",
+#endif
 #if(HAVE_ICONV||HAVE_LIBICONV)
 	 "yes"
 #else
@@ -108,51 +113,67 @@ int	main(int ac, char **av, char **env)
   if (is_sftp)
     {
       tGlobal	*params;
-      char	*hide_files, *deny_filter;
+      char	*hide_files, *deny_filter, *hostname;
       int	max, fd, sftp_version;
 
+      hostname = get_ip(hash_get_int("ResolveIP"));
+      params = malloc(sizeof(*params));
+      memset(params, 0, sizeof(*params));
+      params->who = SftpWhoGetStruct(1);
+      params->who->time_begin = time(0);
+      params->who->pid = (unsigned int)getpid();
+      snprintf(params->who->home, sizeof(params->who->home), "%s", (char *)hash_get("Home"));
+      snprintf(params->who->user, sizeof(params->who->user), "%s", (char *)hash_get("User"));
+      snprintf(params->who->ip, sizeof(params->who->ip), "%s", hostname);
       max = hash_get_int("LimitConnectionByUser");
-      if (max > 0 && count_program_for_uid(getuid(), (char *)hash_get("User")) >= max)
+      if (max > 0 && count_program_for_uid((char *)hash_get("User")) > max)
 	{//too many connection for the account
+	  params->who->status = SFTPWHO_EMPTY;
+	  SftpWhoRelaseStruct();
 	  delete_hash();
 	  exit(10);
 	}
       max = hash_get_int("LimitConnectionByIP");
-      if (max > 0 && count_program_for_ip(getuid(), get_ip(hash_get_int("ResolveIP"))) >= max)
+      if (max > 0 && count_program_for_ip(hostname) > max)
 	{//too many connection for this IP
+	  params->who->status = SFTPWHO_EMPTY;
+	  SftpWhoRelaseStruct();
 	  delete_hash();
 	  exit(11);
 	}
       max = hash_get_int("LimitConnection");
-      if (max > 0 && count_program_for_uid(-1, 0) >= max)
+      if (max > 0 && count_program_for_uid(0) > max)
 	{//too many connection for the server
+	  params->who->status = SFTPWHO_EMPTY;
+	  SftpWhoRelaseStruct();
 	  delete_hash();
 	  exit(12);
 	}
       if (hash_get_int("DisableAccount"))
 	{//account is temporary disable
+	  params->who->status = SFTPWHO_EMPTY;
+	  SftpWhoRelaseStruct();
 	  delete_hash();
 	  exit(13);
 	}
       //check if the server is up ans user is not admin
-      if ((fd = open(SHUTDOWN_FILE, O_RDONLY)) >= 0 && !(hash_get_int("IsAdmin")))
+      if ((fd = open(SHUTDOWN_FILE, O_RDONLY)) >= 0)
 	//server is down
 	{
-	  delete_hash();
 	  close(fd);
-	  exit(0);
+	  if (!hash_get_int("IsAdmin"))
+	    {
+	      params->who->status = SFTPWHO_EMPTY;
+	      SftpWhoRelaseStruct();
+	      delete_hash();
+	      exit(0);
+	    }
 	}
-      params = malloc(sizeof(*params));
-      memset(params, 0, sizeof(*params));
-      mylog_open(MSS_LOG);
-      params->who = SftpWhoGetStruct(1);
-      params->who->time_begin = time(0);
-      params->who->pid = (unsigned int)getpid();
 
       if ((hide_files = (char *)hash_get("HideFiles"))) hide_files = strdup(hide_files);
       if ((deny_filter = (char *)hash_get("PathDenyFilter"))) deny_filter = strdup(deny_filter);
 
-      params->who->status =
+      params->who->status |=
 	(hash_get_int("StayAtHome") ? SFTPWHO_STAY_AT_HOME : 0) +
 	(hash_get_int("VirtualChroot") ? SFTPWHO_VIRTUAL_CHROOT : 0) +
 	(hash_get_int("ResolveIP") ? SFTPWHO_RESOLVE_IP : 0) +
@@ -168,9 +189,6 @@ int	main(int ac, char **av, char **env)
 	(hash_get_int_with_default("CanRemoveDir", 1) ? SFTPWHO_CAN_RMDIR : 0) +
 	(hash_get_int_with_default("CanRemoveFile", 1) ? SFTPWHO_CAN_RMFILE : 0)
 	;
-      snprintf(params->who->home, sizeof(params->who->home), "%s", (char *)hash_get("Home"));
-      snprintf(params->who->user, sizeof(params->who->user), "%s", (char *)hash_get("User"));
-      snprintf(params->who->ip, sizeof(params->who->ip), "%s", get_ip(hash_get_int("ResolveIP")));
       _sftpglobal->download_max = hash_get_int("GlobalDownload");
       _sftpglobal->upload_max = hash_get_int("GlobalUpload");
       if (hash_get_int("Download"))
@@ -206,13 +224,13 @@ int	main(int ac, char **av, char **env)
 	{
 	  int	r;
 
-	  if (!(r = regcomp(&params->hide_files_regexp, deny_filter, REG_EXTENDED | REG_NOSUB | REG_NEWLINE)))
-            params->hide_files = strdup(deny_filter);
+	  if (!(r = regcomp(&params->deny_filter_regexp, deny_filter, REG_EXTENDED | REG_NOSUB | REG_NEWLINE)))
+            params->deny_filter = strdup(deny_filter);
           else
             {
               char      buffer[256];
 
-              regerror(r, &params->hide_files_regexp, buffer, sizeof(buffer));
+              regerror(r, &params->deny_filter_regexp, buffer, sizeof(buffer));
               mylog_printf(MYLOG_ERROR, "[%s][%s]Couldn't compile regex : %s",
 			   params->who->user, params->who->ip, buffer);
             }
@@ -239,6 +257,12 @@ int	main(int ac, char **av, char **env)
       if (hash_get("GMTTime"))
 	  mylog_time(atoi((char *)hash_get("GMTTime")));
       delete_hash();
+      if (deny_filter)
+	free(deny_filter);
+      if (hide_files)
+	free(hide_files);
+      if (hostname)
+	free(hostname);
       return (SftpMain(params, sftp_version));
     }
   else

@@ -28,6 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <signal.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <sys/select.h>
 
 #ifdef HAVE_SYS_STATVFS_H
@@ -57,6 +58,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Sftp.h"
 #include "Encoding.h"
 #include "Admin.h"
+#include "SftpWho.h"
 
 #define CONN_INIT	0
 #define CONN_SFTP	1
@@ -500,7 +502,7 @@ void	DoStat(int (*f_stat)(const char *, struct stat *))
 	  StatToAttributes(&st, &a, path);
 	  if (cVersion >= 4)
 	    a.flags = flags;
-	  SendAttributes(bOut, id, &a);
+	  SendAttributes(bOut, id, &a, path);
 	}
     }
   else
@@ -529,10 +531,12 @@ void	DoFStat()
 	SendStatus(bOut, id, errnoToPortable(errno));
       else
 	{
-	  StatToAttributes(&st, &a, HandleGetPath(fh));
+	  char	*path = HandleGetPath(fh);
+
+	  StatToAttributes(&st, &a, path);
 	  if (cVersion >= 4)
 	    a.flags = flags;
-	  SendAttributes(bOut, id, &a);
+	  SendAttributes(bOut, id, &a, path);
 	}
       DEBUG((MYLOG_DEBUG, "[DoFStat]fd:'%i' -> '%i'", fd, r));
     }
@@ -895,11 +899,11 @@ int			SftpMain(tGlobal *params, int sftpProtocol)
   fd_set		fdR, fdW;
   int			len, ret;
 
+  mylog_open(MSS_LOG);
   bIn = BufferNew();
   bOut = BufferNew();
   HandleInit();
   parse_conf(params, sftpProtocol);
-
   SET_TIMEOUT(tm, 1, 0);
   for (;;)
     {
@@ -992,8 +996,7 @@ int			SftpMain(tGlobal *params, int sftpProtocol)
 	  if (FD_ISSET(1, &fdW))
 	    {
 	      int	len = bOut->length - bOut->read;
-	      
-	      //DEBUG((MYLOG_DEBUG, "PID:%i Down [%i:%i:%i - %i:%i]", getpid(), gl_var->download_current, gl_var->download_max, gl_var->who->download_max,_sftpglobal->download_by_client, _sftpglobal->download_max));
+
 	      if (gl_var->download_max)
 		len = len < (gl_var->download_max - gl_var->download_current) ?
 		  len : (gl_var->download_max - gl_var->download_current);
