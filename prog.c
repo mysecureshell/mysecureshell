@@ -29,36 +29,34 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "prog.h"
 #include "SftpServer/SftpWho.h"
 
-int		count_program_for_uid(int uid, char *login)
+int		count_program_for_uid(char *login)
 {
   t_sftpwho	*who;
   int		i, nb;
 
   nb = 0;
-  if ((who = SftpWhoGetStruct(-1)))
+  if ((who = SftWhoGetAllStructs()))
     {
       for (i = 0; i < SFTPWHO_MAXCLIENT; i++)
 	if ((who[i].status & SFTPWHO_STATUS_MASK) != SFTPWHO_EMPTY)
 	  if (!login || !strcmp(who[i].user, login))
 	    nb++;
-      SftpWhoRelaseStruct();
     }
   return (nb);
 }
 
-int		count_program_for_ip(int uid, char *host)
+int		count_program_for_ip(char *host)
 {
   t_sftpwho	*who;
   int		i, nb;
 
   nb = 0;
-  if ((who = SftpWhoGetStruct(-1)))
+  if ((who = SftWhoGetAllStructs()))
     {
       for (i = 0; i < SFTPWHO_MAXCLIENT; i++)
 	if ((who[i].status & SFTPWHO_STATUS_MASK) != SFTPWHO_EMPTY)
 	  if (!host || !strcmp(who[i].ip, host))
 	    nb++;
-      SftpWhoRelaseStruct();
     }
   return (nb);
 }
