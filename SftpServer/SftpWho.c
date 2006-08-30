@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <unistd.h>
 
 static char	*_shmfile = "/dev/null";
-static int	_shmkey = 0x0786;
+static int	_shmkey = 0x0787;
 
 typedef struct		s_shm
 {
@@ -155,7 +155,7 @@ int		SftpWhoCleanBuggedClient()
 	    else if ((_sftpwho_ptr[i].status & SFTPWHO_STATUS_MASK) == SFTPWHO_PUT)
 	      nbup++;
 	  }
-      }
+      }  
   if (nbdown > 0)
     _sftpglobal->download_by_client = _sftpglobal->download_max / nbdown;
   else
