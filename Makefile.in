@@ -13,7 +13,8 @@ SRC	= main.c string.c	\
 	  SftpServer/Handle.c SftpServer/Send.c		\
 	  SftpServer/Sftp.c SftpServer/Util.c		\
 	  SftpServer/Log.c SftpServer/Encoding.c	\
-	  SftpServer/Admin.c SftpServer/SftpWho.c
+	  SftpServer/Admin.c SftpServer/SftpWho.c	\
+	  SftpServer/SftpExt.c SftpServer/SftpServer.c
 
 OBJ	= $(SRC:.c=.o)
 
