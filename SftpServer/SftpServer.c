@@ -17,25 +17,24 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
+#include <errno.h>
+#include <fcntl.h>
 #include <signal.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include "Defines.h"
+#include "Encoding.h"
 #include "Log.h"
-
+#include "Sftp.h"
+#include "SftpWho.h"
 
 tGlobal	*gl_var = 0;
 
 #include "Access.c"
 #include "GetUsersInfos.h"
 #include "GetUsersInfos.c"
-
-
-void	DoInitUser();
-int	CheckRules(char *pwd, char operation, struct stat *st, int flags);
-void	ChangeRights(struct stat *st);
-int	CheckRulesAboutMaxFiles();
-void	ResolvPath(char *path, char *dst, int dstMaxSize);
-
-
-#define	SET_TIMEOUT(_TM, _TSEC, _TUSEC)		_TM .tv_sec = _TSEC; _TM .tv_usec = _TUSEC
+#include "SftpServer.h"
 
 static void	end_sftp()
 {
@@ -66,7 +65,7 @@ static void	reopen_log_file(int signal)
   mylog_open(MSS_LOG);
 }
 
-static void	parse_conf(tGlobal *params, int sftpProtocol)
+void	ParseConf(tGlobal *params, int sftpProtocol)
 {
   gl_var = params;
   atexit(end_sftp);
@@ -109,13 +108,6 @@ void	DoInitUser()
 	}
     }
 }
-
-#define	RULES_NONE		0
-#define	RULES_FILE		1
-#define	RULES_DIRECTORY		2
-#define RULES_LISTING		3
-#define	RULES_RMFILE		4
-#define	RULES_RMDIRECTORY	5
 
 int	CheckRules(char *pwd, char operation, struct stat *st, int flags)
 {

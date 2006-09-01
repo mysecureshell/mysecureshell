@@ -18,7 +18,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "../config.h"
-#include "Defines.h"
 #include <errno.h>
 #include <dirent.h>
 #include <fcntl.h>
@@ -31,18 +30,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <time.h>
 #include <sys/select.h>
 
-#ifdef HAVE_SYS_STATVFS_H
-#include <sys/statvfs.h>
-#define STATFS	statvfs
-#endif
-
-#ifdef HAVE_SYS_STATFS_H
-#include <sys/statfs.h>
-#ifndef STATFS
-#define STATFS  statfs
-#endif
-#endif
-
 #ifdef HAVE_SYS_PARAM_H
 #include <sys/param.h>
 #endif
@@ -51,14 +38,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <sys/mount.h>
 #endif
 
+#include "Admin.h"
 #include "Encode.h"
+#include "Encoding.h"
 #include "Handle.h"
-#include "Util.h"
+#include "Log.h"
 #include "Send.h"
 #include "Sftp.h"
-#include "Encoding.h"
-#include "Admin.h"
+#include "SftpExt.h"
+#include "SftpServer.h"
 #include "SftpWho.h"
+#include "Util.h"
 
 #define CONN_INIT	0
 #define CONN_SFTP	1
@@ -68,8 +58,6 @@ tBuffer	*bIn = 0;
 tBuffer	*bOut = 0;
 static char	connectionStatus = CONN_INIT;
 int		cVersion = SSH2_FILEXFER_VERSION;
-
-#include "SftpServer.c"
 
 
 void	DoInit()
@@ -774,37 +762,9 @@ void	DoExtended()
   id = BufferGetInt32(bIn);
   request = BufferGetString(bIn);
   DEBUG((MYLOG_DEBUG, "[DoExtended]request:'%s'", request));
-#ifdef STATFS
+#ifdef SUPPORT_EXT_SPACE
   if (!strcmp(request, "space-available"))
-    {
-      struct STATFS	stfs;
-      char		*path;
-      int		status;
-
-      path = convertFromUtf8(BufferGetString(bIn), 1);
-      if ((status = CheckRules(path, RULES_DIRECTORY, 0, O_RDONLY)) == SSH2_FX_OK)
-	{
-	  if (!STATFS(path, &stfs))
-	    {
-	      tBuffer       *b;
-	      
-	      b = BufferNew();
-	      BufferPutInt8(b, SSH2_FXP_EXTENDED_REPLY);
-	      BufferPutInt32(b, id);
-	      BufferPutInt64(b, (u_int64_t )stfs.f_blocks * (u_int64_t )stfs.f_bsize);
-	      BufferPutInt64(b, (u_int64_t )stfs.f_bfree * (u_int64_t )stfs.f_bsize);
-	      BufferPutInt64(b, 0);
-	      BufferPutInt64(b, (u_int64_t )stfs.f_bavail * (u_int64_t )stfs.f_bsize);
-	      BufferPutInt32(b, stfs.f_bsize);
-	      BufferPutPacket(bOut, b);
-	    }
-	  else
-	    SendStatus(bOut, id, errnoToPortable(errno));
-	}
-      else
-	SendStatus(bOut, id, status);
-      free(path);
-    }
+      DoExtSpace(bIn, bOut, id);
   else
 #endif
     SendStatus(bOut, id, SSH2_FX_OP_UNSUPPORTED);
@@ -903,7 +863,7 @@ int			SftpMain(tGlobal *params, int sftpProtocol)
   bIn = BufferNew();
   bOut = BufferNew();
   HandleInit();
-  parse_conf(params, sftpProtocol);
+  ParseConf(params, sftpProtocol);
   SET_TIMEOUT(tm, 1, 0);
   for (;;)
     {
