@@ -34,7 +34,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "SftpServer/Encoding.h"
 #include "SftpServer/Log.h"
 
-static void	showVersion()
+static void	showVersion(int showAll)
 {
   printf("MySecureShell is version "PACKAGE_VERSION" build on " __DATE__ "%s",
 #ifdef DODEBUG
@@ -43,18 +43,29 @@ static void	showVersion()
 	       ""
 #endif
 	       );
-  printf(" (ACL support: %s, UTF-8 support: %s)\n",
+  if (showAll)
+    {
+      printf("\n\nOptions:\n  ACL support: "
 #if(HAVE_LIBACL)
-	 "yes",
+	     "yes"
 #else
-	 "no",
+	     "no"
 #endif
+	     "\n  UTF-8 support: "
 #if(HAVE_ICONV||HAVE_LIBICONV)
-	 "yes"
+	     "yes"
 #else
-	 "no"
+	     "no"
 #endif
-	 );
+	     "\n\nSftp Extensions:\n"
+#ifdef MSSEXT_DISKUSAGE
+	     "  Disk Usage\n"
+#endif
+#ifdef MSSEXT_FILE_HASHING
+	     "  File Hashing\n"
+#endif
+	     );
+    }
 }
 
 static void	parse_args(int ac, char **av)
@@ -77,7 +88,7 @@ static void	parse_args(int ac, char **av)
       {
       help:
 	printf("Build:\n\t");
-	showVersion();
+	showVersion(0);
 	printf("\nUsage:\n\t%s [verbose] [options]\n\nOptions:\n", av[0]);
 	printf("\t--configtest : test the config file and show errors\n");
 	printf("\t--help       : show this screen\n");
@@ -88,7 +99,7 @@ static void	parse_args(int ac, char **av)
       }
     else if (!strcmp(av[i], "--version"))
       {
-	showVersion();
+	showVersion(1);
 	exit(0);
       }
     else if (!strcmp(av[i], "-v"))
