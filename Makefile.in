@@ -74,7 +74,7 @@ all	: $(NAME) sftpwho sftpstate sftpadmin
 $(NAME)	: $(OBJ)
 	@echo "Compile binary	[$(NAME)]"
 	@$(CC) $(LDFLAGS) -o $(NAME) $(OBJ)
-	@$(CHMOD) 711 $(NAME)
+	@$(CHMOD) 755 $(NAME)
 
 sftpwho : $(OBJ1)
 	@echo "Compile binary	[$(NAME1)]"
