@@ -17,8 +17,19 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-void		init_usersinfos();
-struct passwd	*mygetpwuid(uid_t uid);
-struct passwd	*mygetpwnam(char *login);
-struct group	*mygetgrgid(gid_t gid);
-struct group	*mygetgrnam(char *group);
+#ifndef _GETUSERSINFOS_H_
+#define _GETUSERSINFOS_H_
+
+typedef struct  s_info
+{
+  int           id;
+  char          *name;
+}               t_info;
+
+void	init_usersinfos();
+t_info	*mygetpwuid(uid_t uid);
+t_info	*mygetpwnam(char *login);
+t_info	*mygetgrgid(gid_t gid);
+t_info	*mygetgrnam(char *group);
+
+#endif //_GETUSERSINFOS_H_

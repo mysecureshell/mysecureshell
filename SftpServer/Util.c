@@ -97,22 +97,22 @@ void	StrMode(int mode, char *d)
 char		*LsFile(const char *name, const struct stat *st)
 {
   int		ulen, glen, sz = 0;
-  struct passwd	*pw;
-  struct group	*gr;
   struct tm	*ltime = localtime(&st->st_mtime);
+  t_info	*pw;
+  t_info	*gr;
   char		*user, *group;
   char		buf[1024], mode[11+1], tbuf[12+1], ubuf[11+1], gbuf[11+1];
   
   StrMode(st->st_mode, mode);
   if ((pw = mygetpwuid(st->st_uid)))
-    user = pw->pw_name;
+    user = pw->name;
   else
     {
       snprintf(ubuf, sizeof(ubuf), "%u", (u_int)st->st_uid);
       user = ubuf;
     }
   if ((gr = mygetgrgid(st->st_gid)))
-    group = gr->gr_name;
+    group = gr->name;
   else
     {
       snprintf(gbuf, sizeof(gbuf), "%u", (u_int)st->st_gid);
