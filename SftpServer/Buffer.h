@@ -22,13 +22,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Sftp.h"
 
-typedef struct		sBuffer
+typedef struct	sBuffer
 {
-	unsigned char	*data;
-	u_int32_t	length;
-	u_int32_t	read;
-	u_int32_t	size;
-}			tBuffer;
+  unsigned char	*data;
+  u_int32_t	length;
+  u_int32_t	read;
+  u_int32_t	size;
+  u_int32_t	fastClean;
+}		tBuffer;
 
 #define	DEFAULT_GROW	256
 
@@ -52,11 +53,13 @@ int		BufferGetStringAsInt(tBuffer *b);
 char		*BufferGetString(tBuffer *b);
 char		*BufferGetData(tBuffer *b, u_int32_t *size);
 
-#define BufferPutInt8FAST(_D, _INT8) (_D)->data[(_D)->length++] = _INT8;
+#define BufferSetFastClean(_D, _STATE) (_D)->fastClean = _STATE
+#define BufferEnsureFreeCapacity(_D, _INT32) { if (((_D)->length + _INT32) > (_D)->size) BufferGrow(_D, _INT32); }
+
+#define BufferPutData(_D, _DATA, _SIZE) { BufferPutInt32(_D, _SIZE); BufferPutRawData(_D, _DATA, _SIZE); }
 #define BufferPutPacket(_D, _S)	BufferPutData((_D), (_S)->data, (_S)->length)
-#define BufferEnsureFreeCapacity(_D, _INT32) if (((_D)->length + _INT32) > (_D)->size) BufferGrow(_D, _INT32);
 
-
+#define BufferPutInt8FAST(_D, _INT8) (_D)->data[(_D)->length++] = _INT8;
 #define BufferGetInt8FAST(_D) (u_int8_t )(_D)->data[(_D)->read++]
 
 #endif //_BUFFER_H_

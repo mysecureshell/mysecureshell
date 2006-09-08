@@ -31,6 +31,7 @@ tBuffer		*BufferNew()
   b->data = malloc(b->size);
   b->length = 0;
   b->read = 0;
+  b->fastClean = 0;
   return (b);
 }
 
@@ -42,8 +43,6 @@ void	BufferGrow(tBuffer *b, u_int32_t toAdd)
 
 void	BufferClean(tBuffer *b)
 {
-  int	nextSize;
-
   if (b->read > 0)
     {
       if (b->length >= b->read)
@@ -54,11 +53,16 @@ void	BufferClean(tBuffer *b)
       else
 	b->length = 0;
       b->read = 0;
-      nextSize = b->size >> 2;
-      if (b->length < nextSize && nextSize >= DEFAULT_GROW)
+      if (b->fastClean == 0)
 	{
-	  b->size = nextSize;
-	  b->data = realloc(b->data, b->size);
+	  u_int32_t	nextSize;
+
+	  nextSize = b->size >> 2;
+	  if (b->length < nextSize && nextSize >= DEFAULT_GROW)
+	    {
+	      b->size = nextSize;
+	      b->data = realloc(b->data, b->size);
+	    }
 	}
     }
 }
@@ -98,12 +102,6 @@ void	BufferPutInt64(tBuffer *b, u_int64_t nb)
   b->data[b->length++] = (nb >> 16);
   b->data[b->length++] = (nb >> 8);
   b->data[b->length++] = nb;
-}
-
-void	BufferPutData(tBuffer *b, void *data, int size)
-{
-  BufferPutInt32(b, size);
-  BufferPutRawData(b, data, size);
 }
 
 void	BufferPutRawData(tBuffer *b, void *data, int size)
@@ -226,7 +224,7 @@ char	*BufferGetData(tBuffer *b, u_int32_t *size)
 #ifdef DODEBUG
       dumpPacket(b, *size);
 #endif
-    return (0);
+      return (0);
     }
   data = (char *)(b->data + b->read);
   b->read += *size;
