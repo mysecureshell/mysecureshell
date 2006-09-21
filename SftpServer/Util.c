@@ -251,42 +251,89 @@ int	errnoToPortable(int unixErrno)
 
 char	*ExecCommand(char *cmd, int *myRet)
 {
-  char	buffer[1024], *str = 0;
+  char	*args[2];
+
+  args[0] = cmd;
+  args[1] = 0;
+  return (ExecCommandWithArgs(args, myRet, NULL, 1));
+}
+
+char	*ExecCommandWithArgs(char **args, int *myRet, char *dataInput, int shouldReturnString)
+{
+  char	buffer[1024], *str = NULL;
   pid_t	pid;
-  int	fds[2], size = 0, ret;
+  int	fdsI[2], fdsO[2], size = 0, ret;
 
   *myRet = -1;
-  if (pipe(fds) == -1)
-      return (0);
+  if (dataInput != NULL && pipe(fdsI) == -1)
+    return (NULL);
+  if (pipe(fdsO) == -1)
+    {
+      if (dataInput != NULL)
+	{
+	  close(fdsI[0]);
+	  close(fdsI[1]);
+	}
+      return (NULL);
+    }
   if (!(pid = fork()))
     {
-      char	*args[2];
-
-      dup2(fds[1], 1);
-      dup2(fds[1], 2);
-      close(fds[0]);
-      close(fds[1]);
-      args[0] = cmd;
-      args[1] = 0;
-      execv(cmd, args);
+      if (dataInput != NULL)
+	{
+	  dup2(fdsI[0], 0);
+	  close(fdsI[0]);
+	  close(fdsI[1]);
+	}
+      dup2(fdsO[1], 1);
+      dup2(fdsO[1], 2);
+      close(fdsO[0]);
+      close(fdsO[1]);
+      execv(args[0], args);
       exit (1);
     }
   else if (pid == -1)
     {
-      close(fds[0]);
-      close(fds[1]);
-      return (0);
+      if (dataInput != NULL)
+	{
+	  close(fdsI[0]);
+	  close(fdsI[1]);
+	}
+      close(fdsO[0]);
+      close(fdsO[1]);
+      return (NULL);
     }
-  close(fds[1]);
+  if (dataInput != NULL)
+    {
+      size_t	len, off, r;
+
+      off = 0;
+      len = strlen(dataInput);
+      close(fdsI[0]);
+      while ((r = write(fdsI[1], dataInput + off, len)) > 0)
+	{
+	  off += r;
+	  len -= r;
+	  if (len == 0)
+	    break;
+	}
+      close(fdsI[1]);
+    }
+  close(fdsO[1]);
   str = malloc(1);
   str[0] = 0;
-  while ((ret = read(fds[0], buffer, sizeof(buffer))) > 0)
+  while ((ret = read(fdsO[0], buffer, sizeof(buffer))) > 0)
     {
-      str = realloc(str, size + ret + 1);
-      strncat(str, buffer, ret);
+      if (shouldReturnString)
+	{
+	  str = realloc(str, size + ret + 1);
+	  strncat(str, buffer, ret);
+	}
       size += ret;
     }
-  close(fds[0]);
+  close(fdsO[0]);
   waitpid(pid, myRet, 0);
-  return (str);
+  if (shouldReturnString)
+    return (str);
+  free(str);
+  return (NULL);
 }
