@@ -28,6 +28,9 @@ void	DoAdminServerGetStatus();
 void	DoAdminGetLogContent();
 void	DoAdminConfigGet();
 void	DoAdminConfigSet();
+void	DoAdminUserCreate();
+void	DoAdminUserDelete();
+void	DoAdminUserList();
 
 #endif
 #endif
