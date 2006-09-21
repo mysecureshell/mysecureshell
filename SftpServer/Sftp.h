@@ -87,6 +87,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define SSH_ADMIN_GET_LOG_CONTENT		216
 #define SSH_ADMIN_CONFIG_GET			217
 #define SSH_ADMIN_CONFIG_SET			218
+#define SSH_ADMIN_USER_CREATE			219
+#define SSH_ADMIN_USER_DELETE			220
+#define SSH_ADMIN_USER_LIST			221
 
 /* attributes */
 #define SSH2_FILEXFER_ATTR_SIZE			0x00000001
