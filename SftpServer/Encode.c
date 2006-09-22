@@ -86,13 +86,13 @@ tAttributes		*GetAttributes(tBuffer *bIn)
     }
   if (cVersion >= 4 && (a.flags & SSH4_FILEXFER_ATTR_OWNERGROUP))
     {
-      struct passwd	*pw;
-      struct group	*gr;
+      t_info	*pw;
+      t_info	*gr;
       
       if ((pw = mygetpwnam(BufferGetString(bIn))))
-	a.uid = pw->pw_uid;
+	a.uid = pw->id;
       if ((gr = mygetgrnam(BufferGetString(bIn))))
-	a.gid = gr->gr_gid;
+	a.gid = gr->id;
     }
   if (a.flags & SSH2_FILEXFER_ATTR_PERMISSIONS)
     a.perm = BufferGetInt32(bIn);
@@ -211,7 +211,93 @@ void	StatToAttributes(struct stat *st, tAttributes *a, char *fileName)
     }
 }
 
-void	EncodeAttributes(tBuffer *b, tAttributes *a)
+#if(HAVE_LIBACL)
+#include <acl/libacl.h>
+#include <sys/acl.h>
+
+static void	EncodeACL(tBuffer *b, char *file)
+{
+  tBuffer	*bAcl = BufferNew();
+  acl_entry_t	entry;
+  u_int32_t	posNew, nb = 0;
+  acl_t		acl;
+
+  BufferPutInt32(bAcl, 0);//Number of ACL
+  if (acl_get_entry(acl, ACL_FIRST_ENTRY, &entry) == 1)
+    {
+      acl_permset_t	permset;
+      acl_tag_t		tag;
+      int		*data;
+
+      do
+	{
+	  if (!acl_get_tag_type(entry, &tag) && !acl_get_permset(entry, &permset))
+	    {
+	      if (tag == ACL_MASK)
+		continue;
+	      nb++;
+	      BufferPutInt32(bAcl, SSH5_ACE4_ACCESS_ALLOWED_ACE_TYPE);
+	      BufferPutInt32(bAcl, 0);//ace-flag ???
+	      BufferPutInt32(bAcl,
+			     (acl_get_perm(permset, ACL_READ) == 1 ? SSH5_ACE4_READ_DATA : 0) |
+			     (acl_get_perm(permset, ACL_WRITE) == 1 ? SSH5_ACE4_WRITE_DATA : 0) |
+			     (acl_get_perm(permset, ACL_EXECUTE) == 1 ? SSH5_ACE4_EXECUTE : 0));
+	      switch (tag)
+		{
+		case ACL_USER_OBJ: BufferPutString(bAcl, "USER"); break;
+		case ACL_GROUP_OBJ: BufferPutString(bAcl, "GROUP"); break;
+		case ACL_OTHER: BufferPutString(bAcl, "OTHER"); break;
+		case ACL_USER:
+		  data = (int *)acl_get_qualifier(entry);
+		  if (data)
+		    {
+		      t_info	*pw;
+		      char	buf[11+1];
+		      char	*str;
+
+		      if ((pw = mygetpwuid(*data)))
+			str = pw->name;
+		      else
+			{
+			  snprintf(buf, sizeof(buf), "%u", *data);
+			  str = buf;
+			}
+		      BufferPutString(bAcl, str);
+		    }
+		  break;
+		case ACL_GROUP:
+		  data = (int *)acl_get_qualifier(entry);
+                  if (data)
+                    {
+                      t_info	*gr;
+                      char	buf[11+1];
+                      char	*str;
+
+                      if ((gr = mygetgrgid(*data)))
+                        str = gr->name;
+                      else
+                        {
+                          snprintf(buf, sizeof(buf), "%u", *data);
+                          str = buf;
+                        }
+                      BufferPutString(bAcl, str);
+                    }
+                  break;
+		}
+	    }
+	}
+      while (acl_get_entry(acl, ACL_NEXT_ENTRY, &entry) == 1);
+    }
+  posNew = bAcl->length;
+  bAcl->length = 0;
+  BufferPutInt32(bAcl, nb);//Number of ACLs
+  bAcl->length = posNew;
+  BufferPutPacket(b, bAcl);
+  BufferDelete(bAcl);
+}
+#endif
+
+void	EncodeAttributes(tBuffer *b, tAttributes *a, char *file)
 {
   BufferPutInt32(b, a->flags);
   if (cVersion >= 4)
@@ -225,13 +311,13 @@ void	EncodeAttributes(tBuffer *b, tAttributes *a)
     }
   if (a->flags & SSH4_FILEXFER_ATTR_OWNERGROUP)
     {
-      struct passwd	*pw;
-      struct group	*gr;
-      char		buf[11+1];
-      char		*str;
+      t_info	*pw;
+      t_info	*gr;
+      char	buf[11+1];
+      char	*str;
 	
       if ((pw = mygetpwuid(a->uid)))
-	str = pw->pw_name;
+	str = pw->name;
       else
 	{
 	  snprintf(buf, sizeof(buf), "%u", a->uid);
@@ -239,7 +325,7 @@ void	EncodeAttributes(tBuffer *b, tAttributes *a)
 	}
       BufferPutString(b, str);
       if ((gr = mygetgrgid(a->gid)))
-	str = gr->gr_name;
+	str = gr->name;
       else
 	{
 	  snprintf(buf, sizeof(buf), "%u", a->gid);
@@ -273,7 +359,16 @@ void	EncodeAttributes(tBuffer *b, tAttributes *a)
 	BufferPutInt32(b, 0);
     }
   if (a->flags & SSH2_FILEXFER_ATTR_ACL)
-    BufferPutString(b, ""); //unsupported feature
+    {
+#if(HAVE_LIBACL)
+      if (file != NULL)
+#endif
+	BufferPutString(b, ""); //unsupported feature
+#if(HAVE_LIBACL)
+      else
+	EncodeACL(b, file);
+#endif
+    }
   if (a->flags & SSH5_FILEXFER_ATTR_BITS)
     BufferPutInt32(b, a->attrib);
   if (a->flags & SSH2_FILEXFER_ATTR_EXTENDED)

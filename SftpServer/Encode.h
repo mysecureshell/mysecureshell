@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 tAttributes	*GetAttributes(tBuffer *bIn);
 void		StatToAttributes(struct stat *st, tAttributes *a, char *fileName);
-void		EncodeAttributes(tBuffer *b, tAttributes *a);
+void		EncodeAttributes(tBuffer *b, tAttributes *a, char *file);
 struct timeval	*AttributesToTimeval(const tAttributes *a);
 
 #endif //_ENCODE_H_
