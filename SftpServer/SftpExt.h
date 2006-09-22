@@ -19,18 +19,21 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #ifdef HAVE_SYS_STATVFS_H
 #include <sys/statvfs.h>
-#define SUPPORT_EXT_SPACE 1
 #define STATFS  statvfs
 #endif
 
 #ifdef HAVE_SYS_STATFS_H
 #include <sys/statfs.h>
 #ifndef STATFS
-#define SUPPORT_EXT_SPACE 1
 #define STATFS  statfs
 #endif
 #endif
 
-#ifdef SUPPORT_EXT_SPACE
-void	DoExtSpace(tBuffer *bIn, tBuffer *bOut, u_int32_t id);
+#ifdef MSSEXT_DISKUSAGE
+void	DoExtDiskSpace(tBuffer *bIn, tBuffer *bOut, u_int32_t id);
+#endif
+
+#ifdef MSSEXT_FILE_HASHING
+void	DoExtFileHashing_Handle(tBuffer *bIn, tBuffer *bOut, u_int32_t id);
+void	DoExtFileHashing_Name(tBuffer *bIn, tBuffer *bOut, u_int32_t id);
 #endif

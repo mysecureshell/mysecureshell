@@ -78,6 +78,10 @@ void	DoInit()
       cVersion = clientVersion;
       DEBUG((MYLOG_DEBUG, "[DoInit]New admin [use version: %i]", cVersion));
       BufferPutInt32(b, cVersion);
+      //Hide admin to sftp-who !
+      gl_var->who->status = SFTPWHO_EMPTY;
+      SftpWhoRelaseStruct();
+      gl_var->who = NULL;
     }
 #endif
   if (connectionStatus == CONN_SFTP)
@@ -105,12 +109,19 @@ void	DoInit()
 	      BufferPutInt32(opt, SSH5_FXF_ACCESS__FLAGS);
 	      BufferPutInt32(opt, SSH2_MAX_READ);
 	      BufferPutString(opt, "space-available");
+#ifdef MSSEXT_FILE_HASHING
+	      BufferPutString(opt, "check-file");
+#endif
 	      BufferPutPacket(b, opt);
 	    }
 	  else
 	    {
 	      BufferPutString(b, "space-available");
 	      BufferPutString(b, "");
+#ifdef MSSEXT_FILE_HASHING
+	      BufferPutString(b, "check-file");
+	      BufferPutString(b, "");
+#endif
 	    }
 	}
     }
@@ -280,6 +291,7 @@ void	DoClose()
   SendStatus(bOut, id, status);
   gl_var->who->status = (gl_var->who->status & SFTPWHO_ARGS_MASK ) | SFTPWHO_IDLE;
   gl_var->down_max = 0;
+  BufferSetFastClean(bOut, 0);
   DEBUG((MYLOG_DEBUG, "[DoClose] -> handle:%i status:%i", h, status));
 }
 
@@ -332,6 +344,7 @@ void	DoOpen()
 		    gl_var->who->status = (gl_var->who->status & SFTPWHO_ARGS_MASK ) | SFTPWHO_GET;
 		    mylog_printf(MYLOG_TRANSFERT, "[%s][%s]Download file '%s'",
 			       gl_var->who->user, gl_var->who->ip, path);
+		    BufferSetFastClean(bOut, 1);
 		  }
 		gl_var->down_size = 0;
 		gl_var->down_max = 0;
@@ -393,8 +406,7 @@ void	DoRead()
 	      SendData(bOut, id, buf, ret);
 	      status = SSH2_FX_OK;
 	    }
-	  DEBUG((MYLOG_WARNING, "[DoRead]fd:%i[isText:%i] off:%llu len:%i (ret:%i) status:%i",
-		 fd, fileIsText, off, len, ret, status));
+	  //DEBUG((MYLOG_WARNING, "[DoRead]fd:%i[isText:%i] off:%llu len:%i (ret:%i) status:%i", fd, fileIsText, off, len, ret, status));
 	}
     }
   if (status != SSH2_FX_OK)
@@ -762,10 +774,17 @@ void	DoExtended()
   id = BufferGetInt32(bIn);
   request = BufferGetString(bIn);
   DEBUG((MYLOG_DEBUG, "[DoExtended]request:'%s'", request));
-#ifdef SUPPORT_EXT_SPACE
+#ifdef MSSEXT_DISKUSAGE
   if (!strcmp(request, "space-available"))
-      DoExtSpace(bIn, bOut, id);
+      DoExtDiskSpace(bIn, bOut, id);
   else
+#endif
+#ifdef MSSEXT_FILE_HASHING
+    if (!strcmp(request, "check-file-handle"))
+      DoExtFileHashing_Handle(bIn, bOut, id);
+    else if (!strcmp(request, "check-file-name"))
+      DoExtFileHashing_Name(bIn, bOut, id);
+    else
 #endif
     SendStatus(bOut, id, SSH2_FX_OP_UNSUPPORTED);
   free(request);
@@ -792,7 +811,7 @@ void	DoSFTPProtocol()
     }
   oldRead += 4; //ignore size of msgLen
   msgType = BufferGetInt8FAST(bIn);
-  DEBUG((MYLOG_DEBUG, "[DoSFTPProtocol] msgType:%i msgLen:%i", msgType, msgLen));
+  //DEBUG((MYLOG_DEBUG, "[DoSFTPProtocol] msgType:%i msgLen:%i", msgType, msgLen));
   if (connectionStatus == CONN_INIT)
     {
       switch (msgType)
@@ -839,6 +858,9 @@ void	DoSFTPProtocol()
 	case SSH_ADMIN_GET_LOG_CONTENT: DoAdminGetLogContent(); break;
 	case SSH_ADMIN_CONFIG_GET: DoAdminConfigGet(); break;
 	case SSH_ADMIN_CONFIG_SET: DoAdminConfigSet(); break;
+	case SSH_ADMIN_USER_CREATE: DoAdminUserCreate(); break;
+	case SSH_ADMIN_USER_DELETE: DoAdminUserDelete(); break;
+	case SSH_ADMIN_USER_LIST: DoAdminUserList(); break;
 	default: DoUnsupported(msgType, msgLen); break;
 	}
     }
@@ -867,6 +889,7 @@ int			SftpMain(tGlobal *params, int sftpProtocol)
   SET_TIMEOUT(tm, 1, 0);
   for (;;)
     {
+    bypassChecks:
       FD_ZERO(&fdR);
       FD_ZERO(&fdW);
       
@@ -882,6 +905,10 @@ int			SftpMain(tGlobal *params, int sftpProtocol)
 	}
       else if (!ret)
 	{
+	  SET_TIMEOUT(tm, 1, 0);
+
+	  if (gl_var->who == NULL) //dont check anything for administrator
+	    goto bypassChecks;
 	  if (gl_var->upload_current || gl_var->download_current)
 	    gl_var->who->time_transf++;
 	  else
@@ -904,7 +931,6 @@ int			SftpMain(tGlobal *params, int sftpProtocol)
 	      gl_var->who->upload_current = 0;
 	      gl_var->who->download_current = 0;
 	    }
-	  SET_TIMEOUT(tm, 1, 0);
 	  SftpWhoCleanBuggedClient();
 	  
 	  gl_var->download_max = gl_var->who->download_max;
@@ -926,10 +952,12 @@ int			SftpMain(tGlobal *params, int sftpProtocol)
 		  exit(0);
 		}
 	    }
+	      
 	}
       else
 	{
-	  gl_var->who->time_idle = 0;
+	  if (gl_var->who != NULL)
+	    gl_var->who->time_idle = 0;
 	  if (FD_ISSET(0, &fdR))
 	    {
 	      char	buffer[SSH2_MAX_PACKET];
@@ -948,8 +976,11 @@ int			SftpMain(tGlobal *params, int sftpProtocol)
 	      else
 		{
 		  BufferPutRawData(bIn, buffer, len);
-		  gl_var->upload_current += len;
-		  gl_var->who->upload_total += len;
+		  if (gl_var->who != NULL)
+		    {
+		      gl_var->upload_current += len;
+		      gl_var->who->upload_total += len;
+		    }
 		}
 	      DoSFTPProtocol();
 	    }
@@ -966,14 +997,17 @@ int			SftpMain(tGlobal *params, int sftpProtocol)
 	      else
 		bOut->read += len;
 	      BufferClean(bOut);
-	      gl_var->download_current += len;
-	      gl_var->who->download_total += len;
-	      if (gl_var->down_max > 0)
+	      if (gl_var->who != NULL)
 		{
-		  gl_var->down_size += len;
-		  if (gl_var->down_size > gl_var->down_max)
-		    gl_var->down_size = gl_var->down_max;
-		  gl_var->who->dowload_pos = gl_var->down_size * 100 / gl_var->down_max;
+		  gl_var->download_current += len;
+		  gl_var->who->download_total += len;
+		  if (gl_var->down_max > 0)
+		    {
+		      gl_var->down_size += len;
+		      if (gl_var->down_size > gl_var->down_max)
+			gl_var->down_size = gl_var->down_max;
+		      gl_var->who->dowload_pos = gl_var->down_size * 100 / gl_var->down_max;
+		    }
 		}
 	    }
 	}
