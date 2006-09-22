@@ -43,9 +43,12 @@ static void	end_sftp()
       if (cVersion != SSH2_ADMIN_VERSION)
 	mylog_printf(MYLOG_CONNECTION, "[%s][%s]Quit.", gl_var->who->user, gl_var->who->ip);
       mylog_close();
-      gl_var->who->status = SFTPWHO_EMPTY;
-      SftpWhoRelaseStruct();
-      gl_var->who = 0;
+      if (gl_var->who != NULL)
+	{
+	  gl_var->who->status = SFTPWHO_EMPTY;
+	  SftpWhoRelaseStruct();
+	  gl_var->who = NULL;
+	}
       regfree(&gl_var->hide_files_regexp);
       //free(gl_var);
       gl_var = 0;
@@ -79,10 +82,17 @@ void	ParseConf(tGlobal *params, int sftpProtocol)
   InitAccess();
 }
 
+#ifdef MSSEXT_FILE_HASHING
+#include <openssl/evp.h>
+#endif
+
 void	DoInitUser()
 {
   mylog_printf(MYLOG_CONNECTION, "New client [%s] from [%s]", gl_var->who->user, gl_var->who->ip);
   chdir(gl_var->who->home);
+#ifdef MSSEXT_FILE_HASHING
+  OpenSSL_add_all_digests();
+#endif
   if (gl_var->who->status & SFTPWHO_VIRTUAL_CHROOT)
     {
       if (chroot(gl_var->who->home) != -1)
