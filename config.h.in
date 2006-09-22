@@ -12,6 +12,9 @@
 /* Define to 1 if you have the <arpa/inet.h> header file. */
 #undef HAVE_ARPA_INET_H
 
+/* Define to 1 if you have the `connect' function. */
+#undef HAVE_CONNECT
+
 /* Define to 1 if you have the <cygwin/socket.h> header file. */
 #undef HAVE_CYGWIN_SOCKET_H
 
@@ -48,6 +51,12 @@
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
+
+/* Define to 1 if you have the `acl' library (-lacl). */
+#undef HAVE_LIBACL
+
+/* Define to 1 if you have the `crypto' library (-lcrypto). */
+#undef HAVE_LIBCRYPTO
 
 /* Define to 1 if you have the `iconv' library (-liconv). */
 #undef HAVE_LIBICONV
@@ -176,11 +185,20 @@
    slash. */
 #undef LSTAT_FOLLOWS_SLASHED_SYMLINK
 
+/* DiskUsage */
+#undef MSSEXT_DISKUSAGE
+
+/* FileHashing */
+#undef MSSEXT_FILE_HASHING
+
 /* Admin */
 #undef MSS_HAVE_ADMIN
 
 /* Logdir */
 #undef MSS_LOG
+
+/* Sftpuserdir */
+#undef MSS_SFTPUSER
 
 /* Sftpwhodir */
 #undef MSS_SFTPWHO

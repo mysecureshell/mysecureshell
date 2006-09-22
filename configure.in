@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT([MySecureShell],[0.9],[teka2nerdman@sourceforge.net])
+AC_INIT([MySecureShell],[0.95a2],[teka2nerdman@sourceforge.net])
 AC_CONFIG_HEADER(config.h)
 
 # Checks for programs.
@@ -88,20 +88,24 @@ AC_ARG_WITH(libiconv,
 AC_FUNC_CLOSEDIR_VOID
 AC_FUNC_FORK
 AC_FUNC_STAT
-AC_CHECK_FUNCS([endgrent gethostbyaddr gethostbyname strcasecmp strchr strdup strerror strrchr strstr statfs getgrouplist strlcpy strlcat iconv_open iconv_close iconv])
-
-# Checks for libraries.
-AC_CHECK_LIB([nsl], [gethostbyaddr])
-AC_CHECK_LIB([iconv], [libiconv_open libiconv_close iconv])
+AC_CHECK_FUNCS([endgrent strcasecmp strchr strdup strerror strrchr strstr statfs getgrouplist strlcpy strlcat])
+AC_CHECK_FUNCS([connect gethostbyaddr gethostbyname], , AC_CHECK_LIB(nsl, connect))
+AC_CHECK_FUNCS([iconv_open iconv_close iconv], , AC_CHECK_LIB(iconv, libiconv_open))
+AC_CHECK_LIB(acl, acl_get_entry)
+AC_CHECK_LIB(crypto, OpenSSL_add_all_digests)
 
 #Own defines
 test "$prefix" = "NONE" && prefix=
 test -z "$BINDIR" && BINDIR="/usr/bin"
-test -z "$MSS_LOG" && MSS_LOG="/var/log/sftp-server.log";
-test -z "$MSS_CONF" && MSS_CONF="/etc/ssh/sftp_config";
-test -z "$MSS_SHUT" && MSS_SHUT="/etc/sftp.shut";
+test -z "$MSS_LOG" && MSS_LOG="/var/log/sftp-server.log"
+test -z "$MSS_CONF" && MSS_CONF="/etc/ssh/sftp_config"
+test -z "$MSS_SHUT" && MSS_SHUT="/etc/sftp.shut"
 MSS_UTF=$ac_cv_func_iconv
-test -z "$MSS_UTF" && MSS_UTF="$ac_cv_lib_iconv_libiconv_open_libiconv_close_iconv";
+test -z "$MSS_UTF" && MSS_UTF=$ac_cv_lib_iconv_libiconv_open
+MSS_ACL=$ac_cv_lib_acl_acl_get_entry
+MSSEXT_DISK=$ac_cv_header_sys_statvfs_h
+test -z "$MSSEXT_DISK" && MSSEXT_DISK=$ac_cv_header_sys_statfs_h
+MSSEXT_FILE_HASHING=$ac_cv_lib_crypto_OpenSSL_add_all_digests
 
 A=`eval echo ${sysconfdir}`
 AC_SUBST(ETCDIR, "${A}")
@@ -113,10 +117,13 @@ AC_DEFINE_UNQUOTED(SHUTDOWN_FILE, "${MSS_SHUT}", Etcdir)
 AC_DEFINE_UNQUOTED(CONFIG_FILE, "${MSS_CONF}", Etcdir)
 AC_DEFINE(CONFIG_FILE2, "/etc/sshd/sftp_config", Etcdir)
 AC_DEFINE_UNQUOTED(MSS_SFTPWHO, "${BINDIR}/sftp-who", Sftpwhodir)
+AC_DEFINE_UNQUOTED(MSS_SFTPUSER, "${BINDIR}/sftp-user", Sftpuserdir)
 test "$MSS_COLOR" = "yes" && AC_DEFINE_UNQUOTED(HAVE_LOG_IN_COLOR, ${MSS_COLOR}, Colorlog)
 test "$MSS_ADMIN" = "yes" && AC_DEFINE(MSS_HAVE_ADMIN, 1, Admin)
 test "$MSS_ADMIN" = "yes" && AC_SUBST(MSS_RIGHTS, "4755")
 test "$MSS_ADMIN" != "yes" && AC_SUBST(MSS_RIGHTS, "755")
+test "$MSSEXT_DISK" = "yes" && AC_DEFINE(MSSEXT_DISKUSAGE, 1, DiskUsage)
+test "$MSSEXT_FILE_HASHING" = "yes" && AC_DEFINE(MSSEXT_FILE_HASHING, 1, FileHashing)
 if test "$ac_cv_type_u_int8_t" = "no" ; then
    AC_DEFINE_UNQUOTED(u_int8_t, uint8_t, uint8)
 fi
@@ -148,6 +155,11 @@ echo "     User binaries: $BINDIR"
 echo "     Shutdown file: $MSS_SHUT";
 echo "Configuration file: $MSS_CONF"
 echo ""
-echo "Supported:"
+echo "Option supported:"
+echo "ACL               : $MSS_ACL";
 echo "Remote Admin      : $MSS_ADMIN";
 echo "UTF-8 Encoding    : $MSS_UTF";
+echo ""
+echo "Sftp extension supported:"
+echo "Disk Usage        : $MSSEXT_DISK"
+echo "File Hashing      : $MSSEXT_FILE_HASHING"
