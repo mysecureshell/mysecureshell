@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Sftp.h"
 
-void	SendAttributes(tBuffer *bOut, u_int32_t id, tAttributes *a);
+void	SendAttributes(tBuffer *bOut, u_int32_t id, tAttributes *a, char *file);
 void	SendStats(tBuffer *bOut, u_int32_t id, int count, tStat *s);
 void	SendHandle(tBuffer *bOut, u_int32_t id, int h);
 void	SendData(tBuffer *bOut, u_int32_t id, char *data, int len);

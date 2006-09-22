@@ -19,17 +19,18 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "../config.h"
 #include <stdio.h>
+#include <string.h>
 #include "Encode.h"
 #include "Send.h"
 
-void		SendAttributes(tBuffer *bOut, u_int32_t id, tAttributes *a)
+void		SendAttributes(tBuffer *bOut, u_int32_t id, tAttributes *a, char *file)
 {
   tBuffer	*b;
 	
   b = BufferNew();
   BufferPutInt8(b, SSH2_FXP_ATTRS);
   BufferPutInt32(b, id);
-  EncodeAttributes(b, a);
+  EncodeAttributes(b, a, file);
   BufferPutPacket(bOut, b);
   BufferDelete(b);
 }
@@ -48,7 +49,7 @@ void		SendStats(tBuffer *bOut, u_int32_t id, int count, tStat *s)
       BufferPutString(b, s[i].name);
       if (cVersion <= 3)
 	BufferPutString(b, s[i].longName);
-      EncodeAttributes(b, &s[i].attributes);
+      EncodeAttributes(b, &s[i].attributes, NULL);
     }
   BufferPutPacket(bOut, b);
   BufferDelete(b);
@@ -70,21 +71,20 @@ void		SendHandle(tBuffer *bOut, u_int32_t id, int h)
 
 void		SendData(tBuffer *bOut, u_int32_t id, char *data, int len)
 {
-  static tBuffer	*b = 0;
-  
-  if (!b)
-    b = BufferNew();
-  else
-    b->length = 0;
-  BufferPutInt8FAST(b, SSH2_FXP_DATA);
-  BufferPutInt32(b, id);
-  BufferPutData(b, data, len);
-  BufferPutPacket(bOut, b);
+  u_int32_t	dataSize;
+
+  dataSize = 1 + 4 + 4 + len;
+  BufferEnsureFreeCapacity(bOut, 4 + dataSize);
+  BufferPutInt32(bOut, dataSize);
+  //START Data
+  BufferPutInt8FAST(bOut, SSH2_FXP_DATA);
+  BufferPutInt32(bOut, id);
+  BufferPutData(bOut, data, len);
+  //END Data
 }
 
 void		SendStatus(tBuffer *bOut, u_int32_t id, u_int32_t status)
 {
-  tBuffer	*b;
   static char	*statusMessages[] =
     {
       "Success",		/* SSH_FX_OK */
@@ -103,16 +103,27 @@ void		SendStatus(tBuffer *bOut, u_int32_t id, u_int32_t status)
       "No media",		/* SSH4_FX_NO_MEDIA */
       "Unknown error"		/* Others */
     };
+  u_int32_t	dataSize;
+  u_int32_t	msgLength = 0;
+  char		*msg = NULL;
 
-  b = BufferNew();
-  BufferPutInt8(b, SSH2_FXP_STATUS);
-  BufferPutInt32(b, id);
-  BufferPutInt32(b, status);
+  dataSize = 1 + 4 + 4;
   if (cVersion >= 3)
     {
-      BufferPutString(b, statusMessages[MIN(status, SSH2_FX_MAX)]);
-      BufferPutString(b, "en");
+      msg = statusMessages[MIN(status, SSH2_FX_MAX)];
+      msgLength = strlen(msg);
+      dataSize += 4 + msgLength + 4 + 2;
     }
-  BufferPutPacket(bOut, b);
-  BufferDelete(b);
+  BufferEnsureFreeCapacity(bOut, 4 + dataSize);
+  BufferPutInt32(bOut, dataSize);
+  //START Data
+  BufferPutInt8(bOut, SSH2_FXP_STATUS);
+  BufferPutInt32(bOut, id);
+  BufferPutInt32(bOut, status);
+  if (msg != NULL)
+    {
+      BufferPutData(bOut, msg, msgLength);
+      BufferPutData(bOut, "en", 2);
+    }
+  //END Data
 }
