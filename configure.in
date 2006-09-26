@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT([MySecureShell],[0.95a2],[teka2nerdman@sourceforge.net])
+AC_INIT([MySecureShell],[0.95a3],[teka2nerdman@sourceforge.net])
 AC_CONFIG_HEADER(config.h)
 
 # Checks for programs.
@@ -94,6 +94,9 @@ AC_CHECK_FUNCS([iconv_open iconv_close iconv], , AC_CHECK_LIB(iconv, libiconv_op
 AC_CHECK_LIB(acl, acl_get_entry)
 AC_CHECK_LIB(crypto, OpenSSL_add_all_digests)
 
+#Hosts specifications
+AC_CHECK_HEADERS(cygwin/acl.h, [AC_DEFINE(HAVE_CYGWIN, 1, HaveCygwin)])
+
 #Own defines
 test "$prefix" = "NONE" && prefix=
 test -z "$BINDIR" && BINDIR="/usr/bin"
@@ -101,10 +104,11 @@ test -z "$MSS_LOG" && MSS_LOG="/var/log/sftp-server.log"
 test -z "$MSS_CONF" && MSS_CONF="/etc/ssh/sftp_config"
 test -z "$MSS_SHUT" && MSS_SHUT="/etc/sftp.shut"
 MSS_UTF=$ac_cv_func_iconv
-test -z "$MSS_UTF" && MSS_UTF=$ac_cv_lib_iconv_libiconv_open
+test "$MSS_UTF" = "no" && MSS_UTF=$ac_cv_lib_iconv_libiconv_open
 MSS_ACL=$ac_cv_lib_acl_acl_get_entry
+test "$ac_cv_header_cygwin_acl_h" = "yes" && MSS_ACL="yes"
 MSSEXT_DISK=$ac_cv_header_sys_statvfs_h
-test -z "$MSSEXT_DISK" && MSSEXT_DISK=$ac_cv_header_sys_statfs_h
+test "$MSSEXT_DISK" = "no" && MSSEXT_DISK=$ac_cv_header_sys_statfs_h
 MSSEXT_FILE_HASHING=$ac_cv_lib_crypto_OpenSSL_add_all_digests
 
 A=`eval echo ${sysconfdir}`
