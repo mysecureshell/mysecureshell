@@ -73,22 +73,22 @@ all	: $(NAME) sftpwho sftpstate sftpadmin
 
 $(NAME)	: $(OBJ)
 	@echo "Compile binary	[$(NAME)]"
-	@$(CC) $(LDFLAGS) -o $(NAME) $(OBJ)
+	@$(CC) -o $(NAME) $(OBJ) $(LDFLAGS)
 	@$(CHMOD) 755 $(NAME)
 
 sftpwho : $(OBJ1)
 	@echo "Compile binary	[$(NAME1)]"
-	@$(CC) $(LDFLAGS) -o $(NAME1) $(OBJ1)
+	@$(CC) -o $(NAME1) $(OBJ1) $(LDFLAGS)
 	@$(CHMOD) 711 $(NAME1)
 
 sftpstate: $(OBJ2)
 	@echo "Compile binary	[$(NAME2)]"
-	@$(CC) $(LDFLAGS) -o $(NAME2) $(OBJ2)
+	@$(CC) -o $(NAME2) $(OBJ2) $(LDFLAGS)
 	@$(CHMOD) 711 $(NAME2)
 
 sftpadmin : $(OBJ3)
 	@echo "Compile binary	[$(NAME3)]"
-	@$(CC) $(LDFLAGS) -o $(NAME3) $(OBJ3)
+	@$(CC) -o $(NAME3) $(OBJ3) $(LDFLAGS)
 	@$(CHMOD) 711 $(NAME3)
 
 clean	:
