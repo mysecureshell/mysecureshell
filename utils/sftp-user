@@ -3,14 +3,6 @@
 ## Users Script Manager v0.1 - Made by MySecureShell Team
 ## MySecureShell Team <teka2nerdman@users.sourceforge.net>
 
-# Root Detection
-if [ "$USER" != "root" ] ; then
-	echo -e "\n###################################################################"
-	echo -e "\t\tSorry $USER but you are not root"
-	echo -e "###################################################################\n"
-	exit 1
-fi
-
 # Saving vars
 nameuser=$2
 #homeuser=$3
@@ -40,7 +32,7 @@ vrf_create() {
 }
 
 vrf_delhide() {
-	if [ $name -ne $nameuser ] ; then
+	if [ $name != $nameuser ] ; then
 		echo $doesntexist
 		exit 1
 	fi
@@ -127,6 +119,7 @@ dar_hid() {
 # Creation
 nux_add() {
 	useradd -p $encPass -s /bin/MySecureShell $nameuser
+	exit $?
 }
 
 # Deletion
@@ -137,6 +130,7 @@ nux_list() {
 # Deletion
 nux_del() {
 	userdel -f $nameuser
+	exit $?
 }
 
 ###############
