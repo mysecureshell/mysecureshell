@@ -137,7 +137,7 @@ int	CheckRules(char *pwd, char operation, struct stat *st, int flags)
   if (gl_var->who->status & SFTPWHO_STAY_AT_HOME)
     {
       if ((!strncmp(pwd, gl_var->who->home, strlen(gl_var->who->home)) || pwd[0] != '/')
-	  && (strlen(pwd) < 3 || strcmp(pwd + strlen(pwd) - 3, "/..")))
+	  && strstr(pwd, "/..") == NULL)
 	;
       else
 	return SSH2_FX_PERMISSION_DENIED;
@@ -147,7 +147,7 @@ int	CheckRules(char *pwd, char operation, struct stat *st, int flags)
 	  || operation == RULES_FILE
 	  || operation == RULES_LISTING))
     {
-      if ((str = strstr(pwd, "/.")) && strcmp(str, "/.."))
+      if (strstr(pwd, "/."))
 	return SSH2_FX_NO_SUCH_FILE;
     }
   if (gl_var->deny_filter && ((operation == RULES_FILE && ((flags & O_WRONLY) || (flags & O_RDWR)))
@@ -161,7 +161,7 @@ int	CheckRules(char *pwd, char operation, struct stat *st, int flags)
 	return SSH2_FX_PERMISSION_DENIED;
     }
   //This code should always be at the end of this function
-  if ((gl_var->who->status & SFTPWHO_HIDE_NO_ACESS) && operation == RULES_LISTING && st)
+  if ((gl_var->who->status & SFTPWHO_HIDE_NO_ACESS) && operation == RULES_LISTING && st != NULL)
     {
       if ((gl_var->who->status & SFTPWHO_LINKS_AS_LINKS))
 	{
