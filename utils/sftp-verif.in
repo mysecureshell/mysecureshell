@@ -77,7 +77,7 @@ done
 filerights=/bin/MySecureShell
 if [ -f $filerights ] ; then
 	rights="-rwsr-xr-x"
-	rightsto=@MSS_RIGHTS@
+	rightsto=4755
 	rightsver
 fi
 

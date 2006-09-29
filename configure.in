@@ -124,8 +124,6 @@ AC_DEFINE_UNQUOTED(MSS_SFTPWHO, "${BINDIR}/sftp-who", Sftpwhodir)
 AC_DEFINE_UNQUOTED(MSS_SFTPUSER, "${BINDIR}/sftp-user", Sftpuserdir)
 test "$MSS_COLOR" = "yes" && AC_DEFINE_UNQUOTED(HAVE_LOG_IN_COLOR, ${MSS_COLOR}, Colorlog)
 test "$MSS_ADMIN" = "yes" && AC_DEFINE(MSS_HAVE_ADMIN, 1, Admin)
-test "$MSS_ADMIN" = "yes" && AC_SUBST(MSS_RIGHTS, "4755")
-test "$MSS_ADMIN" != "yes" && AC_SUBST(MSS_RIGHTS, "755")
 test "$MSSEXT_DISK" = "yes" && AC_DEFINE(MSSEXT_DISKUSAGE, 1, DiskUsage)
 test "$MSSEXT_FILE_HASHING" = "yes" && AC_DEFINE(MSSEXT_FILE_HASHING, 1, FileHashing)
 if test "$ac_cv_type_u_int8_t" = "no" ; then
