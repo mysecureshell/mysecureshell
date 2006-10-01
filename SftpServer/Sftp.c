@@ -881,7 +881,6 @@ int			SftpMain(tGlobal *params, int sftpProtocol)
   fd_set		fdR, fdW;
   int			len, ret;
 
-  mylog_open(MSS_LOG);
   bIn = BufferNew();
   bOut = BufferNew();
   HandleInit();
