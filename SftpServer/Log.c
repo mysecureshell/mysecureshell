@@ -29,6 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 typedef struct	s_log
 {
+  char		*file;
   int		fd;
   int		pid;
   int		time;
@@ -37,7 +38,7 @@ typedef struct	s_log
 #endif
 }		t_log;
 
-static t_log	*_log = 0;
+static t_log	*_log = NULL;
 
 void	mylog_open(char *file)
 {
@@ -51,6 +52,7 @@ void	mylog_open(char *file)
 	  memset(_log, 0, sizeof(*_log));
 	  _log->pid = getpid();
 	}
+      _log->file = file;
       _log->fd = fd;
       fchown(fd, 0, 0);
 /*
@@ -96,6 +98,15 @@ void	mylog_close()
 {
   if (_log)
     close(_log->fd);
+}
+
+void	mylog_reopen()
+{
+  if (_log)
+    {
+      mylog_close();
+      mylog_open(_log->file);
+    }
 }
 
 void    mylog_time(int hours)
