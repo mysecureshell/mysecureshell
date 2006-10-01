@@ -267,6 +267,10 @@ int	main(int ac, char **av, char **env)
 	  setCharset(strdup((char *)hash_get("Charset")));
       if (hash_get("GMTTime"))
 	  mylog_time(atoi((char *)hash_get("GMTTime")));
+      if (hash_get("LogFile"))
+	mylog_open(strdup((char *)hash_get("LogFile")));
+      else
+	mylog_open(MSS_LOG);
       delete_hash();
       if (deny_filter)
 	free(deny_filter);
