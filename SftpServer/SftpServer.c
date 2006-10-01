@@ -64,8 +64,7 @@ static void	end_sftp_by_signal(int signal)
 
 static void	reopen_log_file(int signal)
 {
-  mylog_close();
-  mylog_open(MSS_LOG);
+  mylog_reopen();
 }
 
 void	ParseConf(tGlobal *params, int sftpProtocol)
