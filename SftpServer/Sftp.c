@@ -743,8 +743,8 @@ void	DoSymLink()
   int		status = SSH2_FX_OK;
 
   id = BufferGetInt32(bIn);
-  oldPath = convertFromUtf8(BufferGetString(bIn), 1);
   newPath = convertFromUtf8(BufferGetString(bIn), 1);
+  oldPath = convertFromUtf8(BufferGetString(bIn), 1);
   if ((status = CheckRules(oldPath, RULES_FILE, 0, O_RDONLY)) == SSH2_FX_OK
       && (status = CheckRules(newPath, RULES_FILE, 0, O_WRONLY)) == SSH2_FX_OK)
     {
