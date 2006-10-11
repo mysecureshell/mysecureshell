@@ -27,7 +27,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Encoding.h"
 #include "Log.h"
 #include "Sftp.h"
-#include "SftpWho.h"
 
 tGlobal	*gl_var = 0;
 

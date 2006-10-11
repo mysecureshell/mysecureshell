@@ -17,6 +17,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
+#ifndef _ENCODING_H_
+#define _ENCODING_H_
+
 #if(HAVE_ICONV||HAVE_LIBICONV)
 
 char    *convertToUtf8(char *str, int freeAfter);
@@ -30,4 +33,6 @@ void	setCharset(char *charset);
 #define convertFromUtf8(_X, _Y)	((_Y) ? _X : strdup(_X))
 #define setCharset(_X)
 
-#endif
+#endif //HAVE_ICONV||HAVE_LIBICONV
+
+#endif //_ENCODING_H_

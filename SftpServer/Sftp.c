@@ -19,7 +19,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "../config.h"
 #include <errno.h>
-#include <dirent.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -44,7 +43,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Handle.h"
 #include "Log.h"
 #include "Send.h"
-#include "Sftp.h"
 #include "SftpExt.h"
 #include "SftpServer.h"
 #include "SftpWho.h"
