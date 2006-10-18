@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT([MySecureShell],[0.95a3],[teka2nerdman@sourceforge.net])
+AC_INIT([MySecureShell],[0.95a4],[teka2nerdman@sourceforge.net])
 AC_CONFIG_HEADER(config.h)
 
 # Checks for programs.
@@ -99,7 +99,8 @@ AC_CHECK_HEADERS(cygwin/acl.h, [AC_DEFINE(HAVE_CYGWIN, 1, HaveCygwin)])
 
 #Own defines
 test "$prefix" = "NONE" && prefix=
-test -z "$BINDIR" && BINDIR="/usr/bin"
+test "$exec_prefix" = "NONE" && exec_prefix=/usr
+test -z "$bindir" && bindir="/usr/bin"
 test -z "$MSS_LOG" && MSS_LOG="/var/log/sftp-server.log"
 test -z "$MSS_CONF" && MSS_CONF="/etc/ssh/sftp_config"
 test -z "$MSS_SHUT" && MSS_SHUT="/etc/sftp.shut"
@@ -112,6 +113,7 @@ test "$MSSEXT_DISK" = "no" && MSSEXT_DISK=$ac_cv_header_sys_statfs_h
 MSSEXT_FILE_HASHING=$ac_cv_lib_crypto_OpenSSL_add_all_digests
 
 A=`eval echo ${sysconfdir}`
+BINDIR=`eval echo ${bindir}` ; BINDIR=`eval echo ${BINDIR}`
 AC_SUBST(ETCDIR, "${A}")
 AC_SUBST(BINDIR, "${BINDIR}")
 AC_SUBST(MSS_CONF, "${MSS_CONF}")
