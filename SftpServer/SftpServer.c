@@ -17,6 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
+#include "../config.h"
 #include <errno.h>
 #include <fcntl.h>
 #include <signal.h>
@@ -49,7 +50,7 @@ static void	end_sftp()
 	  gl_var->who = NULL;
 	}
       regfree(&gl_var->hide_files_regexp);
-      //free(gl_var);
+      free(gl_var);
       gl_var = 0;
       setCharset(0);
     }
