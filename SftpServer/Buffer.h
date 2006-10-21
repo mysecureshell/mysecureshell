@@ -62,4 +62,9 @@ char		*BufferGetData(tBuffer *b, u_int32_t *size);
 #define BufferPutInt8FAST(_D, _INT8) (_D)->data[(_D)->length++] = _INT8;
 #define BufferGetInt8FAST(_D) (u_int8_t )(_D)->data[(_D)->read++]
 
+
+#define BufferGetWritePointer(_D) &(_D)->data[(_D)->length]
+#define BufferGetCurrentWritePosition(_D) (_D)->length
+#define BufferSetCurrentWritePosition(_D, _V) (_D)->length = _V
+
 #endif //_BUFFER_H_
