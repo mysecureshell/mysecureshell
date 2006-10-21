@@ -381,23 +381,32 @@ void	DoOpen()
 void	DoRead()
 {
   u_int32_t	id, len;
-  char		buf[SSH2_MAX_READ];
-  int		h, fileIsText, fd, status = (cVersion <= 3 ? SSH2_FX_FAILURE : SSH4_FX_INVALID_HANDLE);
   u_int64_t	off;
+  int		h, fileIsText, fd, status = (cVersion <= 3 ? SSH2_FX_FAILURE : SSH4_FX_INVALID_HANDLE);
   
   id = BufferGetInt32(bIn);
   h = BufferGetStringAsInt(bIn);
   off = BufferGetInt64(bIn);
-  if ((len = BufferGetInt32(bIn)) > sizeof(buf))
-    len = sizeof(buf);
+  if ((len = BufferGetInt32(bIn)) > SSH2_MAX_READ)
+    len = SSH2_MAX_READ;
   if ((fd = HandleGetFd(h, &fileIsText)) >= 0)
     {
       if (!fileIsText && lseek(fd, off, SEEK_SET) < 0)
 	status = errnoToPortable(errno);
       else
 	{ 
-	  int	ret;
+	  unsigned char	*buf;
+	  u_int32_t	dataSize, oldPos, newPos;
+	  int		ret;
 	  
+	  oldPos = BufferGetCurrentWritePosition(bOut);
+	  dataSize = 1 + 4 + 4 + len;
+	  BufferEnsureFreeCapacity(bOut, 4 + dataSize);
+	  BufferPutInt32(bOut, 0);//Size of the packet - unknown before read
+	  BufferPutInt8FAST(bOut, SSH2_FXP_DATA);
+	  BufferPutInt32(bOut, id);
+	  BufferPutInt32(bOut, 0);//Size of the data - unknown before read
+	  buf = BufferGetWritePointer(bOut);
 	  ret = read(fd, buf, len);
 	  if (fileIsText)
 	    {
@@ -408,13 +417,20 @@ void	DoRead()
 		    ret--;
 		  }
 	    }
-	  if (ret < 0)
-	    status = errnoToPortable(errno);
-	  else if (ret == 0)
-	    status = SSH2_FX_EOF;
+	  if (ret <= 0)
+	    {
+	      status = ret == 0 ? SSH2_FX_EOF : errnoToPortable(errno);
+	      bOut->length = oldPos; //Cancel all uncomplete data
+	    }
 	  else
 	    {
-	      SendData(bOut, id, buf, ret);
+	      newPos =  BufferGetCurrentWritePosition(bOut) + (u_int32_t )ret;
+	      BufferSetCurrentWritePosition(bOut, oldPos);
+	      dataSize = 1 + 4 + 4 + (u_int32_t )ret;
+	      BufferPutInt32(bOut, dataSize);//Size of the packet
+	      bOut->length += 5;//sizeof(SSH2_FXP_DATA) + sizeof(id)
+	      BufferPutInt32(bOut, (u_int32_t )ret);//Size of the data
+	      BufferSetCurrentWritePosition(bOut, newPos);
 	      status = SSH2_FX_OK;
 	    }
 	  //DEBUG((MYLOG_WARNING, "[DoRead]fd:%i[isText:%i] off:%llu len:%i (ret:%i) status:%i", fd, fileIsText, off, len, ret, status));
