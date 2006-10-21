@@ -133,7 +133,8 @@ int	CheckRules(char *pwd, char operation, struct stat *st, int flags)
       if (regexec(&gl_var->hide_files_regexp, str, 0, 0, 0) != REG_NOMATCH)
 	return SSH2_FX_NO_SUCH_FILE;
     }
-  if (gl_var->who->status & SFTPWHO_STAY_AT_HOME)
+  if (operation != RULES_LISTING
+      && gl_var->who->status & SFTPWHO_STAY_AT_HOME)
     {
       if ((!strncmp(pwd, gl_var->who->home, strlen(gl_var->who->home)) || pwd[0] != '/')
 	  && strstr(pwd, "/..") == NULL)
@@ -160,7 +161,7 @@ int	CheckRules(char *pwd, char operation, struct stat *st, int flags)
 	return SSH2_FX_PERMISSION_DENIED;
     }
   //This code should always be at the end of this function
-  if ((gl_var->who->status & SFTPWHO_HIDE_NO_ACESS) && operation == RULES_LISTING && st != NULL)
+  if (operation == RULES_LISTING && st != NULL)
     {
       if ((gl_var->who->status & SFTPWHO_LINKS_AS_LINKS))
 	{
@@ -169,11 +170,14 @@ int	CheckRules(char *pwd, char operation, struct stat *st, int flags)
 	  if ((st->st_mode & S_IFMT) == S_IFLNK && stat(pwd, &localst) != -1)
 	    st = &localst;
 	}
-      if ((st->st_uid == getuid() && (st->st_mode & S_IRUSR))
-	  || (UserIsInThisGroup(st->st_gid) && (st->st_mode & S_IRGRP))
-	  || (st->st_mode & S_IROTH))
-	return SSH2_FX_OK;
-      return SSH2_FX_NO_SUCH_FILE;
+      if (gl_var->who->status & SFTPWHO_HIDE_NO_ACESS)
+	{
+	  if ((st->st_uid == getuid() && (st->st_mode & S_IRUSR))
+	      || (UserIsInThisGroup(st->st_gid) && (st->st_mode & S_IRGRP))
+	      || (st->st_mode & S_IROTH))
+	    return SSH2_FX_OK;
+	  return SSH2_FX_NO_SUCH_FILE;
+	}
     }
   return SSH2_FX_OK;
 }
