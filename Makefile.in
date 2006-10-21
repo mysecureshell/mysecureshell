@@ -55,6 +55,9 @@ ifeq ($(DEBUG), 2)
 	CFLAGS	+= -DDODEBUG -g3 -pg
 	LDFLAGS	+= -pg
 endif
+ifeq ($(DEBUG), 3)
+	CFLAGS	+= -g3
+endif
 
 CC	= @CC@
 EXT	= @EXEEXT@
