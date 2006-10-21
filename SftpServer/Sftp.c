@@ -38,6 +38,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #endif
 
 #include "Admin.h"
+#include "Defines.h"
 #include "Encode.h"
 #include "Encoding.h"
 #include "Handle.h"
@@ -220,13 +221,24 @@ void	DoReadDir()
       struct stat	st;
       char		pathName[1024];
       tStat 		*s;
-      int		nstats = 100, count = 0, i;
+      int		nstats = 100, count = 0, i, len;
       
       s = malloc(nstats * sizeof(tStat));
+      len = strlen(path);
+      if ((len + 256) >= sizeof(pathName))
+	{
+	  SendStatus(bOut, id, SSH2_FX_FAILURE);
+	  goto notEnoughtMemory;
+	}
+      STRCPY(pathName, path, sizeof(pathName));
+      if (pathName[len - 1] != '/')
+	{
+	  pathName[len] = '/';
+	  len++;
+	}
       while ((dp = readdir(dir)))
 	{
-	  snprintf(pathName, sizeof(pathName), "%s%s%s", path,
-		   path[strlen(path) - 1] == '/' ? "" : "/", dp->d_name);
+	  STRCPY(pathName + len, dp->d_name, sizeof(pathName) - len);
 	  if ((gl_var->who->status & SFTPWHO_LINKS_AS_LINKS))
 	    {
 	      if (lstat(pathName, &st) < 0)
@@ -269,8 +281,9 @@ void	DoReadDir()
 		free(s[i].longName);
 	    }
 	}
-      else
+      else	
 	SendStatus(bOut, id, SSH2_FX_EOF);
+    notEnoughtMemory:
       free(s);
     }
 }
