@@ -57,16 +57,16 @@ void		SendStats(tBuffer *bOut, u_int32_t id, int count, tStat *s)
 
 void		SendHandle(tBuffer *bOut, u_int32_t id, int h)
 {
-  tBuffer	*b;
-  char		bHandle[256];
-  
-  b = BufferNew();
-  BufferPutInt8(b, SSH2_FXP_HANDLE);
-  BufferPutInt32(b, id);
-  snprintf(bHandle, sizeof(bHandle), "%i", h);
-  BufferPutString(b, bHandle);
-  BufferPutPacket(bOut, b);
-  BufferDelete(b);
+  u_int32_t	dataSize;
+
+  dataSize = 1 + 4 + BufferHandleSize;
+  BufferEnsureFreeCapacity(bOut, 4 + dataSize);
+  BufferPutInt32(bOut, dataSize);
+  //START Data
+  BufferPutInt8FAST(bOut, SSH2_FXP_HANDLE);
+  BufferPutInt32(bOut, id);
+  BufferPutHandle(bOut, h);
+  //END Data
 }
 
 void		SendData(tBuffer *bOut, u_int32_t id, char *data, int len)
