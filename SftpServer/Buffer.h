@@ -31,7 +31,8 @@ typedef struct	sBuffer
   u_int32_t	fastClean;
 }		tBuffer;
 
-#define	DEFAULT_GROW	256
+#define	DEFAULT_GROW		256
+#define	BufferHandleSize	5 //sizeof(int32) + 1 char
 
 tBuffer	*BufferNew();
 void	BufferClean(tBuffer *b);
@@ -43,13 +44,14 @@ void	BufferPutInt8(tBuffer *b, u_int8_t nb);
 void	BufferPutInt32(tBuffer *b, u_int32_t nb);
 void	BufferPutInt64(tBuffer *b, u_int64_t nb);
 void	BufferPutString(tBuffer *b, char *data);
+void	BufferPutHandle(tBuffer *b, int h);
 void	BufferPutData(tBuffer *b, void *data, int size);
 void	BufferPutRawData(tBuffer *b, void *data, int size);
 
 u_int8_t	BufferGetInt8(tBuffer *b);
 u_int32_t	BufferGetInt32(tBuffer *b);
 u_int64_t	BufferGetInt64(tBuffer *b);
-int		BufferGetStringAsInt(tBuffer *b);
+int		BufferGetHandle(tBuffer *b);
 char		*BufferGetString(tBuffer *b);
 char		*BufferGetData(tBuffer *b, u_int32_t *size);
 
@@ -66,5 +68,6 @@ char		*BufferGetData(tBuffer *b, u_int32_t *size);
 #define BufferGetWritePointer(_D) &(_D)->data[(_D)->length]
 #define BufferGetCurrentWritePosition(_D) (_D)->length
 #define BufferSetCurrentWritePosition(_D, _V) (_D)->length = _V
+#define BufferIncrCurrentWritePosition(_D, _V) (_D)->length += _V
 
 #endif //_BUFFER_H_

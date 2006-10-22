@@ -92,16 +92,20 @@ void	BufferPutInt32(tBuffer *b, u_int32_t nb)
 
 void	BufferPutInt64(tBuffer *b, u_int64_t nb)
 {
+  u_int32_t	n1, n2;
+
+  n1 = (u_int64_t )nb >> (u_int64_t )32;
+  n2 = (u_int64_t )nb & (u_int64_t )0xffffffff;
   if ((b->length + 8) > b->size)
     BufferGrow(b, DEFAULT_GROW);
-  b->data[b->length++] = (nb >> 56);
-  b->data[b->length++] = (nb >> 48);
-  b->data[b->length++] = (nb >> 40);
-  b->data[b->length++] = (nb >> 32);
-  b->data[b->length++] = (nb >> 24);
-  b->data[b->length++] = (nb >> 16);
-  b->data[b->length++] = (nb >> 8);
-  b->data[b->length++] = nb;
+  b->data[b->length++] = (n1 >> 24);
+  b->data[b->length++] = (n1 >> 16);
+  b->data[b->length++] = (n1 >> 8);
+  b->data[b->length++] = n1;
+  b->data[b->length++] = (n2 >> 24);
+  b->data[b->length++] = (n2 >> 16);
+  b->data[b->length++] = (n2 >> 8);
+  b->data[b->length++] = n2;
 }
 
 void	BufferPutRawData(tBuffer *b, void *data, int size)
@@ -117,8 +121,25 @@ void	BufferPutString(tBuffer *b, char *data)
   int	size;
 
   size = strlen(data);
-  BufferPutInt32(b, size);
-  BufferPutRawData(b, data, size);
+  if ((b->length + size + 4) > b->size)
+    BufferGrow(b, b->length + size + 4 - b->size + DEFAULT_GROW);
+  b->data[b->length++] = (size >> 24);
+  b->data[b->length++] = (size >> 16);
+  b->data[b->length++] = (size >> 8);
+  b->data[b->length++] = size;
+  memcpy(b->data + b->length, data, size);
+  b->length += size;
+}
+
+void	BufferPutHandle(tBuffer *b, int h)
+{
+  if ((b->length + 5) > b->size)
+    BufferGrow(b, b->length + 5 - b->size + DEFAULT_GROW);
+  b->data[b->length++] = 0;
+  b->data[b->length++] = 0;
+  b->data[b->length++] = 0;
+  b->data[b->length++] = 1;
+  BufferPutInt8FAST(b, h);
 }
 
 #ifdef DODEBUG
@@ -254,17 +275,12 @@ char		*BufferGetString(tBuffer *b)
   return (data);
 }
 
-int	BufferGetStringAsInt(tBuffer *b)
+int	BufferGetHandle(tBuffer *b)
 {
-  char	*data;
+  u_int32_t	size;
 
-  data = BufferGetString(b);
-  if (data)
-    {
-      int	nb = atoi(data);
-
-      free(data);
-      return (nb);
-    }
+  size = BufferGetInt32(b);
+  if (size == 1)
+    return (BufferGetInt8(b));
   return (-1);
 }
