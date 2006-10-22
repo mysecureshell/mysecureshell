@@ -210,7 +210,7 @@ void	DoReadDir()
   int		h;
 
   id = BufferGetInt32(bIn);
-  h = BufferGetStringAsInt(bIn);
+  h = BufferGetHandle(bIn);
   dir = HandleGetDir(h);
   path = HandleGetPath(h);
   DEBUG((MYLOG_DEBUG, "[DoReadDir]path:'%s' handle:%i", path, h));
@@ -294,7 +294,7 @@ void	DoClose()
   int		h, status = (cVersion <= 3 ? SSH2_FX_FAILURE : SSH4_FX_INVALID_HANDLE);
 	
   id = BufferGetInt32(bIn);
-  h = BufferGetStringAsInt(bIn);
+  h = BufferGetHandle(bIn);
   if ((HandleClose(h)) == -1)
     status = errnoToPortable(errno);
   else
@@ -385,7 +385,7 @@ void	DoRead()
   int		h, fileIsText, fd, status = (cVersion <= 3 ? SSH2_FX_FAILURE : SSH4_FX_INVALID_HANDLE);
   
   id = BufferGetInt32(bIn);
-  h = BufferGetStringAsInt(bIn);
+  h = BufferGetHandle(bIn);
   off = BufferGetInt64(bIn);
   if ((len = BufferGetInt32(bIn)) > SSH2_MAX_READ)
     len = SSH2_MAX_READ;
@@ -428,7 +428,7 @@ void	DoRead()
 	      BufferSetCurrentWritePosition(bOut, oldPos);
 	      dataSize = 1 + 4 + 4 + (u_int32_t )ret;
 	      BufferPutInt32(bOut, dataSize);//Size of the packet
-	      bOut->length += 5;//sizeof(SSH2_FXP_DATA) + sizeof(id)
+	      BufferIncrCurrentWritePosition(bOut, 5);//sizeof(SSH2_FXP_DATA) + sizeof(id)
 	      BufferPutInt32(bOut, (u_int32_t )ret);//Size of the data
 	      BufferSetCurrentWritePosition(bOut, newPos);
 	      status = SSH2_FX_OK;
@@ -449,7 +449,7 @@ void	DoWrite()
   char		*data;
 
   id = BufferGetInt32(bIn);
-  fd = HandleGetFd(BufferGetStringAsInt(bIn), &fileIsText);
+  fd = HandleGetFd(BufferGetHandle(bIn), &fileIsText);
   off = BufferGetInt64(bIn);
   data = BufferGetData(bIn, &len);
   if (fd >= 0)
@@ -546,7 +546,7 @@ void	DoFStat()
   int		fd, fh, fileIsText;
 	
   id = BufferGetInt32(bIn);
-  fh = BufferGetStringAsInt(bIn);
+  fh = BufferGetHandle(bIn);
   fd = HandleGetFd(fh, &fileIsText);
   if (cVersion >= 4)
     flags = BufferGetInt32(bIn);
@@ -617,7 +617,7 @@ void 	DoFSetStat()
   int		status = SSH2_FX_OK;
 
   id = BufferGetInt32(bIn);
-  path = HandleGetPath(BufferGetStringAsInt(bIn));
+  path = HandleGetPath(BufferGetHandle(bIn));
   a = GetAttributes(bIn);
   if (!path)
     status = (cVersion <= 3 ? SSH2_FX_FAILURE : SSH4_FX_INVALID_HANDLE);
@@ -986,22 +986,22 @@ int			SftpMain(tGlobal *params, int sftpProtocol)
 	    gl_var->who->time_idle = 0;
 	  if (FD_ISSET(0, &fdR))
 	    {
-	      char	buffer[SSH2_MAX_PACKET];
 	      int	todo;
 	      
 	      if (gl_var->upload_max)
-		todo = sizeof(buffer) < (gl_var->upload_max - gl_var->upload_current) ?
-		  sizeof(buffer) : (gl_var->upload_max - gl_var->upload_current);
+		todo = SSH2_MAX_PACKET < (gl_var->upload_max - gl_var->upload_current) ?
+		  SSH2_MAX_PACKET : (gl_var->upload_max - gl_var->upload_current);
 	      else
-		todo = sizeof(buffer);
-	      len = read(0, buffer, todo);
+		todo = SSH2_MAX_PACKET;
+	      BufferEnsureFreeCapacity(bIn, todo);
+	      len = read(0, BufferGetWritePointer(bIn), todo);
 	      if (len < 0)
 		exit(1);
 	      else if (len == 0)
 		exit(1);
 	      else
 		{
-		  BufferPutRawData(bIn, buffer, len);
+		  BufferIncrCurrentWritePosition(bIn, len);
 		  if (gl_var->who != NULL)
 		    {
 		      gl_var->upload_current += len;
