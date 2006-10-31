@@ -34,6 +34,6 @@ int	HandleNew(int state, char *path, int fd, DIR *dir, int fileIsText);
 DIR	*HandleGetDir(int pos);
 int	HandleGetFd(int pos, int *fileIsText);
 char	*HandleGetPath(int pos);
-int	HandleClose(int pos);
+int	HandleClose(int pos, int *isCloseFile);
 
 #endif //_HANDLE_H_

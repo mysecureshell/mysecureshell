@@ -88,16 +88,22 @@ char	*HandleGetPath(int pos)
   return (0);
 }
 
-int	HandleClose(int pos)
+int	HandleClose(int pos, int *isCloseFile)
 {
   if (pos >= 0 && pos < HANDLE_NUMBER)
     {
       int	ret;
       
       if (gHandle[pos].state == HANDLE_DIR)
-	ret = closedir(gHandle[pos].dir);
+	{
+	  ret = closedir(gHandle[pos].dir);
+	  *isCloseFile = 0;
+	}
       else
-	ret = close(gHandle[pos].fd);
+	{
+	  ret = close(gHandle[pos].fd);
+	  *isCloseFile = 1;
+	}
       free(gHandle[pos].path);
       
       gHandle[pos].dir = 0;
