@@ -291,18 +291,22 @@ void	DoReadDir()
 void	DoClose()
 {
   u_int32_t	id;
-  int		h, status = (cVersion <= 3 ? SSH2_FX_FAILURE : SSH4_FX_INVALID_HANDLE);
+  int		h, isFile, status = (cVersion <= 3 ? SSH2_FX_FAILURE : SSH4_FX_INVALID_HANDLE);
 	
   id = BufferGetInt32(bIn);
   h = BufferGetHandle(bIn);
-  if ((HandleClose(h)) == -1)
+  if ((HandleClose(h, &isFile)) == -1)
     status = errnoToPortable(errno);
   else
     status = SSH2_FX_OK;
   SendStatus(bOut, id, status);
   gl_var->who->status = (gl_var->who->status & SFTPWHO_ARGS_MASK ) | SFTPWHO_IDLE;
   gl_var->down_max = 0;
-  BufferSetFastClean(bOut, 0);
+  if (isFile)
+    {
+      BufferSetFastClean(bIn, 0);
+      BufferSetFastClean(bOut, 0);
+    }
   DEBUG((MYLOG_DEBUG, "[DoClose] -> handle:%i status:%i", h, status));
 }
 
@@ -355,6 +359,7 @@ void	DoOpen()
 		    gl_var->who->status = (gl_var->who->status & SFTPWHO_ARGS_MASK ) | SFTPWHO_GET;
 		    mylog_printf(MYLOG_TRANSFERT, "[%s][%s]Download file '%s'",
 			       gl_var->who->user, gl_var->who->ip, path);
+		    BufferSetFastClean(bIn, 1);
 		    BufferSetFastClean(bOut, 1);
 		  }
 		gl_var->down_size = 0;
@@ -382,7 +387,7 @@ void	DoRead()
 {
   u_int32_t	id, len;
   u_int64_t	off;
-  int		h, fileIsText, fd, status = (cVersion <= 3 ? SSH2_FX_FAILURE : SSH4_FX_INVALID_HANDLE);
+  int		h, fileIsText, fd, status;
   
   id = BufferGetInt32(bIn);
   h = BufferGetHandle(bIn);
@@ -424,7 +429,7 @@ void	DoRead()
 	    }
 	  else
 	    {
-	      newPos =  BufferGetCurrentWritePosition(bOut) + (u_int32_t )ret;
+	      newPos = BufferGetCurrentWritePosition(bOut) + (u_int32_t )ret;
 	      BufferSetCurrentWritePosition(bOut, oldPos);
 	      dataSize = 1 + 4 + 4 + (u_int32_t )ret;
 	      BufferPutInt32(bOut, dataSize);//Size of the packet
@@ -436,6 +441,8 @@ void	DoRead()
 	  //DEBUG((MYLOG_WARNING, "[DoRead]fd:%i[isText:%i] off:%llu len:%i (ret:%i) status:%i", fd, fileIsText, off, len, ret, status));
 	}
     }
+  else
+    status = (cVersion <= 3 ? SSH2_FX_FAILURE : SSH4_FX_INVALID_HANDLE);
   if (status != SSH2_FX_OK)
     SendStatus(bOut, id, status);
 }
@@ -445,7 +452,7 @@ void	DoWrite()
   u_int32_t	id;
   u_int64_t	off;
   u_int		len;
-  int		fd, fileIsText, ret, status = (cVersion <= 3 ? SSH2_FX_FAILURE : SSH4_FX_INVALID_HANDLE);
+  int		fd, fileIsText, ret, status;
   char		*data;
 
   id = BufferGetInt32(bIn);
@@ -472,8 +479,12 @@ void	DoWrite()
 	    status = errnoToPortable(errno);
 	  else if (ret == len)
 	    status = SSH2_FX_OK;
+	  else
+	    status = SSH2_FX_FAILURE;
 	}
     }
+  else
+    status = (cVersion <= 3 ? SSH2_FX_FAILURE : SSH4_FX_INVALID_HANDLE);
   //DEBUG((MYLOG_DEBUG, "[DoWrite]fd:%i off:%llu len:%i fileIsText:%i status:%i", fd, off, len, fileIsText, status));
   SendStatus(bOut, id, status);
 }
@@ -1017,11 +1028,11 @@ int			SftpMain(tGlobal *params, int sftpProtocol)
 	      if (gl_var->download_max)
 		len = len < (gl_var->download_max - gl_var->download_current) ?
 		  len : (gl_var->download_max - gl_var->download_current);
-	      len = write(1, bOut->data + bOut->read, len);
+	      len = write(1, BufferGetReadPointer(bOut), len);
 	      if (len < 0)
 		exit(1);
 	      else
-		bOut->read += len;
+		BufferIncrCurrentReadPosition(bOut, len);
 	      BufferClean(bOut);
 	      if (gl_var->who != NULL)
 		{
