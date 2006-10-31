@@ -45,7 +45,7 @@ void	BufferClean(tBuffer *b)
 {
   if (b->read > 0)
     {
-      if (b->length >= b->read)
+      if (b->length > b->read)
 	{
 	  memcpy(b->data, b->data + b->read, b->length - b->read);
 	  b->length -= b->read;
