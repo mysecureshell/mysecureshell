@@ -65,6 +65,8 @@ char		*BufferGetData(tBuffer *b, u_int32_t *size);
 #define BufferGetInt8FAST(_D) (u_int8_t )(_D)->data[(_D)->read++]
 
 
+#define BufferGetReadPointer(_D) &(_D)->data[(_D)->read]
+#define BufferIncrCurrentReadPosition(_D, _V) (_D)->read += _V
 #define BufferGetWritePointer(_D) &(_D)->data[(_D)->length]
 #define BufferGetCurrentWritePosition(_D) (_D)->length
 #define BufferSetCurrentWritePosition(_D, _V) (_D)->length = _V
