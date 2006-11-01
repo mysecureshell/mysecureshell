@@ -834,7 +834,10 @@ void	DoSFTPProtocol()
 
  parsePacket:
   if ((bIn->length - bIn->read) < 5) //header too small
-    return;
+    {
+      BufferClean(bIn);
+      return;
+    }
   oldRead = bIn->read;
   msgLen = BufferGetInt32(bIn);
   if (msgLen > (256 * 1024)) //message too long
@@ -909,7 +912,6 @@ void	DoSFTPProtocol()
 	     msgLen - (bIn->read - oldRead), bIn->read, oldRead, msgLen));
       BufferReadData(bIn, msgLen - (bIn->read - oldRead));
     }
-  BufferClean(bIn);
   goto parsePacket;
 }
 
