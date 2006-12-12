@@ -154,10 +154,22 @@ int		main(int ac, char **av)
 	{
 	  if (!_only_show_pid_and_name)
 	    {
+	      unsigned int	global_download, global_upload;
+
+	      global_download = 0;
+	      global_upload = 0;
 	      for (i = 0; i < SFTPWHO_MAXCLIENT; i++)
 		if ((who[i].status & SFTPWHO_STATUS_MASK) != SFTPWHO_EMPTY)
-		  nb_clients++;
+		  {
+		    nb_clients++;
+		    global_download += who[i].download_current;
+		    global_upload += who[i].upload_current;
+		  }
 	      printf("--- %i / %i clients ---\n", nb_clients, hash_get_int("LimitConnection"));
+	      printf("Global used bandwith : %s / %s\n",
+		     make_speed(b1, sizeof(b1), global_download, 0),
+		     make_speed(b2, sizeof(b2), global_upload, 0)
+		     );
 	    }
 	  for (i = 0; i < SFTPWHO_MAXCLIENT; i++)
 	    if ((who[i].status & SFTPWHO_STATUS_MASK) != SFTPWHO_EMPTY)
