@@ -23,5 +23,6 @@ int	convert_speed_to_int(char **tb);
 int	convert_boolean_to_int(char *str);
 int	convert_time_to_int(char **tb);
 int	load_config_file(char *file, char verbose, int max_recursive_left);
+void	processLine(char **tb, int max_recursive_left, char verbose);
 char	*convert_str_with_resolv_env_to_str(char *str);
 char	*convert_to_path(char *path);

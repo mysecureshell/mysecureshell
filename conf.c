@@ -176,7 +176,7 @@ int	load_config_file(char *file, char verbose, int max_recursive_left)
   FILE	*fh;
   char	buffer[1024];
   char	**tb, *str;
-  int	len, line, err1, err2;
+  int	len, line, processTag;
 
   if (!max_recursive_left)
     {
@@ -184,6 +184,7 @@ int	load_config_file(char *file, char verbose, int max_recursive_left)
 	printf("[ERROR]Too much inclusions !!!\n");
       return (0);
     }
+  processTag = 1;
   if ((fh = fopen(file, "r")))
     {
       line = 0;
@@ -209,78 +210,23 @@ int	load_config_file(char *file, char verbose, int max_recursive_left)
 		      if (verbose) printf("[ERROR]Error parsing line %i is not valid in file '%s'!\n", line, file);
 		      exit (2);
 		    }
+		  if (is_for_user((char *)hash_get("USER"), verbose)
+		      || is_for_group((char *)hash_get("GROUP"), verbose)
+		      || is_for_rangeip((char *)hash_get("RANGEIP"), verbose)
+		      || is_for_virtualhost((char *)hash_get("SERVER_IP"),
+					    hash_get_int("SERVER_PORT"),
+					    verbose)
+		      || hash_get_int("DEFAULT") == 1)
+		    processTag = 1;
+		  else
+		    processTag = 0;
 		}
+	      else if (processTag == 0)
+		continue;
 	      else if ((tb = parse_cut_string(str))) 
 		{
 		  if (tb[0])
-		    {
-		      err1 = 0;
-		      if (is_for_user((char *)hash_get("USER"), verbose)
-			  || is_for_group((char *)hash_get("GROUP"), verbose)
-			  || is_for_rangeip((char *)hash_get("RANGEIP"), verbose)
-			  || is_for_virtualhost((char *)hash_get("SERVER_IP"),
-			  						hash_get_int("SERVER_PORT"),
-			  						verbose)
-			  || hash_get_int("DEFAULT") == 1)
-			{
-			  int	i;
-
-			  err1 = 1;
-			  for (i = 0; confParams[i].type != CONF_IS_EMPTY; i++)
-			    if (!strcmp(tb[0], confParams[i].name)
-				&& (tb[1] || confParams[i].type == CONF_IS_STRING_MAYBE_EMPTY))
-			      {
-				err1 = 0;
-				switch (confParams[i].type)
-				  {
-				  case CONF_IS_STRING:
-				    hash_set(tb[0], (void *)strdup(tb[1]));
-				    break;
-				  case CONF_IS_STRING_MAYBE_EMPTY:
-				    hash_set(tb[0], (void *)(tb[1] ? strdup(tb[1]) : 0));
-				    break;
-				  case CONF_IS_PATH_RESOLVE_ENV:
-				    {
-				      char	*path = convert_str_with_resolv_env_to_str(tb[1]);
-
-				      hash_set(tb[0], (void *)convert_to_path(path));
-				    }
-				    break;
-				  case CONF_IS_INT:
-				    hash_set_int(tb[0], atoi(tb[1]));
-				    break;
-				  case CONF_IS_BOOLEAN:
-				    hash_set_int(tb[0], convert_boolean_to_int(tb[1]));
-				    break;
-				  case CONF_IS_SPEED:
-				    hash_set_int(tb[0], convert_speed_to_int(tb + 1));
-				    break;
-				  case CONF_IS_MODE:
-				    hash_set_int(tb[0], convert_mode_to_int(tb[1]));
-                                    break;
-				  case CONF_IS_TIME:
-				    hash_set_int(tb[0], convert_time_to_int(tb + 1));
-				    break;
-				  }
-				break;
-			      }
-			  if (err1 && !strcmp(tb[0], "DefaultRights") && tb[1])
-			    {
-			      err1 = 0;
-			      hash_set_int("DefaultRightsFile", convert_mode_to_int(tb[1]));
-                              if (tb[2])
-                                hash_set_int("DefaultRightsDirectory", convert_mode_to_int(tb[2]));
-			    }
-			}
-		      err2 = 0;
-		      if (!strcmp(tb[0], "Include") && tb[1])
-			load_config_file(tb[1], verbose, max_recursive_left - 1);
-		      else
-			err2 = 1;
-
-		      if (verbose && err1 && err2)
-			printf("Property '%s' is not recognized !\n", tb[0]);
-		    }
+		    processLine(tb, max_recursive_left, verbose);
 		  free(tb);
 		}
 	    }
@@ -299,4 +245,64 @@ int	load_config_file(char *file, char verbose, int max_recursive_left)
       return (0);
     }
   return (1);
+}
+
+void	processLine(char **tb, int max_recursive_left, char verbose)
+{
+  int	err1, err2;
+  int	i;
+  
+  err1 = 1;
+  for (i = 0; confParams[i].type != CONF_IS_EMPTY; i++)
+    if (!strcmp(tb[0], confParams[i].name)
+	&& (tb[1] || confParams[i].type == CONF_IS_STRING_MAYBE_EMPTY))
+      {
+	err1 = 0;
+	switch (confParams[i].type)
+	  {
+	  case CONF_IS_STRING:
+	    hash_set(tb[0], (void *)strdup(tb[1]));
+	    break;
+	  case CONF_IS_STRING_MAYBE_EMPTY:
+	    hash_set(tb[0], (void *)(tb[1] ? strdup(tb[1]) : 0));
+	    break;
+	  case CONF_IS_PATH_RESOLVE_ENV:
+	    {
+	      char	*path = convert_str_with_resolv_env_to_str(tb[1]);
+	      
+	      hash_set(tb[0], (void *)convert_to_path(path));
+	    }
+	    break;
+	  case CONF_IS_INT:
+	    hash_set_int(tb[0], atoi(tb[1]));
+	    break;
+	  case CONF_IS_BOOLEAN:
+	    hash_set_int(tb[0], convert_boolean_to_int(tb[1]));
+	    break;
+	  case CONF_IS_SPEED:
+	    hash_set_int(tb[0], convert_speed_to_int(tb + 1));
+	    break;
+	  case CONF_IS_MODE:
+	    hash_set_int(tb[0], convert_mode_to_int(tb[1]));
+	    break;
+	  case CONF_IS_TIME:
+	    hash_set_int(tb[0], convert_time_to_int(tb + 1));
+	    break;
+	  }
+	break;
+      }
+  if (err1 && !strcmp(tb[0], "DefaultRights") && tb[1])
+    {
+      err1 = 0;
+      hash_set_int("DefaultRightsFile", convert_mode_to_int(tb[1]));
+      if (tb[2])
+	hash_set_int("DefaultRightsDirectory", convert_mode_to_int(tb[2]));
+    }
+  err2 = 0;
+  if (!strcmp(tb[0], "Include") && tb[1])
+    load_config_file(tb[1], verbose, max_recursive_left - 1);
+  else
+    err2 = 1;
+  if (verbose && err1 && err2)
+    printf("Property '%s' is not recognized !\n", tb[0]);
 }
