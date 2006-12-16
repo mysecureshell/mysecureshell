@@ -89,33 +89,34 @@ void	parse_tag_open(char *str)
   parse_opened_tag++;
 }
 
-void				parse_virtualhost(char *str)
+void			parse_virtualhost(char *str)
 {
-	struct hostent	*h;
-	char			*ptr;
-	int				port = 0;
+  struct hostent	*h;
+  char			*ptr;
+  int			port = 0;
 	
-	if ((ptr = strchr(str, ':')))
-	{
-		*ptr = 0;
-		port = atoi(ptr + 1);
-	}
-	if ((h = gethostbyname(str)) &&
-		h->h_addr_list && h->h_addr_list[0])
-		{
-			char	buffer[32];
-			
-			snprintf(buffer, sizeof(buffer), "%i.%i.%i.%i",
-				(unsigned char)h->h_addr_list[0][0],
-				(unsigned char)h->h_addr_list[0][1],
-				(unsigned char)h->h_addr_list[0][2],
-				(unsigned char)h->h_addr_list[0][3]
-				);
-			hash_set("VIRTUALHOST_IP", strdup(buffer));
-		}
-	else
-		hash_set("VIRTUALHOST_IP", strdup(str));
-	hash_set_int("VIRTUALHOST_PORT", port);
+  if ((ptr = strchr(str, ':')))
+    {
+      *ptr = 0;
+      port = atoi(ptr + 1);
+    }
+  if (!(str[0] == '*' && !str[1]) &&
+      (h = gethostbyname(str)) &&
+      h->h_addr_list && h->h_addr_list[0])
+    {
+      char	buffer[32];
+      
+      snprintf(buffer, sizeof(buffer), "%i.%i.%i.%i",
+	       (unsigned char)h->h_addr_list[0][0],
+	       (unsigned char)h->h_addr_list[0][1],
+	       (unsigned char)h->h_addr_list[0][2],
+	       (unsigned char)h->h_addr_list[0][3]
+	       );
+      hash_set("VIRTUALHOST_IP", strdup(buffer));
+    }
+  else
+    hash_set("VIRTUALHOST_IP", strdup(str));
+  hash_set_int("VIRTUALHOST_PORT", port);
 }
 
 char	*parse_range_ip(char *str)
