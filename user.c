@@ -28,8 +28,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "parsing.h"
 #include "user.h"
 
-static char	*user_name = 0;
-static char	**user_group = 0;
+static char	*user_name = NULL;
+static char	**user_group = NULL;
 static char	restrictions = REST_ALL;
 
 #ifndef HAVE_GETGROUPLIST
@@ -101,7 +101,7 @@ int		init_user_info()
           for (i = 0; i < nb_groups; i++)
 	    if ((group = getgrgid(groups[i])))
 	      user_group[i] = strdup(group->gr_name);
-          user_group[i] = 0;
+          user_group[i] = NULL;
         }
       hash_set("User", (void *)strdup(info->pw_name));
       hash_set("Home", (void *)strdup(info->pw_dir));
