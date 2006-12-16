@@ -26,23 +26,23 @@ char	*clean_buffer(char *buffer)
 {
   delete_comments(buffer);
   buffer = trim_right(trim_left(buffer));
-  if (strlen(buffer))
+  if (buffer[0])
     return (buffer);
-  return (0);
+  return (NULL);
 }
 
 char	*trim_right(char *buffer)
 {
   int	i;
 
+  i = strlen(buffer) - 1;
   for (;;)
     {
-      i = strlen(buffer) - 1;
-      if (buffer[i] == ' ' || buffer[i] == '\t'
-	  || buffer[i] == '\r' || buffer[i] == '\n')
+      if (buffer[i] > 0 && buffer[i] <= ' ')
 	buffer[i] = 0;
       else
 	break;
+      i--;
     }
   return (buffer);
 }
@@ -79,22 +79,25 @@ char	*clean_string(char *buffer)
 
 void	delete_comments(char *buffer)
 {
+  char	c;
   int	len;
   int	i;
 
   len = strlen(buffer);
   for (i = 0; i < len; i++)
     {
-      if (buffer[i] == '\'' ||buffer[i] == '"')
+      if (buffer[i] == '\'' || buffer[i] == '"')
 	{
-	  char	c = buffer[i];
-
+	  c = buffer[i];
 	  for (i++; i < len && buffer[i] != c; )
 	    i++;
 	}
       else if (buffer[i] == '\\')
 	i++;
       else if (buffer[i] == '#')
-	buffer[i] = 0;
+	{
+	  buffer[i] = 0;
+	  break;
+	}
     }
 }
