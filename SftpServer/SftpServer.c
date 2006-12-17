@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Log.h"
 #include "Sftp.h"
 
-tGlobal	*gl_var = 0;
+tGlobal	*gl_var = NULL;
 
 #include "Access.c"
 #include "GetUsersInfos.h"
@@ -51,8 +51,8 @@ static void	end_sftp()
 	}
       regfree(&gl_var->hide_files_regexp);
       free(gl_var);
-      gl_var = 0;
-      setCharset(0);
+      gl_var = NULL;
+      setCharset(NULL);
     }
   exit(0);
 }
