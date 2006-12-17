@@ -21,13 +21,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <string.h>
 #include "hash.h"
 
-static t_hash		*_hash = 0;
-static t_element	*_last_key = 0;
+#define MAKE_HASH(_D) (int )((_D [0] >> 5) | _D [1])
+
+static t_hash		*_hash = NULL;
+static t_element	*_last_key = NULL;
 
 void	create_hash()
 {
   _hash = calloc(1, sizeof(*_hash));
-  _last_key = 0;
+  _last_key = NULL;
 }
 
 void		delete_hash()
@@ -55,7 +57,7 @@ void		delete_hash()
 
 void		hash_set(char *key, void *value)
 {
-  t_element	*t = _hash->hash[(int )*key];
+  t_element	*t = _hash->hash[MAKE_HASH(key)];
 
   while (t)
     {
@@ -76,7 +78,7 @@ void		hash_set(char *key, void *value)
 
 void		hash_set_int(char *key, int value)
 {
-  t_element	*t = _hash->hash[(int )*key];
+  t_element	*t = _hash->hash[MAKE_HASH(key)];
 
   while (t)
     {
@@ -96,7 +98,7 @@ void		hash_set_int(char *key, int value)
 
 void		*hash_get(char *key)
 {
-  t_element	*t = _hash->hash[(int )*key];
+  t_element	*t = _hash->hash[MAKE_HASH(key)];
 
   if (_last_key && !strcmp(key, _last_key->key))
     return (_last_key->str);
@@ -114,7 +116,7 @@ void		*hash_get(char *key)
 
 int		hash_get_int(char *key)
 {
-  t_element     *t = _hash->hash[(int )*key];
+  t_element     *t = _hash->hash[MAKE_HASH(key)];
 
   if (_last_key && !strcmp(key, _last_key->key))
     return (_last_key->number);
@@ -132,7 +134,7 @@ int		hash_get_int(char *key)
 
 int		hash_get_int_with_default(char *key, int dft)
 {
-  t_element	*t = _hash->hash[(int )*key];
+  t_element	*t = _hash->hash[MAKE_HASH(key)];
 
   if (_last_key && !strcmp(key, _last_key->key))
     return (_last_key->number);
@@ -146,16 +148,4 @@ int		hash_get_int_with_default(char *key, int dft)
       t = t->next;
     }
   return (dft);
-}
-
-char	*hash_get_int_to_char(char *key)
-{
-  char	*str;
-  int	nb, size;
-
-  nb = hash_get_int(key);
-  size = sizeof(*str) * 12;
-  str = malloc(12);
-  snprintf(str, nb, "%i", nb);
-  return (str);
 }
