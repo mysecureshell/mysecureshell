@@ -21,7 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <string.h>
 #include "hash.h"
 
-#define MAKE_HASH(_D) (int )((_D [0] >> 5) | _D [1])
+#define MAKE_HASH(_D) (int )((((int)_D [0]) >> 5) | ((int )_D [1]))
 
 static t_hash		*_hash = NULL;
 static t_element	*_last_key = NULL;
@@ -72,8 +72,8 @@ void		hash_set(char *key, void *value)
   t = calloc(1, sizeof(*t));
   t->key = strdup(key);
   t->str = value;
-  t->next = _hash->hash[(int )*key];
-  _hash->hash[(int )*key] = t;
+  t->next = _hash->hash[MAKE_HASH(key)];
+  _hash->hash[MAKE_HASH(key)] = t;
 }
 
 void		hash_set_int(char *key, int value)
@@ -92,8 +92,8 @@ void		hash_set_int(char *key, int value)
   t = calloc(1, sizeof(*t));
   t->key = strdup(key);
   t->number = value;
-  t->next = _hash->hash[(int )*key];
-  _hash->hash[(int )*key] = t;
+  t->next = _hash->hash[MAKE_HASH(key)];
+  _hash->hash[MAKE_HASH(key)] = t;
 }
 
 void		*hash_get(char *key)
