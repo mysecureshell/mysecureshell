@@ -81,11 +81,7 @@ void	parse_tag_open(char *str)
   else if (!strcasecmp(str, TAG_USER))
     hash_set("USER", strdup(s));
   else if (!strcasecmp(str, TAG_RANGEIP))
-    {
-      s = parse_range_ip(s);
-      hash_set("RANGEIP", s);
-      free(s);
-    }
+    hash_set("RANGEIP", parse_range_ip(s));
   else if (!strcasecmp(str, TAG_VIRTUALHOST))
     parse_virtualhost(s);
   else if (!strcasecmp(str, TAG_DEFAULT))
