@@ -80,24 +80,23 @@ char	*clean_string(char *buffer)
 void	delete_comments(char *buffer)
 {
   char	c;
-  int	len;
-  int	i;
 
-  len = strlen(buffer);
-  for (i = 0; i < len; i++)
+  while (*buffer)
     {
-      if (buffer[i] == '\'' || buffer[i] == '"')
+      if (*buffer == '\'' || *buffer == '"')
 	{
-	  c = buffer[i];
-	  for (i++; i < len && buffer[i] != c; )
-	    i++;
+	  c = *buffer;
+	  buffer++;
+	  while (*buffer && *buffer != c)
+	    buffer++;
 	}
-      else if (buffer[i] == '\\')
-	i++;
-      else if (buffer[i] == '#')
+      else if (*buffer == '\\')
+	buffer++;
+      else if (*buffer == '#')
 	{
-	  buffer[i] = 0;
-	  break;
+	  *buffer = 0;
+	  return;
 	}
+      buffer++;
     }
 }
