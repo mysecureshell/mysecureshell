@@ -262,7 +262,7 @@ int	main(int ac, char **av, char **env)
       else
 	params->rights_file = 0666;
       if (hash_get("Charset"))
-	  setCharset(strdup((char *)hash_get("Charset")));
+	  setCharset((char *)hash_get("Charset"));
       if (hash_get("GMTTime"))
 	  mylog_time(atoi((char *)hash_get("GMTTime")));
       if (hash_get("LogFile"))
