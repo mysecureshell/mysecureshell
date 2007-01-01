@@ -249,15 +249,15 @@ int	load_config_file(char *file, char verbose, int max_recursive_left)
 
 void	processLine(char **tb, int max_recursive_left, char verbose)
 {
-  int	err1, err2;
+  int	notRecognized;
   int	i;
   
-  err1 = 1;
+  notRecognized = 1;
   for (i = 0; confParams[i].type != CONF_IS_EMPTY; i++)
     if (!strcmp(tb[0], confParams[i].name)
 	&& (tb[1] || confParams[i].type == CONF_IS_STRING_MAYBE_EMPTY))
       {
-	err1 = 0;
+	notRecognized = 0;
 	switch (confParams[i].type)
 	  {
 	  case CONF_IS_STRING:
@@ -291,18 +291,21 @@ void	processLine(char **tb, int max_recursive_left, char verbose)
 	  }
 	break;
       }
-  if (err1 && !strcmp(tb[0], "DefaultRights") && tb[1])
+  if (notRecognized)
     {
-      err1 = 0;
-      hash_set_int("DefaultRightsFile", convert_mode_to_int(tb[1]));
-      if (tb[2])
-	hash_set_int("DefaultRightsDirectory", convert_mode_to_int(tb[2]));
+      if (!strcmp(tb[0], "DefaultRights") && tb[1])
+	{
+	  notRecognized = 0;
+	  hash_set_int("DefaultRightsFile", convert_mode_to_int(tb[1]));
+	  if (tb[2])
+	    hash_set_int("DefaultRightsDirectory", convert_mode_to_int(tb[2]));
+	}
+      else if (!strcmp(tb[0], "Include") && tb[1])
+	{
+	  notRecognized = 0;
+	  load_config_file(tb[1], verbose, max_recursive_left - 1);
+	}
+      if (verbose && notRecognized)
+	printf("Property '%s' is not recognized !\n", tb[0]);
     }
-  err2 = 0;
-  if (!strcmp(tb[0], "Include") && tb[1])
-    load_config_file(tb[1], verbose, max_recursive_left - 1);
-  else
-    err2 = 1;
-  if (verbose && err1 && err2)
-    printf("Property '%s' is not recognized !\n", tb[0]);
 }
