@@ -213,6 +213,8 @@ int	is_for_rangeip(char *range, int verbose)
 			   (unsigned char )range[0], (unsigned char )range[1], (unsigned char )range[2],
 			   (unsigned char )range[3], (unsigned char )range[4], (unsigned char )range[5],
 			   (unsigned char )range[6], (unsigned char )range[7], (unsigned char )range[8]);
+  free(bip);
+  free(ip);
   return (1);
 
  error_is_for_rangeip:
