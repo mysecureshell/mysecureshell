@@ -49,7 +49,18 @@ static void	end_sftp()
 	  SftpWhoRelaseStruct();
 	  gl_var->who = NULL;
 	}
-      regfree(&gl_var->hide_files_regexp);
+      if (gl_var->hide_files)
+	{
+	  regfree(&gl_var->hide_files_regexp);
+	  free(gl_var->hide_files);
+	  gl_var->hide_files = NULL;
+	}
+      if (gl_var->deny_filter)
+	{
+	  regfree(&gl_var->deny_filter_regexp);
+	  free(gl_var->deny_filter);
+	  gl_var->deny_filter = NULL;
+	}
       free(gl_var);
       gl_var = NULL;
       setCharset(NULL);
