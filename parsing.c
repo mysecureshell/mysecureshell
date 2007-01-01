@@ -146,42 +146,53 @@ char	*parse_range_ip(char *str)
 
 char	**parse_cut_string(char *str)
 {
-  char	**tb = 0;
-  char	*word = str;
+  char	**tb = NULL;
+  char	*word = NULL;
   int	nb = 0;
-  int	i, max;
-  
-  for (i = 1, max = strlen(str); i < max; i++)
+
+  while (*str)
     {
-      if ((str[i - 1] == ' ' || str[i - 1] == '\t') &&
-	  (str[i] != ' ' && str[i] != '\t'))
+      if (*str == ' ' || *str == '\t')
 	{
-	  str[i - 1] = 0;
-	  word = clean_string(word);
-	  if (strlen(word) && strcmp(word, "="))
+	  *str = 0;
+	  if (word != NULL)
 	    {
-	      tb = realloc(tb, (nb + 2) * sizeof(*tb));
-	      tb[nb++] = word;
-	      tb[nb] = 0;
+	      word = clean_string(word);
+	      if (*word && strcmp(word, "="))
+		{
+		  tb = realloc(tb, (nb + 2) * sizeof(*tb));
+		  tb[nb++] = word;
+		  tb[nb] = 0;
+		}
+	      word = NULL;
 	    }
-	  word = str + i;
 	}
-      else if (str[i] == '\'' || str[i] == '"')
+      else
 	{
-	  char	c = str[i++];
-	  
-	  while (c != str[i] && i < max)
-	    i++;
+	  if (word == NULL)
+	    word = str;
+	  if (*str == '\'' || *str == '"')
+	    {
+	      char  c = *str;
+
+	      str++;
+	      while (c != *str && *str)
+		str++;
+	    }
+	  else if (*str == '\\')
+	    str++;
 	}
-      else if (str[i] == '\\')
-	i += 2;
+      str++;
     }
-  word = clean_string(word);
-  if (strlen(word) && strcmp(word, "="))
+  if (word != NULL)
     {
-      tb = realloc(tb, (nb + 2) * sizeof(*tb));
-      tb[nb++] = word;
-      tb[nb] = 0;
+      word = clean_string(word);
+      if (*word && strcmp(word, "="))
+	{
+	  tb = realloc(tb, (nb + 2) * sizeof(*tb));
+	  tb[nb++] = word;
+	  tb[nb] = 0;
+	}
     }
   return (tb);
 }
