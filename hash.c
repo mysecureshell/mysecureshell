@@ -47,6 +47,7 @@ void		delete_hash()
 	  free(t->key);
 	  if (t->str)
 	    free(t->str);
+	  free(t);
 	  t = n;
 	}
     }
