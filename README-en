@@ -21,6 +21,10 @@ Require:
 --------
 OpenSSH 3.8.1 (or superior)
 
+Optional:
+----------
+OpenSSL 0.9.7 (or superior) for extension : check data
+
 
 Configuration file:
 -------------------
@@ -72,6 +76,20 @@ Forum:       http://mysecureshell.free.fr
 
 CHANGE LOG:
 -----------
+0.95 (february 2007):
+        + support ACLs
+        + support sftp extension : check data
+        + add tag LogFile
+        + full support of remote administration
+        + sftp-who: add global bandwidth used by MySecureShell
+        ~ reduct necessary ressources by MySecureShell
+        ~ improve transfer files and broswing directories
+        ~ improve load of configuration file
+        = fix bug with symlink
+        = fix bug on tags PathDenyFilter, HideFiles, StayAtHome and ShowLinksAsLinks (with HideNoAccess)
+        = fix bug with option --configtest
+        = fix bug on tags LimitConnection, LimitConnectionByUser and LimitConnectionByIP
+        = fix memory leaks while loading configuration file
 
 0.9 (august 2006) :
         + add tag : CanRemoveDir, CanRemoveFile

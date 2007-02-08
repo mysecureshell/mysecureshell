@@ -22,6 +22,10 @@ Requiere:
 --------
 OpenSSH 3.8.1 (ou superieur)
 
+Optionnel:
+----------
+OpenSSL 0.9.7 (ou superieur) pour l'extension : verification des donnees
+
 
 Fichier de configuration:
 -------------------------
@@ -81,6 +85,24 @@ Forum:       http://mysecureshell.free.fr
 
 HISTORIQUE:
 -----------
+0.95 (fevrier 2007):
+	+ ajout du support des ACLs
+	+ ajout de l'extensions sftp: verification des donnees
+	+ ajout du tag LogFile
+	+ support complet de l'administration a distance (ajout de la gestion des utilisateurs)
+	+ sftp-who: ajout de la bande passante globale utilisee par MySecureShell
+	~ diminution des ressources necessaires pour MySecureShell
+	~ optimisation lors des transferts et du listing des repertoires
+	~ optimisation de la lecture du fichier de configuration
+	= fixe un bug sur la creation des liens symboliques
+	= fixe un bug sur les tags PathDenyFilter et HideFiles
+	= fixe un bug dans l'affichage du --configtest
+	= fixe un bug sur les tags LimitConnection, LimitConnectionByUser et LimitConnectionByIP qui ne
+	  fonctionnaient pas dans certains cas
+	= fixe un bug sur le tag StayAtHome
+	= fixe un bug sur le tag ShowLinksAsLinks qui etait actif seulement quand HideNoAccess etait actif
+	= fixe des fuites memoires lors du chargement du fichier de configuration
+
 0.9 (aout 2006) :
 	+ ajout du tag : CanRemoveDir, CanRemoveFile
 	+ UTF-8 actif sur le protocol SFTP v3 (evite des erreurs sous FileZilla)
