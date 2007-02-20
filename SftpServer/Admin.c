@@ -65,7 +65,7 @@ void	DoAdminKillUser()
   int	pidToKill = BufferGetInt32(bIn);
   int	status = SSH2_FX_OK;
 
-  DEBUG((MYLOG_DEBUG, "[DoAdminKillUser]Try to kill pid:%i status:%i", pidToKill, status));
+  DEBUG((MYLOG_DEBUG, "[DoAdminKillUser]Try to kill pid:%i", pidToKill));
   who = SftWhoGetAllStructs();
   if (who)
     {
@@ -76,9 +76,16 @@ void	DoAdminKillUser()
       for (i = 0; i < SFTPWHO_MAXCLIENT; i++)
 	if ((who[i].status & SFTPWHO_STATUS_MASK) != SFTPWHO_EMPTY)
 	  if ((who[i].pid == pidToKill || pidToKill == 0) && who[i].pid != pid)
-	    if (kill(who[i].pid, SIGHUP) == -1)
-	      status = errnoToPortable(errno);
+	    {
+	      DEBUG((MYLOG_DEBUG, "[DoAdminKillUser]Send kill to pid:%i", who[i].pid));
+	      if (kill(who[i].pid, SIGHUP) == -1)
+		status = errnoToPortable(errno);
+	    }
     }
+#ifdef DODEBUG
+  else
+    DEBUG((MYLOG_DEBUG, "[DoAdminKillUser]No global structure !"));
+#endif
   SendStatus(bOut, 0, status);
 }
 
