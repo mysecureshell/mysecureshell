@@ -27,6 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <time.h>
 #include <unistd.h>
 
+
 static char	*_shmfile = "/dev/null";
 static int	_shmkey = 0x0787;
 
@@ -41,7 +42,7 @@ t_sftpglobal		*_sftpglobal = 0;
 
 t_sftpwho	*SftWhoGetAllStructs()
 {
-  return	(_sftpwho_ptr);
+  return (_sftpwho_ptr);
 }
 
 int	SftpWhoDeleteStructs()
@@ -90,7 +91,7 @@ t_sftpwho	*SftpWhoGetStruct(int create)
       if (shmid != -1 && (ptr = shmat(shmid, 0, 0)) != (void *)-1)
 	{
 	  t_shm	*shm = ptr;
-		
+	       
 	  _sftpglobal = &shm->global;
 	  who = shm->who;
 	  _sftpwho_ptr = who;
@@ -135,7 +136,7 @@ int		SftpWhoCleanBuggedClient()
   unsigned int	t;
   int		i, nb, nbdown, nbup;
 
-  if (!_sftpwho_ptr)
+  if (_sftpwho_ptr == NULL)
     return (0);
   t = time(0);
   nb = 0;
@@ -169,9 +170,9 @@ int		SftpWhoCleanBuggedClient()
 
 void	SftpWhoRelaseStruct()
 {
-  if (_sftpwho_ptr)
+  if (_sftpwho_ptr != NULL)
     {
       shmdt(_sftpwho_ptr);
-      _sftpwho_ptr = 0;
+      _sftpwho_ptr = NULL;
     }
 }
