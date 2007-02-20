@@ -79,7 +79,6 @@ void	DoInit()
       BufferPutInt32(b, cVersion);
       //Hide admin to sftp-who !
       gl_var->who->status = SFTPWHO_EMPTY;
-      SftpWhoRelaseStruct();
       gl_var->who = NULL;
     }
 #endif
