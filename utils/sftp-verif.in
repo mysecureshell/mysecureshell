@@ -36,7 +36,7 @@ echo -e "#################################################\n\n"
 
 # Finding MSS and utilities
 echo -e "** Verifing file existance **\n"
-for file2verify in "/bin/MySecureShell" "$BINDIR/sftp-who" "$BINDIR/sftp-kill" "$BINDIR/sftp-state" "$BINDIR/sftp-admin" "$BINDIR/sftp-verif" ; do
+for file2verify in "/bin/MySecureShell" "$BINDIR/sftp-who" "$BINDIR/sftp-kill" "$BINDIR/sftp-state" "$BINDIR/sftp-admin" "$BINDIR/sftp-verif" "$BINDIR/sftp-user" ; do
 	test -e $file2verify && echo -e "Verifing file existance of $file2verify\t\t\t[ OK ]" || echo -e "Verifing file existance of $file2verify\t\t\t[ Failed ]"
 done
 
@@ -62,13 +62,13 @@ if [ -f $filerights ] ; then
 	rightsver
 fi
 
-for filerights in "$BINDIR/sftp-who" "$BINDIR/sftp-kill" "$BINDIR/sftp-verif" ; do
+for filerights in "$BINDIR/sftp-who" "$BINDIR/sftp-verif" "$BINDIR/sftp-user" ; do
 	rights="-rwxr-xr-x"
 	rightsto=755
 	rightsver
 done
 
-for filerights in "$BINDIR/sftp-state" "$BINDIR/sftp-admin" ; do
+for filerights in "$BINDIR/sftp-kill" "$BINDIR/sftp-state" "$BINDIR/sftp-admin" ; do
 	rights="-rwx------"
 	rightsto=700
 	rightsver
