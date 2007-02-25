@@ -1,7 +1,8 @@
 VERSION = @PACKAGE_VERSION@
 DEST	= MySecureShell_$(VERSION)
 CPU	= "`uname -m`"
-ARCHIVE	= MySecureShell-$(OSTYPE)-$(CPU)-$(VERSION)
+ARCHIVE	= mysecureshell_$(VERSION)-$(OSTYPE)-$(CPU)
+ARCSRC	= mysecureshell_$(VERSION)_source.tgz
 
 NAME	= MySecureShell$(EXT)
 SRC	= main.c string.c	\
@@ -125,7 +126,7 @@ package : re
 source	:
 	@echo "Tar the world"
 	@test -e ../$(DEST) || $(LN) -fs MySecureShell ../$(DEST)
-	@cd .. && $(TAR) cfz $(DEST)/MySecureShell-$(VERSION)_source.tgz $(FILESRC) $(DEST)/*.[ch] $(DEST)/*/*.[ch]
+	@cd .. && $(TAR) cfz $(DEST)/$(ARCSRC) $(FILESRC) $(DEST)/*.[ch] $(DEST)/*/*.[ch]
 	@echo "Source package done."
 
 cvs	:
