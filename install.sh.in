@@ -292,10 +292,10 @@ if [ -d ./utils ] ; then
 		cp -f ./utils/$tool $BINDIR
 		sftpinst=$sftpinst`MyGetLocale 'tool'`" $tool\t\t\t"`MyGetLocale 'ok'`"\n"
 	done
-	chmod 755 $BINDIR/sftp-who
-	chmod 755 $BINDIR/sftp-kill
+	chmod 700 $BINDIR/sftp-kill
 	chmod 700 $BINDIR/sftp-state
 	chmod 700 $BINDIR/sftp-admin
+	chmod 755 $BINDIR/sftp-who
 	chmod 755 $BINDIR/sftp-verif
 	chmod 755 $BINDIR/sftp-user
 else
