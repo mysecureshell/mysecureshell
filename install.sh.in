@@ -141,9 +141,7 @@ fi
 
 if [ $rep7 = "y" ] ; then
     MyGetLocale 'LaunchMSS'
-    ./MySecureShell --configtest > /dev/null
-    MyGetLocale 'LaunchSftpMSS'
-    ./MySecureShell -c /usr/lib/sftp-server < /dev/null
+    ./MySecureShell --version > /dev/null
     MyGetLocale 'Testsuccess'
 fi
 

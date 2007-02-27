@@ -37,7 +37,6 @@ finishedinst=Installation Terminee !
 osxreminder=Rappel: Si vous etes sur Mac OS X, n'oubliez pas de copier le dossier MSS dans Applications !
 TestSystem?=Voulez-vous tester MySecureShell, pour detecter d'eventuel probleme ? (Y/n)
 LaunchMSS=Test de MySecureShell...
-LaunchSftpMSS=Test du module SFTP de MySecureShell...
 Testsuccess=Fin du test
 logrot?=Voulez vous mettre automatiquement les logs de MySecureShell en rotation ? (Y/n)
 logrot=Mise en place de la rotation des logs MySecureShell
