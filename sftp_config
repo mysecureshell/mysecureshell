@@ -40,6 +40,8 @@
 #Rules only for group ftp
 #<Group ftp>
 #	Download	25 k/s
+#	LogFile		/var/log/sftp-server_ftp.log	#Change logfile
+#	ExpireDate	"2007-02-28 18:31:01"
 #</Group>
 
 #<Group sftp_administrator>
