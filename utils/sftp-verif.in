@@ -9,10 +9,12 @@ MSS_LOG=@MSS_LOG@
 
 ## Root detection
 if [ "$USER" != "root" ] ; then
-	echo -e "\n################################################################"
-	echo -e "\tSorry $USER but you must be root to continue"
-	echo -e "################################################################\n"
-        exit 1
+    echo ""
+    echo "#################################################################"
+    echo "#	Sorry $USER but you must be root to continue		#"
+    echo "#################################################################"
+    echo ""
+    exit 1
 fi
 
 ## Funtion
@@ -20,101 +22,151 @@ fi
 rightsver () {
 sftpver=`ls -l $filerights | awk '{ print $1 }'`
 if [ "$sftpver" = "$rights" ] ; then
-	echo -e "Verifing file rights of $filerights\t\t\t[ OK ]"
+    echo "Verifing file rights of $filerights			[ OK ]"
 else
-	echo -e "Verifing file rights of $filerights\t\t\t[ Failed ]\nDo you want to repair $filerights rights ? (y/n)"
-	read rightsans
-	test $rightsans = "y" && chmod $rightsto $filerights
+    echo "Verifing file rights of $filerights			[ Failed ]"
+    echo "Do you want to repair $filerights rights ? (y/n)"
+    read rightsans
+    test "$rightsans" = "y" && chmod $rightsto $filerights
 fi
 }
 
 ## Starting validation
 
 echo "#################################################"
-echo -e "#\tMySecureShell Verification Tool\t\t#"
-echo -e "#################################################\n\n"
+echo "#	MySecureShell Verification Tool		#"
+echo "#################################################"
 
 # Finding MSS and utilities
-echo -e "** Verifing file existance **\n"
+echo ""
+echo ""
+echo "** Verifing file existance **"
+echo ""
 for file2verify in "/bin/MySecureShell" "$BINDIR/sftp-who" "$BINDIR/sftp-kill" "$BINDIR/sftp-state" "$BINDIR/sftp-admin" "$BINDIR/sftp-verif" "$BINDIR/sftp-user" ; do
-	test -e $file2verify && echo -e "Verifing file existance of $file2verify\t\t\t[ OK ]" || echo -e "Verifing file existance of $file2verify\t\t\t[ Failed ]"
+    if [ -e $file2verify ] ; then
+	echo "Verifing file existance of $file2verify			[ OK ]"
+    else
+	echo "Verifing file existance of $file2verify			[ Failed ]"
+    fi
 done
 
 # Deleting sftp-server_MSS if found
 for file2verify in "/usr/lib/sftp-server_MSS" "/usr/libexec/sftp-server_MSS" "/usr/lib/ssh/sftp-server_MSS" "/usr/lib/openssh/sftp-server_MSS" "/usr/libexec/openssh/sftp-server_MSS" ; do
-	if [ -f $file2verify ] ; then
-		echo -e "If you are running a MySecureShell version newer than 0.8, you have to delete sftp-server_MSS file !\nDo you want I delete it for you ? (y/n)"
-		read sftpmss
-		test "$sftpmss" = "y" && rm -f $file2verify || break
-	fi
+    if [ -f $file2verify ] ; then
+	echo "If you are running a MySecureShell version newer than 0.8, you have to delete sftp-server_MSS file !"
+	echo "Do you want I delete it for you ? (y/n)"
+	read sftpmss
+	test "$sftpmss" = "y" && rm -f $file2verify || break
+    fi
 done
 
 for file2verify in "$MSS_CONF" "/etc/sshd/sftp_config" ; do
-	test -e $file2verify && echo -e "Verifing file existance of $file2verify\t\t\t[ OK ]\n" || echo -e"Verifing file existance of $1\t\t\t[ Failed ]\n" && filerights=$file2verify && break
+    if [ -e $file2verify ] ; then
+	echo "Verifing file existance of $file2verify			[ OK ]"
+	filerights=$file2verify
+	break;
+    else
+	echo "Verifing file existance of $file2verify			[ Failed ]"
+    fi
 done
 
 # Verify Rights
-echo -e "\n** Verifing rights **\n"
+echo ""
+echo "** Verifing rights **"
+echo ""
 
 if [ -f $filerights ] ; then
-	rights="-rw-r--r--"
-	rightsto=644
-	rightsver
+    rights="-rw-r--r--"
+    rightsto=644
+    rightsver
 fi
 
 for filerights in "$BINDIR/sftp-who" "$BINDIR/sftp-verif" "$BINDIR/sftp-user" ; do
-	rights="-rwxr-xr-x"
-	rightsto=755
-	rightsver
+    rights="-rwxr-xr-x"
+    rightsto=755
+    rightsver
 done
 
 for filerights in "$BINDIR/sftp-kill" "$BINDIR/sftp-state" "$BINDIR/sftp-admin" ; do
-	rights="-rwx------"
-	rightsto=700
-	rightsver
+    rights="-rwx------"
+    rightsto=700
+    rightsver
 done
 
 filerights=/bin/MySecureShell
 if [ -f $filerights ] ; then
-	rights="-rwsr-xr-x"
-	rightsto=4755
-	rightsver
+    rights="-rwsr-xr-x"
+    rightsto=4755
+    rightsver
 fi
 
 # Logrotate
-resum=$resum"\n\n** Verifing rotation logs **\n"
+echo ""
+echo ""
+echo "** Verifing rotation logs **"
+echo ""
 if [ -d /etc/logrotate.d ] ; then
-	if [ -f /etc/logrotate.d/mysecureshell ] ; then
-		break
+    if [ -f /etc/logrotate.d/mysecureshell ] ; then
+	break
+    else
+	echo "No rotations logs found ! Do you want to create it one now ? (y/n)"
+	read logrotnow
+	if [ $logrotnow ="y" ] ; then
+	    cat << EOF > /etc/logrotate.d/mysecureshell
+$MSS_LOG {
+	weekly
+	size=500k
+	rotate 10
+	compress
+	delaycompress
+	missingok
+	notifempty
+}
+EOF
+	    chmod 644 /etc/logrotate.d/mysecureshell
 	else
-		echo "No rotations logs found ! Do you want to create it one now ? (y/n)"
-		read logrotnow
-		if [ $logrotnow ="y" ] ; then
-			echo -e "$MSS_LOG {\n\tweekly\n\tsize=500k\n\trotate 10\n\tcompress\n\tdelaycompress\n\tmissingok\n\tnotifempty\n}" > /etc/logrotate.d/mysecureshell
-			chmod 644 /etc/logrotate.d/mysecureshell
-		else
-			echo "No rotation logs has been created"
-		fi
+	    echo "No rotation logs has been created"
 	fi
-	resum=$resum"MySecureShell rotation logs\t\t\t\t\t[ OK ]\n"
+    fi
+    echo "MySecureShell rotation logs					[ OK ]"
 else
-	if [ -f /etc/weekly ] ; then
-		logstat=1
-		grep -e '^for' < /etc/weekly | grep -ve sftp-server.log > /dev/null
-		if [ "$?" = "0" ] ; then
-			sed -e 's/^\(for i in.*\)\(; do\)$/\1 $MSS_LOG\2/' /etc/weekly > /tmp/weekly.tmp && mv /tmp/weekly.tmp /etc/weekly
-		fi
+    if [ -f /etc/weekly ] ; then
+	logstat=1
+	grep -e '^for' < /etc/weekly | grep -ve sftp-server.log > /dev/null
+	if [ "$?" = "0" ] ; then
+	    sed -e 's/^\(for i in.*\)\(; do\)$/\1 $MSS_LOG\2/' /etc/weekly > /tmp/weekly.tmp && mv /tmp/weekly.tmp /etc/weekly
 	fi
-	test "$logstat" = "1" && resum=$resum"MySecureShell rotation logs\t\t\t\t\t[ OK ]\n" || resum=$resum"MySecureShell rotation logs\t\t\t\t\t[ FAILED ]\n"
+    fi
+    if [ "$logstat" = "1" ] ; then
+	echo "MySecureShell rotation logs                                       [ OK ]"
+    else
+	echo "MySecureShell rotation logs                                       [ FAILED ]"
+    fi
 fi
 
 # Server status
-resum=$resum"\n\n** Verifing server status **\n"
-test "`$BINDIR/sftp-state`" = "Server is up" && resum=$resum"Verifing server status (ONLINE)\t\t\t\t\t[ OK ]\n" || resum=$resum"Verifing server status (ONLINE)\t\t\t\t\t[ FAILED ]\n"
-echo -e "$resum"
-if [ "`$BINDIR/sftp-state`" = "Server is down" ] ; then
-	echo "Do you want to start server ? (y/n)"
-	read repstart
-	test $repstart = "y" && $BINDIR/sftp-state start || break
+echo ""
+echo ""
+echo "** Verifing server status **"
+echo ""
+if [ "`$BINDIR/sftp-state`" = "Server is up" ] ; then
+    echo "Verifing server status (ONLINE)					[ OK ]"
+else
+    echo "Verifing server status (ONLINE)					[ FAILED ]"
+    echo ""
+    echo "Do you want to start server ? (y/n)"
+    read repstart
+    test $repstart = "y" && $BINDIR/sftp-state start
 fi
 
+# Server dependencies
+echo ""
+echo ""
+echo "** Verifing server dependencies **"
+echo "Show only error(s):"
+/bin/MySecureShell --version > /dev/null
+
+#End
+echo ""
+echo ""
+echo "** All tests dones **"
