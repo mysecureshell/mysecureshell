@@ -24,10 +24,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <time.h>
 #include <unistd.h>
 #include "conf.h"
+#include "hash.h"
 #include "ip.h"
-#include "parsing.h"
 #include "prog.h"
-#include "string.h"
 #include "SftpServer/Sftp.h"
 #include "SftpServer/Encoding.h"
 #include "SftpServer/Log.h"
@@ -178,7 +177,10 @@ int	main(int ac, char **av, char **env)
 	      exit(0);
 	    }
 	}
-
+      if (hash_get("LogFile"))
+	mylog_open(strdup((char *)hash_get("LogFile")));
+      else
+	mylog_open(MSS_LOG);
       if ((hide_files = (char *)hash_get("HideFiles"))) hide_files = strdup(hide_files);
       if ((deny_filter = (char *)hash_get("PathDenyFilter"))) deny_filter = strdup(deny_filter);
 
@@ -247,6 +249,33 @@ int	main(int ac, char **av, char **env)
       sftp_version = hash_get_int("SftpProtocol");
       if (hash_get_int("ConnectionMaxLife"))
 	params->who->time_maxlife = hash_get_int("ConnectionMaxLife");
+      if (hash_get("ExpireDate"))
+	{
+	  struct tm	tm;
+	  time_t	currentTime, maxTime;
+
+	  if (strptime((const char *)hash_get("ExpireDate"), "%Y-%m-%d %H:%M:%S", &tm))
+	    {
+	      maxTime = mktime(&tm);
+	      currentTime = time(NULL);
+	      if (currentTime > maxTime) //time elapsed
+		{
+		  params->who->status = SFTPWHO_EMPTY;
+		  SftpWhoRelaseStruct();
+		  delete_hash();
+		  mylog_close();
+		  exit(14);
+		}
+	      else
+		{ //check if expireDate < time_maxlife
+		  currentTime = maxTime - currentTime;
+		  if (currentTime < params->who->time_maxlife)
+		    params->who->time_maxlife = currentTime;
+		}
+	    }
+	  DEBUG((MYLOG_DEBUG, "[%s][%s]ExpireDate time to rest: %i",
+		       params->who->user, params->who->ip, params->who->time_maxlife));
+	}
       if (hash_get_int("MaxOpenFilesForUser"))
 	params->max_openfiles = hash_get_int("MaxOpenFilesForUser");
       if (hash_get_int("MaxReadFilesForUser"))
@@ -265,10 +294,6 @@ int	main(int ac, char **av, char **env)
 	  setCharset((char *)hash_get("Charset"));
       if (hash_get("GMTTime"))
 	  mylog_time(atoi((char *)hash_get("GMTTime")));
-      if (hash_get("LogFile"))
-	mylog_open(strdup((char *)hash_get("LogFile")));
-      else
-	mylog_open(MSS_LOG);
       delete_hash();
       if (deny_filter)
 	free(deny_filter);
