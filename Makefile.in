@@ -1,5 +1,5 @@
 VERSION = @PACKAGE_VERSION@
-DEST	= MySecureShell_$(VERSION)
+DEST	= mysecureshell_$(VERSION)
 CPU	= "`uname -m`"
 ARCHIVE	= mysecureshell_$(VERSION)-$(OSTYPE)-$(CPU)
 ARCSRC	= mysecureshell_$(VERSION)_source.tgz
