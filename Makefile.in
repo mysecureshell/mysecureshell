@@ -31,7 +31,6 @@ OBJ2	= $(SRC2:.c=.o)
 
 NAME3	= utils/sftp-admin$(EXT)
 SRC3	= SftpAdmin/Main.c SftpServer/Buffer.c SftpServer/Log.c
-#juste pour les tests
 OBJ3	= $(SRC3:.c=.o)
 
 
