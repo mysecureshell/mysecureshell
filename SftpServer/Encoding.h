@@ -1,7 +1,7 @@
 /*
 MySecureShell permit to add restriction to modified sftp-server
 when using MySecureShell as shell.
-Copyright (C) 2006 Sebastien Tardif
+Copyright (C) 2007 Sebastien Tardif
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
