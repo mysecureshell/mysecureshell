@@ -33,9 +33,9 @@ typedef struct		s_hash
 }			t_hash;
 
 void	delete_hash();
-void	*hash_get(char *key);
-int	hash_get_int(char *key);
-int	hash_get_int_with_default(char *key, int dft);
-void	hash_set(char *key, void *value);
-void	hash_set_int(char *key, int value);
+void	*hash_get(const char *key);
+int	hash_get_int(const char *key);
+int	hash_get_int_with_default(const char *key, int dft);
+void	hash_set(const char *key, void *value);
+void	hash_set_int(const char *key, int value);
 void	create_hash();

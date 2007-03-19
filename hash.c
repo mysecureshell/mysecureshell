@@ -56,7 +56,7 @@ void		delete_hash()
   _last_key = 0;
 }
 
-void		hash_set(char *key, void *value)
+void		hash_set(const char *key, void *value)
 {
   t_element	*t = _hash->hash[MAKE_HASH(key)];
 
@@ -71,13 +71,17 @@ void		hash_set(char *key, void *value)
       t = t->next;
     }
   t = calloc(1, sizeof(*t));
-  t->key = strdup(key);
-  t->str = value;
-  t->next = _hash->hash[MAKE_HASH(key)];
-  _hash->hash[MAKE_HASH(key)] = t;
+  if ((t->key = strdup(key)))
+    {
+      t->str = value;
+      t->next = _hash->hash[MAKE_HASH(key)];
+      _hash->hash[MAKE_HASH(key)] = t;
+    }
+  else
+    free(t);
 }
 
-void		hash_set_int(char *key, int value)
+void		hash_set_int(const char *key, int value)
 {
   t_element	*t = _hash->hash[MAKE_HASH(key)];
 
@@ -91,13 +95,17 @@ void		hash_set_int(char *key, int value)
       t = t->next;
     }
   t = calloc(1, sizeof(*t));
-  t->key = strdup(key);
-  t->number = value;
-  t->next = _hash->hash[MAKE_HASH(key)];
-  _hash->hash[MAKE_HASH(key)] = t;
+  if ((t->key = strdup(key)))
+    {
+      t->number = value;
+      t->next = _hash->hash[MAKE_HASH(key)];
+      _hash->hash[MAKE_HASH(key)] = t;
+    }
+  else
+    free(t);
 }
 
-void		*hash_get(char *key)
+void		*hash_get(const char *key)
 {
   t_element	*t = _hash->hash[MAKE_HASH(key)];
 
@@ -115,7 +123,7 @@ void		*hash_get(char *key)
   return (0);
 }
 
-int		hash_get_int(char *key)
+int		hash_get_int(const char *key)
 {
   t_element     *t = _hash->hash[MAKE_HASH(key)];
 
@@ -133,7 +141,7 @@ int		hash_get_int(char *key)
   return (0);
 }
 
-int		hash_get_int_with_default(char *key, int dft)
+int		hash_get_int_with_default(const char *key, int dft)
 {
   t_element	*t = _hash->hash[MAKE_HASH(key)];
 
