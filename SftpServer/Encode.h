@@ -25,8 +25,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Buffer.h"
 
 tAttributes	*GetAttributes(tBuffer *bIn);
-void		StatToAttributes(struct stat *st, tAttributes *a, char *fileName);
-void		EncodeAttributes(tBuffer *b, tAttributes *a, char *file);
+void		StatToAttributes(const struct stat *st, tAttributes *a, const char *fileName);
+void		EncodeAttributes(tBuffer *b, const tAttributes *a, const char *file);
 struct timeval	*AttributesToTimeval(const tAttributes *a);
 
 #endif //_ENCODE_H_

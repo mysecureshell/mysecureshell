@@ -24,7 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 char    *convertToUtf8(char *str, int freeAfter);
 char    *convertFromUtf8(char *str, int freeAfter);
-void	setCharset(char *charset);
+void	setCharset(const char *charset);
 
 #else
 #include <string.h>

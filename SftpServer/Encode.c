@@ -136,7 +136,7 @@ tAttributes		*GetAttributes(tBuffer *bIn)
   return (&a);
 }
 
-void	StatToAttributes(struct stat *st, tAttributes *a, char *fileName)
+void	StatToAttributes(const struct stat *st, tAttributes *a, const char *fileName)
 {
   memset(a, 0, sizeof(*a));
   a->flags = SSH2_FILEXFER_ATTR_SIZE;
@@ -218,7 +218,7 @@ void	StatToAttributes(struct stat *st, tAttributes *a, char *fileName)
 #include <sys/acl.h>
 
 #ifndef HAVE_CYGWIN
-static void	EncodeACL(tBuffer *b, char *file)
+static void	EncodeACL(tBuffer *b, const char *file)
 {
   tBuffer	*bAcl = BufferNew();
   acl_entry_t	entry;
@@ -301,7 +301,7 @@ static void	EncodeACL(tBuffer *b, char *file)
 
 #else //ifdef HAVE_CYGWIN
 
-static void     EncodeACL(tBuffer *b, char *file)
+static void     EncodeACL(tBuffer *b, const char *file)
 {
   tBuffer	*bAcl = BufferNew();
   aclent_t	acls[MAX_ACL_ENTRIES];
@@ -381,7 +381,7 @@ static void     EncodeACL(tBuffer *b, char *file)
 
 #endif //HAVE_LIBACL
 
-void	EncodeAttributes(tBuffer *b, tAttributes *a, char *file)
+void	EncodeAttributes(tBuffer *b, const tAttributes *a, const char *file)
 {
   BufferPutInt32(b, a->flags);
   if (cVersion >= 4)

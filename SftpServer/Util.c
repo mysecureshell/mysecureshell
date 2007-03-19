@@ -258,7 +258,7 @@ char	*ExecCommand(char *cmd, int *myRet)
   return (ExecCommandWithArgs(args, myRet, NULL, 1));
 }
 
-char	*ExecCommandWithArgs(char **args, int *myRet, char *dataInput, int shouldReturnString)
+char	*ExecCommandWithArgs(char **args, int *myRet, const char *dataInput, int shouldReturnString)
 {
   char	buffer[1024], *str = NULL;
   pid_t	pid;

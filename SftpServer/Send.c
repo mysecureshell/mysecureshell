@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Encode.h"
 #include "Send.h"
 
-void		SendAttributes(tBuffer *bOut, u_int32_t id, tAttributes *a, char *file)
+void		SendAttributes(tBuffer *bOut, u_int32_t id, const tAttributes *a, const char *file)
 {
   tBuffer	*b;
 	
@@ -35,7 +35,7 @@ void		SendAttributes(tBuffer *bOut, u_int32_t id, tAttributes *a, char *file)
   BufferDelete(b);
 }
 
-void		SendStats(tBuffer *bOut, u_int32_t id, int count, tStat *s)
+void		SendStats(tBuffer *bOut, u_int32_t id, int count, const tStat *s)
 {
   tBuffer	*b;
   int		i;
@@ -69,7 +69,7 @@ void		SendHandle(tBuffer *bOut, u_int32_t id, int h)
   //END Data
 }
 
-void		SendData(tBuffer *bOut, u_int32_t id, char *data, int len)
+void		SendData(tBuffer *bOut, u_int32_t id, const char *data, int len)
 {
   u_int32_t	dataSize;
 

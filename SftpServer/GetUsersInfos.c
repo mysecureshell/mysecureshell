@@ -48,7 +48,7 @@ void		init_usersinfos()
   endgrent();
 }
 
-t_info	*mygetpwnam(char *login)
+t_info	*mygetpwnam(const char *login)
 {
   int	i;
 
@@ -79,7 +79,7 @@ t_info	*mygetpwuid(uid_t uid)
   return (0);
 }
 
-t_info	*mygetgrnam(char *group)
+t_info	*mygetgrnam(const char *group)
 {
   int	i;
 

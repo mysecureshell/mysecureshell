@@ -21,9 +21,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 void	parse_tag(char *buffer);
 void	parse_tag_open(char *str);
-void	parse_tag_close(char *str);
-void	parse_virtualhost(char *str);
-char	*parse_range_ip(char *str);
+void	parse_tag_close(const char *str);
+void	parse_virtualhost(const char *str);
+char	*parse_range_ip(const char *str);
 char	**parse_cut_string(char *str);
 
 extern int	parse_opened_tag;

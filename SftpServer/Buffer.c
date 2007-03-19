@@ -108,7 +108,7 @@ void	BufferPutInt64(tBuffer *b, u_int64_t nb)
   b->data[b->length++] = n2;
 }
 
-void	BufferPutRawData(tBuffer *b, void *data, int size)
+void	BufferPutRawData(tBuffer *b, const void *data, int size)
 {
   if ((b->length + size) > b->size)
     BufferGrow(b, b->length + size - b->size + DEFAULT_GROW);
@@ -116,7 +116,7 @@ void	BufferPutRawData(tBuffer *b, void *data, int size)
   b->length += size;
 }
 
-void	BufferPutString(tBuffer *b, char *data)
+void	BufferPutString(tBuffer *b, const char *data)
 {
   int	size;
 

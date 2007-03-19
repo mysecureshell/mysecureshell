@@ -48,7 +48,7 @@ void	parse_tag(char *buffer)
     parse_tag_open(str);
 }
 
-void	parse_tag_close(char *str)
+void	parse_tag_close(const char *str)
 {
   if (!strcasecmp(str, TAG_GROUP))
       hash_set("GROUP", 0);
@@ -89,7 +89,7 @@ void	parse_tag_open(char *str)
   parse_opened_tag++;
 }
 
-void			parse_virtualhost(char *str)
+void			parse_virtualhost(const char *str)
 {
   struct hostent	*h;
   char			*ptr;
@@ -119,7 +119,7 @@ void			parse_virtualhost(char *str)
   hash_set_int("VIRTUALHOST_PORT", port);
 }
 
-char	*parse_range_ip(char *str)
+char	*parse_range_ip(const char *str)
 {
   char	*mask = calloc(10, sizeof(char));
   int	i, nb, pos;

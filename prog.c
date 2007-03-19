@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "prog.h"
 #include "SftpServer/SftpWho.h"
 
-int		count_program_for_uid(char *login)
+int		count_program_for_uid(const char *login)
 {
   t_sftpwho	*who;
   int		i, nb;
@@ -44,7 +44,7 @@ int		count_program_for_uid(char *login)
   return (nb);
 }
 
-int		count_program_for_ip(char *host)
+int		count_program_for_ip(const char *host)
 {
   t_sftpwho	*who;
   int		i, nb;

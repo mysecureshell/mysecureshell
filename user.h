@@ -22,8 +22,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define	REST_USER	2
 
 int	init_user_info();
-int	is_for_user(char *user, int verbose);
-int	is_for_group(char *group, int verbose);
-int	is_for_rangeip(char *range, int verbose);
-int	is_for_virtualhost(char *host, int port, int verbose);
+int	is_for_user(const char *user, int verbose);
+int	is_for_group(const char *group, int verbose);
+int	is_for_rangeip(const char *range, int verbose);
+int	is_for_virtualhost(const char *host, int port, int verbose);
 void	free_user_info();

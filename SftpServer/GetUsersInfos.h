@@ -28,8 +28,8 @@ typedef struct  s_info
 
 void	init_usersinfos();
 t_info	*mygetpwuid(uid_t uid);
-t_info	*mygetpwnam(char *login);
+t_info	*mygetpwnam(const char *login);
 t_info	*mygetgrgid(gid_t gid);
-t_info	*mygetgrnam(char *group);
+t_info	*mygetgrnam(const char *group);
 
 #endif //_GETUSERSINFOS_H_

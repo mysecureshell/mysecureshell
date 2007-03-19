@@ -17,6 +17,5 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-int	count_program_for_uid(char *login);
-int	count_program_for_ip(char *host);
-int	is_number(char *str);
+int	count_program_for_uid(const char *login);
+int	count_program_for_ip(const char *host);

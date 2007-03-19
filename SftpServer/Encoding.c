@@ -91,7 +91,7 @@ char	*convertFromUtf8(char *str, int freeAfter)
   return (newStr);
 }
 
-void	setCharset(char *charset)
+void	setCharset(const char *charset)
 {
   if (charset)
     {

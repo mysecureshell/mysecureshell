@@ -93,7 +93,8 @@ int		init_user_info()
 
   if ((info = getpwuid(getuid())))
     {
-      user_name = strdup(info->pw_name);
+      if ((user_name = strdup(info->pw_name)) == NULL)
+	return (0);
       getgrouplist(user_name, info->pw_gid, groups, &nb_groups);
       if (nb_groups > 0)
         {
@@ -123,7 +124,7 @@ void	free_user_info()
     }
 }
 
-int	is_for_user(char *user, int verbose)
+int	is_for_user(const char *user, int verbose)
 {
   if (!user)
     return (0);
@@ -141,7 +142,7 @@ int	is_for_user(char *user, int verbose)
   return (0);
 }
 
-int	is_for_group(char *group, int verbose)
+int	is_for_group(const char *group, int verbose)
 {
   int	i;
 
@@ -163,7 +164,7 @@ int	is_for_group(char *group, int verbose)
   return (0);
 }
 
-int	is_for_virtualhost(char *host, int port, int verbose)
+int	is_for_virtualhost(const char *host, int port, int verbose)
 {
   char	*current_host;
   int	current_port;
@@ -181,7 +182,7 @@ int	is_for_virtualhost(char *host, int port, int verbose)
   return (0);
 }
 
-int	is_for_rangeip(char *range, int verbose)
+int	is_for_rangeip(const char *range, int verbose)
 {
   char	*bip, *ip;
   int	pos, size;

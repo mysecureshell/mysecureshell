@@ -129,7 +129,7 @@ static void	SendListUsers(tBuffer *bOut)
   BufferDelete(b);
 }
 
-static void	SendKillUser(tBuffer *bOut, char *arg)
+static void	SendKillUser(tBuffer *bOut, const char *arg)
 {
   tBuffer	*b;
 
@@ -140,7 +140,7 @@ static void	SendKillUser(tBuffer *bOut, char *arg)
   BufferDelete(b);
 }
 
-static void	SendServerStatus(tBuffer *bOut, char *arg)
+static void	SendServerStatus(tBuffer *bOut, const char *arg)
 {
   tBuffer       *b;
 

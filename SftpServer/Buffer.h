@@ -43,10 +43,9 @@ void	BufferReadData(tBuffer *b, u_int32_t size);
 void	BufferPutInt8(tBuffer *b, u_int8_t nb);
 void	BufferPutInt32(tBuffer *b, u_int32_t nb);
 void	BufferPutInt64(tBuffer *b, u_int64_t nb);
-void	BufferPutString(tBuffer *b, char *data);
 void	BufferPutHandle(tBuffer *b, int h);
-void	BufferPutData(tBuffer *b, void *data, int size);
-void	BufferPutRawData(tBuffer *b, void *data, int size);
+void	BufferPutString(tBuffer *b, const char *data);
+void	BufferPutRawData(tBuffer *b, const void *data, int size);
 
 u_int8_t	BufferGetInt8(tBuffer *b);
 u_int32_t	BufferGetInt32(tBuffer *b);

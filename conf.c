@@ -176,7 +176,7 @@ void	load_config(char verbose)
     }
 }
 
-int	load_config_file(char *file, char verbose, int max_recursive_left)
+int	load_config_file(const char *file, char verbose, int max_recursive_left)
 {
   FILE	*fh;
   char	buffer[1024];

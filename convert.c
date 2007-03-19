@@ -37,48 +37,49 @@ char	*convert_to_path(char *path)
   return (path);
 }
 
-char	*convert_str_with_resolv_env_to_str(char *str)
+char	*convert_str_with_resolv_env_to_str(const char *str)
 {
-  char	*env_var, *env_str, *new;
+  char	*env_var, *env_str, *new, *res;
   int	beg, end;
   int	i, max;
 
-  str = strdup(str);
-  max = strlen(str);
+  if ((res = strdup(str)) == NULL)
+    return NULL;
+  max = strlen(res);
   for (i = 0; i < max; i++)
-    if (str[i] == '$')
+    if (res[i] == '$')
       {
 	beg = i + 1;
 	while (i < max)
 	  {
 	    i++;
-	    if (!((str[i] >= 'a' && str[i] <= 'z') || (str[i] >= 'A' && str[i] <= 'Z')
-		  || (str[i] >= '0' && str[i] <= '9') || (str[i] == '_')))
+	    if (!((res[i] >= 'a' && res[i] <= 'z') || (res[i] >= 'A' && res[i] <= 'Z')
+		  || (res[i] >= '0' && res[i] <= '9') || (res[i] == '_')))
 	      break;
 	  }
 	end = i;
 	env_str = malloc(end - beg + 1);
-	strncpy(env_str, str + beg, end - beg);
+	strncpy(env_str, res + beg, end - beg);
 	env_str[end - beg] = 0;
 	if ((env_var = getenv(env_str)))
 	  {
-	    int	len = strlen(str) - (end - beg) + strlen(env_var) + 1;
+	    int	len = strlen(res) - (end - beg) + strlen(env_var) + 1;
 
 	    new = malloc(len);
-	    strncpy(new, str, beg - 1);
+	    strncpy(new, res, beg - 1);
 	    new[beg - 1] = 0;
 	    STRCAT(new, env_var, len);
-	    STRCAT(new, str + end, len);
-	    free(str);
-	    str = new;
+	    STRCAT(new, res + end, len);
+	    free(res);
+	    res = new;
 	    i = 0;
 	  }
 	free(env_str);
       }
-  return (str);
+  return (res);
 }
 
-int	convert_boolean_to_int(char *str)
+int	convert_boolean_to_int(const char *str)
 {
   if (str)
     if (!strcasecmp(str, "true") || !strcmp(str, "1"))
@@ -88,7 +89,7 @@ int	convert_boolean_to_int(char *str)
 
 int	convert_speed_to_int(char **tb)
 {
-  char	*str;
+  const char *str;
   int	nb = 0;
   int	div = 0;
   int	i, j;
@@ -133,7 +134,7 @@ int	convert_time_to_int(char **tb)
 
   for (j = 0; tb[j]; j++)
     {
-      char	*str = tb[j];
+      const char *str = tb[j];
 
       for (i = 0; str[i]; i++)
 	{
@@ -157,7 +158,7 @@ int	convert_time_to_int(char **tb)
   return (nb);
 }
 
-int     convert_mode_to_int(char *str)
+int     convert_mode_to_int(const char *str)
 {
   int	i;
   int	r;

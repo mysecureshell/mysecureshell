@@ -30,7 +30,7 @@ static int	do_loop = 0;
 static int	_verbose = 0;
 static int	_only_show_pid_and_name = 0;
 
-static int	is_number(char *av)
+static int	is_number(const char *av)
 {
   int		i;
 

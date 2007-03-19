@@ -28,11 +28,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define	MYLOG_DEBUG		5
 #define	MYLOG_MAX		6
 
-void	mylog_open(char *file);
+void	mylog_open(const char *file);
 void	mylog_close();
 void	mylog_reopen();
 void	mylog_time(int hours);
-void	mylog_printf(int level, char *str, ...);
+void	mylog_printf(int level, const char *str, ...);
 
 #ifdef DODEBUG
 #define DEBUG(_X)	mylog_printf _X
