@@ -49,23 +49,21 @@ static void	end_sftp()
 	  SftpWhoRelaseStruct();
 	  gl_var->who = NULL;
 	}
-      if (gl_var->hide_files)
+      if (gl_var->has_hide_files)
 	{
 	  regfree(&gl_var->hide_files_regexp);
-	  free(gl_var->hide_files);
-	  gl_var->hide_files = NULL;
+	  gl_var->has_hide_files = MSS_FALSE;
 	}
-      if (gl_var->deny_filter)
+      if (gl_var->has_deny_filter)
 	{
 	  regfree(&gl_var->deny_filter_regexp);
-	  free(gl_var->deny_filter);
-	  gl_var->deny_filter = NULL;
+	  gl_var->has_deny_filter = MSS_FALSE;
 	}
       free(gl_var);
       gl_var = NULL;
       setCharset(NULL);
     }
-  exit(0);
+  _exit(0);
 }
 
 static void	end_sftp_by_signal(int signal)
@@ -129,11 +127,11 @@ void	DoInitUser()
     }
 }
 
-int	CheckRules(char *pwd, char operation, struct stat *st, int flags)
+int	CheckRules(const char *pwd, char operation, const struct stat *st, int flags)
 {
-  char		*str;
+  const char	*str;
 
-  if (gl_var->hide_files && (operation >= RULES_LISTING
+  if (gl_var->has_hide_files && (operation >= RULES_LISTING
 			     || (operation == RULES_DIRECTORY && (flags & O_RDONLY))
 			     || (operation == RULES_FILE && (flags & O_RDONLY))))
     {
@@ -161,7 +159,7 @@ int	CheckRules(char *pwd, char operation, struct stat *st, int flags)
       if (strstr(pwd, "/."))
 	return SSH2_FX_NO_SUCH_FILE;
     }
-  if (gl_var->deny_filter && ((operation == RULES_FILE && ((flags & O_WRONLY) || (flags & O_RDWR)))
+  if (gl_var->has_deny_filter && ((operation == RULES_FILE && ((flags & O_WRONLY) || (flags & O_RDWR)))
 			      || (operation == RULES_DIRECTORY && (flags & O_WRONLY))))
     {
       if ((str = strrchr(pwd, '/')))
@@ -247,9 +245,10 @@ int	CheckRulesAboutMaxFiles()
   return SSH2_FX_OK;
 }
 
-void	ResolvPath(char *path, char *dst, int dstMaxSize)
+void	ResolvPath(const char *path, char *dst, int dstMaxSize)
 {
-  char          *ptr, *s = path;
+  const char	*s = path;
+  char          *ptr;
   int           i, beg, end, len;
 
   dst[0] = 0;

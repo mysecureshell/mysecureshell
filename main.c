@@ -181,8 +181,8 @@ int	main(int ac, char **av, char **env)
 	mylog_open(strdup((char *)hash_get("LogFile")));
       else
 	mylog_open(MSS_LOG);
-      if ((hide_files = (char *)hash_get("HideFiles"))) hide_files = strdup(hide_files);
-      if ((deny_filter = (char *)hash_get("PathDenyFilter"))) deny_filter = strdup(deny_filter);
+      hide_files = (char *)hash_get("HideFiles");
+      deny_filter = (char *)hash_get("PathDenyFilter");
 
       params->who->status |=
 	(hash_get_int("StayAtHome") ? SFTPWHO_STAY_AT_HOME : 0) +
@@ -221,7 +221,7 @@ int	main(int ac, char **av, char **env)
 	  int	r;
 
 	  if (!(r = regcomp(&params->hide_files_regexp, hide_files, REG_EXTENDED | REG_NOSUB | REG_NEWLINE)))
-            params->hide_files = strdup(hide_files);
+            params->has_hide_files = MSS_TRUE;
           else
             {
               char	buffer[256];
@@ -236,7 +236,7 @@ int	main(int ac, char **av, char **env)
 	  int	r;
 
 	  if (!(r = regcomp(&params->deny_filter_regexp, deny_filter, REG_EXTENDED | REG_NOSUB | REG_NEWLINE)))
-            params->deny_filter = strdup(deny_filter);
+            params->has_deny_filter = MSS_TRUE;
           else
             {
               char      buffer[256];
@@ -295,10 +295,6 @@ int	main(int ac, char **av, char **env)
       if (hash_get("GMTTime"))
 	  mylog_time(atoi((char *)hash_get("GMTTime")));
       delete_hash();
-      if (deny_filter)
-	free(deny_filter);
-      if (hide_files)
-	free(hide_files);
       if (hostname)
 	free(hostname);
       return (SftpMain(params, sftp_version));

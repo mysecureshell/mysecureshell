@@ -228,12 +228,20 @@ typedef struct	sStat
   tAttributes	attributes;
 }		tStat;
 
+/* Global defines */
+
+#define MSS_TRUE	1
+#define MSS_FALSE	0
+
+/* End defines */
+
+
 typedef struct	sGlobal
 {
   t_sftpwho	*who;
 
-  char		*hide_files;
-  char		*deny_filter;
+  int		has_hide_files;
+  int		has_deny_filter;
   regex_t	hide_files_regexp;
   regex_t	deny_filter_regexp;
   int		max_openfiles;
