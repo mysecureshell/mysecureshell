@@ -33,6 +33,7 @@ typedef struct	s_log
   int		fd;
   int		pid;
   int		time;
+  int		nextReopen;
 #ifdef HAVE_LOG_IN_COLOR
   unsigned char	color[MYLOG_MAX][3];
 #endif
@@ -48,8 +49,7 @@ void	mylog_open(const char *file)
     {
       if (_log == NULL)
 	{
-	  _log = malloc(sizeof(*_log));
-	  memset(_log, 0, sizeof(*_log));
+	  _log = calloc(1, sizeof(*_log));
 	  _log->pid = getpid();
 	}
       _log->file = file;
@@ -103,10 +103,7 @@ void	mylog_close()
 void	mylog_reopen()
 {
   if (_log)
-    {
-      mylog_close();
-      mylog_open(_log->file);
-    }
+    _log->nextReopen = 1;
 }
 
 void    mylog_time(int hours)
@@ -128,6 +125,12 @@ void		mylog_printf(int level, const char *str, ...)
     {
       if (level < 0 || level >= MYLOG_MAX)
 	level = MYLOG_ERROR;
+      if (_log->nextReopen)
+	{
+	  _log->nextReopen = 0;
+	  mylog_close();
+	  mylog_open(_log->file);
+	}
       va_start(ap, str);
       t = time(0) + _log->time;
       tm = localtime(&t);
