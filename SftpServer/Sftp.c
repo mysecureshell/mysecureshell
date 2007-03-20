@@ -930,7 +930,9 @@ int			SftpMain(tGlobal *params, int sftpProtocol)
     bypassChecks:
       FD_ZERO(&fdR);
       FD_ZERO(&fdW);
-      
+
+      if (gl_var->must_shutdown)
+	exit(0);
       if (!gl_var->upload_max || (gl_var->upload_current < gl_var->upload_max))
 	FD_SET(0, &fdR);
       if (bOut->length > 0 && (!gl_var->download_max

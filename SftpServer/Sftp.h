@@ -242,6 +242,7 @@ typedef struct	sGlobal
 
   int		has_hide_files;
   int		has_deny_filter;
+  int		must_shutdown;
   regex_t	hide_files_regexp;
   regex_t	deny_filter_regexp;
   int		max_openfiles;

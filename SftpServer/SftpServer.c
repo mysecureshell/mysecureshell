@@ -68,7 +68,7 @@ static void	end_sftp()
 
 static void	end_sftp_by_signal(int signal)
 {
-  end_sftp();
+  gl_var->must_shutdown = 1;
 }
 
 static void	reopen_log_file(int signal)
@@ -82,6 +82,7 @@ void	ParseConf(tGlobal *params, int sftpProtocol)
   atexit(end_sftp);
   signal(SIGHUP, end_sftp_by_signal);
   signal(SIGINT, end_sftp_by_signal);
+  signal(SIGTERM, end_sftp_by_signal);
   signal(SIGUSR1, reopen_log_file);
   signal(SIGUSR2, reopen_log_file);
   if (sftpProtocol)
