@@ -122,10 +122,8 @@ t_sftpwho	*SftpWhoGetStruct(int create)
     }
   if (create == 1)
     {
-      _sftpglobal = malloc(sizeof(*_sftpglobal));
-      memset(_sftpglobal, 0, sizeof(*_sftpglobal));
-      who = malloc(sizeof(*who));
-      memset(who, 0, sizeof(*who));
+      _sftpglobal = calloc(1, sizeof(*_sftpglobal));
+      who = calloc(1, sizeof(*who));
     }
   return (who);
 }

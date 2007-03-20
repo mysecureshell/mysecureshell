@@ -40,8 +40,7 @@ void	HandleInit()
 {
   int	i;
 	
-  gHandle = malloc(HANDLE_NUMBER * sizeof(*gHandle));
-  memset(gHandle, 0, HANDLE_NUMBER * sizeof(*gHandle));
+  gHandle = calloc(HANDLE_NUMBER, sizeof(*gHandle));
   for (i = 0; i < HANDLE_NUMBER; i++)
     gHandle[i].fd = -1;
 }

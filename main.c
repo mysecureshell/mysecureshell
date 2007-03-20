@@ -125,8 +125,7 @@ int	main(int ac, char **av, char **env)
       int	max, fd, sftp_version;
 
       hostname = get_ip(hash_get_int("ResolveIP"));
-      params = malloc(sizeof(*params));
-      memset(params, 0, sizeof(*params));
+      params = calloc(1, sizeof(*params));
       params->who = SftpWhoGetStruct(1);
       params->who->time_begin = time(0);
       params->who->pid = (unsigned int)getpid();
