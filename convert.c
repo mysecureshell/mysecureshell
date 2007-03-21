@@ -27,7 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 char	*convert_to_path(char *path)
 {
-  int	len = strlen(path);
+  size_t	len = strlen(path);
 
   if (len > 0)
     {
@@ -39,9 +39,8 @@ char	*convert_to_path(char *path)
 
 char	*convert_str_with_resolv_env_to_str(const char *str)
 {
-  char	*env_var, *env_str, *new, *res;
-  int	beg, end;
-  int	i, max;
+  size_t	beg, end, i, max;
+  char		*env_var, *env_str, *new, *res;
 
   if ((res = strdup(str)) == NULL)
     return NULL;
@@ -63,8 +62,9 @@ char	*convert_str_with_resolv_env_to_str(const char *str)
 	env_str[end - beg] = '\0';
 	if ((env_var = getenv(env_str)))
 	  {
-	    int	len = strlen(res) - (end - beg) + strlen(env_var) + 1;
+	    size_t	len;
 
+	    len = strlen(res) - (end - beg) + strlen(env_var) + 1;
 	    new = malloc(len);
 	    strncpy(new, res, beg - 1);
 	    new[beg - 1] = '\0';
