@@ -17,11 +17,11 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
+#include "config.h"
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
 #include "conf.h"
-#include "config.h"
 #include "ip.h"
 #include "parsing.h"
 #include "string.h"
@@ -44,8 +44,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 typedef struct	sConf
 {
   char		*name;
-  char		type;
-  char		show;
+  int		type;
+  int		show;
 }		tConf;
 
 static const tConf	confParams[] =
@@ -88,105 +88,108 @@ static const tConf	confParams[] =
     { "CanRemoveDir", CONF_IS_BOOLEAN, CONF_SHOW },
     { "CanRemoveFile", CONF_IS_BOOLEAN, CONF_SHOW },
     { "ExpireDate", CONF_IS_STRING_MAYBE_EMPTY, CONF_SHOW },
-    { 0, CONF_IS_EMPTY },
+    { NULL, CONF_IS_EMPTY, CONF_NOT_SHOW },
   };
 
-void	load_config(char verbose)
+void	load_config(int verbose)
 {
-  if (!init_user_info())
+  if (init_user_info() == 0)
     {
-      if (verbose) printf("[ERROR]Error when fetching user informations\n");
+      if (verbose > 0) (void )printf("[ERROR]Error when fetching user informations\n");
       exit (2);
     }
   hash_set_int("SERVER_PORT", get_port_server());
   hash_set("SERVER_IP", get_ip_server());
-  if (!load_config_file(CONFIG_FILE, verbose, 10))
-    if (!load_config_file(CONFIG_FILE2, verbose, 10) && verbose)
+  if (load_config_file(CONFIG_FILE, verbose, 10) == 0)
+    if (load_config_file(CONFIG_FILE2, verbose, 10) == 0 && verbose > 0)
       {
-	printf("[ERROR]No valid config file were found.\nPlease correct this.\n");
+	(void )printf("[ERROR]No valid config file were found.\nPlease correct this.\n");
 	exit (2);
       }
   free_user_info();
-  if (verbose)
+  if (verbose > 0)
     {
-      int	i, r, r2, maxLen;
+      size_t	maxLen;
+      int	i, r, r2;
 
-      printf("--- %s ---\n", (char *)hash_get("User"));
+      (void )printf("--- %s ---\n", (char *)hash_get("User"));
       for (i = 0, maxLen = 0; confParams[i].type != CONF_IS_EMPTY; i++)
 	{
-	  int	len = strlen(confParams[i].name);
+	  size_t	len = strlen(confParams[i].name);
 
 	  if (len > maxLen)
 	    maxLen = len;
 	}
       for (i = 0; confParams[i].type != CONF_IS_EMPTY; i++)
 	{
-	  char	*ptr;
-	  int	vInt, j;
+	  size_t	j;
+	  char		*ptr;
+	  int		vInt;
 
-	  printf("%s", confParams[i].name);
+	  (void )printf("%s", confParams[i].name);
 	  for (j = maxLen - strlen(confParams[i].name); j >= 0; j--)
-	    printf(" ");
-	  printf("= ");
+	    (void )printf(" ");
+	  (void )printf("= ");
 	  switch (confParams[i].type)
 	    {
 	    case CONF_IS_STRING:
 	    case CONF_IS_PATH_RESOLVE_ENV:
 	      ptr = (char *)hash_get(confParams[i].name);
 	      if (ptr == NULL && confParams[i].show == CONF_SHOW_IF_NOT_NULL)
-		printf("{default}");
+		(void )printf("{default}");
 	      else
-		printf("%s", ptr);
+		(void )printf("%s", ptr);
 	      break;
 	    case CONF_IS_STRING_MAYBE_EMPTY:
 	      ptr = (char *)hash_get(confParams[i].name);
-	      printf("%s", ptr ? ptr : "{nothing}");
+	      (void )printf("%s", ptr ? ptr : "{nothing}");
 	      break;
 	    case CONF_IS_INT:
 	      vInt = hash_get_int(confParams[i].name);
 	      if (vInt == 0 && confParams[i].show == CONF_SHOW_IF_NOT_NULL)
-		printf("{default}");
+		(void )printf("{default}");
 	      else
-		printf("%i", vInt);
+		(void )printf("%i", vInt);
 	      break;
 	    case CONF_IS_BOOLEAN:
-	      printf("%s", hash_get_int(confParams[i].name) == 0 ? "false" : "true");
+	      (void )printf("%s", hash_get_int(confParams[i].name) == 0 ? "false" : "true");
 	      break;
 	    case CONF_IS_SPEED:
-	      printf("%i bytes/s", hash_get_int(confParams[i].name));
+	      (void )printf("%i bytes/s", hash_get_int(confParams[i].name));
 	      break;
 	    case CONF_IS_MODE:
 	      vInt = hash_get_int(confParams[i].name);
 	      if (vInt == 0)
-		printf("{default}");
+		(void )printf("{default}");
 	      else
-		printf("%i", vInt);
+		(void )printf("%i", vInt);
 	      break;
 	    case CONF_IS_TIME:
-	      printf("%is", hash_get_int(confParams[i].name));
+	      (void )printf("%is", hash_get_int(confParams[i].name));
 	      break;
 	    }
-	  printf("\n");
+	  (void )printf("\n");
 	}
       r = hash_get_int("DefaultRightsFile");
       r2 = hash_get_int("DefaultRightsDirectory");
-      printf("DefaultRights         = %i%i%i%i %i%i%i%i\n",
+      (void )printf("DefaultRights         = %i%i%i%i %i%i%i%i\n",
 	     r / (8 * 8 * 8), (r / ( 8 * 8)) % 8, (r / 8) % 8, r % 8,
 	     r2 / (8 * 8 * 8), (r2 / ( 8 * 8)) % 8, (r2 / 8) % 8, r2 % 8);
     }
 }
 
-int	load_config_file(const char *file, char verbose, int max_recursive_left)
+int	load_config_file(const char *file, int verbose, int max_recursive_left)
 {
-  FILE	*fh;
-  char	buffer[1024];
-  char	**tb, *str;
-  int	len, line, processTag;
+  size_t	len;
+  FILE		*fh;
+  char		buffer[1024];
+  char		**tb, *str;
+  int		line, processTag;
 
-  if (!max_recursive_left)
+  if (max_recursive_left == 0)
     {
-      if (verbose)
-	printf("[ERROR]Too much inclusions !!!\n");
+      if (verbose > 0)
+	(void )printf("[ERROR]Too much inclusions !!!\n");
       return (0);
     }
   processTag = 1;
@@ -206,21 +209,23 @@ int	load_config_file(const char *file, char verbose, int max_recursive_left)
 		      parse_tag(str);
 		      if (parse_opened_tag < 0)
 			{
-			  if (verbose) printf("[ERROR]Too much tag closed at line %i in file '%s'!\n", line, file);
+			  if (verbose > 0)
+			    (void )printf("[ERROR]Too much tag closed at line %i in file '%s'!\n", line, file);
 			  exit (2);
 			}
 		    }
 		  else
 		    {
-		      if (verbose) printf("[ERROR]Error parsing line %i is not valid in file '%s'!\n", line, file);
+		      if (verbose > 0)
+			(void )printf("[ERROR]Error parsing line %i is not valid in file '%s'!\n", line, file);
 		      exit (2);
 		    }
-		  if (is_for_user((char *)hash_get("USER"), verbose)
-		      || is_for_group((char *)hash_get("GROUP"), verbose)
-		      || is_for_rangeip((char *)hash_get("RANGEIP"), verbose)
+		  if (is_for_user((char *)hash_get("USER"), verbose) == 1
+		      || is_for_group((char *)hash_get("GROUP"), verbose) == 1
+		      || is_for_rangeip((char *)hash_get("RANGEIP"), verbose) == 1
 		      || is_for_virtualhost((char *)hash_get("SERVER_IP"),
 					    hash_get_int("SERVER_PORT"),
-					    verbose)
+					    verbose) == 1
 		      || hash_get_int("DEFAULT") == 1)
 		    processTag = 1;
 		  else
@@ -238,29 +243,30 @@ int	load_config_file(const char *file, char verbose, int max_recursive_left)
 	}
       if (parse_opened_tag != 0)
 	{
-	  if (verbose) printf("[ERROR]Missing %i close(s) tag(s) in file '%s'!!!\n", parse_opened_tag, file);
+	  if (verbose > 0)
+	    (void )printf("[ERROR]Missing %i close(s) tag(s) in file '%s'!!!\n", parse_opened_tag, file);
 	  exit (2);
 	}
-      fclose(fh);
+      (void )fclose(fh);
     }
   else
     {
-      if (verbose && strcmp(file, CONFIG_FILE))
-	printf("[ERROR]Couldn't load config file '%s'. Error : %s\n", file, strerror(errno));
+      if (verbose > 0 && strcmp(file, CONFIG_FILE) != 0)
+	(void )printf("[ERROR]Couldn't load config file '%s'. Error : %s\n", file, strerror(errno));
       return (0);
     }
   return (1);
 }
 
-void	processLine(char **tb, int max_recursive_left, char verbose)
+void	processLine(char **tb, int max_recursive_left, int verbose)
 {
   int	notRecognized;
   int	i;
   
   notRecognized = 1;
   for (i = 0; confParams[i].type != CONF_IS_EMPTY; i++)
-    if (!strcmp(tb[0], confParams[i].name)
-	&& (tb[1] || confParams[i].type == CONF_IS_STRING_MAYBE_EMPTY))
+    if (strcmp(tb[0], confParams[i].name) == 0
+	&& (tb[1] != NULL || confParams[i].type == CONF_IS_STRING_MAYBE_EMPTY))
       {
 	notRecognized = 0;
 	switch (confParams[i].type)
@@ -296,21 +302,21 @@ void	processLine(char **tb, int max_recursive_left, char verbose)
 	  }
 	break;
       }
-  if (notRecognized)
+  if (notRecognized == 1)
     {
-      if (!strcmp(tb[0], "DefaultRights") && tb[1])
+      if (strcmp(tb[0], "DefaultRights") == 0 && tb[1] != NULL)
 	{
 	  notRecognized = 0;
 	  hash_set_int("DefaultRightsFile", convert_mode_to_int(tb[1]));
 	  if (tb[2])
 	    hash_set_int("DefaultRightsDirectory", convert_mode_to_int(tb[2]));
 	}
-      else if (!strcmp(tb[0], "Include") && tb[1])
+      else if (strcmp(tb[0], "Include") == 0 && tb[1] != NULL)
 	{
 	  notRecognized = 0;
-	  load_config_file(tb[1], verbose, max_recursive_left - 1);
+	  (void )load_config_file(tb[1], verbose, max_recursive_left - 1);
 	}
-      if (verbose && notRecognized)
-	printf("Property '%s' is not recognized !\n", tb[0]);
+      if (verbose > 0 && notRecognized == 1)
+	(void )printf("Property '%s' is not recognized !\n", tb[0]);
     }
 }

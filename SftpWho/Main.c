@@ -26,9 +26,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "../conf.h"
 #include "../hash.h"
 
-static int	do_loop = 0;
-static int	_verbose = 0;
-static int	_only_show_pid_and_name = 0;
+static unsigned int	do_loop = 0;
+static int		_verbose = 0;
+static int		_only_show_pid_and_name = 0;
 
 static int	is_number(const char *av)
 {
@@ -36,7 +36,7 @@ static int	is_number(const char *av)
 
   if (av)
     {
-      for (i = 0; av[i]; i++)
+      for (i = 0; av[i] != '\0'; i++)
 	if (av[i] < '0' || av[i] > '9')
 	  return (0);
       return (1);
@@ -49,26 +49,26 @@ static void	parse_args(int ac, char **av)
   int		i;
 
   for (i = 1; i < ac; i++)
-    if (!strcmp(av[i], "--while"))
+    if (strcmp(av[i], "--while") == 0)
       {
-	if (is_number(av[i + 1]))
+	if (is_number(av[i + 1]) == 1)
 	  {
 	    i++;
-	    do_loop = atoi(av[i]);
+	    do_loop = (unsigned int )atoi(av[i]);
 	  }
 	else
 	  do_loop = 1;
       }
-    else if (!strcmp(av[i], "-v"))
+    else if (strcmp(av[i], "-v") == 0)
       _verbose = 1;
-    else if (!strcmp(av[i], "--sftp-kill"))
+    else if (strcmp(av[i], "--sftp-kill") == 0)
       _only_show_pid_and_name = 1;
     else
       {
-	printf("Usage:\n------\n%s [options]\n\nOptions:\n", av[0]);
-	printf("\t-v : verbose mode\n");
-	printf("\t--while [time in seconde] : sftp-who refresh informations (use ^C to quit)\n");
-	printf("\n");
+	(void )printf("Usage:\n------\n%s [options]\n\nOptions:\n", av[0]);
+	(void )printf("\t-v : verbose mode\n");
+	(void )printf("\t--while [time in seconde] : sftp-who refresh informations (use ^C to quit)\n");
+	(void )printf("\n");
 	exit (0);
       }
 }
@@ -78,15 +78,15 @@ static char	*make_idle_time(unsigned int t)
   static char	buffer[256];
 
   if (t < 60)
-    snprintf(buffer, sizeof(buffer), "%02is", t);
+    (void )snprintf(buffer, sizeof(buffer), "%02us", t);
   else if (t < (60 * 60))
-    snprintf(buffer, sizeof(buffer), "%02imins %02is", t / 60, t % 60);
+    (void )snprintf(buffer, sizeof(buffer), "%02umins %02us", t / 60, t % 60);
   else if (t < (60 * 60 * 24))
-    snprintf(buffer, sizeof(buffer), "%02ih %02imins %02is",
-	     t / (60 * 60), (t / 60) % 60, t % 60);
+    (void )snprintf(buffer, sizeof(buffer), "%02uh %02umins %02us",
+		    t / (60 * 60), (t / 60) % 60, t % 60);
   else
-    snprintf(buffer, sizeof(buffer), "%idays %02ih %02imins %02is",
-	     t / (60 * 60 * 24), (t / (60 * 60)) % 24, (t / 60) % 60, t % 60);
+    (void )snprintf(buffer, sizeof(buffer), "%udays %02uh %02umins %02us",
+		    t / (60 * 60 * 24), (t / (60 * 60)) % 24, (t / 60) % 60, t % 60);
   return (buffer);
 }
 
@@ -98,38 +98,38 @@ static char	*make_time(unsigned int t)
 
   if ((tm = localtime(&tt)))
     {
-      strftime(b1, sizeof(b1), "%G/%m/%d %T", tm);
+      (void )strftime(b1, sizeof(b1), "%G/%m/%d %T", tm);
     }
   else
-    b1[0] = 0;
+    b1[0] = '\0';
   return (b1);
 }
 
 static char	*make_speed(char *b2, int size, unsigned int s, int can_unlimit)
 {
-  if (can_unlimit && s == 0)
-    snprintf(b2, size, "%s", "unlimited");
+  if (can_unlimit == 1 && s == 0)
+    (void )snprintf(b2, size, "%s", "unlimited");
   else if (s < 1024)
-    snprintf(b2, size, "%u bytes/s", s);
+    (void )snprintf(b2, size, "%u bytes/s", s);
   else if (s < (1024 * 1024))
-    snprintf(b2, size, "%.2f kbytes/s", (float )s / 1024.0f);
+    (void )snprintf(b2, size, "%.2f kbytes/s", (float )s / 1024.0f);
   else
-    snprintf(b2, size, "%.3f mbytes/s", (float )s / 1048576.0f);
+    (void )snprintf(b2, size, "%.3f mbytes/s", (float )s / 1048576.0f);
   return (b2);
 }
 
-static int	getRealDown(t_sftpwho *who)
+static unsigned int	getRealDown(t_sftpwho *who)
 {
-  if (_sftpglobal->download_by_client && !(who->status & SFTPWHO_BYPASS_GLB_DWN) &&
-      ((_sftpglobal->download_by_client < who->download_max) || !who->download_max))
+  if (_sftpglobal->download_by_client != 0&& !(who->status & SFTPWHO_BYPASS_GLB_DWN) &&
+      ((_sftpglobal->download_by_client < who->download_max) || who->download_max == 0))
       return (_sftpglobal->download_by_client);
   return (who->download_max);
 }
 
-static int	getRealUp(t_sftpwho *who)
+static unsigned int	getRealUp(t_sftpwho *who)
 {
-  if (_sftpglobal->upload_by_client && !(who->status & SFTPWHO_BYPASS_GLB_UPL) &&
-      ((_sftpglobal->upload_by_client < who->upload_max) || !who->upload_max))
+  if (_sftpglobal->upload_by_client != 0 && !(who->status & SFTPWHO_BYPASS_GLB_UPL) &&
+      ((_sftpglobal->upload_by_client < who->upload_max) || who->upload_max == 0))
       return (_sftpglobal->upload_by_client);
   return (who->upload_max);
 }
@@ -147,12 +147,12 @@ int		main(int ac, char **av)
   who = SftpWhoGetStruct(-1);
   do
     {
-      if (do_loop)
-	printf("\33[H\33[J");
+      if (do_loop > 0)
+	(void )printf("\33[H\33[J");
       nb_clients = 0;
       if (who)
 	{
-	  if (!_only_show_pid_and_name)
+	  if (_only_show_pid_and_name == 0)
 	    {
 	      unsigned int	global_download, global_upload;
 
@@ -165,18 +165,18 @@ int		main(int ac, char **av)
 		    global_download += who[i].download_current;
 		    global_upload += who[i].upload_current;
 		  }
-	      printf("--- %i / %i clients ---\n", nb_clients, hash_get_int("LimitConnection"));
-	      printf("Global used bandwith : %s / %s\n",
-		     make_speed(b1, sizeof(b1), global_download, 0),
-		     make_speed(b2, sizeof(b2), global_upload, 0)
-		     );
+	      (void )printf("--- %i / %i clients ---\n", nb_clients, hash_get_int("LimitConnection"));
+	      (void )printf("Global used bandwith : %s / %s\n",
+			    make_speed(b1, sizeof(b1), global_download, 0),
+			    make_speed(b2, sizeof(b2), global_upload, 0)
+			    );
 	    }
 	  for (i = 0; i < SFTPWHO_MAXCLIENT; i++)
 	    if ((who[i].status & SFTPWHO_STATUS_MASK) != SFTPWHO_EMPTY)
 	      {
-		if (_only_show_pid_and_name)
+		if (_only_show_pid_and_name == 1)
 		  {
-		    printf("%i %s\n", who[i].pid, who[i].user);
+		    (void )printf("%u %s\n", who[i].pid, who[i].user);
 		  }
 		else
 		  {
@@ -197,59 +197,64 @@ int		main(int ac, char **av)
 			status = "unknown";
 			break;
 		      }
-		    printf("PID: %u   Name: %s   IP: %s\n", who[i].pid, who[i].user, who[i].ip);
-		    printf("\tHome: %s\n", who[i].home);
-		    if (_verbose)
-		      printf("\tOptions: %s%s%s%s%s%s%s%s\n",
-			     (who[i].status & SFTPWHO_STAY_AT_HOME) ? " StayAtHome" : "",
-			     (who[i].status & SFTPWHO_VIRTUAL_CHROOT) ? " VirtualChroot" : "",
-			     (who[i].status & SFTPWHO_RESOLVE_IP) ? " ResolveIp" : "",
-			     (who[i].status & SFTPWHO_IGNORE_HIDDEN) ? " IgnoreHidden" : "",
-			     (who[i].status & SFTPWHO_FAKE_USER) ? " FakeUser" : "",
-			     (who[i].status & SFTPWHO_FAKE_GROUP) ? " FakeGroup" : "",
-			     (who[i].status & SFTPWHO_FAKE_MODE) ? " FakeMode" : "",
-			     (who[i].status & SFTPWHO_HIDE_NO_ACESS) ? " HideNoAccess" : ""
-			     );
-		    printf("\tStatus: %s %s%s%s   Path: %s\n", status,
-			   _verbose ? "[since " : "",
-			   _verbose ? make_idle_time(
-						     (who[i].status & SFTPWHO_STATUS_MASK) == SFTPWHO_IDLE ?
-						     who[i].time_idle : who[i].time_transf) : "",
-			   _verbose ? "]" : "",
-			   who[i].path);
-
-		    if ((who[i].status & SFTPWHO_STATUS_MASK) != SFTPWHO_GET)
+		    (void )printf("PID: %u   Name: %s   IP: %s\n", who[i].pid, who[i].user, who[i].ip);
+		    (void )printf("\tHome: %s\n", who[i].home);
+		    if (_verbose > 0)
+		      (void )printf("\tOptions: %s%s%s%s%s%s%s%s\n",
+				    (who[i].status & SFTPWHO_STAY_AT_HOME) ? " StayAtHome" : "",
+				    (who[i].status & SFTPWHO_VIRTUAL_CHROOT) ? " VirtualChroot" : "",
+				    (who[i].status & SFTPWHO_RESOLVE_IP) ? " ResolveIp" : "",
+				    (who[i].status & SFTPWHO_IGNORE_HIDDEN) ? " IgnoreHidden" : "",
+				    (who[i].status & SFTPWHO_FAKE_USER) ? " FakeUser" : "",
+				    (who[i].status & SFTPWHO_FAKE_GROUP) ? " FakeGroup" : "",
+				    (who[i].status & SFTPWHO_FAKE_MODE) ? " FakeMode" : "",
+				    (who[i].status & SFTPWHO_HIDE_NO_ACESS) ? " HideNoAccess" : ""
+				    );
+		    if (_verbose > 0)
 		      {
-			printf("\tFile: %s\n",
-			       (who[i].status & SFTPWHO_STATUS_MASK) == SFTPWHO_IDLE ?  "" : who[i].file);
+			(void )printf("\tStatus: %s [since %s]   Path: %s\n", status,
+				      make_idle_time(
+						     (who[i].status & SFTPWHO_STATUS_MASK) == SFTPWHO_IDLE ?
+						     who[i].time_idle : who[i].time_transf),
+				      who[i].path);
 		      }
 		    else
 		      {
-			printf("\tFile: %s [%i%%]\n",
-			       (who[i].status & SFTPWHO_STATUS_MASK) == SFTPWHO_IDLE ?  "" : who[i].file,
-			       who[i].dowload_pos);
+			(void )printf("\tStatus: %s    Path: %s\n", status, who[i].path);
 		      }
-		    printf("\tConnected: %s [since %s]\n",
-			   make_time(who[i].time_begin), make_idle_time(who[i].time_total));
-		    printf("\tSpeed: Download: %s [%s]  Upload: %s [%s]\n",
-			   make_speed(b1, sizeof(b1), who[i].download_current, 0),
-			   make_speed(b2, sizeof(b2), getRealDown(&who[i]), 1),
-			   make_speed(b3, sizeof(b3), who[i].upload_current, 0),
-			   make_speed(b4, sizeof(b4), getRealUp(&who[i]), 1));
-		    printf("\tTotal: Download: %u bytes   Upload: %u bytes\n",
-			   who[i].download_total, who[i].upload_total);
-		    printf("\n");
+
+		    if ((who[i].status & SFTPWHO_STATUS_MASK) != SFTPWHO_GET)
+		      {
+			(void )printf("\tFile: %s\n",
+				      (who[i].status & SFTPWHO_STATUS_MASK) == SFTPWHO_IDLE ?  "" : who[i].file);
+		      }
+		    else
+		      {
+			(void )printf("\tFile: %s [%uh%%]\n",
+				      (who[i].status & SFTPWHO_STATUS_MASK) == SFTPWHO_IDLE ?  "" : who[i].file,
+				      who[i].dowload_pos);
+		      }
+		    (void )printf("\tConnected: %s [since %s]\n",
+				  make_time(who[i].time_begin), make_idle_time(who[i].time_total));
+		    (void )printf("\tSpeed: Download: %s [%s]  Upload: %s [%s]\n",
+				  make_speed(b1, sizeof(b1), who[i].download_current, 0),
+				  make_speed(b2, sizeof(b2), getRealDown(&who[i]), 1),
+				  make_speed(b3, sizeof(b3), who[i].upload_current, 0),
+				  make_speed(b4, sizeof(b4), getRealUp(&who[i]), 1));
+		    (void )printf("\tTotal: Download: %u bytes   Upload: %u bytes\n",
+				  who[i].download_total, who[i].upload_total);
+		    (void )printf("\n");
 		  }
 	      }
 	}
       else
 	{
-	  if (!_only_show_pid_and_name)
-	    printf("--- %i / %i clients ---\n", nb_clients, hash_get_int("LimitConnection"));
+	  if (_only_show_pid_and_name == 0)
+	    (void )printf("--- %i / %i clients ---\n", nb_clients, hash_get_int("LimitConnection"));
 	  who = SftpWhoGetStruct(-1);
 	}
-      if (do_loop)
-	sleep(do_loop);
+      if (do_loop > 0)
+	(void )sleep(do_loop);
     }
   while (do_loop > 0);
   SftpWhoRelaseStruct();

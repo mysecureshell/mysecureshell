@@ -32,7 +32,7 @@ char	*convert_to_path(char *path)
   if (len > 0)
     {
       if (path[len - 1] == '/' || path[len - 1] == '\\')
-	path[len - 1] = 0;
+	path[len - 1] = '\0';
     }
   return (path);
 }
@@ -60,14 +60,14 @@ char	*convert_str_with_resolv_env_to_str(const char *str)
 	end = i;
 	env_str = malloc(end - beg + 1);
 	strncpy(env_str, res + beg, end - beg);
-	env_str[end - beg] = 0;
+	env_str[end - beg] = '\0';
 	if ((env_var = getenv(env_str)))
 	  {
 	    int	len = strlen(res) - (end - beg) + strlen(env_var) + 1;
 
 	    new = malloc(len);
 	    strncpy(new, res, beg - 1);
-	    new[beg - 1] = 0;
+	    new[beg - 1] = '\0';
 	    STRCAT(new, env_var, len);
 	    STRCAT(new, res + end, len);
 	    free(res);
@@ -82,7 +82,7 @@ char	*convert_str_with_resolv_env_to_str(const char *str)
 int	convert_boolean_to_int(const char *str)
 {
   if (str)
-    if (!strcasecmp(str, "true") || !strcmp(str, "1"))
+    if (strcasecmp(str, "true") == 0 || strcmp(str, "1") == 0)
       return (1);
   return (0);
 }
@@ -99,11 +99,11 @@ int	convert_speed_to_int(char **tb)
   for (j = 0; tb[j]; j++)
     {
       str = tb[j];
-      for (i = 0; str[i]; i++)
+      for (i = 0; str[i] != '\0'; i++)
 	{
 	  if (str[i] >= '0' && str[i] <= '9')
 	    {
-	      *ptr = *ptr * 10 + (str[i] - '0');
+	      *ptr = *ptr * 10 + ((int )str[i] - (int )'0');
 	      len *= 10;
 	    }
 	  else
@@ -136,10 +136,10 @@ int	convert_time_to_int(char **tb)
     {
       const char *str = tb[j];
 
-      for (i = 0; str[i]; i++)
+      for (i = 0; str[i] != '\0'; i++)
 	{
 	  if (str[i] >= '0' && str[i] <= '9')
-	    nb = nb * 10 + (str[i] - '0');
+	    nb = nb * 10 + ((int )str[i] - (int )'0');
 	  else
 	    switch (str[i])
 	      {
@@ -164,7 +164,7 @@ int     convert_mode_to_int(const char *str)
   int	r;
 
   r = 0;
-  for (i = 0; str[i]; i++)
-    r = (r * 8) + (str[i] - '0');
+  for (i = 0; str[i] != '\0'; i++)
+    r = (r * 8) + ((int )str[i] - (int )'0');
   return (r);
 }

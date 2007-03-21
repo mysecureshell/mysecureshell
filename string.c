@@ -17,29 +17,53 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#include <string.h>
 #include "config.h"
+#include <string.h>
 #include "SftpServer/Defines.h"
 #include "string.h"
+
+static void	delete_comments(char *buffer)
+{
+  char	c;
+
+  while (*buffer != '\0')
+    {
+      if (*buffer == '\'' || *buffer == '"')
+	{
+	  c = *buffer;
+	  buffer++;
+	  while (*buffer != '\0' && *buffer != c)
+	    buffer++;
+	}
+      else if (*buffer == '\\')
+	buffer++;
+      else if (*buffer == '#')
+	{
+	  *buffer = '\0';
+	  return;
+	}
+      buffer++;
+    }
+}
 
 char	*clean_buffer(char *buffer)
 {
   delete_comments(buffer);
   buffer = trim_right(trim_left(buffer));
-  if (buffer[0])
+  if (buffer[0] != '\0')
     return (buffer);
   return (NULL);
 }
 
 char	*trim_right(char *buffer)
 {
-  int	i;
+  size_t	i;
 
   i = strlen(buffer) - 1;
   for (;;)
     {
-      if (buffer[i] > 0 && buffer[i] <= ' ')
-	buffer[i] = 0;
+      if (buffer[i] > '\0' && buffer[i] <= ' ')
+	buffer[i] = '\0';
       else
 	break;
       i--;
@@ -77,26 +101,3 @@ char	*clean_string(char *buffer)
   return (buffer);
 }
 
-void	delete_comments(char *buffer)
-{
-  char	c;
-
-  while (*buffer)
-    {
-      if (*buffer == '\'' || *buffer == '"')
-	{
-	  c = *buffer;
-	  buffer++;
-	  while (*buffer && *buffer != c)
-	    buffer++;
-	}
-      else if (*buffer == '\\')
-	buffer++;
-      else if (*buffer == '#')
-	{
-	  *buffer = 0;
-	  return;
-	}
-      buffer++;
-    }
-}

@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 static char	*user_name = NULL;
 static char	**user_group = NULL;
-static char	restrictions = REST_ALL;
+static int	restrictions = REST_ALL;
 
 #ifndef HAVE_GETGROUPLIST
 static int getgrouplist(const char *uname, gid_t agroup, register gid_t *groups, int *grpcnt)
@@ -66,7 +66,7 @@ static int getgrouplist(const char *uname, gid_t agroup, register gid_t *groups,
     if (bail)
       continue;
     for (i = 0; grp->gr_mem[i]; i++) {
-      if (!strcmp(grp->gr_mem[i], uname)) {
+      if (strcmp(grp->gr_mem[i], uname) == 0) {
 	if (ngroups >= maxgroups) {
 	  ret = -1;
 	  goto out;
@@ -126,16 +126,16 @@ void	free_user_info()
 
 int	is_for_user(const char *user, int verbose)
 {
-  if (!user)
+  if (user == NULL)
     return (0);
-  if (!strcmp(user, TAG_ALL) && restrictions != REST_USER)
+  if (strcmp(user, TAG_ALL) == 0 && restrictions != REST_USER)
     {
-      if (verbose >= 2) printf("--- Apply restrictions for all users ---\n");
+      if (verbose >= 2) (void )printf("--- Apply restrictions for all users ---\n");
       return (1);
     }
-  if (!strcmp(user, user_name))
+  if (strcmp(user, user_name) == 0)
     {
-      if (verbose >= 2) printf("--- Apply restrictions for user '%s' ---\n", user);
+      if (verbose >= 2) (void )printf("--- Apply restrictions for user '%s' ---\n", user);
       restrictions = REST_USER;
       return (1);
     }
@@ -146,19 +146,19 @@ int	is_for_group(const char *group, int verbose)
 {
   int	i;
 
-  if (!group || restrictions == REST_USER)
+  if (group == NULL || restrictions == REST_USER)
     return (0);
-  if (!strcmp(group, TAG_ALL) && restrictions == REST_ALL)
+  if (strcmp(group, TAG_ALL) == 0 && restrictions == REST_ALL)
     {
-      if (verbose >= 2) printf("--- Apply restrictions for all groups ---\n");
+      if (verbose >= 2) (void )printf("--- Apply restrictions for all groups ---\n");
       return (1);
     }
-  if (user_group && restrictions <= REST_GROUP)
+  if (user_group != NULL && restrictions <= REST_GROUP)
     for (i = 0; user_group[i]; i++)
-      if (!strcmp(group, user_group[i]))
+      if (strcmp(group, user_group[i]) == 0)
 	{
 	  restrictions = REST_GROUP;
-	  if (verbose >= 2) printf("--- Apply restrictions for group '%s' ---\n", group);
+	  if (verbose >= 2) (void )printf("--- Apply restrictions for group '%s' ---\n", group);
 	  return (1);
 	}
   return (0);
@@ -171,12 +171,12 @@ int	is_for_virtualhost(const char *host, int port, int verbose)
   
   current_host = (char *)hash_get("VIRTUALHOST_IP");
   current_port = hash_get_int("VIRTUALHOST_PORT");	
-  if (current_host && (!strcmp(host, current_host)
-		       || !strcmp(current_host, TAG_ALL)))
-    if (!current_port || port == current_port)
+  if (current_host != NULL && (strcmp(host, current_host) == 0
+			       || strcmp(current_host, TAG_ALL) == 0))
+    if (current_port == 0 || port == current_port)
       {
 	if (verbose >= 2)
-	  printf("--- Apply restriction for virtualhost '%s:%i' ---\n", current_host, current_port);
+	  (void )printf("--- Apply restriction for virtualhost '%s:%i' ---\n", current_host, current_port);
 	return (1);
       }
   return (0);
@@ -187,9 +187,9 @@ int	is_for_rangeip(const char *range, int verbose)
   char	*bip, *ip;
   int	pos, size;
 
-  if (!range || restrictions == REST_USER)
+  if (range == NULL || restrictions == REST_USER)
     return (0);
-  size = (unsigned char )range[8];
+  size = (int )((unsigned char )range[8]);
   ip = get_ip(0); //don't resolv dns
   bip = parse_range_ip(ip);
   pos = 0;
@@ -203,17 +203,18 @@ int	is_for_rangeip(const char *range, int verbose)
       else
 	goto error_is_for_rangeip;
     }
-  if (size)
+  if (size > 0)
     {
       bip[pos] = (unsigned char )bip[pos] >> (8 - size);
       bip[pos] = (unsigned char )bip[pos] << (8 - size);
       if (range[pos] < bip[pos] || bip[pos] > range[pos + 4])
 	goto error_is_for_rangeip;
     }
-  if (verbose >= 2) printf("--- Apply restrictions for ip range '%i.%i.%i.%i-%i.%i.%i.%i/%i' ---\n",
-			   (unsigned char )range[0], (unsigned char )range[1], (unsigned char )range[2],
-			   (unsigned char )range[3], (unsigned char )range[4], (unsigned char )range[5],
-			   (unsigned char )range[6], (unsigned char )range[7], (unsigned char )range[8]);
+  if (verbose >= 2)
+    (void )printf("--- Apply restrictions for ip range '%ui.%ui.%ui.%ui-%ui.%ui.%ui.%ui/%ui' ---\n",
+		  (unsigned int )range[0], (unsigned int )range[1], (unsigned int )range[2],
+		  (unsigned int )range[3], (unsigned int )range[4], (unsigned int )range[5],
+		  (unsigned int )range[6], (unsigned int )range[7], (unsigned int )range[8]);
   free(bip);
   free(ip);
   return (1);

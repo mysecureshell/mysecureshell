@@ -35,13 +35,13 @@ int	main(int ac, char **av)
   do_clean = 0;
   if (ac > 1)
     for (i = 1; i < ac; i++)
-      if (!strcmp(av[i], "fullstop"))
+      if (strcmp(av[i], "fullstop") == 0)
 	{
 	  assume_yes_to_all = 1;
 	  do_clean = 1;
 	  goto doShutdown;
 	}
-      else if (!strcmp(av[i], "shutdown") || !strcmp(av[i], "stop"))
+      else if (strcmp(av[i], "shutdown") == 0 || strcmp(av[i], "stop") == 0)
 	{
 	doShutdown:
 	  if ((fd = open(SHUTDOWN_FILE, O_CREAT | O_TRUNC | O_RDWR, 0644)) >= 0)
@@ -49,58 +49,57 @@ int	main(int ac, char **av)
 	      char	buf[4];
 
 	      fchmod(fd, 0644);
-	      printf("Shutdown server for new connection (active connection are keeped)\n");
-
-	      printf("Do you want to kill all users ? [YES/no] ");
-	      fflush(stdout);
-	      if (!assume_yes_to_all)
+	      (void )printf("Shutdown server for new connection (active connection are keeped)\n");
+	      (void )printf("Do you want to kill all users ? [YES/no] ");
+	      (void )fflush(stdout);
+	      if (assume_yes_to_all == 0)
 		i = read(0, buf, sizeof(buf));
 	      else
-		printf("yes\n");
-	      buf[i >= 1 ? i - 1 : 0] = 0;
-	      if (assume_yes_to_all || !strcasecmp(buf, "yes") || !strcasecmp(buf, "y"))
+		(void )printf("yes\n");
+	      buf[i >= 1 ? i - 1 : 0] = '\0';
+	      if (assume_yes_to_all == 1 || strcasecmp(buf, "yes") == 0 || strcasecmp(buf, "y") == 0)
 		{
-		  system("sftp-kill all > /dev/null");
-		  if (do_clean)
+		  (void )system("sftp-kill all > /dev/null");
+		  if (do_clean == 1)
 		    {
 		      if (SftpWhoDeleteStructs() == 0)
-			printf("Can't clean server: %s\n", strerror(errno));
+			(void )printf("Can't clean server: %s\n", strerror(errno));
 		    }
 		}
 	      else
-		printf("Clients aren't disconnected\n");
-	      close(fd);
+		(void )printf("Clients aren't disconnected\n");
+	      (void )close(fd);
 	    }
 	  else
-	    printf("Can't shutdown server: %s\n", strerror(errno));
+	    (void )printf("Can't shutdown server: %s\n", strerror(errno));
 	}
-      else if (!strcmp(av[i], "active") || !strcmp(av[i], "start"))
+      else if (strcmp(av[i], "active") == 0 || strcmp(av[i], "start") == 0)
 	{
-	  if (!unlink(SHUTDOWN_FILE) || errno == ENOENT)
-	    printf("Server is now online.\n");
+	  if (unlink(SHUTDOWN_FILE) == 0 || errno == ENOENT)
+	    (void )printf("Server is now online.\n");
 	  else
-	    printf("Can't wake up server: %s\n", strerror(errno));
+	    (void )printf("Can't wake up server: %s\n", strerror(errno));
 	}
-      else if (!strcmp(av[i], "-yes"))
+      else if (strcmp(av[i], "-yes") == 0)
 	assume_yes_to_all = 1;
       else
 	{
-	  printf("Usage:\n------\n\n");
-	  printf("%s {options} {states}\n\n", av[0]);
-	  printf("\nOptions:\n");
-	  printf("\t-yes : assume yes to all questions\n");
-	  printf("\nStates:\n");
-	  printf("\t- active : wake up server\n");
-	  printf("\t- start : same as 'active'\n");
-	  printf("\t- shutdown : shutdown the server (but don't kill current connections)\n");
-	  printf("\t- stop : same as 'shutdown'\n");
-	  printf("\t- fullstop : shutdown the server (kill all connections and clean memory)\n");
+	  (void )printf("Usage:\n------\n\n");
+	  (void )printf("%s {options} {states}\n\n", av[0]);
+	  (void )printf("\nOptions:\n");
+	  (void )printf("\t-yes : assume yes to all questions\n");
+	  (void )printf("\nStates:\n");
+	  (void )printf("\t- active : wake up server\n");
+	  (void )printf("\t- start : same as 'active'\n");
+	  (void )printf("\t- shutdown : shutdown the server (but don't kill current connections)\n");
+	  (void )printf("\t- stop : same as 'shutdown'\n");
+	  (void )printf("\t- fullstop : shutdown the server (kill all connections and clean memory)\n");
 	}
   else
     {
       if ((fd = open(SHUTDOWN_FILE, O_RDONLY)) >= 0)
-	close(fd);
-      printf("Server is %s\n", fd == -1 ? "up" : "down");
+	(void )close(fd);
+      (void )printf("Server is %s\n", fd == -1 ? "up" : "down");
     }
   return (0);
 }

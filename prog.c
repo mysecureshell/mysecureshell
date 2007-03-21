@@ -34,11 +34,11 @@ int		count_program_for_uid(const char *login)
   int		i, nb;
 
   nb = 0;
-  if ((who = SftWhoGetAllStructs()))
+  if ((who = SftWhoGetAllStructs()) != NULL)
     {
       for (i = 0; i < SFTPWHO_MAXCLIENT; i++)
 	if ((who[i].status & SFTPWHO_STATUS_MASK) != SFTPWHO_EMPTY)
-	  if (!login || !strcmp(who[i].user, login))
+	  if (login == NULL || strcmp(who[i].user, login) == 0)
 	    nb++;
     }
   return (nb);
@@ -50,11 +50,11 @@ int		count_program_for_ip(const char *host)
   int		i, nb;
 
   nb = 0;
-  if ((who = SftWhoGetAllStructs()))
+  if ((who = SftWhoGetAllStructs()) != NULL)
     {
       for (i = 0; i < SFTPWHO_MAXCLIENT; i++)
 	if ((who[i].status & SFTPWHO_STATUS_MASK) != SFTPWHO_EMPTY)
-	  if (!host || !strcmp(who[i].ip, host))
+	  if (host == NULL || strcmp(who[i].ip, host) == 0)
 	    nb++;
     }
   return (nb);
