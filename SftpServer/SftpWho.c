@@ -81,7 +81,7 @@ t_sftpwho	*SftpWhoGetStruct(int create)
       if (shmid == -1 && (errno == EINVAL || errno == EEXIST))
 	{
 	  //huho we have a old shm memory
-	  if (tryshm)
+	  if (tryshm > 0)
 	    {
 	      tryshm--;
 	      _shmkey++;
@@ -95,11 +95,11 @@ t_sftpwho	*SftpWhoGetStruct(int create)
 	  _sftpglobal = &shm->global;
 	  who = shm->who;
 	  _sftpwho_ptr = who;
-	  if (eraze)
+	  if (eraze == 1)
 	    memset(shm, 0, sizeof(t_shm));
 	  else
 	    //clean all sessions of bugged client (abnormally quit)
-	    SftpWhoCleanBuggedClient();
+	    (void )SftpWhoCleanBuggedClient();
 	  if (create == -1)
 	    return (who);
 	  //search a empty place :)
@@ -170,7 +170,7 @@ void	SftpWhoRelaseStruct()
 {
   if (_sftpwho_ptr != NULL)
     {
-      shmdt(_sftpwho_ptr);
+      (void )shmdt(_sftpwho_ptr);
       _sftpwho_ptr = NULL;
     }
 }

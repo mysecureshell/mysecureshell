@@ -52,10 +52,10 @@ t_info	*mygetpwnam(const char *login)
 {
   int	i;
 
-  if (_users && login)
+  if (_users != NULL && login != NULL)
     {
-      for (i = 0; _users[i].name; i++)
-        if (!strcmp(_users[i].name, login))
+      for (i = 0; _users[i].name != NULL; i++)
+        if (strcmp(_users[i].name, login) == 0)
 	  return (&_users[i]);
       mylog_printf(MYLOG_WARNING, "[%s][%s]Couldn't resolve user name %i",
                  gl_var->who->user, gl_var->who->ip, login);
@@ -68,9 +68,9 @@ t_info	*mygetpwuid(uid_t uid)
 {
   int	i;
 
-  if (_users)
+  if (_users != NULL)
     {
-      for (i = 0; _users[i].name; i++)
+      for (i = 0; _users[i].name != NULL; i++)
 	if (_users[i].id == uid)
 	  return (&_users[i]);
       mylog_printf(MYLOG_WARNING, "[%s][%s]Couldn't resolve user id %i",
@@ -83,10 +83,10 @@ t_info	*mygetgrnam(const char *group)
 {
   int	i;
 
-  if (_groups && group)
+  if (_groups != NULL && group != NULL)
     {
-      for (i = 0; _groups[i].name; i++)
-	if (!strcmp(_groups[i].name, group))
+      for (i = 0; _groups[i].name != NULL; i++)
+	if (strcmp(_groups[i].name, group) == 0)
 	  return (&_groups[i]);
       mylog_printf(MYLOG_WARNING, "[%s][%s]Couldn't resolve group name %i",
 		 gl_var->who->user, gl_var->who->ip, group);
@@ -98,9 +98,9 @@ t_info	*mygetgrgid(gid_t gid)
 {
   int	i;
 
-  if (_groups)
+  if (_groups != NULL)
     {
-      for (i = 0; _groups[i].name; i++)
+      for (i = 0; _groups[i].name != NULL; i++)
 	if (_groups[i].id == gid)
 	  return (&_groups[i]);
       mylog_printf(MYLOG_WARNING, "[%s][%s]Couldn't resolve group id %i",

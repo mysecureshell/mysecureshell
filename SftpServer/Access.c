@@ -98,7 +98,7 @@ static void	InitAccess()
         {
           _in_group = malloc((nb_groups + 1) * sizeof(*_in_group));
           for (i = 0; i < nb_groups; i++)
-	    if ((group = getgrgid(groups[i])))
+	    if ((group = getgrgid(groups[i])) != NULL)
 	      _in_group[i] = group->gr_gid;
           _in_group[i] = 0;
         }
@@ -111,7 +111,7 @@ static int	UserIsInThisGroup(gid_t grp)
   int		i;
 
   if (_in_group)
-    for (i = 0; _in_group[i]; i++)
+    for (i = 0; _in_group[i] != NULL; i++)
       if (_in_group[i] == grp)
 	return (1);
   return (0);

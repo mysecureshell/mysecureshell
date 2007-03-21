@@ -66,7 +66,7 @@ DIR	*HandleGetDir(int pos)
 {
   if (pos >= 0 && pos < HANDLE_NUMBER)
     return (gHandle[pos].dir);
-  return (0);
+  return (NULL);
 }
 
 int	HandleGetFd(int pos, int *fileIsText)
@@ -105,9 +105,9 @@ int	HandleClose(int pos, int *isCloseFile)
 	}
       free(gHandle[pos].path);
       
-      gHandle[pos].dir = 0;
+      gHandle[pos].dir = NULL;
       gHandle[pos].fd = -1;
-      gHandle[pos].path = 0;
+      gHandle[pos].path = NULL;
       gHandle[pos].state = HANDLE_UNUSED;
       return (ret);
     }

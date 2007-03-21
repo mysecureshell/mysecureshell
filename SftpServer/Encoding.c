@@ -34,7 +34,7 @@ char	*convertToUtf8(char *str, int freeAfter)
 {
   char	*newStr = 0;
 
-  if (_toUTF8 != (iconv_t )-1 && str[0])
+  if (_toUTF8 != (iconv_t )-1 && str[0] != '\0')
     {
       char	*oldPtr = str;
       char	*newPtr;
@@ -49,14 +49,14 @@ char	*convertToUtf8(char *str, int freeAfter)
 	  free(newStr);
 	  goto justdup;
 	}
-      *newPtr = 0;
+      *newPtr = '\0';
     }
   else
     {
     justdup:
       newStr = strdup(str);
     }
-  if (freeAfter)
+  if (freeAfter == 1)
     free(str);
   return (newStr);
 }
@@ -65,7 +65,7 @@ char	*convertFromUtf8(char *str, int freeAfter)
 {
   char	*newStr = 0;
 
-  if (_fromUTF8 != (iconv_t )-1 && str[0])
+  if (_fromUTF8 != (iconv_t )-1 && str[0] != '\0')
     {
       char	*oldPtr = str;
       char	*newPtr;
@@ -79,14 +79,14 @@ char	*convertFromUtf8(char *str, int freeAfter)
 	  free(newStr);
 	  goto justdup2;
 	}
-      *newPtr = 0;
+      *newPtr = '\0';
     }
   else
     {
     justdup2:
       newStr = strdup(str);
     }
-  if (freeAfter)
+  if (freeAfter == 1)
     free(str);
   return (newStr);
 }
@@ -101,9 +101,9 @@ void	setCharset(const char *charset)
   else
     {
       if (_toUTF8 != (iconv_t )-1)
-	iconv_close(_toUTF8);
+	(void )iconv_close(_toUTF8);
       if (_fromUTF8 != (iconv_t )-1)
-	iconv_close(_fromUTF8);
+	(void )iconv_close(_fromUTF8);
       _toUTF8 = (iconv_t )-1;
       _fromUTF8 = (iconv_t )-1;
     }

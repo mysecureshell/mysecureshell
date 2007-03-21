@@ -66,49 +66,49 @@ Form:
   text_color:background_color:style
 */
 #ifdef HAVE_LOG_IN_COLOR
-      _log->color[MYLOG_CONNECTION][0] = 32;
-      _log->color[MYLOG_CONNECTION][1] = 40;
-      _log->color[MYLOG_CONNECTION][2] = 1;
+      _log->color[MYLOG_CONNECTION][0] = (unsigned char )32;
+      _log->color[MYLOG_CONNECTION][1] = (unsigned char )40;
+      _log->color[MYLOG_CONNECTION][2] = (unsigned char )1;
 
-      _log->color[MYLOG_TRANSFERT][0] = 34;
-      _log->color[MYLOG_TRANSFERT][1] = 40;
-      _log->color[MYLOG_TRANSFERT][2] = 1;
+      _log->color[MYLOG_TRANSFERT][0] = (unsigned char )34;
+      _log->color[MYLOG_TRANSFERT][1] = (unsigned char )40;
+      _log->color[MYLOG_TRANSFERT][2] = (unsigned char )1;
 
 
-      _log->color[MYLOG_NORMAL][0] = 37;
-      _log->color[MYLOG_NORMAL][1] = 40;
-      _log->color[MYLOG_NORMAL][2] = 0;
+      _log->color[MYLOG_NORMAL][0] = (unsigned char )37;
+      _log->color[MYLOG_NORMAL][1] = (unsigned char )40;
+      _log->color[MYLOG_NORMAL][2] = (unsigned char )0;
 
-      _log->color[MYLOG_WARNING][0] = 31;
-      _log->color[MYLOG_WARNING][1] = 40;
-      _log->color[MYLOG_WARNING][2] = 1;
+      _log->color[MYLOG_WARNING][0] = (unsigned char )31;
+      _log->color[MYLOG_WARNING][1] = (unsigned char )40;
+      _log->color[MYLOG_WARNING][2] = (unsigned char )1;
 
-      _log->color[MYLOG_ERROR][0] = 31;
-      _log->color[MYLOG_ERROR][1] = 40;
-      _log->color[MYLOG_ERROR][2] = 7;
+      _log->color[MYLOG_ERROR][0] = (unsigned char )31;
+      _log->color[MYLOG_ERROR][1] = (unsigned char )40;
+      _log->color[MYLOG_ERROR][2] = (unsigned char )7;
 
-      _log->color[MYLOG_DEBUG][0] = 30;
-      _log->color[MYLOG_DEBUG][1] = 47;
-      _log->color[MYLOG_DEBUG][2] = 8;
+      _log->color[MYLOG_DEBUG][0] = (unsigned char )30;
+      _log->color[MYLOG_DEBUG][1] = (unsigned char )47;
+      _log->color[MYLOG_DEBUG][2] = (unsigned char )8;
 #endif
     }
 }
 
 void	mylog_close()
 {
-  if (_log)
-    close(_log->fd);
+  if (_log != NULL)
+    (void )close(_log->fd);
 }
 
 void	mylog_reopen()
 {
-  if (_log)
+  if (_log != NULL)
     _log->nextReopen = 1;
 }
 
 void    mylog_time(int hours)
 {
-  if (_log)
+  if (_log != NULL)
     _log->time = hours * 3600;
 }
 
@@ -121,11 +121,11 @@ void		mylog_printf(int level, const char *str, ...)
   char		fmt[1024];
   int		size;
 
-  if  (_log)
+  if  (_log != NULL)
     {
       if (level < 0 || level >= MYLOG_MAX)
 	level = MYLOG_ERROR;
-      if (_log->nextReopen)
+      if (_log->nextReopen == 1)
 	{
 	  _log->nextReopen = 0;
 	  mylog_close();
@@ -144,7 +144,7 @@ void		mylog_printf(int level, const char *str, ...)
 		   _log->color[level][0], _log->color[level][1], _log->color[level][2], _log->pid, str) > 0)
 #endif
 	if ((size = vsnprintf(buffer, sizeof(buffer), fmt, ap)) > 0)
-	  write(_log->fd, buffer, size);
+	  (void )write(_log->fd, buffer, size);
       va_end(ap);
     }
 }
