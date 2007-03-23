@@ -19,6 +19,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <stdlib.h>
 
+#define MSS_HASH_SIZE	256
+
 typedef struct		s_element
 {
   char			*key;
@@ -29,7 +31,7 @@ typedef struct		s_element
 
 typedef struct		s_hash
 {
-  t_element		*hash[256];
+  t_element		*hash[MSS_HASH_SIZE];
 }			t_hash;
 
 void	delete_hash();

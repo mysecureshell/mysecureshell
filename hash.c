@@ -36,10 +36,9 @@ void	create_hash()
 void		delete_hash()
 {
   t_element	*t, *n;
-  int		nb = sizeof(_hash->hash) / sizeof(*_hash->hash);
   int		i;
 
-  for (i = 0; i < nb; i++)
+  for (i = 0; i < MSS_HASH_SIZE; i++)
     {
       t = _hash->hash[i];
       while (t)
