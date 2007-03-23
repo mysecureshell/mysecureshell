@@ -111,7 +111,7 @@ static int	UserIsInThisGroup(gid_t grp)
   int		i;
 
   if (_in_group)
-    for (i = 0; _in_group[i] != NULL; i++)
+    for (i = 0; _in_group[i] != 0; i++)
       if (_in_group[i] == grp)
 	return (1);
   return (0);

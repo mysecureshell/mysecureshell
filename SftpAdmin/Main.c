@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 static int	_sftpIn = 0;
 static int	_sftpOut = 0;
 
-int	DoProtocol(tBuffer *bIn, tBuffer *bOut);
+int	DoProtocol(tBuffer *bIn);
 
 static pid_t	execSftpServer(int ac, char **av)
 {
@@ -45,13 +45,13 @@ static pid_t	execSftpServer(int ac, char **av)
       perror(av[0]);
       exit (1);
     }
-  if (!(pid = fork()))
+  if ((pid = fork()) == 0)
     {
-      dup2(fdIn[0], 0);
-      dup2(fdOut[1], 1);
-      dup2(fdOut[1], 2);
-      close(fdIn[0]); close(fdIn[1]);
-      close(fdOut[0]); close(fdOut[1]);
+      (void )dup2(fdIn[0], 0);
+      (void )dup2(fdOut[1], 1);
+      (void )dup2(fdOut[1], 2);
+      (void )close(fdIn[0]); (void )close(fdIn[1]);
+      (void )close(fdOut[0]); (void )close(fdOut[1]);
       args = calloc(ac + 6, sizeof(*args));
       args[0] = "ssh";
       args[1] = "-oForwardX11 no";
@@ -60,15 +60,15 @@ static pid_t	execSftpServer(int ac, char **av)
       args[4] = "-s";
       memcpy(args + 5, av + 1, (ac - 1) * sizeof(char *));
       args[ac + 4] = "sftp";
-      signal(SIGINT, SIG_IGN);
-      execvp(args[0], args);
-      perror(args[0]);
+      (void )signal(SIGINT, SIG_IGN);
+      if (execvp(args[0], args) == -1)
+	perror(args[0]);
       exit (1);
     }
   else if (pid != -1)
     {
-      close(fdIn[0]);
-      close(fdOut[1]);
+      (void )close(fdIn[0]);
+      (void )close(fdOut[1]);
       _sftpIn = fdIn[1];
       _sftpOut = fdOut[0];
     }
@@ -82,27 +82,28 @@ static pid_t	execSftpServer(int ac, char **av)
 
 static int	WritePacket(tBuffer *bOut)
 {
-  int		len;
+  ssize_t	ret;
+  size_t	len;
 
-  len = bOut->length - bOut->read;
-  len = write(_sftpIn, bOut->data + bOut->read, len);
-  if (len == -1)
+  len = (size_t )(bOut->length - bOut->read);
+  ret = write(_sftpIn, bOut->data + bOut->read, len);
+  if (ret == -1)
     return (1);
-  bOut->read += len;
+  bOut->read += ret;
   BufferClean(bOut);
   return (0);
 }
 
 static int	ReadPacket(tBuffer *bIn, tBuffer *bOut)
 {
-  char	buffer[16384];
-  int	len;
+  ssize_t	len;
+  char		buffer[16384];
 
   len = read(_sftpOut, buffer, sizeof(buffer));
   if (len == -1)
     return (1);
-  BufferPutRawData(bIn, buffer, len);
-  if (DoProtocol(bIn, bOut))
+  BufferPutRawData(bIn, buffer, (u_int32_t )len);
+  if (DoProtocol(bIn) == 1)
     return (1);
   return (0);
 }
@@ -116,7 +117,7 @@ static void	SendInit(tBuffer *bOut)
   BufferPutInt32(b, SSH2_ADMIN_VERSION);
   BufferPutPacket(bOut, b);
   BufferDelete(b);
-  WritePacket(bOut);
+  (void )WritePacket(bOut);
 }
 
 static void	SendListUsers(tBuffer *bOut)
@@ -135,7 +136,7 @@ static void	SendKillUser(tBuffer *bOut, const char *arg)
 
   b = BufferNew();
   BufferPutInt8(b, SSH_ADMIN_KILL_USER);
-  BufferPutInt32(b, atoi(arg));
+  BufferPutInt32(b, (u_int32_t )atoi(arg));
   BufferPutPacket(bOut, b);
   BufferDelete(b);
 }
@@ -146,7 +147,7 @@ static void	SendServerStatus(tBuffer *bOut, const char *arg)
 
   b = BufferNew();
   BufferPutInt8(b, SSH_ADMIN_SERVER_STATUS);
-  BufferPutInt8(b, !strcmp(arg, "start") ? 1 : 0);
+  BufferPutInt8(b, (u_int8_t )(strcmp(arg, "start") == 0 ? 1 : 0));
   BufferPutPacket(bOut, b);
   BufferDelete(b);
 }
@@ -161,7 +162,7 @@ static void	SendServerGetStatus(tBuffer *bOut)
   BufferDelete(b);
 }
 
-static void	SendGetLog(tBuffer *bOut, int size)
+static void	SendGetLog(tBuffer *bOut, u_int32_t size)
 {
   tBuffer	*b;
 
@@ -174,9 +175,7 @@ static void	SendGetLog(tBuffer *bOut, int size)
 
 static void	DoVersion(tBuffer *bIn)
 {
-  int		nb;
-
-  nb = BufferGetInt32(bIn);
+  (void )BufferGetInt32(bIn);
   while (bIn->read < bIn->length)
     {
       free(BufferGetString(bIn));
@@ -188,16 +187,16 @@ static void	DoListUsersReply(tBuffer *bIn)
 {
   char		*lists = BufferGetString(bIn);
 
-  printf("%s\n", lists);
+  (void )printf("%s\n", lists);
   free(lists);
 }
 
 static void	DoGetServerStatusReply(tBuffer *bIn)
 {
-  char		state;
+  u_int8_t	state;
 
   state = BufferGetInt8(bIn);
-  printf("Server is %s.\n", state == 0 ? "offline" : "online");
+  (void )printf("Server is %s.\n", state == 0 ? "offline" : "online");
 }
 
 static void	DoGetLogContentReply(tBuffer *bIn)
@@ -205,15 +204,15 @@ static void	DoGetLogContentReply(tBuffer *bIn)
   u_int32_t	size;
   void		*str;
 
-  BufferGetInt32(bIn);
+  (void )BufferGetInt32(bIn);
   str = BufferGetData(bIn, &size);
   if (size > 0)
     {
-      fflush(stdout);
-      write(1, str, size);
-      write(1, "\n", 1);
+      (void )fflush(stdout);
+      (void )write(1, str, size);
+      (void )write(1, "\n", 1);
 #ifdef HAVE_LOG_IN_COLOR
-      printf("\33[37:40:0m");
+      (void )printf("\33[37:40:0m");
 #endif
     }
 }
@@ -223,20 +222,20 @@ static void	DoStatus(tBuffer *bIn)
   char		*msg;
   u_int32_t	status;
 
-  BufferGetInt32(bIn);
+  (void )BufferGetInt32(bIn);
   status = BufferGetInt32(bIn);
   msg = BufferGetString(bIn);
   free(BufferGetString(bIn));
   if (status == SSH2_FX_OK)
-    printf("Done.\n");
+    (void )printf("Done.\n");
   else
-    printf("Error : %s\n", msg);
+    (void )printf("Error : %s\n", msg);
   free(msg);
 }
 
-int	DoProtocol(tBuffer *bIn, tBuffer *bOut)
+int	DoProtocol(tBuffer *bIn)
 {
-  int           oldRead, msgLen, msgType;
+  u_int32_t	oldRead, msgLen, msgType;
   
  parsePacket:
   if (bIn->length < 5) //header too small
@@ -270,7 +269,7 @@ int	DoProtocol(tBuffer *bIn, tBuffer *bOut)
       DoGetLogContentReply(bIn);
       break;
     default:
-      printf("[ERROR]Unkown message type : %i\n", msgType);
+      (void )printf("[ERROR]Unkown message type : %u\n", msgType);
       break;
     }
   if ((bIn->read - oldRead) < msgLen)//read entire message
@@ -281,9 +280,9 @@ int	DoProtocol(tBuffer *bIn, tBuffer *bOut)
 
 static int	DoCommandLine(char *cmd, tBuffer *bIn, tBuffer *bOut)
 {
-  if (!strcmp(cmd, "quit"))
+  if (strcmp(cmd, "quit") == 0)
     return (1);
-  else if (!strncmp(cmd, "kill", 4))
+  else if (strncmp(cmd, "kill", 4) == 0)
     {
       char	*arg = strchr(cmd, ' ');
 
@@ -292,66 +291,61 @@ static int	DoCommandLine(char *cmd, tBuffer *bIn, tBuffer *bOut)
 	  while (*arg == ' ')
 	    arg++;
 	  SendKillUser(bOut, arg);
-	  if (WritePacket(bOut) ||
-	      ReadPacket(bIn, bOut))
+	  if (WritePacket(bOut) == 1 || ReadPacket(bIn, bOut) == 1)
 	    return (1);
 	}
     }
-  else if (!strcmp(cmd, "list"))
+  else if (strcmp(cmd, "list") == 0)
     {
       SendListUsers(bOut);
-      if (WritePacket(bOut) ||
-	  ReadPacket(bIn, bOut))
+      if (WritePacket(bOut) == 1 || ReadPacket(bIn, bOut) == 1)
 	return (1);
     }
-  else if (!strncmp(cmd, "log", 3))
+  else if (strncmp(cmd, "log", 3) == 0)
     {
       char	*arg = strchr(cmd, ' ');
  
-      if (arg)
+      if (arg != NULL)
 	{
 	  int	size;
 
 	  while (*arg == ' ')
             arg++;
 	  size = atoi(arg);
-	  SendGetLog(bOut, size);
-	  if (WritePacket(bOut) ||
-	      ReadPacket(bIn, bOut))
+	  SendGetLog(bOut, (u_int32_t )size);
+	  if (WritePacket(bOut) == 1 || ReadPacket(bIn, bOut) == 1)
 	    return (1);
 	}
     }
-  else if (!strncmp(cmd, "server", 6))
+  else if (strncmp(cmd, "server", 6) == 0)
     {
       char      *arg = strchr(cmd, ' ');
 
-      if (arg)
+      if (arg != NULL)
 	{
 	  SendServerStatus(bOut, arg);
-	  if (WritePacket(bOut) ||
-	      ReadPacket(bIn, bOut))
+	  if (WritePacket(bOut) == 1 || ReadPacket(bIn, bOut) == 1)
 	    return (1);
 	}
       else
 	{
 	  SendServerGetStatus(bOut);
-          if (WritePacket(bOut) ||
-              ReadPacket(bIn, bOut))
+          if (WritePacket(bOut) == 1 || ReadPacket(bIn, bOut) == 1)
 	    return (1);
 	}
     }
   else
     {
-      printf("Usage:\n");
-      printf("\t kill [0 or PID] : kill user with PID or 0 to kill all users\n");
-      printf("\t list : list online users\n");
-      printf("\t log [x bytes] : show last x bytes of log\n");
-      printf("\t quit : quit program\n");
-      printf("\t server [start or stop] : start or stop server\n");
-      printf("\n");
+      (void )printf("Usage:\n");
+      (void )printf("\t kill [0 or PID] : kill user with PID or 0 to kill all users\n");
+      (void )printf("\t list : list online users\n");
+      (void )printf("\t log [x bytes] : show last x bytes of log\n");
+      (void )printf("\t quit : quit program\n");
+      (void )printf("\t server [start or stop] : start or stop server\n");
+      (void )printf("\n");
     }
-  printf("> ");
-  fflush(stdout);
+  (void )printf("> ");
+  (void )fflush(stdout);
   return (0);
 }
 
@@ -363,8 +357,8 @@ int		main(int ac, char **av)
 
   if (ac == 1)
     {
-      printf("Usage:\n");
-      printf("%s [ssh options] user@hostname\n", av[0]);
+      (void )printf("Usage:\n");
+      (void )printf("%s [ssh options] user@hostname\n", av[0]);
       exit (0);
     }
   bIn = BufferNew();
@@ -372,9 +366,9 @@ int		main(int ac, char **av)
   pid = execSftpServer(ac, av);
   max = _sftpOut > _sftpIn ? _sftpOut + 1 : _sftpIn + 1;
   SendInit(bOut);
-  ReadPacket(bIn, bOut);
-  printf("> ");
-  fflush(stdout);
+  (void )ReadPacket(bIn, bOut);
+  (void )printf("> ");
+  (void )fflush(stdout);
   for (;;)
     {
       fd_set	fdr, fdw;
