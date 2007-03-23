@@ -62,7 +62,7 @@ void	DoAdminListUsers()
 void	DoAdminKillUser()
 {
   t_sftpwho	*who;
-  int	pidToKill = BufferGetInt32(bIn);
+  int	pidToKill = (int )BufferGetInt32(bIn);
   int	status = SSH2_FX_OK;
 
   DEBUG((MYLOG_DEBUG, "[DoAdminKillUser]Try to kill pid:%i", pidToKill));
@@ -72,7 +72,7 @@ void	DoAdminKillUser()
       unsigned int	pid;
       int		i;
 
-      pid = getpid();
+      pid = (unsigned int )getpid();
       for (i = 0; i < SFTPWHO_MAXCLIENT; i++)
 	if ((who[i].status & SFTPWHO_STATUS_MASK) != SFTPWHO_EMPTY)
 	  if ((who[i].pid == pidToKill || pidToKill == 0) && who[i].pid != pid)
@@ -103,7 +103,7 @@ void	DoAdminServerStatus()
   else
     {
       if ((fd = open(SHUTDOWN_FILE, O_CREAT | O_TRUNC | O_RDWR, 0644)) >= 0)
-	close(fd);
+	(void )close(fd);
       else
 	status = errnoToPortable(errno);
     }
@@ -141,10 +141,14 @@ void	DoAdminGetLogContent()
 
       if ((fd = open(MSS_LOG, O_RDONLY)) >= 0)
 	{
-	  lseek(fd, -size, SEEK_END);
-	  r = read(fd, buffer, size);
-	  SendData(bOut, 0, buffer, r);
-	  status = SSH2_FX_OK;
+	  if (lseek(fd, -size, SEEK_END) == 0)
+	    {
+	      r = read(fd, buffer, size);
+	      SendData(bOut, 0, buffer, r);
+	      status = SSH2_FX_OK;
+	    }
+	  else
+	    status = errnoToPortable(errno);
 	  free(buffer);
 	}
       else
@@ -196,7 +200,7 @@ void	DoAdminConfigGet()
       if ((fd = open(CONFIG_FILE, O_RDONLY)) >= 0)
 	{
 	  r = read(fd, buffer, st.st_size);
-	  close(fd);
+	  (void )close(fd);
 	  BufferPutData(b, buffer, r);
 	  status = SSH2_FX_OK;
 	  free(buffer);
@@ -206,12 +210,12 @@ void	DoAdminConfigGet()
 	      if ((buffer = malloc(st.st_size)))
 		{
 		  r = read(fd, buffer, st.st_size);
-		  close(fd);
+		  (void )close(fd);
 		  BufferPutData(b, buffer, r);
 		}
 	      else
 		BufferPutInt32(b, 0);
-	      close(fd);
+	      (void )close(fd);
 	      BufferPutPacket(bOut, b);
 	    }
 	  else
@@ -243,12 +247,12 @@ void	DoAdminUserCreate()
   args[2] = userName;
   args[3] = homePath;
   args[4] = NULL;
-  ExecCommandWithArgs(args, &ret, passWord, 0);
+  (void )ExecCommandWithArgs(args, &ret, passWord, 0);
   if (ret == 0)
     {
       args[1] = "hide";
       args[3] = "0";
-      ExecCommandWithArgs(args, &ret, NULL, 0);
+      (void )ExecCommandWithArgs(args, &ret, NULL, 0);
       status = SSH2_FX_OK;
     }
   DEBUG((MYLOG_DEBUG, "[DoAdminUserCreate]User:%s Home:%s Pass:%s status:%i", userName, homePath, passWord, status));
@@ -271,7 +275,7 @@ void	DoAdminUserDelete()
   args[2] = userName;
   args[3] = "0";
   args[4] = NULL;
-  ExecCommandWithArgs(args, &ret, NULL, 0);
+  (void )ExecCommandWithArgs(args, &ret, NULL, 0);
   if (ret == 0)
     status = SSH2_FX_OK;
   DEBUG((MYLOG_DEBUG, "[DoAdminUserDelete]User:%s status:%i", userName, status));

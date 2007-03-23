@@ -105,7 +105,7 @@ static char	*make_time(unsigned int t)
   return (b1);
 }
 
-static char	*make_speed(char *b2, int size, unsigned int s, int can_unlimit)
+static char	*make_speed(char *b2, size_t size, unsigned int s, int can_unlimit)
 {
   if (can_unlimit == 1 && s == 0)
     (void )snprintf(b2, size, "%s", "unlimited");

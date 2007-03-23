@@ -131,12 +131,12 @@ t_sftpwho	*SftpWhoGetStruct(int create)
 //return number of connected clients
 int		SftpWhoCleanBuggedClient()
 {
-  unsigned int	t;
+  u_int32_t	t;
   int		i, nb, nbdown, nbup;
 
   if (_sftpwho_ptr == NULL)
     return (0);
-  t = time(0);
+  t = (u_int32_t )time(0);
   nb = 0;
   nbdown = 0;
   nbup = 0;

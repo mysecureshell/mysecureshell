@@ -22,7 +22,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <sys/stat.h>
 
-void	StrMode(int mode, char *d);
 char	*LsFile(const char *name, const struct stat *st);
 int	errnoToPortable(int unixErrno);
 char	*ExecCommand(char *cmd, int *myRet);

@@ -94,7 +94,7 @@ static int	WritePacket(tBuffer *bOut)
   return (0);
 }
 
-static int	ReadPacket(tBuffer *bIn, tBuffer *bOut)
+static int	ReadPacket(tBuffer *bIn)
 {
   ssize_t	len;
   char		buffer[16384];
@@ -291,14 +291,14 @@ static int	DoCommandLine(char *cmd, tBuffer *bIn, tBuffer *bOut)
 	  while (*arg == ' ')
 	    arg++;
 	  SendKillUser(bOut, arg);
-	  if (WritePacket(bOut) == 1 || ReadPacket(bIn, bOut) == 1)
+	  if (WritePacket(bOut) == 1 || ReadPacket(bIn) == 1)
 	    return (1);
 	}
     }
   else if (strcmp(cmd, "list") == 0)
     {
       SendListUsers(bOut);
-      if (WritePacket(bOut) == 1 || ReadPacket(bIn, bOut) == 1)
+      if (WritePacket(bOut) == 1 || ReadPacket(bIn) == 1)
 	return (1);
     }
   else if (strncmp(cmd, "log", 3) == 0)
@@ -313,7 +313,7 @@ static int	DoCommandLine(char *cmd, tBuffer *bIn, tBuffer *bOut)
             arg++;
 	  size = atoi(arg);
 	  SendGetLog(bOut, (u_int32_t )size);
-	  if (WritePacket(bOut) == 1 || ReadPacket(bIn, bOut) == 1)
+	  if (WritePacket(bOut) == 1 || ReadPacket(bIn) == 1)
 	    return (1);
 	}
     }
@@ -324,13 +324,13 @@ static int	DoCommandLine(char *cmd, tBuffer *bIn, tBuffer *bOut)
       if (arg != NULL)
 	{
 	  SendServerStatus(bOut, arg);
-	  if (WritePacket(bOut) == 1 || ReadPacket(bIn, bOut) == 1)
+	  if (WritePacket(bOut) == 1 || ReadPacket(bIn) == 1)
 	    return (1);
 	}
       else
 	{
 	  SendServerGetStatus(bOut);
-          if (WritePacket(bOut) == 1 || ReadPacket(bIn, bOut) == 1)
+          if (WritePacket(bOut) == 1 || ReadPacket(bIn) == 1)
 	    return (1);
 	}
     }
@@ -366,7 +366,7 @@ int		main(int ac, char **av)
   pid = execSftpServer(ac, av);
   max = _sftpOut > _sftpIn ? _sftpOut + 1 : _sftpIn + 1;
   SendInit(bOut);
-  (void )ReadPacket(bIn, bOut);
+  (void )ReadPacket(bIn);
   (void )printf("> ");
   (void )fflush(stdout);
   for (;;)
@@ -395,7 +395,7 @@ int		main(int ac, char **av)
 	}
       if (FD_ISSET(_sftpOut, &fdr))
 	{
-	  if (ReadPacket(bIn, bOut))
+	  if (ReadPacket(bIn))
 	    break;
 	}
       if (FD_ISSET(_sftpIn, &fdw))

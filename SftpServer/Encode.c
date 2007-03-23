@@ -108,15 +108,15 @@ tAttributes		*GetAttributes(tBuffer *bIn)
       if (a.flags & SSH4_FILEXFER_ATTR_ACCESSTIME)
 	a.atime = BufferGetInt64(bIn);
       if (a.flags & SSH4_FILEXFER_ATTR_SUBSECOND_TIMES)
-	BufferGetInt32(bIn);
+	(void )BufferGetInt32(bIn);
       if (a.flags & SSH4_FILEXFER_ATTR_CREATETIME)
 	a.ctime = BufferGetInt64(bIn);
       if (a.flags & SSH4_FILEXFER_ATTR_SUBSECOND_TIMES)
-	BufferGetInt32(bIn);
+	(void )BufferGetInt32(bIn);
       if (a.flags & SSH4_FILEXFER_ATTR_MODIFYTIME)
 	a.mtime = BufferGetInt64(bIn);
       if (a.flags & SSH4_FILEXFER_ATTR_SUBSECOND_TIMES)
-	BufferGetInt32(bIn);
+	(void )BufferGetInt32(bIn);
     }
   if (a.flags & SSH2_FILEXFER_ATTR_ACL) //unsupported feature
     {
@@ -204,7 +204,7 @@ void	StatToAttributes(const struct stat *st, tAttributes *a, const char *fileNam
 	      if (flags & EXT2_SYNC_FL)
 		a->attrib |= SSH5_FILEXFER_ATTR_FLAGS_SYNC;
 	    }
-	  close(fd);
+	  (void )close(fd);
 	}
 #endif
     }
@@ -226,70 +226,74 @@ static void	EncodeACL(tBuffer *b, const char *file)
   acl_t		acl;
 
   BufferPutInt32(bAcl, 0);//Number of ACL
-  if (acl_get_entry(acl, ACL_FIRST_ENTRY, &entry) == 1)
+  if ((acl = acl_get_file(file, ACL_TYPE_ACCESS)) != NULL)
     {
-      acl_permset_t	permset;
-      acl_tag_t		tag;
-      int		*data;
-
-      do
+      if (acl_get_entry(acl, ACL_FIRST_ENTRY, &entry) == 1)
 	{
-	  if (!acl_get_tag_type(entry, &tag) && !acl_get_permset(entry, &permset))
+	  acl_permset_t	permset;
+	  acl_tag_t	tag;
+	  int		*data;
+	  
+	  do
 	    {
-	      if (tag == ACL_MASK)
-		continue;
-	      nb++;
-	      BufferPutInt32(bAcl, SSH5_ACE4_ACCESS_ALLOWED_ACE_TYPE);
-	      BufferPutInt32(bAcl, 0);//ace-flag ???
-	      BufferPutInt32(bAcl,
-			     (acl_get_perm(permset, ACL_READ) == 1 ? SSH5_ACE4_READ_DATA : 0) |
-			     (acl_get_perm(permset, ACL_WRITE) == 1 ? SSH5_ACE4_WRITE_DATA : 0) |
-			     (acl_get_perm(permset, ACL_EXECUTE) == 1 ? SSH5_ACE4_EXECUTE : 0));
-	      switch (tag)
+	      if (acl_get_tag_type(entry, &tag) == 0 && acl_get_permset(entry, &permset) == 0)
 		{
-		case ACL_USER_OBJ: BufferPutString(bAcl, "USER"); break;
-		case ACL_GROUP_OBJ: BufferPutString(bAcl, "GROUP"); break;
-		case ACL_OTHER: BufferPutString(bAcl, "OTHER"); break;
-		case ACL_USER:
-		  data = (int *)acl_get_qualifier(entry);
-		  if (data)
+		  if (tag == ACL_MASK)
+		    continue;
+		  nb++;
+		  BufferPutInt32(bAcl, SSH5_ACE4_ACCESS_ALLOWED_ACE_TYPE);
+		  BufferPutInt32(bAcl, 0);//ace-flag ???
+		  BufferPutInt32(bAcl,
+				 (acl_get_perm(permset, ACL_READ) == 1 ? SSH5_ACE4_READ_DATA : 0) |
+				 (acl_get_perm(permset, ACL_WRITE) == 1 ? SSH5_ACE4_WRITE_DATA : 0) |
+				 (acl_get_perm(permset, ACL_EXECUTE) == 1 ? SSH5_ACE4_EXECUTE : 0));
+		  switch (tag)
 		    {
-		      t_info	*pw;
-		      char	buf[11+1];
-		      char	*str;
-
-		      if ((pw = mygetpwuid(*data)))
-			str = pw->name;
-		      else
+		    case ACL_USER_OBJ: BufferPutString(bAcl, "USER"); break;
+		    case ACL_GROUP_OBJ: BufferPutString(bAcl, "GROUP"); break;
+		    case ACL_OTHER: BufferPutString(bAcl, "OTHER"); break;
+		    case ACL_USER:
+		      data = (int *)acl_get_qualifier(entry);
+		      if (data)
 			{
-			  snprintf(buf, sizeof(buf), "%u", *data);
-			  str = buf;
+			  t_info	*pw;
+			  char		buf[11+1];
+			  char		*str;
+			  
+			  if ((pw = mygetpwuid(*data)))
+			    str = pw->name;
+			  else
+			    {
+			      (void )snprintf(buf, sizeof(buf), "%i", *data);
+			      str = buf;
+			    }
+			  BufferPutString(bAcl, str);
 			}
-		      BufferPutString(bAcl, str);
+		      break;
+		    case ACL_GROUP:
+		      data = (int *)acl_get_qualifier(entry);
+		      if (data)
+			{
+			  t_info	*gr;
+			  char		buf[11+1];
+			  char		*str;
+			  
+			  if ((gr = mygetgrgid(*data)))
+			    str = gr->name;
+			  else
+			    {
+			      (void )snprintf(buf, sizeof(buf), "%i", *data);
+			      str = buf;
+			    }
+			  BufferPutString(bAcl, str);
+			}
+		      break;
 		    }
-		  break;
-		case ACL_GROUP:
-		  data = (int *)acl_get_qualifier(entry);
-                  if (data)
-                    {
-                      t_info	*gr;
-                      char	buf[11+1];
-                      char	*str;
-
-                      if ((gr = mygetgrgid(*data)))
-                        str = gr->name;
-                      else
-                        {
-                          snprintf(buf, sizeof(buf), "%u", *data);
-                          str = buf;
-                        }
-                      BufferPutString(bAcl, str);
-                    }
-                  break;
 		}
 	    }
+	  while (acl_get_entry(acl, ACL_NEXT_ENTRY, &entry) == 1);
 	}
-      while (acl_get_entry(acl, ACL_NEXT_ENTRY, &entry) == 1);
+      (void )acl_free(acl);
     }
   posNew = bAcl->length;
   bAcl->length = 0;
@@ -307,7 +311,7 @@ static void     EncodeACL(tBuffer *b, const char *file)
   aclent_t	acls[MAX_ACL_ENTRIES];
   int		nbAcls;
 
-  nbAcls = acl(dirent->d_name, GETACL, MAX_ACL_ENTRIES, acls);
+  nbAcls = acl(file, GETACL, MAX_ACL_ENTRIES, acls);
   if (nbAcls < 0)
     nbAcls = 0;
   BufferPutInt32(bAcl, nbAcls);
@@ -349,7 +353,7 @@ static void     EncodeACL(tBuffer *b, const char *file)
 		  str = pw->name;
 		else
 		  {
-		    snprintf(buf, sizeof(buf), "%u", *data);
+		    (void )snprintf(buf, sizeof(buf), "%u", *data);
 		    str = buf;
 		  }
 		BufferPutString(bAcl, str);
@@ -364,7 +368,7 @@ static void     EncodeACL(tBuffer *b, const char *file)
 		  str = gr->name;
 		else
 		  {
-		    snprintf(buf, sizeof(buf), "%u", *data);
+		    (void )snprintf(buf, sizeof(buf), "%u", *data);
 		    str = buf;
 		  }
 		BufferPutString(bAcl, str);
@@ -404,7 +408,7 @@ void	EncodeAttributes(tBuffer *b, const tAttributes *a, const char *file)
 	str = pw->name;
       else
 	{
-	  snprintf(buf, sizeof(buf), "%u", a->uid);
+	  (void )snprintf(buf, sizeof(buf), "%u", a->uid);
 	  str = buf;
 	}
       BufferPutString(b, str);
@@ -412,7 +416,7 @@ void	EncodeAttributes(tBuffer *b, const tAttributes *a, const char *file)
 	str = gr->name;
       else
 	{
-	  snprintf(buf, sizeof(buf), "%u", a->gid);
+	  (void )snprintf(buf, sizeof(buf), "%u", a->gid);
 	  str = buf;
 	}
       BufferPutString(b, str);

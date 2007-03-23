@@ -32,7 +32,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Util.h"
 #include "GetUsersInfos.h"
 
-void	StrMode(int mode, char *d)
+static void	StrMode(mode_t mode, char *d)
 {
   switch (mode & S_IFMT)
     {
@@ -91,7 +91,7 @@ void	StrMode(int mode, char *d)
     case S_IXOTH | S_ISVTX: *d++ = 't'; break;
     }
   *d++ = ' '; /* will be a '+' if ACL's implemented */
-  *d = 0;
+  *d = '\0';
 }
 
 char		*LsFile(const char *name, const struct stat *st)

@@ -62,25 +62,25 @@ typedef struct	s_sftpwho
   char		home[196];
 
 //3 items = 10 octets
-  unsigned int	status;
-  unsigned int	pid;
-  unsigned short mode;
+  u_int32_t	status;
+  u_int32_t	pid;
+  u_int16_t	mode;
 
 //12 items = 46 octets
-  unsigned short dowload_pos;
-  unsigned int	download_current;
-  unsigned int	download_total;
-  unsigned int	download_max;
-  unsigned int	upload_current;
-  unsigned int	upload_total;
-  unsigned int	upload_max;
+  u_int16_t	dowload_pos;
+  u_int32_t	download_current;
+  u_int32_t	download_total;
+  u_int32_t	download_max;
+  u_int32_t	upload_current;
+  u_int32_t	upload_total;
+  u_int32_t	upload_max;
 
-  unsigned int	time_maxidle;
-  unsigned int	time_maxlife;
-  unsigned int	time_idle;
-  unsigned int	time_total;
-  unsigned int	time_begin;
-  unsigned int	time_transf;
+  u_int32_t	time_maxidle;
+  u_int32_t	time_maxlife;
+  u_int32_t	time_idle;
+  u_int32_t	time_total;
+  u_int32_t	time_begin;
+  u_int32_t	time_transf;
 }		t_sftpwho;
 //total : 512 octets
 

@@ -259,7 +259,7 @@ typedef struct	sGlobal
 }		tGlobal;
 
  
-extern	int	cVersion;
+extern	u_int32_t	cVersion;
 
 int	SftpMain(tGlobal *params, int sftpProtocol);
 void	DoInit();

@@ -56,13 +56,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 tBuffer	*bIn = 0;
 tBuffer	*bOut = 0;
 static char	connectionStatus = CONN_INIT;
-int		cVersion = SSH2_FILEXFER_VERSION;
+u_int32_t	cVersion = SSH2_FILEXFER_VERSION;
 
 
 void	DoInit()
 {
+  u_int32_t	clientVersion;
   tBuffer	*b;
-  int		clientVersion;
 	
   clientVersion = BufferGetInt32(bIn);
   b = BufferNew();
@@ -135,20 +135,20 @@ void	DoRealPath()
 	
   id = BufferGetInt32(bIn);
   path = convertFromUtf8(BufferGetString(bIn), 1);
-  resolvedName[0] = 0;
-  if (!path[0])
+  resolvedName[0] = '\0';
+  if (path[0] == '\0')
     {
       free(path);
       path = strdup(".");
     }
-  if (!realpath(path, resolvedName))
+  if (realpath(path, resolvedName) == 0)
     SendStatus(bOut, id, errnoToPortable(errno));
   else
     {
       tStat	s;
       
       memset(&s, 0, sizeof(s));
-      if (strcmp(path, ".") && strcmp(path, "./."))
+      if (strcmp(path, ".") != 0 && strcmp(path, "./.") != 0)
 	ResolvPath(path, resolvedName, sizeof(resolvedName));
       if (cVersion >= 4)
 	s.name = convertToUtf8(resolvedName, 0);
@@ -175,7 +175,7 @@ void	DoOpenDir()
   path = convertFromUtf8(BufferGetString(bIn), 1);
   if ((status = CheckRules(path, RULES_DIRECTORY, 0, O_RDONLY)) == SSH2_FX_OK)
     {
-      if (!(dir = opendir(path)))
+      if ((dir = opendir(path)) == NULL)
 	status = errnoToPortable(errno);
       else
 	{
@@ -183,12 +183,12 @@ void	DoOpenDir()
 	  
 	  if ((h = HandleNew(HANDLE_DIR, path, -1, dir, 0)) < 0)
 	    {
-	      closedir(dir);
-	      errnoToPortable(EMFILE);
+	      (void )closedir(dir);
+	      status = errnoToPortable(EMFILE);
 	    }
 	  else
 	    {
-	      snprintf(gl_var->who->path, sizeof(gl_var->who->path), "%s", path);
+	      (void )snprintf(gl_var->who->path, sizeof(gl_var->who->path), "%s", path);
 	      SendHandle(bOut, id, h);
 	      status = SSH2_FX_OK;
 	    }
@@ -213,7 +213,7 @@ void	DoReadDir()
   dir = HandleGetDir(h);
   path = HandleGetPath(h);
   DEBUG((MYLOG_DEBUG, "[DoReadDir]path:'%s' handle:%i", path, h));
-  if (dir == NULL || path == NULL || !path[0])
+  if (dir == NULL || path == NULL || path[0] == '\0')
     SendStatus(bOut, id, (cVersion <= 3 ? SSH2_FX_FAILURE : SSH4_FX_INVALID_HANDLE));
   else
     {
@@ -235,7 +235,7 @@ void	DoReadDir()
 	  pathName[len] = '/';
 	  len++;
 	}
-      while ((dp = readdir(dir)))
+      while ((dp = readdir(dir)) != NULL)
 	{
 	  STRCPY(pathName + len, dp->d_name, sizeof(pathName) - len);
 	  if ((gl_var->who->status & SFTPWHO_LINKS_AS_LINKS))
@@ -254,7 +254,8 @@ void	DoReadDir()
 		  continue;
 		}
 	    }
-	  if ((dp->d_name[0] == '.' && (!dp->d_name[1] || (dp->d_name[1] == '.' && !dp->d_name[2])))
+	  if ((dp->d_name[0] == '.' && (dp->d_name[1] == '\0'
+					|| (dp->d_name[1] == '.' && dp->d_name[2] == '\0')))
 	      || CheckRules(pathName, RULES_LISTING, &st, 0) == SSH2_FX_OK)
 	    {
 	      ChangeRights(&st);
@@ -267,8 +268,10 @@ void	DoReadDir()
 	      if (count == nstats)
 		break;
 	    }
+#ifdef DODEBUG
 	  else
 	    DEBUG((MYLOG_DEBUG, "[DoReadDir] REFUSED -> '%s' handle:%i [%i]", pathName, h, count));
+#endif
 	}
       if (count > 0)
 	{
@@ -338,12 +341,12 @@ void	DoOpen()
 	    
 	    if ((h = HandleNew(HANDLE_FILE, path, fd, NULL, textMode)) < 0)
 	      {
-		close(fd);
+		(void )close(fd);
 		status = errnoToPortable(EMFILE);
 	      }
 	    else
 	      {
-		snprintf(gl_var->who->file, sizeof(gl_var->who->file), "%s", path);
+		(void )snprintf(gl_var->who->file, sizeof(gl_var->who->file), "%s", path);
 		if (flags & O_WRONLY)
 		  {
 		    gl_var->who->status = (gl_var->who->status & SFTPWHO_ARGS_MASK ) | SFTPWHO_PUT;
@@ -363,7 +366,7 @@ void	DoOpen()
 		  }
 		gl_var->down_size = 0;
 		gl_var->down_max = 0;
-		if (!(flags & O_WRONLY))
+		if ((flags & O_WRONLY) == 0)
 		  {
 		    struct stat	st;
 		    
@@ -395,7 +398,7 @@ void	DoRead()
     len = SSH2_MAX_READ;
   if ((fd = HandleGetFd(h, &fileIsText)) >= 0)
     {
-      if (!fileIsText && lseek(fd, off, SEEK_SET) < 0)
+      if (fileIsText == 0 && lseek(fd, off, SEEK_SET) < 0)
 	status = errnoToPortable(errno);
       else
 	{ 
@@ -412,7 +415,7 @@ void	DoRead()
 	  BufferPutInt32(bOut, 0);//Size of the data - unknown before read
 	  buf = BufferGetWritePointer(bOut);
 	  ret = read(fd, buf, len);
-	  if (fileIsText)
+	  if (fileIsText == 1)
 	    {
 	      for (len = 0; len < ret; len++)
 		if (buf[len] == '\r')
@@ -460,11 +463,11 @@ void	DoWrite()
   data = BufferGetData(bIn, &len);
   if (fd >= 0)
     {
-      if (!fileIsText && lseek(fd, off, SEEK_SET) < 0)
+      if (fileIsText == 0 && lseek(fd, off, SEEK_SET) < 0)
 	status = errnoToPortable(errno);
       else
 	{
-	  if (fileIsText)
+	  if (fileIsText == 1)
 	    {
 	      for (ret = 0; ret < len; ret++)
 		if (data[ret] == '\r')
@@ -629,7 +632,7 @@ void 	DoFSetStat()
   id = BufferGetInt32(bIn);
   path = HandleGetPath(BufferGetHandle(bIn));
   a = GetAttributes(bIn);
-  if (!path)
+  if (path == NULL)
     status = (cVersion <= 3 ? SSH2_FX_FAILURE : SSH4_FX_INVALID_HANDLE);
   else
     {
@@ -673,7 +676,8 @@ void	DoRemove()
 	  if (unlink(path) == -1)
 	    status = errnoToPortable(errno);
 	  mylog_printf(MYLOG_WARNING, "[%s][%s]Try to remove file '%s' : %s",
-		       gl_var->who->user, gl_var->who->ip, path, (status != SSH2_FX_OK ? strerror(errno) : "success"));
+		       gl_var->who->user, gl_var->who->ip, path,
+		       (status != SSH2_FX_OK ? strerror(errno) : "success"));
 	}
       else
 	status = SSH2_FX_PERMISSION_DENIED;
@@ -750,7 +754,7 @@ void	DoRename()
   if ((status = CheckRules(oldPath, RULES_RMFILE, 0, 0)) == SSH2_FX_OK
       && (status = CheckRules(newPath, RULES_FILE, 0, O_WRONLY)) == SSH2_FX_OK)
     {
-      if (!stat(newPath, &sb) && (flags & SSH5_FXP_RENAME_OVERWRITE))
+      if (stat(newPath, &sb) == 0 && (flags & SSH5_FXP_RENAME_OVERWRITE))
 	if (unlink(newPath) == -1)
 	  {
 	    status = errnoToPortable(errno);
@@ -812,14 +816,14 @@ void	DoExtended()
   request = BufferGetString(bIn);
   DEBUG((MYLOG_DEBUG, "[DoExtended]request:'%s'", request));
 #ifdef MSSEXT_DISKUSAGE
-  if (!strcmp(request, "space-available"))
+  if (strcmp(request, "space-available") == 0)
       DoExtDiskSpace(bIn, bOut, id);
   else
 #endif
 #ifdef MSSEXT_FILE_HASHING
-    if (!strcmp(request, "check-file-handle"))
+    if (strcmp(request, "check-file-handle") == 0)
       DoExtFileHashing_Handle(bIn, bOut, id);
-    else if (!strcmp(request, "check-file-name"))
+    else if (strcmp(request, "check-file-name") == 0)
       DoExtFileHashing_Name(bIn, bOut, id);
     else
 #endif
@@ -933,9 +937,9 @@ int			SftpMain(tGlobal *params, int sftpProtocol)
 
       if (gl_var->must_shutdown)
 	exit(0);
-      if (!gl_var->upload_max || (gl_var->upload_current < gl_var->upload_max))
+      if (gl_var->upload_max == 0 || (gl_var->upload_current < gl_var->upload_max))
 	FD_SET(0, &fdR);
-      if (bOut->length > 0 && (!gl_var->download_max
+      if (bOut->length > 0 && (gl_var->download_max == 0
 			       || (gl_var->download_current < gl_var->download_max)))
 	FD_SET(1, &fdW);
       if ((ret = select(2, &fdR, &fdW, 0, &tm)) == -1)
@@ -943,7 +947,7 @@ int			SftpMain(tGlobal *params, int sftpProtocol)
 	  if (errno != EINTR)
 	    exit(1);
 	}
-      else if (!ret)
+      else if (ret == 0)
 	{
 	  SET_TIMEOUT(tm, 1, 0);
 
@@ -975,17 +979,17 @@ int			SftpMain(tGlobal *params, int sftpProtocol)
 	  
 	  gl_var->download_max = gl_var->who->download_max;
 	  if (_sftpglobal->download_by_client && !(gl_var->who->status & SFTPWHO_BYPASS_GLB_DWN) &&
-	      ((_sftpglobal->download_by_client < gl_var->download_max) || !gl_var->download_max))
+	      ((_sftpglobal->download_by_client < gl_var->download_max) || gl_var->download_max == 0))
 	    gl_var->download_max = _sftpglobal->download_by_client;
 	  
 	  gl_var->upload_max = gl_var->who->upload_max;
 	  if (_sftpglobal->upload_by_client && !(gl_var->who->status & SFTPWHO_BYPASS_GLB_UPL) &&
-	      ((_sftpglobal->upload_by_client < gl_var->upload_max) || !gl_var->upload_max))
+	      ((_sftpglobal->upload_by_client < gl_var->upload_max) || gl_var->upload_max == 0))
 	    gl_var->upload_max = _sftpglobal->upload_by_client;
 	  if (gl_var->who->time_maxlife)
 	    {
 	      gl_var->who->time_maxlife--;
-	      if (!gl_var->who->time_maxlife)
+	      if (gl_var->who->time_maxlife == 0)
 		{
 		  mylog_printf(MYLOG_CONNECTION, "[%s][%s]Connection max life !",
 			       gl_var->who->user, gl_var->who->ip);
