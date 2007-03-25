@@ -22,18 +22,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <fcntl.h>
 #include <signal.h>
 #include <unistd.h>
-#include <sys/types.h>
 #include <sys/stat.h>
 #include "Defines.h"
 #include "Encoding.h"
 #include "Log.h"
 #include "Sftp.h"
+#include "GetUsersInfos.h"
 
 tGlobal	*gl_var = NULL;
 
 #include "Access.c"
-#include "GetUsersInfos.h"
-#include "GetUsersInfos.c"
 #include "SftpServer.h"
 
 static void	end_sftp()

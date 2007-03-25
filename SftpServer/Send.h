@@ -20,8 +20,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef _SEND_H_
 #define _SEND_H_
 
-#include "Sftp.h"
-
 void	SendAttributes(tBuffer *bOut, u_int32_t id, const tAttributes *a, const char *file);
 void	SendStats(tBuffer *bOut, u_int32_t id, int count, const tStat *s);
 void	SendHandle(tBuffer *bOut, u_int32_t id, int h);

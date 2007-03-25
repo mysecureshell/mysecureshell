@@ -27,9 +27,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <string.h>
 #include <unistd.h>
 #include "Defines.h"
-#include "Sftp.h"
-#include "Admin.h"
 #include "Global.h"
+#include "Admin.h"
 #include "Log.h"
 #include "Send.h"
 #include "Util.h"
