@@ -18,6 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "../config.h"
+#include <errno.h>
 #include <fcntl.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -26,6 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <string.h>
 #include <unistd.h>
 #include "Log.h"
+#include "../security.h"
 
 typedef struct	s_log
 {
@@ -54,7 +56,7 @@ void	mylog_open(const char *file)
 	}
       _log->file = file;
       _log->fd = fd;
-      fchown(fd, 0, 0);
+      (void )fchown(fd, 0, 0);
 /*
 Text color codes:
   30=black 31=red 32=green 33=yellow 34=blue 35=magenta 36=cyan 37=white
@@ -97,7 +99,7 @@ Form:
 void	mylog_close()
 {
   if (_log != NULL)
-    (void )close(_log->fd);
+    xclose(_log->fd);
 }
 
 void	mylog_reopen()
@@ -133,18 +135,25 @@ void		mylog_printf(int level, const char *str, ...)
 	}
       va_start(ap, str);
       t = time(0) + _log->time;
-      tm = localtime(&t);
+      if ((tm = localtime(&t)) == NULL)
+	{
+	  if (snprintf(fmt, sizeof(buffer), "[Error with time] [%i]%s\n", _log->pid, str) > 0)
+	    goto forceShowLog;
+	}
 #ifndef HAVE_LOG_IN_COLOR
       if (snprintf(fmt, sizeof(buffer),	"%i-%02i-%02i %02i:%02i:%02i [%i]%s\n",
 		   1900 + tm->tm_year, 1 + tm->tm_mon, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec,
 		   _log->pid, str) > 0)
 #else
-      if (snprintf(fmt, sizeof(buffer),	"%i-%02i-%02i %02i:%02i:%02i \33[%i:%i:%im[%i]%s\33[37:40:0m\n",
-		   1900 + tm->tm_year, 1 + tm->tm_mon, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec,
-		   _log->color[level][0], _log->color[level][1], _log->color[level][2], _log->pid, str) > 0)
+	if (snprintf(fmt, sizeof(buffer), "%i-%02i-%02i %02i:%02i:%02i \33[%i:%i:%im[%i]%s\33[37:40:0m\n",
+		     1900 + tm->tm_year, 1 + tm->tm_mon, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec,
+		     _log->color[level][0], _log->color[level][1], _log->color[level][2], _log->pid, str) > 0)
 #endif
-	if ((size = vsnprintf(buffer, sizeof(buffer), fmt, ap)) > 0)
-	  (void )write(_log->fd, buffer, size);
+	  {
+	  forceShowLog:
+	    if ((size = vsnprintf(buffer, sizeof(buffer), fmt, ap)) > 0)
+	      (void )write(_log->fd, buffer, size);
+	  }
       va_end(ap);
     }
 }

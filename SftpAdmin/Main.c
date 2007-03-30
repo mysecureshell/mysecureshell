@@ -1,5 +1,5 @@
 /*
-MySecureShell permit to add restriction to modified sftp-server
+Mysecureshell permit to add restriction to modified sftp-server
 when using MySecureShell as shell.
 Copyright (C) 2007 Sebastien Tardif
 
@@ -18,6 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "../config.h"
+#include <errno.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <stdio.h>
@@ -27,6 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <unistd.h>
 #include "../SftpServer/Sftp.h"
 #include "../SftpServer/Buffer.h"
+#include "../security.h"
 
 static int	_sftpIn = 0;
 static int	_sftpOut = 0;
@@ -47,18 +49,18 @@ static pid_t	execSftpServer(int ac, char **av)
     }
   if ((pid = fork()) == 0)
     {
-      (void )dup2(fdIn[0], 0);
-      (void )dup2(fdOut[1], 1);
-      (void )dup2(fdOut[1], 2);
-      (void )close(fdIn[0]); (void )close(fdIn[1]);
-      (void )close(fdOut[0]); (void )close(fdOut[1]);
+      xdup2(fdIn[0], 0);
+      xdup2(fdOut[1], 1);
+      xdup2(fdOut[1], 2);
+      xclose(fdIn[0]); xclose(fdIn[1]);
+      xclose(fdOut[0]); xclose(fdOut[1]);
       args = calloc(ac + 6, sizeof(*args));
       args[0] = "ssh";
       args[1] = "-oForwardX11 no";
       args[2] = "-oForwardAgent no";
       args[3] = "-oClearAllForwardings yes";
       args[4] = "-s";
-      memcpy(args + 5, av + 1, (ac - 1) * sizeof(char *));
+      (void )memcpy(args + 5, av + 1, (ac - 1) * sizeof(char *));
       args[ac + 4] = "sftp";
       (void )signal(SIGINT, SIG_IGN);
       if (execvp(args[0], args) == -1)
@@ -67,8 +69,8 @@ static pid_t	execSftpServer(int ac, char **av)
     }
   else if (pid != -1)
     {
-      (void )close(fdIn[0]);
-      (void )close(fdOut[1]);
+      xclose(fdIn[0]);
+      xclose(fdOut[1]);
       _sftpIn = fdIn[1];
       _sftpOut = fdOut[0];
     }
@@ -404,9 +406,9 @@ int		main(int ac, char **av)
 	    break;
 	}
     }
-  kill(pid, SIGHUP);
-  close(_sftpIn);
-  close(_sftpOut);
-  waitpid(pid, &status, 0);
+  (void )kill(pid, SIGHUP);
+  xclose(_sftpIn);
+  xclose(_sftpOut);
+  (void )waitpid(pid, &status, 0);
   return (0);
 }

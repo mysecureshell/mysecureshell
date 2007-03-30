@@ -18,11 +18,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "../config.h"
-
 #ifdef MSS_HAVE_ADMIN
 #include <errno.h>
 #include <fcntl.h>
 #include <signal.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -32,6 +32,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Log.h"
 #include "Send.h"
 #include "Util.h"
+#include "../security.h"
 
 void	DoAdminListUsers()
 {
@@ -102,7 +103,7 @@ void	DoAdminServerStatus()
   else
     {
       if ((fd = open(SHUTDOWN_FILE, O_CREAT | O_TRUNC | O_RDWR, 0644)) >= 0)
-	(void )close(fd);
+	xclose(fd);
       else
 	status = errnoToPortable(errno);
     }
@@ -199,7 +200,7 @@ void	DoAdminConfigGet()
       if ((fd = open(CONFIG_FILE, O_RDONLY)) >= 0)
 	{
 	  r = read(fd, buffer, st.st_size);
-	  (void )close(fd);
+	  xclose(fd);
 	  BufferPutData(b, buffer, r);
 	  status = SSH2_FX_OK;
 	  free(buffer);
@@ -209,12 +210,12 @@ void	DoAdminConfigGet()
 	      if ((buffer = malloc(st.st_size)))
 		{
 		  r = read(fd, buffer, st.st_size);
-		  (void )close(fd);
+		  xclose(fd);
 		  BufferPutData(b, buffer, r);
 		}
 	      else
 		BufferPutInt32(b, 0);
-	      (void )close(fd);
+	      xclose(fd);
 	      BufferPutPacket(bOut, b);
 	    }
 	  else

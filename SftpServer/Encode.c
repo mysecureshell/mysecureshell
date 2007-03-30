@@ -18,6 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "../config.h"
+#include <errno.h>
 #include <sys/ioctl.h>
 #include <grp.h>
 #include <pwd.h>
@@ -66,6 +67,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Encode.h"
 #include "GetUsersInfos.h"
 #include "Log.h"
+#include "../security.h"
 
 tAttributes		*GetAttributes(tBuffer *bIn)
 {
@@ -76,14 +78,14 @@ tAttributes		*GetAttributes(tBuffer *bIn)
   //DEBUG((MYLOG_DEBUG, "FLAGS[%x][%i]", a.flags, a.flags));
   if (cVersion >= 4)
     a.type = BufferGetInt8(bIn);
-  if (a.flags & SSH2_FILEXFER_ATTR_SIZE)
+  if (HAS_BIT(a.flags, SSH2_FILEXFER_ATTR_SIZE))
     a.size = BufferGetInt64(bIn);
-  if (cVersion <= 3 && (a.flags & SSH2_FILEXFER_ATTR_UIDGID))
+  if (cVersion <= 3 && HAS_BIT(a.flags, SSH2_FILEXFER_ATTR_UIDGID))
     {
       a.uid = BufferGetInt32(bIn);
       a.gid = BufferGetInt32(bIn);
     }
-  if (cVersion >= 4 && (a.flags & SSH4_FILEXFER_ATTR_OWNERGROUP))
+  if (cVersion >= 4 && HAS_BIT(a.flags, SSH4_FILEXFER_ATTR_OWNERGROUP))
     {
       t_info	*pw;
       t_info	*gr;
@@ -93,11 +95,11 @@ tAttributes		*GetAttributes(tBuffer *bIn)
       if ((gr = mygetgrnam(BufferGetString(bIn))))
 	a.gid = gr->id;
     }
-  if (a.flags & SSH2_FILEXFER_ATTR_PERMISSIONS)
+  if (HAS_BIT(a.flags, SSH2_FILEXFER_ATTR_PERMISSIONS))
     a.perm = BufferGetInt32(bIn);
   if (cVersion <= 3)
     {
-      if (a.flags & SSH2_FILEXFER_ATTR_ACMODTIME)
+      if (HAS_BIT(a.flags, SSH2_FILEXFER_ATTR_ACMODTIME))
 	{
 	  a.atime = BufferGetInt32(bIn);
 	  a.mtime = BufferGetInt32(bIn);
@@ -105,24 +107,24 @@ tAttributes		*GetAttributes(tBuffer *bIn)
     }
   else //version >= 4
     {
-      if (a.flags & SSH4_FILEXFER_ATTR_ACCESSTIME)
+      if (HAS_BIT(a.flags, SSH4_FILEXFER_ATTR_ACCESSTIME))
 	a.atime = BufferGetInt64(bIn);
-      if (a.flags & SSH4_FILEXFER_ATTR_SUBSECOND_TIMES)
+      if (HAS_BIT(a.flags, SSH4_FILEXFER_ATTR_SUBSECOND_TIMES))
 	(void )BufferGetInt32(bIn);
-      if (a.flags & SSH4_FILEXFER_ATTR_CREATETIME)
+      if (HAS_BIT(a.flags, SSH4_FILEXFER_ATTR_CREATETIME))
 	a.ctime = BufferGetInt64(bIn);
-      if (a.flags & SSH4_FILEXFER_ATTR_SUBSECOND_TIMES)
+      if (HAS_BIT(a.flags, SSH4_FILEXFER_ATTR_SUBSECOND_TIMES))
 	(void )BufferGetInt32(bIn);
-      if (a.flags & SSH4_FILEXFER_ATTR_MODIFYTIME)
+      if (HAS_BIT(a.flags, SSH4_FILEXFER_ATTR_MODIFYTIME))
 	a.mtime = BufferGetInt64(bIn);
-      if (a.flags & SSH4_FILEXFER_ATTR_SUBSECOND_TIMES)
+      if (HAS_BIT(a.flags, SSH4_FILEXFER_ATTR_SUBSECOND_TIMES))
 	(void )BufferGetInt32(bIn);
     }
-  if (a.flags & SSH2_FILEXFER_ATTR_ACL) //unsupported feature
+  if (HAS_BIT(a.flags, SSH2_FILEXFER_ATTR_ACL)) //unsupported feature
     {
       free(BufferGetString(bIn));
     }
-  if (a.flags & SSH2_FILEXFER_ATTR_EXTENDED) //unsupported feature
+  if (HAS_BIT(a.flags, SSH2_FILEXFER_ATTR_EXTENDED)) //unsupported feature
     {
       int	i, count;
 
@@ -175,7 +177,7 @@ void	StatToAttributes(const struct stat *st, tAttributes *a, const char *fileNam
     }
   else
     a->flags |= SSH2_FILEXFER_ATTR_UIDGID;
-  if (cVersion >= 5 && fileName)
+  if (cVersion >= 5 && fileName != NULL)
     {
       int	pos = strlen(fileName) - 1;
 #ifdef HAVE_LINUX_EXT2_FS_H
@@ -204,7 +206,7 @@ void	StatToAttributes(const struct stat *st, tAttributes *a, const char *fileNam
 	      if (flags & EXT2_SYNC_FL)
 		a->attrib |= SSH5_FILEXFER_ATTR_FLAGS_SYNC;
 	    }
-	  (void )close(fd);
+	  xclose(fd);
 	}
 #endif
     }
@@ -390,14 +392,14 @@ void	EncodeAttributes(tBuffer *b, const tAttributes *a, const char *file)
   BufferPutInt32(b, a->flags);
   if (cVersion >= 4)
     BufferPutInt8(b, a->type);
-  if (a->flags & SSH2_FILEXFER_ATTR_SIZE)
+  if (HAS_BIT(a->flags, SSH2_FILEXFER_ATTR_SIZE))
     BufferPutInt64(b, a->size);
-  if (cVersion <= 3 && a->flags & SSH2_FILEXFER_ATTR_UIDGID)
+  if (cVersion <= 3 && HAS_BIT(a->flags, SSH2_FILEXFER_ATTR_UIDGID))
     {
       BufferPutInt32(b, a->uid);
       BufferPutInt32(b, a->gid);
     }
-  if (a->flags & SSH4_FILEXFER_ATTR_OWNERGROUP)
+  if (HAS_BIT(a->flags, SSH4_FILEXFER_ATTR_OWNERGROUP))
     {
       t_info	*pw;
       t_info	*gr;
@@ -421,11 +423,11 @@ void	EncodeAttributes(tBuffer *b, const tAttributes *a, const char *file)
 	}
       BufferPutString(b, str);
     }
-  if (a->flags & SSH2_FILEXFER_ATTR_PERMISSIONS)
+  if (HAS_BIT(a->flags, SSH2_FILEXFER_ATTR_PERMISSIONS))
     BufferPutInt32(b, a->perm);
   if (cVersion <= 3)
     {
-      if (a->flags & SSH2_FILEXFER_ATTR_ACMODTIME)
+      if (HAS_BIT(a->flags, SSH2_FILEXFER_ATTR_ACMODTIME))
 	{
 	  BufferPutInt32(b, a->atime);
 	  BufferPutInt32(b, a->mtime);
@@ -433,20 +435,20 @@ void	EncodeAttributes(tBuffer *b, const tAttributes *a, const char *file)
     }
   else //cVersion >= 4
     {
-      if (a->flags & SSH4_FILEXFER_ATTR_ACCESSTIME)
+      if (HAS_BIT(a->flags, SSH4_FILEXFER_ATTR_ACCESSTIME))
 	BufferPutInt64(b, a->atime);
-      if (a->flags & SSH4_FILEXFER_ATTR_SUBSECOND_TIMES)
+      if (HAS_BIT(a->flags, SSH4_FILEXFER_ATTR_SUBSECOND_TIMES))
 	BufferPutInt32(b, 0);
-      if (a->flags & SSH4_FILEXFER_ATTR_CREATETIME)
+      if (HAS_BIT(a->flags, SSH4_FILEXFER_ATTR_CREATETIME))
 	BufferPutInt64(b, a->ctime);
-      if (a->flags & SSH4_FILEXFER_ATTR_SUBSECOND_TIMES)
+      if (HAS_BIT(a->flags, SSH4_FILEXFER_ATTR_SUBSECOND_TIMES))
 	BufferPutInt32(b, 0);	
-      if (a->flags & SSH4_FILEXFER_ATTR_MODIFYTIME)
+      if (HAS_BIT(a->flags, SSH4_FILEXFER_ATTR_MODIFYTIME))
 	BufferPutInt64(b, a->mtime);
-      if (a->flags & SSH4_FILEXFER_ATTR_SUBSECOND_TIMES)
+      if (HAS_BIT(a->flags, SSH4_FILEXFER_ATTR_SUBSECOND_TIMES))
 	BufferPutInt32(b, 0);
     }
-  if (a->flags & SSH2_FILEXFER_ATTR_ACL)
+  if (HAS_BIT(a->flags, SSH2_FILEXFER_ATTR_ACL))
     {
 #if(HAVE_LIBACL)
       if (file != NULL)
@@ -457,9 +459,9 @@ void	EncodeAttributes(tBuffer *b, const tAttributes *a, const char *file)
 	EncodeACL(b, file);
 #endif
     }
-  if (a->flags & SSH5_FILEXFER_ATTR_BITS)
+  if (HAS_BIT(a->flags, SSH5_FILEXFER_ATTR_BITS))
     BufferPutInt32(b, a->attrib);
-  if (a->flags & SSH2_FILEXFER_ATTR_EXTENDED)
+  if (HAS_BIT(a->flags, SSH2_FILEXFER_ATTR_EXTENDED))
     BufferPutInt32(b, 0); //unsupported feature
 }
 

@@ -58,7 +58,7 @@ static int getgrouplist(const char *uname, gid_t agroup, register gid_t *groups,
     if (bail)
       continue;
     for (i = 0; grp->gr_mem[i]; i++) {
-      if (!strcmp(grp->gr_mem[i], uname)) {
+      if (strcmp(grp->gr_mem[i], uname) == 0) {
 	if (ngroups >= maxgroups) {
 	  ret = -1;
 	  goto out;
@@ -83,13 +83,13 @@ static void	InitAccess()
   int		nb_groups = 42;
   int		i;
 
-  if ((info = getpwuid(getuid())))
+  if ((info = getpwuid(getuid())) != NULL)
     {
       groups = malloc(nb_groups * sizeof(*groups));
       if (getgrouplist(info->pw_name, info->pw_gid, groups, &nb_groups) == -1)
 	{
 	  groups = realloc(groups, nb_groups * sizeof(*groups));
-	  getgrouplist(info->pw_name, info->pw_gid, groups, &nb_groups);
+	  (void )getgrouplist(info->pw_name, info->pw_gid, groups, &nb_groups);
 	}
       if (nb_groups > 0)
         {
@@ -107,7 +107,7 @@ static int	UserIsInThisGroup(gid_t grp)
 {
   int		i;
 
-  if (_in_group)
+  if (_in_group != NULL)
     for (i = 0; _in_group[i] != 0; i++)
       if (_in_group[i] == grp)
 	return (1);

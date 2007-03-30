@@ -120,16 +120,16 @@ static char	*make_speed(char *b2, size_t size, unsigned int s, int can_unlimit)
 
 static unsigned int	getRealDown(t_sftpwho *who)
 {
-  if (_sftpglobal->download_by_client != 0&& !(who->status & SFTPWHO_BYPASS_GLB_DWN) &&
-      ((_sftpglobal->download_by_client < who->download_max) || who->download_max == 0))
+  if (_sftpglobal->download_by_client != 0&& (who->status & SFTPWHO_BYPASS_GLB_DWN) == 0
+      && ((_sftpglobal->download_by_client < who->download_max) || who->download_max == 0))
       return (_sftpglobal->download_by_client);
   return (who->download_max);
 }
 
 static unsigned int	getRealUp(t_sftpwho *who)
 {
-  if (_sftpglobal->upload_by_client != 0 && !(who->status & SFTPWHO_BYPASS_GLB_UPL) &&
-      ((_sftpglobal->upload_by_client < who->upload_max) || who->upload_max == 0))
+  if (_sftpglobal->upload_by_client != 0 && (who->status & SFTPWHO_BYPASS_GLB_UPL) == 0
+      && ((_sftpglobal->upload_by_client < who->upload_max) || who->upload_max == 0))
       return (_sftpglobal->upload_by_client);
   return (who->upload_max);
 }

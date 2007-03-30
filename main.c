@@ -18,6 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "config.h"
+#include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <string.h>
@@ -30,10 +31,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "SftpServer/Sftp.h"
 #include "SftpServer/Encoding.h"
 #include "SftpServer/Log.h"
+#include "security.h"
 
 static void	showVersion(int showAll)
 {
-  printf("MySecureShell is version "PACKAGE_VERSION" build on " __DATE__ "%s",
+  (void )printf("MySecureShell is version "PACKAGE_VERSION" build on " __DATE__ "%s",
 #ifdef DODEBUG
 	       " with DEBUG"
 #else
@@ -42,7 +44,7 @@ static void	showVersion(int showAll)
 	       );
   if (showAll)
     {
-      printf("\n\nOptions:\n  ACL support: "
+      (void )printf("\n\nOptions:\n  ACL support: "
 #if(HAVE_LIBACL)
 	     "yes"
 #else
@@ -73,37 +75,37 @@ static void	parse_args(int ac, char **av)
   if (ac == 1)
     return;
   for (i = 1; i < ac; i++)
-    if (!strcmp(av[i], "-c"))
+    if (strcmp(av[i], "-c") == 0)
       i++;
-    else if (!strcmp(av[i], "--configtest"))
+    else if (strcmp(av[i], "--configtest") == 0)
       {
 	load_config(verbose);
-	printf("Config is valid.\n");
+	(void )printf("Config is valid.\n");
 	exit(0);
       }
-    else if (!strcmp(av[i], "--help"))
+    else if (strcmp(av[i], "--help") == 0)
       {
       help:
-	printf("Build:\n\t");
+	(void )printf("Build:\n\t");
 	showVersion(0);
-	printf("\nUsage:\n\t%s [verbose] [options]\n\nOptions:\n", av[0]);
-	printf("\t--configtest : test the config file and show errors\n");
-	printf("\t--help       : show this screen\n");
-	printf("\t--version    : show version of MySecureShell\n"); 
-	printf("\nVerbose:\n");
-	printf("\t-v           : add a level at verbose mode\n");
+	(void )printf("\nUsage:\n\t%s [verbose] [options]\n\nOptions:\n", av[0]);
+	(void )printf("\t--configtest : test the config file and show errors\n");
+	(void )printf("\t--help       : show this screen\n");
+	(void )printf("\t--version    : show version of MySecureShell\n"); 
+	(void )printf("\nVerbose:\n");
+	(void )printf("\t-v           : add a level at verbose mode\n");
 	exit(0);
       }
-    else if (!strcmp(av[i], "--version"))
+    else if (strcmp(av[i], "--version") == 0)
       {
 	showVersion(1);
 	exit(0);
       }
-    else if (!strcmp(av[i], "-v"))
+    else if (strcmp(av[i], "-v") == 0)
       verbose++;
     else
       {
-	printf("--- UNKNOW OPTION: %s ---\n\n", av[i]);
+	(void )printf("--- UNKNOW OPTION: %s ---\n\n", av[i]);
 	goto help;
       }
 }
@@ -113,12 +115,13 @@ int	main(int ac, char **av, char **env)
   int	is_sftp = 0;
 
   create_hash();
-  if (ac == 3 && av[1] && av[2] && !strcmp("-c", av[1]) && strstr(av[2], "sftp-server"))
+  if (ac == 3 && av[1] != NULL && av[2] != NULL
+      && strcmp("-c", av[1]) != 0 && strstr(av[2], "sftp-server") == 0)
       is_sftp = 1;
   else
     parse_args(ac, av);
   load_config(0);
-  if (is_sftp)
+  if (is_sftp == 1)
     {
       tGlobal	*params;
       char	*hide_files, *deny_filter, *hostname;
@@ -129,9 +132,9 @@ int	main(int ac, char **av, char **env)
       params->who = SftpWhoGetStruct(1);
       params->who->time_begin = time(0);
       params->who->pid = (unsigned int)getpid();
-      snprintf(params->who->home, sizeof(params->who->home), "%s", (char *)hash_get("Home"));
-      snprintf(params->who->user, sizeof(params->who->user), "%s", (char *)hash_get("User"));
-      snprintf(params->who->ip, sizeof(params->who->ip), "%s", hostname);
+      (void )strncat(params->who->home, (char *)hash_get("Home"), sizeof(params->who->home) - 1);
+      (void )strncat(params->who->user, (char *)hash_get("User"), sizeof(params->who->user) - 1);
+      (void )strncat(params->who->ip, hostname, sizeof(params->who->ip) - 1);
       max = hash_get_int("LimitConnectionByUser");
       if (max > 0 && count_program_for_uid((char *)hash_get("User")) > max)
 	{//too many connection for the account
@@ -167,8 +170,8 @@ int	main(int ac, char **av, char **env)
       if ((fd = open(SHUTDOWN_FILE, O_RDONLY)) >= 0)
 	//server is down
 	{
-	  close(fd);
-	  if (!hash_get_int("IsAdmin"))
+	  xclose(fd);
+	  if (hash_get_int("IsAdmin") == 0)
 	    {
 	      params->who->status = SFTPWHO_EMPTY;
 	      SftpWhoRelaseStruct();
@@ -176,7 +179,7 @@ int	main(int ac, char **av, char **env)
 	      exit(0);
 	    }
 	}
-      if (hash_get("LogFile"))
+      if (hash_get("LogFile") != NULL)
 	mylog_open(strdup((char *)hash_get("LogFile")));
       else
 	mylog_open(MSS_LOG);
@@ -201,59 +204,59 @@ int	main(int ac, char **av, char **env)
 	;
       _sftpglobal->download_max = hash_get_int("GlobalDownload");
       _sftpglobal->upload_max = hash_get_int("GlobalUpload");
-      if (hash_get_int("Download"))
+      if (hash_get_int("Download") > 0)
 	{
 	  params->download_max = hash_get_int("Download");
 	  params->who->download_max = params->download_max;
 	}
-      if (hash_get_int("Upload"))
+      if (hash_get_int("Upload") > 0)
 	{
 	  params->upload_max = hash_get_int("Upload");
 	  params->who->upload_max = params->upload_max;
 	}
-      if (hash_get_int("IdleTimeOut"))
+      if (hash_get_int("IdleTimeOut") > 0)
 	params->who->time_maxidle = hash_get_int("IdleTimeOut");
-      if (hash_get_int("DirFakeMode"))
+      if (hash_get_int("DirFakeMode") > 0)
 	params->who->mode = hash_get_int("DirFakeMode");
-      if (hide_files && strlen(hide_files) > 0)
+      if (hide_files != NULL && strlen(hide_files) > 0)
 	{
 	  int	r;
 
-	  if (!(r = regcomp(&params->hide_files_regexp, hide_files, REG_EXTENDED | REG_NOSUB | REG_NEWLINE)))
+	  if ((r = regcomp(&params->hide_files_regexp, hide_files, REG_EXTENDED | REG_NOSUB | REG_NEWLINE)) == 0)
             params->has_hide_files = MSS_TRUE;
           else
             {
               char	buffer[256];
 
-              regerror(r, &params->hide_files_regexp, buffer, sizeof(buffer));
+              (void )regerror(r, &params->hide_files_regexp, buffer, sizeof(buffer));
               mylog_printf(MYLOG_ERROR, "[%s][%s]Couldn't compile regex : %s",
 			   params->who->user, params->who->ip, buffer);
             }
 	}
-      if (deny_filter && strlen(deny_filter) > 0)
+      if (deny_filter != NULL && strlen(deny_filter) > 0)
 	{
 	  int	r;
 
-	  if (!(r = regcomp(&params->deny_filter_regexp, deny_filter, REG_EXTENDED | REG_NOSUB | REG_NEWLINE)))
+	  if ((r = regcomp(&params->deny_filter_regexp, deny_filter, REG_EXTENDED | REG_NOSUB | REG_NEWLINE)) == 0)
             params->has_deny_filter = MSS_TRUE;
           else
             {
               char      buffer[256];
 
-              regerror(r, &params->deny_filter_regexp, buffer, sizeof(buffer));
+              (void )regerror(r, &params->deny_filter_regexp, buffer, sizeof(buffer));
               mylog_printf(MYLOG_ERROR, "[%s][%s]Couldn't compile regex : %s",
 			   params->who->user, params->who->ip, buffer);
             }
 	}
       sftp_version = hash_get_int("SftpProtocol");
-      if (hash_get_int("ConnectionMaxLife"))
+      if (hash_get_int("ConnectionMaxLife") > 0)
 	params->who->time_maxlife = hash_get_int("ConnectionMaxLife");
-      if (hash_get("ExpireDate"))
+      if (hash_get("ExpireDate") != NULL)
 	{
 	  struct tm	tm;
 	  time_t	currentTime, maxTime;
 
-	  if (strptime((const char *)hash_get("ExpireDate"), "%Y-%m-%d %H:%M:%S", &tm))
+	  if (strptime((const char *)hash_get("ExpireDate"), "%Y-%m-%d %H:%M:%S", &tm) != NULL)
 	    {
 	      maxTime = mktime(&tm);
 	      currentTime = time(NULL);
@@ -275,26 +278,26 @@ int	main(int ac, char **av, char **env)
 	  DEBUG((MYLOG_DEBUG, "[%s][%s]ExpireDate time to rest: %i",
 		       params->who->user, params->who->ip, params->who->time_maxlife));
 	}
-      if (hash_get_int("MaxOpenFilesForUser"))
+      if (hash_get_int("MaxOpenFilesForUser") > 0)
 	params->max_openfiles = hash_get_int("MaxOpenFilesForUser");
-      if (hash_get_int("MaxReadFilesForUser"))
+      if (hash_get_int("MaxReadFilesForUser") > 0)
 	params->max_readfiles = hash_get_int("MaxReadFilesForUser");
-      if (hash_get_int("MaxWriteFilesForUser"))
+      if (hash_get_int("MaxWriteFilesForUser") > 0)
 	params->max_writefiles = hash_get_int("MaxWriteFilesForUser");
-      if (hash_get_int("DefaultRightsDirectory"))
+      if (hash_get_int("DefaultRightsDirectory") > 0)
 	params->rights_directory = hash_get_int("DefaultRightsDirectory");
       else
 	params->rights_directory = 0777;
-      if (hash_get_int("DefaultRightsFile"))
+      if (hash_get_int("DefaultRightsFile") > 0)
 	params->rights_file = hash_get_int("DefaultRightsFile");
       else
 	params->rights_file = 0666;
-      if (hash_get("Charset"))
+      if (hash_get("Charset") != NULL)
 	  setCharset((char *)hash_get("Charset"));
-      if (hash_get("GMTTime"))
+      if (hash_get("GMTTime") != NULL)
 	  mylog_time(atoi((char *)hash_get("GMTTime")));
       delete_hash();
-      if (hostname)
+      if (hostname != NULL)
 	free(hostname);
       return (SftpMain(params, sftp_version));
     }
@@ -305,16 +308,16 @@ int	main(int ac, char **av, char **env)
       if (getuid() != geteuid())
 	//if we are in utset byte mode then we restore user's rights to avoid security problems
 	{
-	  seteuid(getuid());
-	  setegid(getgid());
+	  if (seteuid(getuid()) == -1 || setegid(getgid()) == -1)
+	    {
+	      perror("revoke root rights");
+	      exit(1);
+	    }
 	}
       ptr = (char *)hash_get("Shell");
       av[0] = ptr;
-      if (ptr)
-	{
-	  execve(ptr, av, env);
-	  exit(1);
-	}
+      if (ptr != NULL)
+	(void )execve(ptr, av, env);
+      exit(1);
     }
-  return (0);
 }

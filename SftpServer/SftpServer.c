@@ -102,12 +102,14 @@ void	DoInitUser()
 #ifdef MSSEXT_FILE_HASHING
   OpenSSL_add_all_digests();
 #endif
-  if (gl_var->who->status & SFTPWHO_VIRTUAL_CHROOT)
+  if (HAS_BIT(gl_var->who->status, SFTPWHO_VIRTUAL_CHROOT))
     {
       if (chroot(gl_var->who->home) != -1)
 	{
 	  gl_var->who->status &= ~SFTPWHO_STAY_AT_HOME;
-	  (void )chdir("/");
+	  if (chdir("/") == -1)
+	    mylog_printf(MYLOG_ERROR, "[%s][%s]Couldn't change directory : %s",
+			 gl_var->who->user, gl_var->who->ip, strerror(errno));
 	}
       else
 	{
@@ -134,8 +136,8 @@ int	CheckRules(const char *pwd, int operation, const struct stat *st, int flags)
 
   if (gl_var->has_hide_files == MSS_TRUE
       && (operation >= RULES_LISTING
-	  || (operation == RULES_DIRECTORY && (flags & O_RDONLY))
-	  || (operation == RULES_FILE && (flags & O_RDONLY))))
+	  || (operation == RULES_DIRECTORY && HAS_BIT(flags, O_RDONLY))
+	  || (operation == RULES_FILE && HAS_BIT(flags, O_RDONLY))))
     {
       if ((str = strrchr(pwd, '/')))
 	str = &str[1];
@@ -144,8 +146,7 @@ int	CheckRules(const char *pwd, int operation, const struct stat *st, int flags)
       if (regexec(&gl_var->hide_files_regexp, str, 0, 0, 0) != REG_NOMATCH)
 	return SSH2_FX_NO_SUCH_FILE;
     }
-  if (operation != RULES_LISTING
-      && gl_var->who->status & SFTPWHO_STAY_AT_HOME)
+  if (operation != RULES_LISTING && HAS_BIT(gl_var->who->status, SFTPWHO_STAY_AT_HOME))
     {
       if ((strncmp(pwd, gl_var->who->home, strlen(gl_var->who->home)) == 0 || pwd[0] != '/')
 	  && strstr(pwd, "/..") == NULL)
@@ -153,8 +154,8 @@ int	CheckRules(const char *pwd, int operation, const struct stat *st, int flags)
       else
 	return SSH2_FX_PERMISSION_DENIED;
     }
-  if ((gl_var->who->status & SFTPWHO_IGNORE_HIDDEN)
-      && ((operation >= RULES_DIRECTORY && (flags & O_RDONLY))
+  if (HAS_BIT(gl_var->who->status, SFTPWHO_IGNORE_HIDDEN)
+      && ((operation >= RULES_DIRECTORY && HAS_BIT(flags, O_RDONLY))
 	  || operation == RULES_FILE
 	  || operation == RULES_LISTING))
     {
@@ -162,8 +163,8 @@ int	CheckRules(const char *pwd, int operation, const struct stat *st, int flags)
 	return SSH2_FX_NO_SUCH_FILE;
     }
   if (gl_var->has_deny_filter == MSS_TRUE
-      && ((operation == RULES_FILE && ((flags & O_WRONLY) || (flags & O_RDWR)))
-	  || (operation == RULES_DIRECTORY && (flags & O_WRONLY))))
+      && ((operation == RULES_FILE && (HAS_BIT(flags, O_WRONLY) || HAS_BIT(flags, O_RDWR)))
+	  || (operation == RULES_DIRECTORY && HAS_BIT(flags, O_WRONLY))))
     {
       if ((str = strrchr(pwd, '/')) != NULL)
 	str = &str[1];
@@ -175,18 +176,18 @@ int	CheckRules(const char *pwd, int operation, const struct stat *st, int flags)
   //This code should always be at the end of this function
   if (operation == RULES_LISTING && st != NULL)
     {
-      if ((gl_var->who->status & SFTPWHO_LINKS_AS_LINKS))
+      if (HAS_BIT(gl_var->who->status, SFTPWHO_LINKS_AS_LINKS))
 	{
 	  struct stat	localst;
 	  
 	  if ((st->st_mode & S_IFMT) == S_IFLNK && stat(pwd, &localst) != -1)
 	    st = &localst;
 	}
-      if (gl_var->who->status & SFTPWHO_HIDE_NO_ACESS)
+      if (HAS_BIT(gl_var->who->status, SFTPWHO_HIDE_NO_ACESS))
 	{
-	  if ((st->st_uid == getuid() && (st->st_mode & S_IRUSR))
-	      || (UserIsInThisGroup(st->st_gid) == 1 && (st->st_mode & S_IRGRP))
-	      || (st->st_mode & S_IROTH))
+	  if ((st->st_uid == getuid() && HAS_BIT(st->st_mode, S_IRUSR))
+	      || (UserIsInThisGroup(st->st_gid) == 1 && HAS_BIT(st->st_mode, S_IRGRP))
+	      || HAS_BIT(st->st_mode, S_IROTH))
 	    return SSH2_FX_OK;
 	  return SSH2_FX_NO_SUCH_FILE;
 	}
@@ -196,20 +197,20 @@ int	CheckRules(const char *pwd, int operation, const struct stat *st, int flags)
 
 void	ChangeRights(struct stat *st)
 {
-  if (gl_var->who->status & SFTPWHO_FAKE_USER)
+  if (HAS_BIT(gl_var->who->status, SFTPWHO_FAKE_USER))
     st->st_uid = getuid();
-  if (gl_var->who->status & SFTPWHO_FAKE_GROUP)
+  if (HAS_BIT(gl_var->who->status, SFTPWHO_FAKE_GROUP))
     st->st_gid = getgid();
-  if (gl_var->who->status & SFTPWHO_FAKE_MODE)
+  if (HAS_BIT(gl_var->who->status, SFTPWHO_FAKE_MODE))
     {
       st->st_mode = (st->st_mode & ~0x1fff) | gl_var->who->mode;
-      if (st->st_mode & S_IFDIR)
+      if (HAS_BIT(st->st_mode, S_IFDIR))
 	{
-	  if (gl_var->who->mode & S_IRUSR)
+	  if (HAS_BIT(gl_var->who->mode, S_IRUSR))
 	    st->st_mode |= S_IXUSR;
-	  if (gl_var->who->mode & S_IRGRP)
+	  if (HAS_BIT(gl_var->who->mode, S_IRGRP))
 	    st->st_mode |= S_IXGRP;
-	  if (gl_var->who->mode & S_IROTH)
+	  if (HAS_BIT(gl_var->who->mode, S_IROTH))
 	    st->st_mode |= S_IXOTH;
 	}
     }

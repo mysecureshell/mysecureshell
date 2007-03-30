@@ -17,6 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
+#include "../config.h"
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
@@ -24,8 +25,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <string.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include "../config.h"
 #include "SftpWho.h"
+#include "../security.h"
 
 int	main(int ac, char **av)
 {
@@ -48,7 +49,6 @@ int	main(int ac, char **av)
 	    {
 	      char	buf[4];
 
-	      fchmod(fd, 0644);
 	      (void )printf("Shutdown server for new connection (active connection are keeped)\n");
 	      (void )printf("Do you want to kill all users ? [YES/no] ");
 	      (void )fflush(stdout);
@@ -59,7 +59,8 @@ int	main(int ac, char **av)
 	      buf[i >= 1 ? i - 1 : 0] = '\0';
 	      if (assume_yes_to_all == 1 || strcasecmp(buf, "yes") == 0 || strcasecmp(buf, "y") == 0)
 		{
-		  (void )system("sftp-kill all > /dev/null");
+		  if (system("sftp-kill all > /dev/null") == -1)
+		    (void )printf("Error while deconnection users: %s\n", strerror(errno));
 		  if (do_clean == 1)
 		    {
 		      if (SftpWhoDeleteStructs() == 0)
@@ -68,7 +69,7 @@ int	main(int ac, char **av)
 		}
 	      else
 		(void )printf("Clients aren't disconnected\n");
-	      (void )close(fd);
+	      xclose(fd);
 	    }
 	  else
 	    (void )printf("Can't shutdown server: %s\n", strerror(errno));
@@ -98,7 +99,7 @@ int	main(int ac, char **av)
   else
     {
       if ((fd = open(SHUTDOWN_FILE, O_RDONLY)) >= 0)
-	(void )close(fd);
+	xclose(fd);
       (void )printf("Server is %s\n", fd == -1 ? "up" : "down");
     }
   return (0);

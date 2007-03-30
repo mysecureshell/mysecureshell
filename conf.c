@@ -21,11 +21,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 #include "conf.h"
 #include "ip.h"
 #include "parsing.h"
 #include "string.h"
 #include "user.h"
+#include "security.h"
 
 #define CONF_IS_EMPTY			0
 #define CONF_IS_STRING			1
@@ -247,7 +249,7 @@ int	load_config_file(const char *file, int verbose, int max_recursive_left)
 	    (void )printf("[ERROR]Missing %i close(s) tag(s) in file '%s'!!!\n", parse_opened_tag, file);
 	  exit (2);
 	}
-      (void )fclose(fh);
+      xfclose(fh);
     }
   else
     {

@@ -20,6 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "../config.h"
 #include <errno.h>
 #include <fcntl.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include "Buffer.h"
@@ -30,6 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "SftpExt.h"
 #include "SftpServer.h"
 #include "Util.h"
+#include "../security.h"
 
 
 #ifdef MSSEXT_DISKUSAGE
@@ -42,7 +44,7 @@ void	DoExtDiskSpace(tBuffer *bIn, tBuffer *bOut, u_int32_t id)
   path = convertFromUtf8(BufferGetString(bIn), 1);
   if ((status = CheckRules(path, RULES_DIRECTORY, NULL, O_RDONLY)) == SSH2_FX_OK)
     {
-      if (!STATFS(path, &stfs))
+      if (STATFS(path, &stfs) == 0)
 	{
 	  tBuffer       *b;
 
@@ -107,7 +109,7 @@ static void DoExtFileHashing_FD(tBuffer *bIn, tBuffer *bOut, u_int32_t id, int f
     blockSize = length;
   DEBUG((MYLOG_DEBUG, "[DoExtFileHashing_FD]Algo:%s Fd:%i Offset:%llu Length:%llu BlockSize:%i",
 	 algo, fd, offset, length, blockSize));
-  if ((md = EVP_get_digestbyname(algo)))
+  if ((md = EVP_get_digestbyname(algo)) != NULL)
     {
       unsigned char	md_value[EVP_MAX_MD_SIZE];
       EVP_MD_CTX	mdctx;
@@ -116,40 +118,55 @@ static void DoExtFileHashing_FD(tBuffer *bIn, tBuffer *bOut, u_int32_t id, int f
       char		*data;
       
       EVP_MD_CTX_init(&mdctx);
-      EVP_DigestInit_ex(&mdctx, md, NULL);
-      data = malloc(blockSize);
-      if (data != NULL)
+      if (EVP_DigestInit_ex(&mdctx, md, NULL) == 0)
 	{
-	  u_int64_t	off = 0;
-	  u_int32_t	r;
-	  
-	  DEBUG((MYLOG_DEBUG, "[DoExtFileHashing_FD]Read(%i)", blockSize));
-	  while ((r = read(fd, data, blockSize)) > 0)
+	  data = malloc(blockSize);
+	  if (data != NULL)
 	    {
-	      DEBUG((MYLOG_DEBUG, "[DoExtFileHashing_FD]Compute block (%i/%i)", r, blockSize));
-	      EVP_DigestUpdate(&mdctx, data, r);
-	      off += (u_int64_t )r;
-	      if ((off + (u_int64_t )blockSize) > length)
-		blockSize = (u_int32_t )(length - off);
-	      if (off == length)
-		break;
+	      u_int64_t	off = 0;
+	      u_int32_t	r;
+	      int	inError = 0;
+	      
+	      DEBUG((MYLOG_DEBUG, "[DoExtFileHashing_FD]Read(%i)", blockSize));
+	      while ((r = read(fd, data, blockSize)) > 0)
+		{
+		  DEBUG((MYLOG_DEBUG, "[DoExtFileHashing_FD]Compute block (%i/%i)", r, blockSize));
+		  if (EVP_DigestUpdate(&mdctx, data, r) == 0)
+		    {
+		      inError = 1;
+		      break;
+		    }
+		  off += (u_int64_t )r;
+		  if ((off + (u_int64_t )blockSize) > length)
+		    blockSize = (u_int32_t )(length - off);
+		  if (off == length)
+		    break;
+		}
+	      free(data);
+	      if (EVP_DigestFinal_ex(&mdctx, md_value, &md_len) == 0)
+		inError = 1;
+	      if (inError == 1)
+		SendStatus(bOut, id, SSH2_FX_FAILURE);
+	      else
+		{
+		  b = BufferNew();
+		  BufferPutInt8(b, SSH2_FXP_EXTENDED_REPLY);
+		  BufferPutInt32(b, id);
+		  BufferPutString(b, algo);
+		  BufferPutRawData(b, md_value, md_len);
+		  BufferPutPacket(bOut, b);
+		  DEBUG((MYLOG_DEBUG, "[%X%X%X]", md_value[0], md_value[1], md_value[2]));
+		}
 	    }
-	  free(data);
-	  EVP_DigestFinal_ex(&mdctx, md_value, &md_len);
-	  b = BufferNew();
-	  BufferPutInt8(b, SSH2_FXP_EXTENDED_REPLY);
-	  BufferPutInt32(b, id);
-	  BufferPutString(b, algo);
-	  BufferPutRawData(b, md_value, md_len);
-	  BufferPutPacket(bOut, b);
-	  DEBUG((MYLOG_DEBUG, "[%X%X%X]", md_value[0], md_value[1], md_value[2]));
+	  else
+	    {
+	      SendStatus(bOut, id, errnoToPortable(errno));
+	      DEBUG((MYLOG_DEBUG, "[DoExtFileHashing_FD]Error malloc"));
+	    }
 	}
       else
-	{
-	  SendStatus(bOut, id, errnoToPortable(errno));
-	  DEBUG((MYLOG_DEBUG, "[DoExtFileHashing_FD]Error malloc"));
-	}
-      EVP_MD_CTX_cleanup(&mdctx);
+	SendStatus(bOut, id, SSH2_FX_FAILURE);
+      (void )EVP_MD_CTX_cleanup(&mdctx);
     }
   else
     {
@@ -181,7 +198,7 @@ void    DoExtFileHashing_Name(tBuffer *bIn, tBuffer *bOut, u_int32_t id)
       if ((fd = open(file, O_RDONLY)) != -1)
 	{
 	  DoExtFileHashing_FD(bIn, bOut, id, fd);
-	  close(fd);
+	  xclose(fd);
 	}
       else
 	SendStatus(bOut, id, errnoToPortable(errno));

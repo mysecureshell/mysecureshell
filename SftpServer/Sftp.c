@@ -48,6 +48,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "SftpServer.h"
 #include "SftpWho.h"
 #include "Util.h"
+#include "../security.h"
 
 #define CONN_INIT	0
 #define CONN_SFTP	1
@@ -180,8 +181,8 @@ void	DoOpenDir()
       else
 	{
 	  int	h;
-	  
-	  if ((h = HandleNew(HANDLE_DIR, path, -1, dir, 0)) < 0)
+
+	  if ((h = HandleNew(HANDLE_DIR, path, -1, dir, 0)) < 0)	  
 	    {
 	      (void )closedir(dir);
 	      status = errnoToPortable(EMFILE);
@@ -341,7 +342,7 @@ void	DoOpen()
 	    
 	    if ((h = HandleNew(HANDLE_FILE, path, fd, NULL, textMode)) < 0)
 	      {
-		(void )close(fd);
+		xclose(fd);
 		status = errnoToPortable(EMFILE);
 	      }
 	    else

@@ -108,14 +108,14 @@ char		*LsFile(const char *name, const struct stat *st)
     user = pw->name;
   else
     {
-      snprintf(ubuf, sizeof(ubuf), "%u", (u_int)st->st_uid);
+      snprintf(ubuf, sizeof(ubuf), "%u", (u_int32_t )st->st_uid);
       user = ubuf;
     }
   if ((gr = mygetgrgid(st->st_gid)))
     group = gr->name;
   else
     {
-      snprintf(gbuf, sizeof(gbuf), "%u", (u_int)st->st_gid);
+      snprintf(gbuf, sizeof(gbuf), "%u", (u_int32_t )st->st_gid);
       group = gbuf;
     }
   if (ltime)
