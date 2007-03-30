@@ -24,6 +24,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <regex.h>
 #include "SftpWho.h"
 
+#define HAS_BIT(_A, _B) (((_A) & (_B)) == (_B))
+
 #ifndef MIN
 #define MIN(_A, _B)	((_A) < (_B) ? (_A) : (_B))
 #endif
@@ -188,12 +190,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define SSH4_FX_FILE_ALREADY_EXISTS	11
 #define SSH4_FX_WRITE_PROTECT		12
 #define SSH4_FX_NO_MEDIA		13
-
-#define SSH2_FX_MAX			13
 #define SSH5_FX_NO_SPACE_ON_FILESYSTEM	14
 #define SSH5_FX_QUOTA_EXCEEDED		15
 #define SSH5_FX_UNKNOWN_PRINCIPLE	16
 #define SSH5_FX_LOCK_CONFlICT		17
+#define SSH2_FX_MAX			18
 
 
 /* file type */
