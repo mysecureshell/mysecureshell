@@ -101,6 +101,10 @@ void		SendStatus(tBuffer *bOut, u_int32_t id, u_int32_t status)
       "File already exists",	/* SSH4_FX_FILE_ALREADY_EXISTS */
       "Write protect",		/* SSH4_FX_WRITE_PROTECT */
       "No media",		/* SSH4_FX_NO_MEDIA */
+      "No space left",		/* SSH5_FX_NO_SPACE_ON_FILESYSTEM */
+      "Quota exceeded",		/* SSH5_FX_QUOTA_EXCEEDED */
+      "Unknown principle",	/* SSH5_FX_UNKNOWN_PRINCIPLE */
+      "Lock conflict",		/* SSH5_FX_LOCK_CONFlICT */
       "Unknown error"		/* Others */
     };
   u_int32_t	dataSize;
