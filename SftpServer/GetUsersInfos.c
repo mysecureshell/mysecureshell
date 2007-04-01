@@ -35,8 +35,8 @@ void		init_usersinfos()
   struct group	*grp;
   int		size;
 
-  setpwent();
-  for (size = 0; (pw = getpwent()); size++)
+  (void )setpwent();
+  for (size = 0; (pw = getpwent()) != NULL; size++)
     {
       _users = realloc(_users, (size + 2) * sizeof(*_users));
       _users[size].name = strdup(pw->pw_name);
@@ -44,8 +44,8 @@ void		init_usersinfos()
     }
   endpwent();
 
-  setgrent();
-  for (size = 0; (grp = getgrent()); size++)
+  (void )setgrent();
+  for (size = 0; (grp = getgrent()) != NULL; size++)
     {
       _groups = realloc(_groups, (size + 2) * sizeof(*_groups));
       _groups[size].name = strdup(grp->gr_name);

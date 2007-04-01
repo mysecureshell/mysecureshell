@@ -75,15 +75,15 @@ void	parse_tag_open(char *str)
 	s = trim_left(s + 1);
       }
   str = trim_right(str);
-  if (!strcasecmp(str, TAG_GROUP))
+  if (strcasecmp(str, TAG_GROUP) == 0)
     hash_set("GROUP", strdup(s));
-  else if (!strcasecmp(str, TAG_USER))
+  else if (strcasecmp(str, TAG_USER) == 0)
     hash_set("USER", strdup(s));
-  else if (!strcasecmp(str, TAG_RANGEIP))
+  else if (strcasecmp(str, TAG_RANGEIP) == 0)
     hash_set("RANGEIP", parse_range_ip(s));
-  else if (!strcasecmp(str, TAG_VIRTUALHOST))
+  else if (strcasecmp(str, TAG_VIRTUALHOST) == 0)
     parse_virtualhost(s);
-  else if (!strcasecmp(str, TAG_DEFAULT))
+  else if (strcasecmp(str, TAG_DEFAULT) == 0)
     hash_set_int("DEFAULT", 1);
   parse_opened_tag++;
 }
@@ -101,7 +101,7 @@ void			parse_virtualhost(const char *str)
     }
   if (!(str[0] == '*' && str[1] == '\0') &&
       (h = gethostbyname(str)) != NULL &&
-      h->h_addr_list != NULL && h->h_addr_list[0] != '\0')
+      h->h_addr_list != NULL && h->h_addr_list[0] != NULL)
     {
       char	buffer[32];
       

@@ -381,7 +381,7 @@ int		main(int ac, char **av)
       FD_SET(_sftpOut, &fdr);
       if (bOut->length > 0)
 	FD_SET(_sftpIn, &fdw);
-      if (select(max, &fdr, &fdw, 0, 0) == -1)
+      if (select(max, &fdr, &fdw, NULL, NULL) == -1)
 	break;
       if (FD_ISSET(0, &fdr))
 	{

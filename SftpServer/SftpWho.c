@@ -108,7 +108,7 @@ t_sftpwho	*SftpWhoGetStruct(int create)
 	      for (i = 0; i < SFTPWHO_MAXCLIENT; i++)
 		if (who[i].status == SFTPWHO_EMPTY)
 		  {
-		    usleep(100);
+		    (void )usleep(100);
 		    if (who[i].status == SFTPWHO_EMPTY)
 		      {
 			//clean all old infos

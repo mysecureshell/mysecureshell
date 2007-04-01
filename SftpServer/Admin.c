@@ -149,6 +149,7 @@ void	DoAdminGetLogContent()
 	    }
 	  else
 	    status = errnoToPortable(errno);
+	  xclose(fd);
 	}
       else
 	status = errnoToPortable(errno);
@@ -171,11 +172,16 @@ void	DoAdminConfigSet()
 
       if ((fd = open(CONFIG_FILE, O_WRONLY | O_TRUNC | O_CREAT, 0644)) >= 0)
 	{
-	  fchown(fd, 0, 0);
-	  if (write(fd, buffer, size) == -1)
+	  if (fchown(fd, 0, 0) == -1)
 	    status = errnoToPortable(errno);
 	  else
-	    status = SSH2_FX_OK;
+	    {
+	      if (write(fd, buffer, size) == -1)
+		status = errnoToPortable(errno);
+	      else
+		status = SSH2_FX_OK;
+	    }
+	  xclose(fd);
 	}
       else
 	status = errnoToPortable(errno);

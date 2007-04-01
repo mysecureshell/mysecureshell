@@ -202,16 +202,16 @@ int	main(int ac, char **av, char **env)
 	(hash_get_int_with_default("CanRemoveDir", 1) ? SFTPWHO_CAN_RMDIR : 0) +
 	(hash_get_int_with_default("CanRemoveFile", 1) ? SFTPWHO_CAN_RMFILE : 0)
 	;
-      _sftpglobal->download_max = hash_get_int("GlobalDownload");
-      _sftpglobal->upload_max = hash_get_int("GlobalUpload");
+      _sftpglobal->download_max = (u_int32_t )hash_get_int("GlobalDownload");
+      _sftpglobal->upload_max = (u_int32_t )hash_get_int("GlobalUpload");
       if (hash_get_int("Download") > 0)
 	{
-	  params->download_max = hash_get_int("Download");
+	  params->download_max = (u_int32_t )hash_get_int("Download");
 	  params->who->download_max = params->download_max;
 	}
       if (hash_get_int("Upload") > 0)
 	{
-	  params->upload_max = hash_get_int("Upload");
+	  params->upload_max = (u_int32_t )hash_get_int("Upload");
 	  params->who->upload_max = params->upload_max;
 	}
       if (hash_get_int("IdleTimeOut") > 0)

@@ -48,7 +48,7 @@ static int getgrouplist(const char *uname, gid_t agroup, register gid_t *groups,
   /*
    * Scan the group file to find additional groups.
    */
-  setgrent();
+  (void )setgrent();
   while ((grp = getgrent())) {
     if (grp->gr_gid == agroup)
       continue;
