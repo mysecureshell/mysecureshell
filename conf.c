@@ -129,7 +129,7 @@ void	load_config(int verbose)
 	  int		vInt;
 
 	  (void )printf("%s", confParams[i].name);
-	  for (j = maxLen - strlen(confParams[i].name); j >= 0; j--)
+	  for (j = maxLen - strlen(confParams[i].name) + 1; j > 0; j--)
 	    (void )printf(" ");
 	  (void )printf("= ");
 	  switch (confParams[i].type)
