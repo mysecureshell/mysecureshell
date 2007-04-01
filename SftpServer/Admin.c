@@ -170,21 +170,56 @@ void	DoAdminConfigSet()
     {
       int	fd;
 
-      if ((fd = open(CONFIG_FILE, O_WRONLY | O_TRUNC | O_CREAT, 0644)) >= 0)
+      if (rename(CONFIG_FILE, CONFIG_FILE".bak") == -1)
 	{
-	  if (fchown(fd, 0, 0) == -1)
-	    status = errnoToPortable(errno);
-	  else
-	    {
-	      if (write(fd, buffer, size) == -1)
-		status = errnoToPortable(errno);
-	      else
-		status = SSH2_FX_OK;
-	    }
-	  xclose(fd);
+	  status = errnoToPortable(errno);
+	  mylog_printf(MYLOG_ERROR,
+		       "[RemoteAdmin-Change config]Cannot backup configuration: %s",
+		       strerror(errno));
 	}
       else
-	status = errnoToPortable(errno);
+	{
+	  if ((fd = open(CONFIG_FILE, O_WRONLY | O_TRUNC | O_CREAT, 0644)) >= 0)
+	    {
+	      if (fchown(fd, 0, 0) == -1)
+		{
+		  status = errnoToPortable(errno);
+		  mylog_printf(MYLOG_ERROR,
+			       "[RemoteAdmin-Change config]Cannot change rights of config file: %s",
+			       strerror(errno));
+		  if (rename(CONFIG_FILE".bak", CONFIG_FILE) == -1)
+		    mylog_printf(MYLOG_ERROR,
+				 "[RemoteAdmin-Change config]Error when reinstall backuped configuration ("\
+				 "see file '"CONFIG_FILE".bak""': %s",
+				 strerror(errno));
+		}
+	      else
+		{
+		  if (write(fd, buffer, size) == -1)
+		    {
+		      status = errnoToPortable(errno);
+		      mylog_printf(MYLOG_ERROR,
+				   "[RemoteAdmin-Change config]Cannot write configuration: %s",
+				   strerror(errno));
+		      if (rename(CONFIG_FILE".bak", CONFIG_FILE) == -1)
+			mylog_printf(MYLOG_ERROR,
+				     "[RemoteAdmin-Change config]Error when reinstall backuped configuration ("\
+				     "see file '"CONFIG_FILE".bak""': %s",
+				     strerror(errno));
+		    }
+		  else
+		    status = SSH2_FX_OK;
+		}
+	      xclose(fd);
+	    }
+	  else
+	    {
+	      status = errnoToPortable(errno);
+	      mylog_printf(MYLOG_ERROR,
+			   "[RemoteAdmin-Change config]Cannot open configuration: %s",
+			   strerror(errno));
+	    }
+	}
     }
   DEBUG((MYLOG_DEBUG, "[DoAdminSetLogContent]send:%i / write:%i", size, r));
   SendStatus(bOut, 0, status);
@@ -217,7 +252,6 @@ void	DoAdminConfigGet()
 	      if ((buffer = realloc(buffer, st.st_size)) != NULL)
 		{
 		  r = read(fd, buffer, st.st_size);
-		  xclose(fd);
 		  BufferPutData(b, buffer, r);
 		}
 	      else
