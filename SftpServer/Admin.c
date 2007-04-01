@@ -40,7 +40,7 @@ void	DoAdminListUsers()
   int	ret;
 
   buf = ExecCommand(MSS_SFTPWHO, &ret);
-  if (buf)
+  if (buf != NULL)
     {
       tBuffer	*b;
       
@@ -67,7 +67,7 @@ void	DoAdminKillUser()
 
   DEBUG((MYLOG_DEBUG, "[DoAdminKillUser]Try to kill pid:%i", pidToKill));
   who = SftWhoGetAllStructs();
-  if (who)
+  if (who != NULL)
     {
       unsigned int	pid;
       int		i;
@@ -95,7 +95,7 @@ void	DoAdminServerStatus()
   int	status = SSH2_FX_OK;
   int	fd;
 
-  if (isActive)
+  if (isActive > 0)
     {
       if (unlink(SHUTDOWN_FILE) == -1)
 	status = errnoToPortable(errno);
@@ -135,7 +135,7 @@ void	DoAdminGetLogContent()
   off_t		size;
   
   size = BufferGetInt32(bIn);
-  if ((buffer = malloc(size)))
+  if ((buffer = malloc(size)) != NULL)
     {
       int	fd;
 
@@ -149,10 +149,10 @@ void	DoAdminGetLogContent()
 	    }
 	  else
 	    status = errnoToPortable(errno);
-	  free(buffer);
 	}
       else
 	status = errnoToPortable(errno);
+      free(buffer);
     }
   DEBUG((MYLOG_DEBUG, "[DoAdminGetLogContent]wanted:%i / read:%i", size, r));
   if (status != SSH2_FX_OK)
@@ -161,19 +161,21 @@ void	DoAdminGetLogContent()
 
 void	DoAdminConfigSet()
 {
-  u_int32_t	r, size, status = SSH2_FX_FAILURE;
+  u_int32_t	size, status = SSH2_FX_FAILURE;
   char		*buffer;
       
   buffer = BufferGetData(bIn, &size);
-  if (buffer)
+  if (buffer != NULL)
     {
       int	fd;
 
       if ((fd = open(CONFIG_FILE, O_WRONLY | O_TRUNC | O_CREAT, 0644)) >= 0)
 	{
 	  fchown(fd, 0, 0);
-	  r = write(fd, buffer, size);
-	  status = SSH2_FX_OK;
+	  if (write(fd, buffer, size) == -1)
+	    status = errnoToPortable(errno);
+	  else
+	    status = SSH2_FX_OK;
 	}
       else
 	status = errnoToPortable(errno);
@@ -190,7 +192,7 @@ void	DoAdminConfigGet()
       
   if (stat(CONFIG_FILE, &st) == -1)
     status = errnoToPortable(errno);
-  else if ((buffer = malloc(st.st_size)))
+  else if ((buffer = malloc(st.st_size)) != NULL)
     {
       tBuffer	*b = BufferNew();
       int	fd;
@@ -203,11 +205,10 @@ void	DoAdminConfigGet()
 	  xclose(fd);
 	  BufferPutData(b, buffer, r);
 	  status = SSH2_FX_OK;
-	  free(buffer);
 	  if (stat("/etc/shells", &st) != -1
 	      && (fd = open("/etc/shells", O_RDONLY)) >= 0)
 	    {
-	      if ((buffer = malloc(st.st_size)))
+	      if ((buffer = realloc(buffer, st.st_size)) != NULL)
 		{
 		  r = read(fd, buffer, st.st_size);
 		  xclose(fd);
@@ -224,6 +225,7 @@ void	DoAdminConfigGet()
       else
 	status = errnoToPortable(errno);
       BufferDelete(b);
+      free(buffer);
     }
   DEBUG((MYLOG_DEBUG, "[DoAdminGetLogContent]status: %i", status));
   if (status != SSH2_FX_OK)
