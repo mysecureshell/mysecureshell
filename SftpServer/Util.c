@@ -31,6 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Sftp.h"
 #include "Util.h"
 #include "GetUsersInfos.h"
+#include "../security.h"
 
 static void	StrMode(mode_t mode, char *d)
 {
@@ -55,9 +56,9 @@ static void	StrMode(mode_t mode, char *d)
     default: *d++ = '?'; break;
     }
 
-  if (mode & S_IRUSR) *d++ = 'r';
+  if (HAS_BIT(mode, S_IRUSR)) *d++ = 'r';
   else *d++ = '-';
-  if (mode & S_IWUSR) *d++ = 'w';
+  if (HAS_BIT(mode, S_IWUSR)) *d++ = 'w';
   else *d++ = '-';
   switch (mode & (S_IXUSR | S_ISUID))
     {
@@ -67,9 +68,9 @@ static void	StrMode(mode_t mode, char *d)
     case S_IXUSR | S_ISUID: *d++ = 's'; break;
     }
   
-  if (mode & S_IRGRP) *d++ = 'r';
+  if (HAS_BIT(mode, S_IRGRP)) *d++ = 'r';
   else *d++ = '-';
-  if (mode & S_IWGRP) *d++ = 'w';
+  if (HAS_BIT(mode, S_IWGRP)) *d++ = 'w';
   else *d++ = '-';
   switch (mode & (S_IXGRP | S_ISGID))
     {
@@ -79,9 +80,9 @@ static void	StrMode(mode_t mode, char *d)
     case S_IXGRP | S_ISGID: *d++ = 's'; break;
     }
   
-  if (mode & S_IROTH) *d++ = 'r';
+  if (HAS_BIT(mode, S_IROTH)) *d++ = 'r';
   else *d++ = '-';
-  if (mode & S_IWOTH) *d++ = 'w';
+  if (HAS_BIT(mode, S_IWOTH)) *d++ = 'w';
   else *d++ = '-';
   switch (mode & (S_IXOTH | S_ISVTX))
     {
@@ -104,21 +105,21 @@ char		*LsFile(const char *name, const struct stat *st)
   char		buf[1024], mode[11+1], tbuf[12+1], ubuf[11+1], gbuf[11+1];
   
   StrMode(st->st_mode, mode);
-  if ((pw = mygetpwuid(st->st_uid)))
+  if ((pw = mygetpwuid(st->st_uid)) != NULL)
     user = pw->name;
   else
     {
-      snprintf(ubuf, sizeof(ubuf), "%u", (u_int32_t )st->st_uid);
+      (void )snprintf(ubuf, sizeof(ubuf), "%u", (u_int32_t )st->st_uid);
       user = ubuf;
     }
-  if ((gr = mygetgrgid(st->st_gid)))
+  if ((gr = mygetgrgid(st->st_gid)) != NULL)
     group = gr->name;
   else
     {
-      snprintf(gbuf, sizeof(gbuf), "%u", (u_int32_t )st->st_gid);
+      (void )snprintf(gbuf, sizeof(gbuf), "%u", (u_int32_t )st->st_gid);
       group = gbuf;
     }
-  if (ltime)
+  if (ltime != NULL)
     {
       if (time(0) - st->st_mtime < (365*24*60*60)/2)
 	sz = strftime(tbuf, sizeof(tbuf), "%b %e %H:%M", ltime);
@@ -129,9 +130,9 @@ char		*LsFile(const char *name, const struct stat *st)
     tbuf[0] = '\0';
   ulen = MAX(strlen(user), 8);
   glen = MAX(strlen(group), 8);
-  snprintf(buf, sizeof(buf), "%s %3u %-*s %-*s %8llu %s %s", mode,
-	   (u_int)st->st_nlink, ulen, user, glen, group,
-	   (unsigned long long int)st->st_size, tbuf, name);
+  (void )snprintf(buf, sizeof(buf), "%s %3u %-*s %-*s %8llu %s %s", mode,
+		  (u_int32_t)st->st_nlink, ulen, user, glen, group,
+		  (unsigned long long int)st->st_size, tbuf, name);
   return (strdup(buf));
 }
 
@@ -160,28 +161,29 @@ int	FlagsFromPortable(int pFlags, int *textMode)
 	  flags = O_TRUNC | O_EXCL | O_CREAT;
 	  break;
 	}
-      if ((pFlags & SSH5_FXF_ACCESS_APPEND_DATA) ||
-	  (pFlags & SSH5_FXF_ACCESS_APPEND_DATA_ATOMIC))
+      if ((HAS_BIT(pFlags, SSH5_FXF_ACCESS_APPEND_DATA)) ||
+	  HAS_BIT(pFlags, SSH5_FXF_ACCESS_APPEND_DATA_ATOMIC))
 	flags = O_RDWR | O_APPEND;
-      if (pFlags & SSH5_FXF_ACCESS_TEXT_MODE)
+      if (HAS_BIT(pFlags, SSH5_FXF_ACCESS_TEXT_MODE))
 	*textMode = 1;
     }
   else
     {
-      if ((pFlags & SSH2_FXF_READ) && (pFlags & SSH2_FXF_WRITE))
+      if (HAS_BIT(pFlags, SSH2_FXF_READ)
+	  && HAS_BIT(pFlags, SSH2_FXF_WRITE))
 	flags = O_RDWR;
-      else if (pFlags & SSH2_FXF_READ)
+      else if (HAS_BIT(pFlags, SSH2_FXF_READ))
 	flags = O_RDONLY;
-      else if (pFlags & SSH2_FXF_WRITE)
+      else if (HAS_BIT(pFlags, SSH2_FXF_WRITE))
 	flags = O_WRONLY;
       
-      if (pFlags & SSH2_FXF_CREAT)
+      if (HAS_BIT(pFlags, SSH2_FXF_CREAT))
 	flags |= O_CREAT;
-      if (pFlags & SSH2_FXF_TRUNC)
+      if (HAS_BIT(pFlags, SSH2_FXF_TRUNC))
 	flags |= O_TRUNC;
-      if (pFlags & SSH2_FXF_EXCL)
+      if (HAS_BIT(pFlags, SSH2_FXF_EXCL))
 	flags |= O_EXCL;
-      if (pFlags & SSH4_FXF_TEXT)
+      if (HAS_BIT(pFlags, SSH4_FXF_TEXT))
 	*textMode = 1;
     }
   return (flags);
@@ -191,20 +193,20 @@ int	FlagsFromAccess(int access)
 {
   int	flags = 0;
 
-  if (access & SSH5_ACE4_READ_DATA)
+  if (HAS_BIT(access, SSH5_ACE4_READ_DATA))
     {
-      if (access & SSH5_ACE4_WRITE_DATA)
-	flags |= O_RDWR;
+      if (HAS_BIT(access, SSH5_ACE4_WRITE_DATA))
+	flags = O_RDWR;
       else
-	flags |= O_RDONLY;
+	flags = O_RDONLY;
     }
-  if (access & SSH5_ACE4_WRITE_DATA)
-    flags |= O_WRONLY;
-  if (access & SSH5_ACE4_APPEND_DATA)
+  else if (HAS_BIT(access, SSH5_ACE4_WRITE_DATA))
+    flags = O_WRONLY;
+  if (HAS_BIT(access, SSH5_ACE4_APPEND_DATA))
     flags |= O_APPEND;
-  else if (access & SSH5_ACE4_WRITE_DATA)
+  else if (HAS_BIT(access, SSH5_ACE4_WRITE_DATA))
     flags |= O_TRUNC;
-  if (access & SSH5_ACE4_SYNCHRONIZE)
+  if (HAS_BIT(access, SSH5_ACE4_SYNCHRONIZE))
     flags |= O_SYNC;
   return (flags);
 }
@@ -271,35 +273,35 @@ char	*ExecCommandWithArgs(char **args, int *myRet, const char *dataInput, int sh
     {
       if (dataInput != NULL)
 	{
-	  close(fdsI[0]);
-	  close(fdsI[1]);
+	  xclose(fdsI[0]);
+	  xclose(fdsI[1]);
 	}
       return (NULL);
     }
-  if (!(pid = fork()))
+  if ((pid = fork()) == 0)
     {
       if (dataInput != NULL)
 	{
-	  dup2(fdsI[0], 0);
-	  close(fdsI[0]);
-	  close(fdsI[1]);
+	  xdup2(fdsI[0], 0);
+	  xclose(fdsI[0]);
+	  xclose(fdsI[1]);
 	}
-      dup2(fdsO[1], 1);
-      dup2(fdsO[1], 2);
-      close(fdsO[0]);
-      close(fdsO[1]);
-      execv(args[0], args);
+      xdup2(fdsO[1], 1);
+      xdup2(fdsO[1], 2);
+      xclose(fdsO[0]);
+      xclose(fdsO[1]);
+      (void )execv(args[0], args);
       exit (1);
     }
   else if (pid == -1)
     {
       if (dataInput != NULL)
 	{
-	  close(fdsI[0]);
-	  close(fdsI[1]);
+	  xclose(fdsI[0]);
+	  xclose(fdsI[1]);
 	}
-      close(fdsO[0]);
-      close(fdsO[1]);
+      xclose(fdsO[0]);
+      xclose(fdsO[1]);
       return (NULL);
     }
   if (dataInput != NULL)
@@ -308,7 +310,7 @@ char	*ExecCommandWithArgs(char **args, int *myRet, const char *dataInput, int sh
 
       off = 0;
       len = strlen(dataInput);
-      close(fdsI[0]);
+      xclose(fdsI[0]);
       while ((r = write(fdsI[1], dataInput + off, len)) > 0)
 	{
 	  off += r;
@@ -316,23 +318,23 @@ char	*ExecCommandWithArgs(char **args, int *myRet, const char *dataInput, int sh
 	  if (len == 0)
 	    break;
 	}
-      close(fdsI[1]);
+      xclose(fdsI[1]);
     }
-  close(fdsO[1]);
+  xclose(fdsO[1]);
   str = malloc(1);
   str[0] = 0;
   while ((ret = read(fdsO[0], buffer, sizeof(buffer))) > 0)
     {
-      if (shouldReturnString)
+      if (shouldReturnString == 1)
 	{
 	  str = realloc(str, size + ret + 1);
 	  strncat(str, buffer, ret);
 	}
       size += ret;
     }
-  close(fdsO[0]);
-  waitpid(pid, myRet, 0);
-  if (shouldReturnString)
+  xclose(fdsO[0]);
+  (void )waitpid(pid, myRet, 0);
+  if (shouldReturnString == 1)
     return (str);
   free(str);
   return (NULL);
