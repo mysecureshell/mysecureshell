@@ -2,7 +2,7 @@ VERSION = @PACKAGE_VERSION@
 DEST	= mysecureshell_$(VERSION)
 CPU	= "`uname -m`"
 ARCHIVE	= mysecureshell_$(VERSION)-$(OSTYPE)-$(CPU)
-ARCSRC	= mysecureshell_$(VERSION)_source.tgz
+ARCSRC	= MySecureShell-$(VERSION)_source.tgz
 
 NAME	= MySecureShell$(EXT)
 SRC	= main.c string.c	\
@@ -15,7 +15,8 @@ SRC	= main.c string.c	\
 	  SftpServer/Sftp.c SftpServer/Util.c		\
 	  SftpServer/Log.c SftpServer/Encoding.c	\
 	  SftpServer/Admin.c SftpServer/SftpWho.c	\
-	  SftpServer/SftpExt.c SftpServer/SftpServer.c
+	  SftpServer/SftpExt.c SftpServer/SftpServer.c	\
+	  SftpServer/GetUsersInfos.c
 
 OBJ	= $(SRC:.c=.o)
 
@@ -68,9 +69,8 @@ TAR	= tar
 CP	= cp -pf
 STRIP	= strip
 FIND	= find
-CVS	= cvs
-GREP	= fgrep
 LN	= ln
+SPLINT	= splint -Du_int16_t=uint16_t -Du_int32_t=uint32_t -Du_int64_t=uint64_t -Du_int8_t=uint8_t
 
 all	: $(NAME) sftpwho sftpstate sftpadmin
 
@@ -128,9 +128,10 @@ source	:
 	@cd .. && $(TAR) cfz $(DEST)/$(ARCSRC) $(FILESRC) $(DEST)/*.[ch] $(DEST)/*/*.[ch]
 	@echo "Source package done."
 
-cvs	:
-	@echo "Search for missing files in CVS"
-	@$(CVS) -q status -R | $(GREP) Status | $(GREP) -v 'Up-to-date' || true
+check	:
+	@echo "Check sources"
+	@$(SPLINT) -ISftpServer *.[ch] || true
+	@$(SPLINT) -ISftpServer */*.[ch] || true
 
 %.o	: %.c
 	@echo "Compile		[$<]"
