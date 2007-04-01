@@ -232,7 +232,7 @@ int		main(int ac, char **av)
 		      {
 			(void )printf("\tFile: %s [%uh%%]\n",
 				      (who[i].status & SFTPWHO_STATUS_MASK) == SFTPWHO_IDLE ?  "" : who[i].file,
-				      who[i].dowload_pos);
+				      who[i].download_pos);
 		      }
 		    (void )printf("\tConnected: %s [since %s]\n",
 				  make_time(who[i].time_begin), make_idle_time(who[i].time_total));

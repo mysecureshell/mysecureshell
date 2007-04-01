@@ -67,7 +67,7 @@ typedef struct	s_sftpwho
   u_int16_t	mode;
 
 //12 items = 46 octets
-  u_int16_t	dowload_pos;
+  u_int16_t	download_pos;
   u_int32_t	download_current;
   u_int32_t	download_total;
   u_int32_t	download_max;
