@@ -452,10 +452,10 @@ void	DoRead()
 
 void	DoWrite()
 {
-  u_int32_t	id;
   u_int64_t	off;
-  u_int		len;
-  int		fd, fileIsText, ret, status;
+  u_int32_t	id, dec, len;
+  ssize_t	ret;
+  int		fd, fileIsText, status;
   char		*data;
 
   id = BufferGetInt32(bIn);
@@ -470,10 +470,10 @@ void	DoWrite()
 	{
 	  if (fileIsText == 1)
 	    {
-	      for (ret = 0; ret < len; ret++)
-		if (data[ret] == '\r')
+	      for (dec = 0; dec < len; dec++)
+		if (data[dec] == '\r')
 		  {
-		    memcpy(data + ret + 1, data + ret, len - ret - 1);
+		    memcpy(data + dec + 1, data + dec, len - dec - 1);
 		    len--;
 		  }
 	    }
@@ -755,7 +755,7 @@ void	DoRename()
   if ((status = CheckRules(oldPath, RULES_RMFILE, 0, 0)) == SSH2_FX_OK
       && (status = CheckRules(newPath, RULES_FILE, 0, O_WRONLY)) == SSH2_FX_OK)
     {
-      if (stat(newPath, &sb) == 0 && (flags & SSH5_FXP_RENAME_OVERWRITE))
+      if (stat(newPath, &sb) == 0 && HAS_BIT(flags, SSH5_FXP_RENAME_OVERWRITE))
 	if (unlink(newPath) == -1)
 	  {
 	    status = errnoToPortable(errno);
@@ -943,7 +943,7 @@ int			SftpMain(tGlobal *params, int sftpProtocol)
       if (bOut->length > 0 && (gl_var->download_max == 0
 			       || (gl_var->download_current < gl_var->download_max)))
 	FD_SET(1, &fdW);
-      if ((ret = select(2, &fdR, &fdW, 0, &tm)) == -1)
+      if ((ret = select(2, &fdR, &fdW, NULL, &tm)) == -1)
 	{
 	  if (errno != EINTR)
 	    exit(1);
@@ -954,7 +954,7 @@ int			SftpMain(tGlobal *params, int sftpProtocol)
 
 	  if (gl_var->who == NULL) //dont check anything for administrator
 	    goto bypassChecks;
-	  if (gl_var->upload_current || gl_var->download_current)
+	  if (gl_var->upload_current > 0 || gl_var->download_current > 0)
 	    gl_var->who->time_transf++;
 	  else
 	    gl_var->who->time_idle++;
@@ -963,7 +963,7 @@ int			SftpMain(tGlobal *params, int sftpProtocol)
 	  gl_var->upload_current = 0;
 	  gl_var->download_current = 0;
 	  gl_var->who->time_total = time(0) - gl_var->who->time_begin;
-	  if (gl_var->who->time_maxidle &&
+	  if (gl_var->who->time_maxidle > 0&&
 	      gl_var->who->time_idle >= gl_var->who->time_maxidle)
 	    {
 	      mylog_printf(MYLOG_CONNECTION, "[%s][%s]Connection time out",
@@ -976,18 +976,18 @@ int			SftpMain(tGlobal *params, int sftpProtocol)
 	      gl_var->who->upload_current = 0;
 	      gl_var->who->download_current = 0;
 	    }
-	  SftpWhoCleanBuggedClient();
+	  (void )SftpWhoCleanBuggedClient();
 	  
 	  gl_var->download_max = gl_var->who->download_max;
-	  if (_sftpglobal->download_by_client && !(gl_var->who->status & SFTPWHO_BYPASS_GLB_DWN) &&
-	      ((_sftpglobal->download_by_client < gl_var->download_max) || gl_var->download_max == 0))
+	  if (_sftpglobal->download_by_client > 0 && (gl_var->who->status & SFTPWHO_BYPASS_GLB_DWN) == 0
+	      && ((_sftpglobal->download_by_client < gl_var->download_max) || gl_var->download_max == 0))
 	    gl_var->download_max = _sftpglobal->download_by_client;
 	  
 	  gl_var->upload_max = gl_var->who->upload_max;
-	  if (_sftpglobal->upload_by_client && !(gl_var->who->status & SFTPWHO_BYPASS_GLB_UPL) &&
-	      ((_sftpglobal->upload_by_client < gl_var->upload_max) || gl_var->upload_max == 0))
+	  if (_sftpglobal->upload_by_client > 0 && (gl_var->who->status & SFTPWHO_BYPASS_GLB_UPL) == 0
+	      && ((_sftpglobal->upload_by_client < gl_var->upload_max) || gl_var->upload_max == 0))
 	    gl_var->upload_max = _sftpglobal->upload_by_client;
-	  if (gl_var->who->time_maxlife)
+	  if (gl_var->who->time_maxlife > 0)
 	    {
 	      gl_var->who->time_maxlife--;
 	      if (gl_var->who->time_maxlife == 0)
@@ -1005,9 +1005,9 @@ int			SftpMain(tGlobal *params, int sftpProtocol)
 	    gl_var->who->time_idle = 0;
 	  if (FD_ISSET(0, &fdR))
 	    {
-	      int	todo;
+	      u_int32_t	todo;
 	      
-	      if (gl_var->upload_max)
+	      if (gl_var->upload_max > 0)
 		todo = SSH2_MAX_PACKET < (gl_var->upload_max - gl_var->upload_current) ?
 		  SSH2_MAX_PACKET : (gl_var->upload_max - gl_var->upload_current);
 	      else
@@ -1031,12 +1031,12 @@ int			SftpMain(tGlobal *params, int sftpProtocol)
 	    }
 	  if (FD_ISSET(1, &fdW))
 	    {
-	      int	len = bOut->length - bOut->read;
+	      u_int32_t	todo = bOut->length - bOut->read;
 
-	      if (gl_var->download_max)
-		len = len < (gl_var->download_max - gl_var->download_current) ?
-		  len : (gl_var->download_max - gl_var->download_current);
-	      len = write(1, BufferGetReadPointer(bOut), len);
+	      if (gl_var->download_max > 0)
+		todo = todo < (gl_var->download_max - gl_var->download_current) ?
+		  todo : (gl_var->download_max - gl_var->download_current);
+	      len = write(1, BufferGetReadPointer(bOut), todo);
 	      if (len < 0)
 		exit(1);
 	      else
@@ -1051,7 +1051,7 @@ int			SftpMain(tGlobal *params, int sftpProtocol)
 		      gl_var->down_size += len;
 		      if (gl_var->down_size > gl_var->down_max)
 			gl_var->down_size = gl_var->down_max;
-		      gl_var->who->dowload_pos = gl_var->down_size * 100 / gl_var->down_max;
+		      gl_var->who->download_pos = gl_var->down_size * 100 / gl_var->down_max;
 		    }
 		}
 	    }
