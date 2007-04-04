@@ -37,8 +37,8 @@ typedef struct		s_shm
 	t_sftpwho	who[SFTPWHO_MAXCLIENT];
 }			t_shm;
 
-static t_sftpwho	*_sftpwho_ptr = 0;
-t_sftpglobal		*_sftpglobal = 0;
+static t_sftpwho	*_sftpwho_ptr = NULL;
+t_sftpglobal		*_sftpglobal = NULL;
 
 t_sftpwho	*SftWhoGetAllStructs()
 {
@@ -61,7 +61,6 @@ int	SftpWhoDeleteStructs()
 
 t_sftpwho	*SftpWhoGetStruct(int create)
 {
-  t_sftpwho	*who = 0;
   void		*ptr;
   key_t		key;
   int		shmid;
@@ -90,15 +89,15 @@ t_sftpwho	*SftpWhoGetStruct(int create)
 	}
       if (shmid != -1 && (ptr = shmat(shmid, 0, 0)) != (void *)-1)
 	{
-	  t_shm	*shm = ptr;
+	  t_sftpwho	*who = NULL;
+	  t_shm		*shm = ptr;
 	       
 	  _sftpglobal = &shm->global;
 	  who = shm->who;
 	  _sftpwho_ptr = who;
 	  if (eraze == 1)
 	    memset(shm, 0, sizeof(t_shm));
-	  else
-	    //clean all sessions of bugged client (abnormally quit)
+	  else //clean all sessions of bugged client (abnormally quit)
 	    (void )SftpWhoCleanBuggedClient();
 	  if (create == -1)
 	    return (who);
@@ -120,12 +119,7 @@ t_sftpwho	*SftpWhoGetStruct(int create)
 		  }
 	}
     }
-  if (create == 1)
-    {
-      _sftpglobal = calloc(1, sizeof(*_sftpglobal));
-      who = calloc(1, sizeof(*who));
-    }
-  return (who);
+  return (NULL);
 }
 
 //return number of connected clients
@@ -168,9 +162,9 @@ int		SftpWhoCleanBuggedClient()
 
 void	SftpWhoRelaseStruct()
 {
-  if (_sftpwho_ptr != NULL)
+  if (_sftpglobal != NULL)
     {
-      (void )shmdt(_sftpwho_ptr);
-      _sftpwho_ptr = NULL;
+      (void )shmdt(_sftpglobal);
+      _sftpglobal = NULL;
     }
 }
