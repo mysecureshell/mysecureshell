@@ -221,7 +221,7 @@ void	DoAdminConfigSet()
 	    }
 	}
     }
-  DEBUG((MYLOG_DEBUG, "[DoAdminSetLogContent]send:%i / write:%i", size, r));
+  DEBUG((MYLOG_DEBUG, "[DoAdminSetLogContent]send:%i", size));
   SendStatus(bOut, 0, status);
 }
 
