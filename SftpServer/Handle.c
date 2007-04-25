@@ -18,10 +18,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "../config.h"
+#include <errno.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include "Handle.h"
+#include "../security.h"
 
 #define	HANDLE_NUMBER	100
 
@@ -34,7 +37,7 @@ typedef struct	sHandle
   int		fileIsText;
 }		tHandle;
 
-static tHandle	*gHandle = 0;
+static tHandle	*gHandle = NULL;
 
 void	HandleInit()
 {
@@ -91,7 +94,7 @@ int	HandleClose(int pos, int *isCloseFile)
 {
   if (pos >= 0 && pos < HANDLE_NUMBER)
     {
-      int	ret;
+      int	ret = 0;
       
       if (gHandle[pos].state == HANDLE_DIR)
 	{
@@ -100,7 +103,7 @@ int	HandleClose(int pos, int *isCloseFile)
 	}
       else
 	{
-	  ret = close(gHandle[pos].fd);
+	  xclose(gHandle[pos].fd);
 	  *isCloseFile = 1;
 	}
       free(gHandle[pos].path);
