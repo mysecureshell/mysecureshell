@@ -28,7 +28,7 @@ void		SendAttributes(tBuffer *bOut, u_int32_t id, const tAttributes *a, const ch
   tBuffer	*b;
 	
   b = BufferNew();
-  BufferPutInt8(b, SSH2_FXP_ATTRS);
+  BufferPutInt8FAST(b, SSH2_FXP_ATTRS);
   BufferPutInt32(b, id);
   EncodeAttributes(b, a, file);
   BufferPutPacket(bOut, b);
@@ -41,7 +41,7 @@ void		SendStats(tBuffer *bOut, u_int32_t id, int count, const tStat *s)
   int		i;
 	
   b = BufferNew();
-  BufferPutInt8(b, SSH2_FXP_NAME);
+  BufferPutInt8FAST(b, SSH2_FXP_NAME);
   BufferPutInt32(b, id);
   BufferPutInt32(b, count);
   for (i = 0; i < count; i++)
@@ -121,7 +121,7 @@ void		SendStatus(tBuffer *bOut, u_int32_t id, u_int32_t status)
   BufferEnsureFreeCapacity(bOut, 4 + dataSize);
   BufferPutInt32(bOut, dataSize);
   //START Data
-  BufferPutInt8(bOut, SSH2_FXP_STATUS);
+  BufferPutInt8FAST(bOut, SSH2_FXP_STATUS);
   BufferPutInt32(bOut, id);
   BufferPutInt32(bOut, status);
   if (msg != NULL)

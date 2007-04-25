@@ -45,7 +45,7 @@ void	DoAdminListUsers()
       tBuffer	*b;
       
       b = BufferNew();
-      BufferPutInt8(b, SSH_ADMIN_LIST_USERS_REPLY);
+      BufferPutInt8FAST(b, SSH_ADMIN_LIST_USERS_REPLY);
       BufferPutString(b, buf);
       BufferPutPacket(bOut, b);
       DEBUG((MYLOG_DEBUG, "[DoAdminListUsers]send length:'%i' return:%i", strlen(buf), ret));
@@ -117,7 +117,7 @@ void	DoAdminServerGetStatus()
   char		state;
   
   b = BufferNew();
-  BufferPutInt8(b, SSH_ADMIN_SERVER_GET_STATUS_REPLY);
+  BufferPutInt8FAST(b, SSH_ADMIN_SERVER_GET_STATUS_REPLY);
   if (stat(SHUTDOWN_FILE, &st) == -1)
     state = 1;
   else
