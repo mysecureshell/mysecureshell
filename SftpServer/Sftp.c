@@ -67,20 +67,22 @@ void	DoInit()
 	
   clientVersion = BufferGetInt32(bIn);
   b = BufferNew();
-  BufferPutInt8(b, SSH2_FXP_VERSION);
+  BufferPutInt8FAST(b, SSH2_FXP_VERSION);
   connectionStatus = CONN_SFTP;
-  if (cVersion >= clientVersion)
-    cVersion = clientVersion;
+  cVersion = clientVersion;
 #ifdef MSS_HAVE_ADMIN
-  else if (clientVersion == SSH2_ADMIN_VERSION)
+  if (clientVersion == SSH2_ADMIN_VERSION)
     {
-      connectionStatus = CONN_ADMIN;
-      cVersion = clientVersion;
-      DEBUG((MYLOG_DEBUG, "[DoInit]New admin [use version: %i]", cVersion));
-      BufferPutInt32(b, cVersion);
-      //Hide admin to sftp-who !
-      gl_var->who->status = SFTPWHO_EMPTY;
-      gl_var->who = NULL;
+      if (HAS_BIT(gl_var->who->status, SFTPWHO_IS_ADMIN))
+	{
+	  connectionStatus = CONN_ADMIN;
+	  cVersion = clientVersion;
+	  DEBUG((MYLOG_DEBUG, "[DoInit]New admin [use version: %i]", cVersion));
+	  BufferPutInt32(b, cVersion);
+	  //Hide admin to sftp-who !
+	  gl_var->who->status = SFTPWHO_EMPTY;
+	  gl_var->who = NULL;
+	}
     }
 #endif
   if (connectionStatus == CONN_SFTP)
