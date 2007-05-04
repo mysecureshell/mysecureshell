@@ -130,8 +130,10 @@ source	:
 
 check	:
 	@echo "Check sources"
-	@$(SPLINT) -ISftpServer *.[ch] || true
-	@$(SPLINT) -ISftpServer */*.[ch] || true
+	@$(SPLINT) -ISftpServer $(SRC) || true
+	@$(SPLINT) -ISftpServer $(SRC1) || true
+	@$(SPLINT) -ISftpServer $(SRC2) || true
+	@$(SPLINT) -ISftpServer $(SRC3) || true
 
 %.o	: %.c
 	@echo "Compile		[$<]"
