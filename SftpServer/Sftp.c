@@ -73,10 +73,13 @@ void	DoInit()
 #ifdef MSS_HAVE_ADMIN
   if (clientVersion == SSH2_ADMIN_VERSION)
     {
-      if (HAS_BIT(gl_var->who->status, SFTPWHO_IS_ADMIN))
+      if (HAS_BIT(gl_var->who->status, SFTPWHO_IS_ADMIN)
+	  || HAS_BIT(gl_var->who->status, SFTPWHO_IS_SIMPLE_ADMIN))
 	{
 	  connectionStatus = CONN_ADMIN;
 	  cVersion = clientVersion;
+	  if (HAS_BIT(gl_var->who->status, SFTPWHO_IS_SIMPLE_ADMIN))
+	    cVersion = SSH2_SIMPLE_ADMIN_VERSION;
 	  DEBUG((MYLOG_DEBUG, "[DoInit]New admin [use version: %i]", cVersion));
 	  BufferPutInt32(b, cVersion);
 	  //Hide admin to sftp-who !
@@ -896,19 +899,33 @@ void	DoSFTPProtocol()
 #ifdef MSS_HAVE_ADMIN
   else if (connectionStatus == CONN_ADMIN)
     {
-      switch (msgType)
+      if (cVersion == SSH2_SIMPLE_ADMIN_VERSION)
 	{
-	case SSH_ADMIN_LIST_USERS: DoAdminListUsers(); break;
-	case SSH_ADMIN_KILL_USER: DoAdminKillUser(); break;
-	case SSH_ADMIN_SERVER_STATUS: DoAdminServerStatus(); break;
-	case SSH_ADMIN_SERVER_GET_STATUS: DoAdminServerGetStatus(); break;
-	case SSH_ADMIN_GET_LOG_CONTENT: DoAdminGetLogContent(); break;
-	case SSH_ADMIN_CONFIG_GET: DoAdminConfigGet(); break;
-	case SSH_ADMIN_CONFIG_SET: DoAdminConfigSet(); break;
-	case SSH_ADMIN_USER_CREATE: DoAdminUserCreate(); break;
-	case SSH_ADMIN_USER_DELETE: DoAdminUserDelete(); break;
-	case SSH_ADMIN_USER_LIST: DoAdminUserList(); break;
-	default: DoUnsupported(msgType, msgLen); break;
+	  switch (msgType)
+	    {
+	    case SSH_ADMIN_LIST_USERS: DoAdminListUsers(); break;
+	    case SSH_ADMIN_KILL_USER: DoAdminKillUser(); break;
+	    case SSH_ADMIN_SERVER_STATUS: DoAdminServerStatus(); break;
+	    case SSH_ADMIN_SERVER_GET_STATUS: DoAdminServerGetStatus(); break;
+	    default: DoUnsupported(msgType, msgLen); break;
+	    }
+	}
+      else
+	{
+	  switch (msgType)
+	    {
+	    case SSH_ADMIN_LIST_USERS: DoAdminListUsers(); break;
+	    case SSH_ADMIN_KILL_USER: DoAdminKillUser(); break;
+	    case SSH_ADMIN_SERVER_STATUS: DoAdminServerStatus(); break;
+	    case SSH_ADMIN_SERVER_GET_STATUS: DoAdminServerGetStatus(); break;
+	    case SSH_ADMIN_GET_LOG_CONTENT: DoAdminGetLogContent(); break;
+	    case SSH_ADMIN_CONFIG_GET: DoAdminConfigGet(); break;
+	    case SSH_ADMIN_CONFIG_SET: DoAdminConfigSet(); break;
+	    case SSH_ADMIN_USER_CREATE: DoAdminUserCreate(); break;
+	    case SSH_ADMIN_USER_DELETE: DoAdminUserDelete(); break;
+	    case SSH_ADMIN_USER_LIST: DoAdminUserList(); break;
+	    default: DoUnsupported(msgType, msgLen); break;
+	    }
 	}
     }
 #endif

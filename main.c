@@ -174,7 +174,8 @@ int	main(int ac, char **av, char **env)
 	//server is down
 	{
 	  xclose(fd);
-	  if (hash_get_int("IsAdmin") == 0)
+	  if (hash_get_int("IsAdmin") == 0
+	      && hash_get_int("IsSimpleAdmin") == 0)
 	    {
 	      if (params->who != NULL) params->who->status = SFTPWHO_EMPTY;
 	      SftpWhoRelaseStruct();
@@ -212,6 +213,7 @@ int	main(int ac, char **av, char **env)
 	(hash_get_int("ByPassGlobalUpload") ? SFTPWHO_BYPASS_GLB_UPL : 0) +
 	(hash_get_int("ShowLinksAsLinks") ? SFTPWHO_LINKS_AS_LINKS : 0) + 
 	(hash_get_int("IsAdmin") ? SFTPWHO_IS_ADMIN : 0) +
+	(hash_get_int("IsSimpleAdmin") ? SFTPWHO_IS_SIMPLE_ADMIN : 0) +
 	(hash_get_int_with_default("CanRemoveDir", 1) ? SFTPWHO_CAN_RMDIR : 0) +
 	(hash_get_int_with_default("CanRemoveFile", 1) ? SFTPWHO_CAN_RMFILE : 0)
 	;

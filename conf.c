@@ -84,6 +84,7 @@ static const tConf	confParams[] =
     { "DisableAccount", CONF_IS_BOOLEAN, CONF_SHOW },
 #ifdef MSS_HAVE_ADMIN
     { "IsAdmin", CONF_IS_BOOLEAN, CONF_SHOW },
+    { "IsSimpleAdmin", CONF_IS_BOOLEAN, CONF_SHOW },
 #endif
     { "Charset", CONF_IS_STRING, CONF_SHOW },
     { "GMTTime", CONF_IS_STRING_MAYBE_EMPTY, CONF_SHOW },
