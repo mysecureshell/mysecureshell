@@ -80,6 +80,14 @@ void	BufferPutInt8(tBuffer *b, u_int8_t nb)
   b->data[b->length++] = nb;
 }
 
+void    BufferPutInt16(tBuffer *b, u_int16_t nb)
+{
+  if ((b->length + 2) > b->size)
+    BufferGrow(b, DEFAULT_GROW);
+  b->data[b->length++] = (nb >> 8);
+  b->data[b->length++] = nb;
+}
+
 void	BufferPutInt32(tBuffer *b, u_int32_t nb)
 {
   if ((b->length + 4) > b->size)

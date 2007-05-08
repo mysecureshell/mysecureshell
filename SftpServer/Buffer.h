@@ -41,6 +41,7 @@ void	BufferGrow(tBuffer *b, u_int32_t toAdd);
 void	BufferReadData(tBuffer *b, u_int32_t size);
 
 void	BufferPutInt8(tBuffer *b, u_int8_t nb);
+void	BufferPutInt16(tBuffer *b, u_int16_t nb);
 void	BufferPutInt32(tBuffer *b, u_int32_t nb);
 void	BufferPutInt64(tBuffer *b, u_int64_t nb);
 void	BufferPutHandle(tBuffer *b, int h);
