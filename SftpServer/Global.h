@@ -22,8 +22,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Buffer.h"
 
-extern tBuffer *bIn;
-extern tBuffer *bOut;
-extern tGlobal *gl_var;
+extern tBuffer	*bIn;
+extern tBuffer	*bOut;
+extern tGlobal	*gl_var;
 
 #endif
