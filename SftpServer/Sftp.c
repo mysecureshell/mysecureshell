@@ -37,9 +37,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <sys/mount.h>
 #endif
 
+#include "Encode.h"
+#include "Stats.h"
 #include "Admin.h"
 #include "Defines.h"
-#include "Encode.h"
 #include "Encoding.h"
 #include "Handle.h"
 #include "Log.h"
@@ -54,10 +55,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define CONN_SFTP	1
 #define	CONN_ADMIN	2
 
-tBuffer	*bIn = 0;
-tBuffer	*bOut = 0;
-static char	connectionStatus = CONN_INIT;
+tBuffer		*bIn = NULL;
+tBuffer		*bOut = NULL;
 u_int32_t	cVersion = SSH2_FILEXFER_VERSION;
+static char	connectionStatus = CONN_INIT;
+static tStats	*stats = NULL;
 
 
 void	DoInit()
@@ -85,6 +87,7 @@ void	DoInit()
 	  //Hide admin to sftp-who !
 	  gl_var->who->status = SFTPWHO_EMPTY;
 	  gl_var->who = NULL;
+	  stats = StatsNew();
 	}
     }
 #endif
@@ -907,6 +910,7 @@ void	DoSFTPProtocol()
 	    case SSH_ADMIN_KILL_USER: DoAdminKillUser(); break;
 	    case SSH_ADMIN_SERVER_STATUS: DoAdminServerStatus(); break;
 	    case SSH_ADMIN_SERVER_GET_STATUS: DoAdminServerGetStatus(); break;
+	    case SSH_ADMIN_STATS: DoAdminStats(stats); break;
 	    default: DoUnsupported(msgType, msgLen); break;
 	    }
 	}
@@ -924,6 +928,7 @@ void	DoSFTPProtocol()
 	    case SSH_ADMIN_USER_CREATE: DoAdminUserCreate(); break;
 	    case SSH_ADMIN_USER_DELETE: DoAdminUserDelete(); break;
 	    case SSH_ADMIN_USER_LIST: DoAdminUserList(); break;
+	    case SSH_ADMIN_STATS: DoAdminStats(stats); break;
 	    default: DoUnsupported(msgType, msgLen); break;
 	    }
 	}
@@ -972,7 +977,10 @@ int			SftpMain(tGlobal *params, int sftpProtocol)
 	  SET_TIMEOUT(tm, 1, 0);
 
 	  if (gl_var->who == NULL) //dont check anything for administrator
-	    goto bypassChecks;
+	    {
+	      StatsUpdate(stats);
+	      goto bypassChecks;
+	    }
 	  if (gl_var->upload_current > 0 || gl_var->download_current > 0)
 	    gl_var->who->time_transf++;
 	  else
@@ -1001,11 +1009,12 @@ int			SftpMain(tGlobal *params, int sftpProtocol)
 	  if (_sftpglobal->download_by_client > 0 && (gl_var->who->status & SFTPWHO_BYPASS_GLB_DWN) == 0
 	      && ((_sftpglobal->download_by_client < gl_var->download_max) || gl_var->download_max == 0))
 	    gl_var->download_max = _sftpglobal->download_by_client;
-	  
+
 	  gl_var->upload_max = gl_var->who->upload_max;
 	  if (_sftpglobal->upload_by_client > 0 && (gl_var->who->status & SFTPWHO_BYPASS_GLB_UPL) == 0
 	      && ((_sftpglobal->upload_by_client < gl_var->upload_max) || gl_var->upload_max == 0))
 	    gl_var->upload_max = _sftpglobal->upload_by_client;
+
 	  if (gl_var->who->time_maxlife > 0)
 	    {
 	      gl_var->who->time_maxlife--;
@@ -1015,8 +1024,7 @@ int			SftpMain(tGlobal *params, int sftpProtocol)
 			       gl_var->who->user, gl_var->who->ip);
 		  exit(0);
 		}
-	    }
-	      
+	    }	      
 	}
       else
 	{

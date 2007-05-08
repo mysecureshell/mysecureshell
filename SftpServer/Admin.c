@@ -28,6 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <unistd.h>
 #include "Defines.h"
 #include "Global.h"
+#include "Stats.h"
 #include "Admin.h"
 #include "Log.h"
 #include "Send.h"
@@ -344,4 +345,18 @@ void    DoAdminUserList()
     free(users);
 }
 
-#endif
+void    DoAdminStats(tStats *stats)
+{
+  u_int32_t	lastRefresh;
+  tBuffer	*b;
+
+  lastRefresh = BufferGetInt32(bIn);
+  b = BufferNew();
+  BufferPutInt8FAST(b, SSH_ADMIN_STATS_REPLY);
+  StatsSend(stats, lastRefresh, b);
+  BufferPutPacket(bOut, b);
+  DEBUG((MYLOG_DEBUG, "[DoAdminStats]Last refresh :%ui", lastRefresh));
+  BufferDelete(b);
+}
+
+#endif //MSS_HAVE_ADMIN

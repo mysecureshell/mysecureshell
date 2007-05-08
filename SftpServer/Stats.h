@@ -1,4 +1,3 @@
-
 /*
 MySecureShell permit to add restriction to modified sftp-server
 when using MySecureShell as shell.
@@ -18,21 +17,25 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#ifdef MSS_HAVE_ADMIN
-#ifndef _ADMIN_H_
-#define _ADMIN_H_
+#ifndef _STATS_H_
+#define _STATS_H_
 
-void	DoAdminListUsers();
-void	DoAdminKillUser();
-void	DoAdminServerStatus();
-void	DoAdminServerGetStatus();
-void	DoAdminGetLogContent();
-void	DoAdminConfigGet();
-void	DoAdminConfigSet();
-void	DoAdminUserCreate();
-void	DoAdminUserDelete();
-void	DoAdminUserList();
-void	DoAdminStats(tStats *stats);
+#include "Sftp.h"
 
-#endif //_ADMIN_H_
-#endif //MSS_HAVE_ADMIN
+#define	STATS_SECONDES	300 //5mins
+
+typedef struct	sStats
+{
+  u_int16_t	users[STATS_SECONDES];
+  u_int32_t	download[STATS_SECONDES];
+  u_int32_t	upload[STATS_SECONDES];
+  int32_t	writePos;
+}		tStats;
+
+tStats	*StatsNew();
+void	StatsDelete(tStats *stats);
+void	StatsUpdate(tStats *stats);
+void	StatsSend(tStats *stats, u_int32_t lastRefresh, tBuffer *b);
+
+
+#endif //_STATS_H_
