@@ -16,7 +16,7 @@ SRC	= main.c string.c	\
 	  SftpServer/Log.c SftpServer/Encoding.c	\
 	  SftpServer/Admin.c SftpServer/SftpWho.c	\
 	  SftpServer/SftpExt.c SftpServer/SftpServer.c	\
-	  SftpServer/GetUsersInfos.c
+	  SftpServer/GetUsersInfos.c SftpServer/Stats.c
 
 OBJ	= $(SRC:.c=.o)
 
