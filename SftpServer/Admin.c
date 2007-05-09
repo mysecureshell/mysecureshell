@@ -132,8 +132,8 @@ void	DoAdminServerGetStatus()
 void	DoAdminGetLogContent()
 {
   u_int32_t	r, status = SSH2_FX_FAILURE;
-  char		*buffer;
   off_t		size;
+  char		*buffer;
   
   size = BufferGetInt32(bIn);
   if ((buffer = malloc(size)) != NULL)
@@ -142,14 +142,15 @@ void	DoAdminGetLogContent()
 
       if ((fd = open(MSS_LOG, O_RDONLY)) >= 0)
 	{
-	  if (lseek(fd, -size, SEEK_END) == 0)
+	  if (lseek(fd, -size, SEEK_END) == (off_t )-1
+	      && errno != EINVAL)
+	    status = errnoToPortable(errno);
+	  else
 	    {
 	      r = read(fd, buffer, size);
 	      SendData(bOut, 0, buffer, r);
 	      status = SSH2_FX_OK;
 	    }
-	  else
-	    status = errnoToPortable(errno);
 	  xclose(fd);
 	}
       else
