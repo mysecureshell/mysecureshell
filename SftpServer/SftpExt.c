@@ -115,57 +115,65 @@ static void DoExtFileHashing_FD(tBuffer *bIn, tBuffer *bOut, u_int32_t id, int f
       EVP_MD_CTX	mdctx;
       u_int32_t		md_len;
       tBuffer		*b;
-      char		*data;
+      char		data[SSH2_MAX_READ];
+      int		inError = 0;
       
+      b = BufferNew();
+      BufferPutInt8FAST(b, SSH2_FXP_EXTENDED_REPLY);
+      BufferPutInt32(b, id);
+      BufferPutString(b, algo);
       EVP_MD_CTX_init(&mdctx);
-      if (EVP_DigestInit_ex(&mdctx, md, NULL) == 0)
+      while (length > 0)
 	{
-	  data = malloc(blockSize);
-	  if (data != NULL)
+	  length = (length > (u_int64_t )blockSize) ? length - (u_int64_t )blockSize : 0;
+	  if (EVP_DigestInit_ex(&mdctx, md, NULL) == 1)
 	    {
-	      u_int64_t	off = 0;
-	      u_int32_t	r;
-	      int	inError = 0;
+	      u_int32_t	r, off, len;
 	      
-	      DEBUG((MYLOG_DEBUG, "[DoExtFileHashing_FD]Read(%i)", blockSize));
-	      while ((r = read(fd, data, blockSize)) > 0)
+	      off = blockSize;
+	      len = sizeof(data);
+	      DEBUG((MYLOG_DEBUG, "[DoExtFileHashing_FD]Read:%i Rest:%llu", len, length));
+	      while ((r = read(fd, data, len)) > 0)
 		{
-		  DEBUG((MYLOG_DEBUG, "[DoExtFileHashing_FD]Compute block (%i/%i)", r, blockSize));
+		  DEBUG((MYLOG_DEBUG, "[DoExtFileHashing_FD]Compute block (%u/%u %u)", len, r, off));
 		  if (EVP_DigestUpdate(&mdctx, data, r) == 0)
 		    {
+		      DEBUG((MYLOG_DEBUG, "[DoExtFileHashing_FD]Error EVP_DigestUpdate"));
 		      inError = 1;
 		      break;
 		    }
-		  off += (u_int64_t )r;
-		  if ((off + (u_int64_t )blockSize) > length)
-		    blockSize = (u_int32_t )(length - off);
-		  if (off == length)
+		  off -= r;
+		  if (off < sizeof(data))
+		    len = off;
+		  if (off == 0)
 		    break;
 		}
-	      free(data);
 	      if (EVP_DigestFinal_ex(&mdctx, md_value, &md_len) == 0)
-		inError = 1;
+		{
+		  DEBUG((MYLOG_DEBUG, "[DoExtFileHashing_FD]Error EVP_DigestFinal_ex"));
+		  inError = 1;
+		}
 	      if (inError == 1)
-		SendStatus(bOut, id, SSH2_FX_FAILURE);
+		{
+		  SendStatus(bOut, id, SSH2_FX_FAILURE);
+		  break;
+		}
 	      else
 		{
-		  b = BufferNew();
-		  BufferPutInt8(b, SSH2_FXP_EXTENDED_REPLY);
-		  BufferPutInt32(b, id);
-		  BufferPutString(b, algo);
 		  BufferPutRawData(b, md_value, md_len);
-		  BufferPutPacket(bOut, b);
-		  DEBUG((MYLOG_DEBUG, "[%X%X%X]", md_value[0], md_value[1], md_value[2]));
+		  DEBUG((MYLOG_DEBUG, "[Hash: %X%X%X ...", md_value[0], md_value[1], md_value[2]));
 		}
 	    }
 	  else
 	    {
-	      SendStatus(bOut, id, errnoToPortable(errno));
-	      DEBUG((MYLOG_DEBUG, "[DoExtFileHashing_FD]Error malloc"));
+	      SendStatus(bOut, id, SSH2_FX_FAILURE);
+	      DEBUG((MYLOG_DEBUG, "[DoExtFileHashing_FD]Error EVP_DigestInit_ex"));
+	      break;
 	    }
 	}
-      else
-	SendStatus(bOut, id, SSH2_FX_FAILURE);
+      if (inError == 0)
+	BufferPutPacket(bOut, b);
+      BufferDelete(b);
       (void )EVP_MD_CTX_cleanup(&mdctx);
     }
   else
@@ -182,6 +190,7 @@ void    DoExtFileHashing_Handle(tBuffer *bIn, tBuffer *bOut, u_int32_t id)
 {
   int	fd, fileIsText;
 
+  DEBUG((MYLOG_DEBUG, "[DoExtFileHashing_Handle]..."));
   if ((fd = HandleGetFd(BufferGetHandle(bIn), &fileIsText)) >= 0)
     DoExtFileHashing_FD(bIn, bOut, id, fd);
   else
@@ -193,6 +202,7 @@ void    DoExtFileHashing_Name(tBuffer *bIn, tBuffer *bOut, u_int32_t id)
   char	*file = BufferGetString(bIn);
   int	status, fd;
 
+  DEBUG((MYLOG_DEBUG, "[DoExtFileHashing_Name]File: %s", file));
   if ((status = CheckRules(file, RULES_FILE, NULL, O_RDONLY)) == SSH2_FX_OK)
     {
       if ((fd = open(file, O_RDONLY)) != -1)
