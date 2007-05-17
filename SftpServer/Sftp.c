@@ -83,11 +83,15 @@ void	DoInit()
 	  if (!HAS_BIT(gl_var->who->status, SFTPWHO_IS_ADMIN))
 	    cVersion = SSH2_SIMPLE_ADMIN_VERSION;
 	  DEBUG((MYLOG_DEBUG, "[DoInit]New admin [use version: %i]", cVersion));
-	  BufferPutInt32(b, cVersion);
 	  //Hide admin to sftp-who !
 	  gl_var->who->status = SFTPWHO_EMPTY;
 	  gl_var->who = NULL;
 	  stats = StatsNew();
+	  BufferPutInt32(b, cVersion);
+	  BufferPutString(b, "space-available");
+#ifdef MSSEXT_FILE_HASHING
+	  BufferPutString(b, "check-file");
+#endif
 	}
     }
 #endif
