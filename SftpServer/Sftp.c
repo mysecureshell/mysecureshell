@@ -80,7 +80,7 @@ void	DoInit()
 	{
 	  connectionStatus = CONN_ADMIN;
 	  cVersion = clientVersion;
-	  if (HAS_BIT(gl_var->who->status, SFTPWHO_IS_SIMPLE_ADMIN))
+	  if (!HAS_BIT(gl_var->who->status, SFTPWHO_IS_ADMIN))
 	    cVersion = SSH2_SIMPLE_ADMIN_VERSION;
 	  DEBUG((MYLOG_DEBUG, "[DoInit]New admin [use version: %i]", cVersion));
 	  BufferPutInt32(b, cVersion);
