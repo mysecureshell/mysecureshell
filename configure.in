@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT([MySecureShell],[1.0a2],[teka2nerdman@sourceforge.net])
+AC_INIT([MySecureShell],[1.0a3],[teka2nerdman@sourceforge.net])
 AC_CONFIG_HEADER(config.h)
 
 # Checks for programs.
@@ -88,7 +88,7 @@ AC_ARG_WITH(libiconv,
 AC_FUNC_CLOSEDIR_VOID
 AC_FUNC_FORK
 AC_FUNC_STAT
-AC_CHECK_FUNCS([endgrent strcasecmp strchr strdup strerror strrchr strstr statfs getgrouplist strlcpy strlcat])
+AC_CHECK_FUNCS([endgrent strcasecmp strchr strdup strerror strrchr strstr statfs statvfs getgrouplist strlcpy strlcat])
 AC_CHECK_FUNCS([connect gethostbyaddr gethostbyname], , AC_CHECK_LIB(nsl, connect))
 AC_CHECK_FUNCS([iconv_open iconv_close iconv], , AC_CHECK_LIB(iconv, libiconv_open))
 AC_CHECK_LIB(acl, acl_get_entry)
@@ -110,6 +110,7 @@ MSS_ACL=$ac_cv_lib_acl_acl_get_entry
 test "$ac_cv_header_cygwin_acl_h" = "yes" && MSS_ACL="yes"
 MSSEXT_DISK=$ac_cv_header_sys_statvfs_h
 test "$MSSEXT_DISK" = "no" && MSSEXT_DISK=$ac_cv_header_sys_statfs_h
+test "$MSSEXT_DISK" = "no" && MSSEXT_DISK=$ac_cv_func_statfs
 MSSEXT_FILE_HASHING=$ac_cv_lib_crypto_OpenSSL_add_all_digests
 
 A=`eval echo ${sysconfdir}`
