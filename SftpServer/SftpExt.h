@@ -26,12 +26,19 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define STATFS  statvfs
 #endif //HAVE_SYS_STATVFS_H
 
-#ifdef HAVE_STATFS
+#ifdef HAVE_SYS_STATFS_H
 #include <sys/statfs.h>
 #ifndef STATFS
 #define STATFS  statfs
 #endif //STATFS
-#endif //HAVE_STATFS
+#endif //HAVE_SYS_STATFS_H
+
+#if (HAVE_SYS_MOUNT_H&&HAVE_STATFS)
+#include <sys/mount.h>
+#ifndef STATFS
+#define STATFS  statfs
+#endif //STATFS
+#endif //(HAVE_SYS_MOUNT_H&&HAVE_STATFS)
 
 #ifdef MSSEXT_DISKUSAGE
 void	DoExtDiskSpace(tBuffer *bIn, tBuffer *bOut, u_int32_t id);
