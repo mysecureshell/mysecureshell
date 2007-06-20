@@ -26,7 +26,8 @@
 #	MaxOpenFilesForUser	20	#limit user to open x files on same time
 #	MaxWriteFilesForUser	10	#limit user to x upload on same time
 #	MaxReadFilesForUser	10	#limit user to x download on same time
-	DefaultRights			0640 0750	#Set default rights for new file and new directory
+	DefaultRights		0640 0750	#Set default rights for new file and new directory
+#	MinimumRights		0400 0700	#Set minimum rights for files and dirs
 
 #	PathDenyFilter		"^\."	#deny upload of directory/file which match this extented POSIX regex
 

@@ -28,6 +28,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <string.h>
 #include <time.h>
 #include <sys/select.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+
+#if STAT_MACROS_BROKEN
+# undef S_ISDIR
+#endif
+
+#if !defined S_ISDIR && defined S_IFDIR
+# define S_ISDIR(Mode) (((Mode) & S_IFMT) == S_IFDIR)
+#endif
 
 #ifdef HAVE_SYS_PARAM_H
 #include <sys/param.h>
@@ -343,6 +353,7 @@ void	DoOpen()
   flags |= FlagsFromPortable(pflags, &textMode);
   mode = gl_var->rights_file ? gl_var->rights_file :
     (a->flags & SSH2_FILEXFER_ATTR_PERMISSIONS) ? a->perm : 644;
+  mode |= gl_var->minimum_rights_file;
   if ((status = CheckRules(path, RULES_FILE, 0, flags)) == SSH2_FX_OK)
     if ((status = CheckRulesAboutMaxFiles()) == SSH2_FX_OK)
       {
@@ -603,6 +614,7 @@ void 	DoSetStat()
   u_int32_t	id;
   char		*path;
   int		status = SSH2_FX_OK;
+  struct stat	stats;
 
   id = BufferGetInt32(bIn);
   path = convertFromUtf8(BufferGetString(bIn), 1);
@@ -616,7 +628,11 @@ void 	DoSetStat()
 	}
       if (a->flags & SSH2_FILEXFER_ATTR_PERMISSIONS)
 	{
-	  if (chmod(path, a->perm & 0777) == -1)
+	  if (stat(path, &stats) == 0 && S_ISDIR(stats.st_mode))
+	    a->perm |= gl_var->minimum_rights_directory;
+	  else
+	    a->perm |= gl_var->minimum_rights_file;
+	  if (chmod(path, (a->perm & 0777)) == -1)
 	    status = errnoToPortable(errno);
 	}
       if (a->flags & SSH2_FILEXFER_ATTR_ACMODTIME)
@@ -641,6 +657,7 @@ void 	DoFSetStat()
   u_int32_t	id;
   char		*path;
   int		status = SSH2_FX_OK;
+  struct stat	stats;
 
   id = BufferGetInt32(bIn);
   path = HandleGetPath(BufferGetHandle(bIn));
@@ -656,7 +673,11 @@ void 	DoFSetStat()
 	}
       if (a->flags & SSH2_FILEXFER_ATTR_PERMISSIONS)
 	{
-	  if (chmod(path, a->perm & 0777) == -1)
+	  if (stat(path, &stats) == 0 && S_ISDIR(stats.st_mode))
+            a->perm |= gl_var->minimum_rights_directory;
+          else
+            a->perm |= gl_var->minimum_rights_file;
+	  if (chmod(path, (a->perm & 0777)) == -1)
 	    status = errnoToPortable(errno);
 	}
       if (a->flags & SSH2_FILEXFER_ATTR_ACMODTIME)
@@ -712,6 +733,7 @@ void	DoMkDir()
   a = GetAttributes(bIn);
   mode = gl_var->rights_directory ? gl_var->rights_directory :
     (a->flags & SSH2_FILEXFER_ATTR_PERMISSIONS) ? a->perm & 0777 : 0755;
+  mode |= gl_var->minimum_rights_directory;
   if ((status = CheckRules(path, RULES_DIRECTORY, 0, O_WRONLY)) == SSH2_FX_OK)
     {
       if (mkdir(path, mode) == -1)

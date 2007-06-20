@@ -173,11 +173,16 @@ void	load_config(int verbose)
 	    }
 	  (void )printf("\n");
 	}
+      r = hash_get_int("MinimumRightsFile");
+      r2 = hash_get_int("MinimumRightsDirectory");
+      (void )printf("MinimumRights         = %i%i%i%i %i%i%i%i\n",
+		    r / (8 * 8 * 8), (r / ( 8 * 8)) % 8, (r / 8) % 8, r % 8,
+		    r2 / (8 * 8 * 8), (r2 / ( 8 * 8)) % 8, (r2 / 8) % 8, r2 % 8);
       r = hash_get_int("DefaultRightsFile");
       r2 = hash_get_int("DefaultRightsDirectory");
       (void )printf("DefaultRights         = %i%i%i%i %i%i%i%i\n",
-	     r / (8 * 8 * 8), (r / ( 8 * 8)) % 8, (r / 8) % 8, r % 8,
-	     r2 / (8 * 8 * 8), (r2 / ( 8 * 8)) % 8, (r2 / 8) % 8, r2 % 8);
+		    r / (8 * 8 * 8), (r / ( 8 * 8)) % 8, (r / 8) % 8, r % 8,
+		    r2 / (8 * 8 * 8), (r2 / ( 8 * 8)) % 8, (r2 / 8) % 8, r2 % 8);
     }
 }
 
@@ -313,6 +318,13 @@ void	processLine(char **tb, int max_recursive_left, int verbose)
 	  hash_set_int("DefaultRightsFile", convert_mode_to_int(tb[1]));
 	  if (tb[2])
 	    hash_set_int("DefaultRightsDirectory", convert_mode_to_int(tb[2]));
+	}
+      else if (strcmp(tb[0], "MinimumRights") == 0 && tb[1] != NULL)
+	{
+	  notRecognized = 0;
+	  hash_set_int("MinimumRightsFile", convert_mode_to_int(tb[1]));
+	  if (tb[2])
+	    hash_set_int("MinimumRightsDirectory", convert_mode_to_int(tb[2]));
 	}
       else if (strcmp(tb[0], "Include") == 0 && tb[1] != NULL)
 	{

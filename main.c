@@ -307,6 +307,10 @@ int	main(int ac, char **av, char **env)
 	params->rights_file = hash_get_int("DefaultRightsFile");
       else
 	params->rights_file = 0666;
+      if (hash_get_int("MinimumRightsDirectory") > 0)
+	params->minimum_rights_directory = hash_get_int("MinimumRightsDirectory");
+      if (hash_get_int("MinimumRightsFile") > 0)
+	params->minimum_rights_file = hash_get_int("MinimumRightsFile");
       if (hash_get("Charset") != NULL)
 	  setCharset((char *)hash_get("Charset"));
       if (hash_get("GMTTime") != NULL)
