@@ -230,7 +230,7 @@ int		main(int ac, char **av)
 		      }
 		    else
 		      {
-			(void )printf("\tFile: %s [%uh%%]\n",
+			(void )printf("\tFile: %s [%i%%]\n",
 				      (who[i].status & SFTPWHO_STATUS_MASK) == SFTPWHO_IDLE ?  "" : who[i].file,
 				      who[i].download_pos);
 		      }
