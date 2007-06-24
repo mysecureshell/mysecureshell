@@ -117,7 +117,7 @@ static void DoExtFileHashing_FD(tBuffer *bIn, tBuffer *bOut, u_int32_t id, int f
       EVP_MD_CTX	mdctx;
       u_int32_t		md_len;
       tBuffer		*b;
-      char		data[SSH2_MAX_READ];
+      char		data[SSH2_READ_HASH];
       int		inError = 0;
       
       b = BufferNew();
