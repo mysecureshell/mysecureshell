@@ -16,14 +16,15 @@ SRC	= main.c string.c	\
 	  SftpServer/Log.c SftpServer/Encoding.c	\
 	  SftpServer/Admin.c SftpServer/SftpWho.c	\
 	  SftpServer/SftpExt.c SftpServer/SftpServer.c	\
-	  SftpServer/GetUsersInfos.c SftpServer/Stats.c
+	  SftpServer/GetUsersInfos.c SftpServer/Stats.c	\
+	  SftpServer/Access.c
 
 OBJ	= $(SRC:.c=.o)
 
 NAME1	= utils/sftp-who$(EXT)
 SRC1	= SftpWho/Main.c SftpServer/SftpWho.c		\
 	  conf.c convert.c hash.c user.c parsing.c	\
-	  string.c ip.c
+	  string.c ip.c SftpServer/Access.c
 OBJ1	= $(SRC1:.c=.o)
 
 NAME2	= utils/sftp-state$(EXT)

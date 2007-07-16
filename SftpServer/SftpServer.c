@@ -21,8 +21,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <errno.h>
 #include <fcntl.h>
 #include <signal.h>
+#include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include "Access.h"
 #include "Defines.h"
 #include "Encoding.h"
 #include "Log.h"
@@ -31,7 +34,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 tGlobal	*gl_var = NULL;
 
-#include "Access.c"
 #include "SftpServer.h"
 
 static void	end_sftp()
@@ -86,7 +88,6 @@ void	ParseConf(tGlobal *params, int sftpProtocol)
   if (sftpProtocol > 0)
     cVersion = sftpProtocol;
   init_usersinfos();//load users / groups into memory
-  InitAccess();
 }
 
 #ifdef MSSEXT_FILE_HASHING
