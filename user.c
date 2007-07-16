@@ -27,83 +27,20 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "ip.h"
 #include "parsing.h"
 #include "user.h"
+#include "SftpServer/Access.h"
 
 static char	*user_name = NULL;
-static char	**user_group = NULL;
 static int	restrictions = REST_ALL;
-
-#ifndef HAVE_GETGROUPLIST
-static int getgrouplist(const char *uname, gid_t agroup, register gid_t *groups, int *grpcnt)
-{
-  register struct group *grp;
-  register int i, ngroups;
-  int ret, maxgroups;
-  int bail;
-
-  ret = 0;
-  ngroups = 0;
-  maxgroups = *grpcnt;
-  
-  /*
-   * install primary group
-   */
-  if (ngroups >= maxgroups) {
-    *grpcnt = ngroups;
-    return (-1);
-  }
-  groups[ngroups++] = agroup;
-  
-  /*
-   * Scan the group file to find additional groups.
-   */
-  setgrent();
-  while ((grp = getgrent())) {
-    if (grp->gr_gid == agroup)
-      continue;
-    for (bail = 0, i = 0; bail == 0 && i < ngroups; i++)
-      if (groups[i] == grp->gr_gid)
-	bail = 1;
-    if (bail)
-      continue;
-    for (i = 0; grp->gr_mem[i]; i++) {
-      if (strcmp(grp->gr_mem[i], uname) == 0) {
-	if (ngroups >= maxgroups) {
-	  ret = -1;
-	  goto out;
-	}
-	groups[ngroups++] = grp->gr_gid;
-	break;
-      }
-    }
-  }
- out:
-  endgrent();
-  *grpcnt = ngroups;
-  return (ret);
-}
-#endif
 
 int		init_user_info()
 {
   struct passwd	*info;
-  struct group	*group;
-  gid_t		groups[42];
-  int		nb_groups = sizeof(groups) / sizeof(*groups);
-  int		i;
 
+  InitAccess();
   if ((info = getpwuid(getuid())))
     {
       if ((user_name = strdup(info->pw_name)) == NULL)
 	return (0);
-      getgrouplist(user_name, info->pw_gid, groups, &nb_groups);
-      if (nb_groups > 0)
-        {
-          user_group = malloc((nb_groups + 1) * sizeof(*user_group));
-          for (i = 0; i < nb_groups; i++)
-	    if ((group = getgrgid(groups[i])))
-	      user_group[i] = strdup(group->gr_name);
-          user_group[i] = NULL;
-        }
       hash_set("User", (void *)strdup(info->pw_name));
       hash_set("Home", (void *)strdup(info->pw_dir));
       return (1);
@@ -113,15 +50,7 @@ int		init_user_info()
 
 void	free_user_info()
 {
-  int	i;
-
   free(user_name);
-  if (user_group)
-    {
-      for (i = 0; user_group[i]; i++)
-	free(user_group[i]);
-      free(user_group);
-    }
 }
 
 int	is_for_user(const char *user, int verbose)
@@ -142,9 +71,9 @@ int	is_for_user(const char *user, int verbose)
   return (0);
 }
 
-int	is_for_group(const char *group, int verbose)
+int		is_for_group(const char *group, int verbose)
 {
-  int	i;
+  struct group	*grp;
 
   if (group == NULL || restrictions == REST_USER)
     return (0);
@@ -153,14 +82,13 @@ int	is_for_group(const char *group, int verbose)
       if (verbose >= 2) (void )printf("--- Apply restrictions for all groups ---\n");
       return (1);
     }
-  if (user_group != NULL && restrictions <= REST_GROUP)
-    for (i = 0; user_group[i]; i++)
-      if (strcmp(group, user_group[i]) == 0)
-	{
-	  restrictions = REST_GROUP;
-	  if (verbose >= 2) (void )printf("--- Apply restrictions for group '%s' ---\n", group);
-	  return (1);
-	}
+  if (restrictions <= REST_GROUP && (grp = getgrnam(group)) != NULL)
+    if (UserIsInThisGroup(grp->gr_gid) == 1)
+      {
+	restrictions = REST_GROUP;
+	if (verbose >= 2) (void )printf("--- Apply restrictions for group '%s' ---\n", group);
+	return (1);
+      }
   return (0);
 }
 
@@ -211,10 +139,10 @@ int	is_for_rangeip(const char *range, int verbose)
 	goto error_is_for_rangeip;
     }
   if (verbose >= 2)
-    (void )printf("--- Apply restrictions for ip range '%ui.%ui.%ui.%ui-%ui.%ui.%ui.%ui/%ui' ---\n",
-		  (unsigned int )range[0], (unsigned int )range[1], (unsigned int )range[2],
-		  (unsigned int )range[3], (unsigned int )range[4], (unsigned int )range[5],
-		  (unsigned int )range[6], (unsigned int )range[7], (unsigned int )range[8]);
+    (void )printf("--- Apply restrictions for ip range '%i.%i.%i.%i-%i.%i.%i.%i/%i' ---\n",
+		  (unsigned char )range[0], (unsigned char )range[1], (unsigned char )range[2],
+		  (unsigned char )range[3], (unsigned char )range[4], (unsigned char )range[5],
+		  (unsigned char )range[6], (unsigned char )range[7], (unsigned char )range[8]);
   free(bip);
   free(ip);
   return (1);
