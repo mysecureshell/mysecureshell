@@ -88,7 +88,7 @@ AC_ARG_WITH(libiconv,
 AC_FUNC_CLOSEDIR_VOID
 AC_FUNC_FORK
 AC_FUNC_STAT
-AC_CHECK_FUNCS([endgrent strcasecmp strchr strdup strerror strrchr strstr statfs statvfs getgrouplist strlcpy strlcat])
+AC_CHECK_FUNCS([endgrent strcasecmp strchr strdup strerror strrchr strstr statfs statvfs getgroups strlcpy strlcat])
 AC_CHECK_FUNCS([connect gethostbyaddr gethostbyname], , AC_CHECK_LIB(nsl, connect))
 AC_CHECK_FUNCS([iconv_open iconv_close iconv], , AC_CHECK_LIB(iconv, libiconv_open))
 AC_CHECK_LIB(acl, acl_get_entry)
