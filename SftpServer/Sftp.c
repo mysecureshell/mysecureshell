@@ -1016,7 +1016,7 @@ int			SftpMain(tGlobal *params, int sftpProtocol)
 	  gl_var->upload_current = 0;
 	  gl_var->download_current = 0;
 	  gl_var->who->time_total = time(0) - gl_var->who->time_begin;
-	  if (gl_var->who->time_maxidle > 0&&
+	  if (gl_var->who->time_maxidle > 0 &&
 	      gl_var->who->time_idle >= gl_var->who->time_maxidle)
 	    {
 	      mylog_printf(MYLOG_CONNECTION, "[%s][%s]Connection time out",
