@@ -26,8 +26,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "GetUsersInfos.h"
 #include "Log.h"
 
-static t_info	*_users = 0;
-static t_info	*_groups = 0;
+static t_info	*_users = NULL;
+static t_info	*_groups = NULL;
 
 void		init_usersinfos()
 {
@@ -66,7 +66,7 @@ t_info	*mygetpwnam(const char *login)
       mylog_printf(MYLOG_WARNING, "[%s][%s]Couldn't resolve user name %i",
                  gl_var->who->user, gl_var->who->ip, login);
     }
-  return (0);
+  return (NULL);
 }
 
 
@@ -82,7 +82,7 @@ t_info	*mygetpwuid(uid_t uid)
       mylog_printf(MYLOG_WARNING, "[%s][%s]Couldn't resolve user id %i",
 		 gl_var->who->user, gl_var->who->ip, uid);
     }
-  return (0);
+  return (NULL);
 }
 
 t_info	*mygetgrnam(const char *group)
@@ -97,7 +97,7 @@ t_info	*mygetgrnam(const char *group)
       mylog_printf(MYLOG_WARNING, "[%s][%s]Couldn't resolve group name %i",
 		 gl_var->who->user, gl_var->who->ip, group);
     }
-  return (0);
+  return (NULL);
 }
 
 t_info	*mygetgrgid(gid_t gid)
@@ -112,5 +112,5 @@ t_info	*mygetgrgid(gid_t gid)
       mylog_printf(MYLOG_WARNING, "[%s][%s]Couldn't resolve group id %i",
 		 gl_var->who->user, gl_var->who->ip, gid);
     }
-  return (0);
+  return (NULL);
 }
