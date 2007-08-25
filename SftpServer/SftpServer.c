@@ -87,7 +87,6 @@ void	ParseConf(tGlobal *params, int sftpProtocol)
   (void )signal(SIGUSR2, reopen_log_file);
   if (sftpProtocol > 0)
     cVersion = sftpProtocol;
-  init_usersinfos();//load users / groups into memory
 }
 
 #ifdef MSSEXT_FILE_HASHING
@@ -129,6 +128,7 @@ void	DoInitUser()
 	  exit(255);
 	}
     }
+  init_usersinfos();//load users / groups into memory
 }
 
 int	CheckRules(const char *pwd, int operation, const struct stat *st, int flags)
