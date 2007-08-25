@@ -37,8 +37,8 @@
 /* Define to 1 if you have the `fork' function. */
 #undef HAVE_FORK
 
-/* Define to 1 if you have the `getgrouplist' function. */
-#undef HAVE_GETGROUPLIST
+/* Define to 1 if you have the `getgroups' function. */
+#undef HAVE_GETGROUPS
 
 /* Define to 1 if you have the `gethostbyaddr' function. */
 #undef HAVE_GETHOSTBYADDR
