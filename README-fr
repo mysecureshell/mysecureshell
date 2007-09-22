@@ -85,9 +85,26 @@ Forum:       http://mysecureshell.free.fr
 
 HISTORIQUE:
 -----------
+1.0 (octobre 2007):
+	+ ajout des tags : ExpireDate et IsSimpleAdmin
+	+ ajout de statistiques pour les administrateurs a distances
+	+ ajout du tag : MinimumRights (merci a Florent)
+	~ amelioration de sftp-verif (detection des problemes de dependances)
+	~ amelioration des fonctions d'administration (securite accrue)
+	~ amelioration des supports des unix
+	~ optimisations pour les systems qui ont beaucoup d'utilisateurs/groupes
+	~ optimisations pour les reseaux rapides
+	= fixe un bug si plus de 128 clients sont connectes en meme temps
+	= fixe une fuite memoire dans l'administration a distance
+	= fixe la gestion des signaux
+	= mise au propre du code source (programme: splint)
+	= fixe un bug sur la gestion de l'administration
+	= fixe un bug sur l'extension sftp: verification des donnees
+	= fixe un bug sur le sftp-who (le pourcentage de progession contenait un 'h')
+
 0.95 (fevrier 2007):
 	+ ajout du support des ACLs
-	+ ajout de l'extensions sftp: verification des donnees
+	+ ajout de l'extension sftp: verification des donnees
 	+ ajout du tag LogFile
 	+ support complet de l'administration a distance (ajout de la gestion des utilisateurs)
 	+ sftp-who: ajout de la bande passante globale utilisee par MySecureShell
