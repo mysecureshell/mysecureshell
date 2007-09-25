@@ -54,32 +54,36 @@ fi
 ## Root detection
 
 if [ "$USER" != "root" ] ; then
-	echo "\n###################################################################"
+	echo ""
+	echo "###################################################################"
 	tmp=`MyGetLocale 'sorry'`
-	echo "\t\t\t"$tmp $USER
+	echo "			$tmp $USER"
 	MyGetLocale 'Warning root ask'
-	echo "###################################################################\n"
+	echo "###################################################################"
+	echo ""
 	exit 1
 fi
 
 ## Functions
 detecfiles() {
-	fileufund=`MyGetLocale 'Existing file'`" $filedetec\t\t\t"`MyGetLocale 'failed'`
-	echo "$fileufund"
-	instend=`MyGetLocale 'installation'`"\t\t\t\t"`MyGetLocale 'failed'`
-	echo "$instend"
+	fileufund=`MyGetLocale 'Existing file'`
+	failed=`MyGetLocale 'failed'`
+	echo "$fileufund $filedetec			$failed"
+	instend=`MyGetLocale 'installation'`
+	echo "$instend				$failed"
         exit 1
 }
 
 filefound() {
-	filefund=`MyGetLocale 'Existing file'`" $filedetec\t\t\t`MyGetLocale 'ok'`"
-	echo "$filefund"
+	filefund=`MyGetLocale 'Existing file'`
+	ok=`MyGetLocale 'ok'`
+	echo "$filefund $filedetec			$ok"
 }
 
 shellfunc() {
 grepshell=`grep /bin/MySecureShell /etc/shells`
 if [ "$?" = "0" ] ; then
-	sftpinst=$sftpinst`MyGetLocale 'shellalreadyvd'`"\t\t"`MyGetLocale 'ok'`"\n"
+	echo "`MyGetLocale 'shellalreadyvd'`		`MyGetLocale 'ok'`"
 else
 	MyGetLocale 'validshellask'
 	if [ "$fyesall" = "1" ] ; then
@@ -89,18 +93,18 @@ else
 	fi
 	if [ $rep3 = "y" ] ; then
 		echo "/bin/MySecureShell" >> /etc/shells
-		sftpinst=$sftpinst`MyGetLocale 'shellvalid'`"\t\t"`MyGetLocale 'ok'`"\n"
+		echo `MyGetLocale 'shellvalid'`"		"`MyGetLocale 'ok'`
 	else
 		if [ $rep3 = "n" ] ; then
-			sftpinst=$sftpinst`MyGetLocale 'novalidshell'`"\t"`MyGetLocale 'ok'`"\n"
+			echo `MyGetLocale 'novalidshell'`"	"`MyGetLocale 'ok'`
 		else
 			clear  	    
-			instend=`MyGetLocale 'installation'`"\t\t\t"`MyGetLocale 'failed'`"\t\n"
-			echo "$instend"
+			echo `MyGetLocale 'installation'`"			"`MyGetLocale 'failed'`
 			MyGetLocale 'answers'
 			exit 1
 		fi
 	fi
+	echo ""
 fi
 }
 
@@ -109,10 +113,11 @@ fi
 
 clear
 echo "#########################################"
-echo "#\t\tMySecureShell\t\t#"
-echo "#########################################\n"
-tmp=`MyGetLocale 'Welcome'`
-echo "$tmp\n"
+echo "#		MySecureShell		#"
+echo "#########################################"
+echo ""
+MyGetLocale 'Welcome'
+echo ""
 
 MyGetLocale 'Needed installation files'
 filedetec="MySecureShell"
@@ -130,16 +135,16 @@ fi
 
 ## Test system
 
-echo "\n"
+echo ""
 tmp=`MyGetLocale 'TestSystem?'`
-echo -n $tmp
+echo $tmp
 if [ $fyesall = "1" ] ; then
 	rep7="y"
 else
 	read rep7
 fi
 
-if [ $rep7 = "y" ] ; then
+if [ "$rep7" = "y" ] ; then
     MyGetLocale 'LaunchMSS'
     ./MySecureShell --version > /dev/null
     MyGetLocale 'Testsuccess'
@@ -147,7 +152,8 @@ fi
 
 ## Introduction text
 
-echo "\n"
+echo ""
+echo ""
 MyGetLocale 'text1'
 MyGetLocale 'text2'
 MyGetLocale 'text3'
@@ -159,26 +165,25 @@ MyGetLocale 'text6'
 
 ## Starting or ending installation
 
-if [ $fyesall = "1" ] ; then
+if [ "$fyesall" = "1" ] ; then
 	rep1="y"
 else
 	read rep1
 fi
 
 
-if [ $rep1 = "y" ] ; then
-	tmp=`MyGetLocale 'installation'`
-	echo "$tmp\n"
+if [ "$rep1" = "y" ] ; then
+	MyGetLocale 'installation'
+	echo ""
 else
 	clear
-	tmp2=`MyGetLocale 'installation'`"\t\t\t\t"`MyGetLocale 'failed'`"\n"
-	if [ $rep1 = "n" ] ; then
+	if [ "$rep1" = "n" ] ; then
 		break
 	else
 		MyGetLocale 'answers'
 	fi
-	echo "$tmp2"
-exit 1
+	echo `MyGetLocale 'installation'`"				"`MyGetLocale 'failed'`
+	exit 1
 fi
 
 ## If MSS is present, stop server
@@ -199,6 +204,7 @@ else
 	if [ -d $ETCDIR/ssh ] ; then
 		sshfolder=$ETCDIR/ssh
 	else
+		echo ""
 		MyGetLocale 'mksshfolder'
 		if [ $fyesall = "1" ] ; then
 			repssh="y"
@@ -208,11 +214,10 @@ else
 		if [ $repssh = 'y' ] ; then
 			sshfolder=$ETCDIR/ssh
 			mkdir $sshfolder
-			sftpinst=`MyGetLocale 'lgsshfolder'`"\t\t\t\t"`MyGetLocale 'ok'`"\t\n"
+			echo `MyGetLocale 'lgsshfolder'`"				"`MyGetLocale 'ok'`
 		else
 			clear
 			MyGetLocale 'stopinstssh'
-			echo "$tmp2"
 			exit 1
 		fi
 	fi
@@ -221,7 +226,7 @@ fi
 ## Config file
 
 if [ -f $MSS_CONF ] ; then
-	echo "\n"
+	echo ""
 	MyGetLocale 'warnconf'
 	MyGetLocale 'warnerase'
 	if [ $fyesall = "1" ] ; then
@@ -232,14 +237,13 @@ if [ -f $MSS_CONF ] ; then
 	if [ $rep2 = "y" ] ; then
 		cp -f ./sftp_config $MSS_CONF
 		chmod 644 $MSS_CONF
-		sftpinst=`MyGetLocale 'conffilerep1'`"\t\t"`MyGetLocale 'ok'`"\t\n"
+		echo `MyGetLocale 'conffilerep1'`"		"`MyGetLocale 'ok'`
 	else
 		if [ $rep2 = "n" ] ; then
-			sftpinst=$sftpinst`MyGetLocale 'conffilerep2'`"\t"`MyGetLocale 'ok'`"\t\n"
+			echo `MyGetLocale 'conffilerep2'`"	"`MyGetLocale 'ok'`
 		else
 			clear  	    
-			instend=`MyGetLocale 'installation'`"\t\t\t\t"`MyGetLocale 'failed'`"\t\n"
-			echo "$instend"
+			echo `MyGetLocale 'installation'`"				"`MyGetLocale 'failed'`
 			MyGetLocale 'answers'
 			exit 1
 		fi
@@ -247,21 +251,23 @@ if [ -f $MSS_CONF ] ; then
 else
 	cp -f ./sftp_config $MSS_CONF
 	chmod 644 $MSS_CONF
-	sftpinst=$sftpinst`MyGetLocale 'mkconffile'`"\t\t\t\t"`MyGetLocale 'ok'`"\t\n"
+	echo `MyGetLocale 'mkconffile'`"				"`MyGetLocale 'ok'`
 fi
 
 ## Updating Detection
 
+echo ""
 if [ -f /bin/MySecureShell ] ; then
-	sftpinst=$sftpinst`MyGetLocale 'upconffile'`"\t\t\t"`MyGetLocale 'ok'`"\t\n"
+	echo `MyGetLocale 'upconffile'`"			"`MyGetLocale 'ok'`
 else
-	sftpinst=$sftpinst`MyGetLocale 'mkconffile'`"\t\t\t\t"`MyGetLocale 'ok'`"\t\n"
+	echo `MyGetLocale 'mkconffile'`"				"`MyGetLocale 'ok'`
 fi
 cp -f ./MySecureShell /bin
 chmod 4755 /bin/MySecureShell
 
 ## /shells detection
 
+echo ""
 if [ -f /etc/shells ] ; then
 	shellfunc
 else
@@ -277,18 +283,18 @@ else
 		shellfunc
 	else
 		clear  	    
-		instend=`MyGetLocale 'installation'`"\t\t\t"`MyGetLocale 'failed'`"\t\n"
-		echo "$instend"
+		echo `MyGetLocale 'installation'`"			"`MyGetLocale 'failed'`
 		MyGetLocale 'answers'
 	fi
 fi
 
 ## Utilities installation
 
+echo ""
 if [ -d ./utils ] ; then
 	for tool in "sftp-who" "sftp-kill" "sftp-state" "sftp-admin" "sftp-verif" "sftp-user" ; do
 		cp -f ./utils/$tool $BINDIR
-		sftpinst=$sftpinst`MyGetLocale 'tool'`" $tool\t\t\t"`MyGetLocale 'ok'`"\n"
+		echo `MyGetLocale 'tool'`" $tool			"`MyGetLocale 'ok'`
 	done
 	chmod 700 $BINDIR/sftp-kill
 	chmod 700 $BINDIR/sftp-state
@@ -297,11 +303,12 @@ if [ -d ./utils ] ; then
 	chmod 755 $BINDIR/sftp-verif
 	chmod 755 $BINDIR/sftp-user
 else
-	sftpinst=$sftpinst`MyGetLocale 'noutilities'`"\t"`MyGetLocale 'ok'`"\n"
+	echo `MyGetLocale 'noutilities'`"	"`MyGetLocale 'ok'`
 fi
 
 ## Logrotate
 
+echo ""
 MyGetLocale 'logrot?'
 if [ $fyesall = "1" ] ; then
 	rep8="y"
@@ -311,9 +318,19 @@ fi
 if [ $rep8 = 'y' ] ; then
 	# Using for Debian like systems
 	if [ -d /etc/logrotate.d ] ; then
-		echo "$MSS_LOG {\n\tweekly\n\tsize=500k\n\trotate 10\n\tcompress\n\tdelaycompress\n\tmissingok\n\tnotifempty\n}" > /etc/logrotate.d/mysecureshell
+	        cat > /etc/logrotate.d/mysecureshell <<\_ACEOF
+$MSS_LOG {
+	weekly
+	size=500k
+	rotate 10
+	compress
+	delaycompress
+	missingok
+	notifempty
+}
+_ACEOF
 		chmod 644 /etc/logrotate.d/mysecureshell
-		sftpinst=$sftpinst`MyGetLocale 'logrot'`"\t"`MyGetLocale 'ok'`"\n"
+		echo `MyGetLocale 'logrot'`"	"`MyGetLocale 'ok'`
 	else
 		# Others BSD systems
 		if [ -f /etc/weekly ] ; then
@@ -323,7 +340,11 @@ if [ $rep8 = 'y' ] ; then
 		                sed -e 's/^\(for i in.*\)\(; do\)$/\1 sftp-server.log\2/' /etc/weekly > /tmp/weekly.tmp && mv /tmp/weekly.tmp /etc/weekly
 		        fi
 		fi
-		test "$logstat" = "1" && sftpinst=$sftpinst`MyGetLocale 'logrot'`"\t"`MyGetLocale 'ok'`"\n" || sftpinst=$sftpinst`MyGetLocale 'logrot'`"\t"`MyGetLocale 'failed'`"\n"
+		if [ "$logstat" = "1" ] ; then
+			echo `MyGetLocale 'logrot'`"	"`MyGetLocale 'ok'`
+		else
+			echo `MyGetLocale 'logrot'`"	"`MyGetLocale 'failed'`
+		fi
 	fi
 fi
 
@@ -334,9 +355,9 @@ if [ -d ./man ] ; then
         if [ -d /usr/share/man/fr ] ; then
                 cp ./man/fr/man8/* /usr/share/man/fr/man8
         fi
-        sftpinst=$sftpinst`MyGetLocale 'mans'`"\t\t\t\t"`MyGetLocale 'ok'`"\n"
+	echo `MyGetLocale 'mans'`"				"`MyGetLocale 'ok'`
 else
-        sftpinst=$sftpinst`MyGetLocale 'mans'`"\t\t\t\t"`MyGetLocale 'failed'`"\n"
+        echo `MyGetLocale 'mans'`"				"`MyGetLocale 'failed'`
 fi
 
 
@@ -346,7 +367,8 @@ fi
 $BINDIR/sftp-state fullshutdown > /dev/null
 $BINDIR/sftp-state start > /dev/null
 
-sftpinst=$sftpinst"\n"`MyGetLocale 'finishedinst'`"\n\n"`MyGetLocale 'osxreminder'`
-
-clear
-echo "$sftpinst\n"
+echo ""
+MyGetLocale 'finishedinst'
+echo ""
+MyGetLocale 'osxreminder'
+echo ""
