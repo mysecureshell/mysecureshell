@@ -54,26 +54,26 @@ fi
 ## Root detection
 
 if [ "$USER" != "root" ] ; then
-	echo -e "\n###################################################################"
+	echo "\n###################################################################"
 	tmp=`MyGetLocale 'sorry'`
-	echo -e "\t\t\t"$tmp $USER
+	echo "\t\t\t"$tmp $USER
 	MyGetLocale 'Warning root ask'
-	echo -e "###################################################################\n"
+	echo "###################################################################\n"
 	exit 1
 fi
 
 ## Functions
 detecfiles() {
-	fileufund=`MyGetLocale 'Existing file'`" $filedetec\t\t\t`MyGetLocale 'failed'`
-	echo -e "$fileufund"
-	instend=`MyGetLocale 'installation'`"\t\t\t\t"`MyGetLocale 'failed'`"
-	echo -e "$instend"
+	fileufund=`MyGetLocale 'Existing file'`" $filedetec\t\t\t"`MyGetLocale 'failed'`
+	echo "$fileufund"
+	instend=`MyGetLocale 'installation'`"\t\t\t\t"`MyGetLocale 'failed'`
+	echo "$instend"
         exit 1
 }
 
 filefound() {
 	filefund=`MyGetLocale 'Existing file'`" $filedetec\t\t\t`MyGetLocale 'ok'`"
-	echo -e "$filefund"
+	echo "$filefund"
 }
 
 shellfunc() {
@@ -96,7 +96,7 @@ else
 		else
 			clear  	    
 			instend=`MyGetLocale 'installation'`"\t\t\t"`MyGetLocale 'failed'`"\t\n"
-			echo -e "$instend"
+			echo "$instend"
 			MyGetLocale 'answers'
 			exit 1
 		fi
@@ -109,10 +109,10 @@ fi
 
 clear
 echo "#########################################"
-echo -e "#\t\tMySecureShell\t\t#"
-echo -e "#########################################\n"
+echo "#\t\tMySecureShell\t\t#"
+echo "#########################################\n"
 tmp=`MyGetLocale 'Welcome'`
-echo -e $tmp "\n"
+echo "$tmp\n"
 
 MyGetLocale 'Needed installation files'
 filedetec="MySecureShell"
@@ -130,7 +130,7 @@ fi
 
 ## Test system
 
-echo -e "\n"
+echo "\n"
 tmp=`MyGetLocale 'TestSystem?'`
 echo -n $tmp
 if [ $fyesall = "1" ] ; then
@@ -147,7 +147,7 @@ fi
 
 ## Introduction text
 
-echo -e "\n"
+echo "\n"
 MyGetLocale 'text1'
 MyGetLocale 'text2'
 MyGetLocale 'text3'
@@ -168,7 +168,7 @@ fi
 
 if [ $rep1 = "y" ] ; then
 	tmp=`MyGetLocale 'installation'`
-	echo -e "$tmp\n"
+	echo "$tmp\n"
 else
 	clear
 	tmp2=`MyGetLocale 'installation'`"\t\t\t\t"`MyGetLocale 'failed'`"\n"
@@ -177,7 +177,7 @@ else
 	else
 		MyGetLocale 'answers'
 	fi
-	echo -e "$tmp2"
+	echo "$tmp2"
 exit 1
 fi
 
@@ -212,7 +212,7 @@ else
 		else
 			clear
 			MyGetLocale 'stopinstssh'
-			echo -e "$tmp2"
+			echo "$tmp2"
 			exit 1
 		fi
 	fi
@@ -221,7 +221,7 @@ fi
 ## Config file
 
 if [ -f $MSS_CONF ] ; then
-	echo -e "\n"
+	echo "\n"
 	MyGetLocale 'warnconf'
 	MyGetLocale 'warnerase'
 	if [ $fyesall = "1" ] ; then
@@ -239,7 +239,7 @@ if [ -f $MSS_CONF ] ; then
 		else
 			clear  	    
 			instend=`MyGetLocale 'installation'`"\t\t\t\t"`MyGetLocale 'failed'`"\t\n"
-			echo -e "$instend"
+			echo "$instend"
 			MyGetLocale 'answers'
 			exit 1
 		fi
@@ -278,7 +278,7 @@ else
 	else
 		clear  	    
 		instend=`MyGetLocale 'installation'`"\t\t\t"`MyGetLocale 'failed'`"\t\n"
-		echo -e "$instend"
+		echo "$instend"
 		MyGetLocale 'answers'
 	fi
 fi
@@ -311,7 +311,7 @@ fi
 if [ $rep8 = 'y' ] ; then
 	# Using for Debian like systems
 	if [ -d /etc/logrotate.d ] ; then
-		echo -e "$MSS_LOG {\n\tweekly\n\tsize=500k\n\trotate 10\n\tcompress\n\tdelaycompress\n\tmissingok\n\tnotifempty\n}" > /etc/logrotate.d/mysecureshell
+		echo "$MSS_LOG {\n\tweekly\n\tsize=500k\n\trotate 10\n\tcompress\n\tdelaycompress\n\tmissingok\n\tnotifempty\n}" > /etc/logrotate.d/mysecureshell
 		chmod 644 /etc/logrotate.d/mysecureshell
 		sftpinst=$sftpinst`MyGetLocale 'logrot'`"\t"`MyGetLocale 'ok'`"\n"
 	else
@@ -349,4 +349,4 @@ $BINDIR/sftp-state start > /dev/null
 sftpinst=$sftpinst"\n"`MyGetLocale 'finishedinst'`"\n\n"`MyGetLocale 'osxreminder'`
 
 clear
-echo -e "$sftpinst\n"
+echo "$sftpinst\n"
