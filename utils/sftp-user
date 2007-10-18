@@ -19,7 +19,6 @@ doesntexist="Sorry but this user doesn't exist !"
 ##########################
 ## User sftp-user verif ##
 ##########################
-name=`id -un $nameuser 2>&1`
 encPass='*'
 
 vrf_create() {
@@ -32,6 +31,7 @@ vrf_create() {
 }
 
 vrf_delhide() {
+	name=`id -un $nameuser 2>&1`
 	if [ $name != $nameuser ] ; then
 		echo $doesntexist
 		exit 1
@@ -61,6 +61,14 @@ EOF`
 	else
 		echo "Please install 'perl' to have full features of $0";
 		echo "Or use the commande 'passwd {user}' to set the password of the user"
+	fi
+}
+
+vrf_useralreadyexit() {
+	name=`id -un $nameuser 2>&1`
+	if [ $name == $nameuser ] ; then
+		echo $alreadyexist
+		exit 1
 	fi
 }
 
@@ -140,6 +148,7 @@ nux_del() {
 case $1 in
 	create)
 		vrf_create
+		vrf_useralreadyexit
 		vrf_getpass
 		if [ $osdetection = Darwin ] ; then
 			dar_add
