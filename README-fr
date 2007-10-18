@@ -101,6 +101,7 @@ HISTORIQUE:
 	= fixe un bug sur la gestion de l'administration
 	= fixe un bug sur l'extension sftp: verification des donnees
 	= fixe un bug sur le sftp-who (le pourcentage de progession contenait un 'h')
+	= sftp-user : fix un bug sur la creation d'utilisateur
 
 0.95 (fevrier 2007):
 	+ ajout du support des ACLs
@@ -233,7 +234,7 @@ HISTORIQUE:
 	= fixe des bugs sur les restrictions HideFiles et IgnoreHidden
 	= fixe un bug sur le sftp-kill
 
-0.2 (24 octobre 2004) :
+0.2 (octobre 2004) :
 	+ support de OpenBSD, FreeBSD et de NetBSD
 	+ ajout des restrictions LimitConnectionByUser (anciennement LimitConnection),
 		LimitConnection (limite le nombre de connection au serveur), Shell

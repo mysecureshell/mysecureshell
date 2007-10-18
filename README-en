@@ -92,6 +92,7 @@ CHANGE LOG:
         = fix bug on admin management
         = fix bug on sftp extension : check data
         = fix bug on sftp-who (progession with a 'h')
+	= sftp-user : fix bug on user creation
 
 0.95 (february 2007):
         + support ACLs
@@ -166,7 +167,6 @@ CHANGE LOG:
         + add tag ConnectionMaxLife
         = fix upload bug with gFtp
 
-
 0.6 (july 2005) :
         + total rewrite of sftp-server_MSS
         + new support protocol SFTP v4
@@ -222,7 +222,7 @@ CHANGE LOG:
         = fix bugs restrictions on HideFiles and IgnoreHidden
 	= fix bug on sftp-kill
 
-0.2 (24 october 2004) :
+0.2 (october 2004) :
 	+ first version of this file :)
 	+ support of OpenBSD, FreeBSD and NetBSD
 	+ add restrictions LimitConnectionByUser (old LimitConnection),
