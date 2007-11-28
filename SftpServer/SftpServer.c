@@ -102,6 +102,7 @@ void	DoInitUser()
 #ifdef MSSEXT_FILE_HASHING
   OpenSSL_add_all_digests();
 #endif
+  init_usersinfos();//load users / groups into memory
   if (HAS_BIT(gl_var->who->status, SFTPWHO_VIRTUAL_CHROOT))
     {
       if (chroot(gl_var->who->home) != -1)
@@ -128,7 +129,6 @@ void	DoInitUser()
 	  exit(255);
 	}
     }
-  init_usersinfos();//load users / groups into memory
 }
 
 int	CheckRules(const char *pwd, int operation, const struct stat *st, int flags)
