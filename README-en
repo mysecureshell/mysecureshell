@@ -76,7 +76,7 @@ Forum:       http://mysecureshell.free.fr
 
 CHANGE LOG:
 -----------
-1.0 (october 2007):
+1.0 (december 2007):
         + add tags : ExpireDate and IsSimpleAdmin
         + aadd statistics for remote admin
         + add tag : MinimumRights (thanks Florent)
