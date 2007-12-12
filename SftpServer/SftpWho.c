@@ -160,8 +160,10 @@ int		SftpWhoCleanBuggedClient()
   return (nb);
 }
 
-void	SftpWhoRelaseStruct()
+void	SftpWhoRelaseStruct(t_sftpwho *currentSession)
 {
+  if (currentSession != NULL)
+      currentSession->status = SFTPWHO_EMPTY;
   if (_sftpglobal != NULL)
     {
       (void )shmdt(_sftpglobal);

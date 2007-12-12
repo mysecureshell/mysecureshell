@@ -92,7 +92,7 @@ extern t_sftpglobal     *_sftpglobal;
 t_sftpwho	*SftWhoGetAllStructs();
 t_sftpwho	*SftpWhoGetStruct(int create);
 int		SftpWhoCleanBuggedClient();
-void		SftpWhoRelaseStruct();
+void		SftpWhoRelaseStruct(t_sftpwho *currentSession);
 int		SftpWhoDeleteStructs();
 
 #endif

@@ -245,6 +245,7 @@ typedef struct	sGlobal
 {
   t_sftpwho	*who;
 
+  u_int32_t	status;
   int		has_hide_files;
   int		has_deny_filter;
   int		must_shutdown;

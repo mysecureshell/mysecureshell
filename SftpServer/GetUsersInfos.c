@@ -49,7 +49,7 @@ static t_info	*add_element_in_table(t_info **tb, int *tbSize, char *name, int id
 
 void		init_usersinfos()
 {
-  if (HAS_BIT(gl_var->who->status, SFTPWHO_VIRTUAL_CHROOT))
+  if (HAS_BIT(gl_var->status, SFTPWHO_VIRTUAL_CHROOT))
     {
       struct passwd	*pw;
       struct group	*grp;
@@ -87,7 +87,7 @@ t_info	*mygetpwnam(const char *login)
   for (i = 0; i < _usersSize; i++)
     if (strcmp(_users[i].name, login) == 0)
       return (&_users[i]);
-  if (!HAS_BIT(gl_var->who->status, SFTPWHO_VIRTUAL_CHROOT))
+  if (!HAS_BIT(gl_var->status, SFTPWHO_VIRTUAL_CHROOT))
     {
       struct passwd	*pwd;
 
@@ -107,7 +107,7 @@ t_info	*mygetpwuid(uid_t uid)
   for (i = 0; i < _usersSize; i++)
     if (_users[i].id == uid)
       return (&_users[i]);
-  if (!HAS_BIT(gl_var->who->status, SFTPWHO_VIRTUAL_CHROOT))
+  if (!HAS_BIT(gl_var->status, SFTPWHO_VIRTUAL_CHROOT))
     {
       struct passwd	*pwd;
 
@@ -128,7 +128,7 @@ t_info	*mygetgrnam(const char *group)
   for (i = 0; i < _groupsSize; i++)
     if (strcmp(_groups[i].name, group) == 0)
       return (&_groups[i]);
-  if (!HAS_BIT(gl_var->who->status, SFTPWHO_VIRTUAL_CHROOT))
+  if (!HAS_BIT(gl_var->status, SFTPWHO_VIRTUAL_CHROOT))
     {
       struct group	*grp;
 
@@ -147,7 +147,7 @@ t_info	*mygetgrgid(gid_t gid)
   for (i = 0; i < _groupsSize; i++)
     if (_groups[i].id == gid)
       return (&_groups[i]);
-  if (!HAS_BIT(gl_var->who->status, SFTPWHO_VIRTUAL_CHROOT))
+  if (!HAS_BIT(gl_var->status, SFTPWHO_VIRTUAL_CHROOT))
     {
       struct group	*grp;
 

@@ -85,12 +85,12 @@ void	DoInit()
 #ifdef MSS_HAVE_ADMIN
   if (clientVersion == SSH2_ADMIN_VERSION)
     {
-      if (HAS_BIT(gl_var->who->status, SFTPWHO_IS_ADMIN)
-	  || HAS_BIT(gl_var->who->status, SFTPWHO_IS_SIMPLE_ADMIN))
+      if (HAS_BIT(gl_var->status, SFTPWHO_IS_ADMIN)
+	  || HAS_BIT(gl_var->status, SFTPWHO_IS_SIMPLE_ADMIN))
 	{
 	  connectionStatus = CONN_ADMIN;
 	  cVersion = clientVersion;
-	  if (!HAS_BIT(gl_var->who->status, SFTPWHO_IS_ADMIN))
+	  if (!HAS_BIT(gl_var->status, SFTPWHO_IS_ADMIN))
 	    cVersion = SSH2_SIMPLE_ADMIN_VERSION;
 	  DEBUG((MYLOG_DEBUG, "[DoInit]New admin [use version: %i]", cVersion));
 	  //Hide admin to sftp-who !
@@ -261,7 +261,7 @@ void	DoReadDir()
       while ((dp = readdir(dir)) != NULL)
 	{
 	  STRCPY(pathName + len, dp->d_name, sizeof(pathName) - len);
-	  if ((gl_var->who->status & SFTPWHO_LINKS_AS_LINKS))
+	  if ((gl_var->status & SFTPWHO_LINKS_AS_LINKS))
 	    {
 	      if (lstat(pathName, &st) < 0)
 		{
@@ -705,7 +705,7 @@ void	DoRemove()
   path = convertFromUtf8(BufferGetString(bIn), 1);
   if ((status = CheckRules(path, RULES_RMFILE, 0, 0)) == SSH2_FX_OK)
     {
-      if ((gl_var->who->status & SFTPWHO_CAN_RMFILE))
+      if ((gl_var->status & SFTPWHO_CAN_RMFILE))
 	{
 	  if (unlink(path) == -1)
 	    status = errnoToPortable(errno);
@@ -759,7 +759,7 @@ void	DoRmDir()
   path = convertFromUtf8(BufferGetString(bIn), 1);
   if ((status = CheckRules(path, RULES_RMDIRECTORY, 0, 0)) == SSH2_FX_OK)
     {
-      if ((gl_var->who->status & SFTPWHO_CAN_RMDIR))
+      if ((gl_var->status & SFTPWHO_CAN_RMDIR))
 	{
 	  if (rmdir(path) == -1)
 	    status = errnoToPortable(errno);
@@ -1032,12 +1032,12 @@ int			SftpMain(tGlobal *params, int sftpProtocol)
 	  (void )SftpWhoCleanBuggedClient();
 	  
 	  gl_var->download_max = gl_var->who->download_max;
-	  if (_sftpglobal->download_by_client > 0 && (gl_var->who->status & SFTPWHO_BYPASS_GLB_DWN) == 0
+	  if (_sftpglobal->download_by_client > 0 && (gl_var->status & SFTPWHO_BYPASS_GLB_DWN) == 0
 	      && ((_sftpglobal->download_by_client < gl_var->download_max) || gl_var->download_max == 0))
 	    gl_var->download_max = _sftpglobal->download_by_client;
 
 	  gl_var->upload_max = gl_var->who->upload_max;
-	  if (_sftpglobal->upload_by_client > 0 && (gl_var->who->status & SFTPWHO_BYPASS_GLB_UPL) == 0
+	  if (_sftpglobal->upload_by_client > 0 && (gl_var->status & SFTPWHO_BYPASS_GLB_UPL) == 0
 	      && ((_sftpglobal->upload_by_client < gl_var->upload_max) || gl_var->upload_max == 0))
 	    gl_var->upload_max = _sftpglobal->upload_by_client;
 

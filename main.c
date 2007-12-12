@@ -141,31 +141,27 @@ int	main(int ac, char **av, char **env)
       max = hash_get_int("LimitConnectionByUser");
       if (max > 0 && count_program_for_uid((char *)hash_get("User")) > max)
 	{//too many connection for the account
-	  if (params->who != NULL) params->who->status = SFTPWHO_EMPTY;
-	  SftpWhoRelaseStruct();
+	  SftpWhoRelaseStruct(params->who);
 	  delete_hash();
 	  exit(10);
 	}
       max = hash_get_int("LimitConnectionByIP");
       if (max > 0 && count_program_for_ip(hostname) > max)
 	{//too many connection for this IP
-	  if (params->who != NULL) params->who->status = SFTPWHO_EMPTY;
-	  SftpWhoRelaseStruct();
+	  SftpWhoRelaseStruct(params->who);
 	  delete_hash();
 	  exit(11);
 	}
       max = hash_get_int("LimitConnection");
       if (max > 0 && count_program_for_uid(0) > max)
 	{//too many connection for the server
-	  if (params->who != NULL) params->who->status = SFTPWHO_EMPTY;
-	  SftpWhoRelaseStruct();
+	  SftpWhoRelaseStruct(params->who);
 	  delete_hash();
 	  exit(12);
 	}
       if (hash_get_int("DisableAccount"))
 	{//account is temporary disable
-	  if (params->who != NULL) params->who->status = SFTPWHO_EMPTY;
-	  SftpWhoRelaseStruct();
+	  SftpWhoRelaseStruct(params->who);
 	  delete_hash();
 	  exit(13);
 	}
@@ -177,8 +173,7 @@ int	main(int ac, char **av, char **env)
 	  if (hash_get_int("IsAdmin") == 0
 	      && hash_get_int("IsSimpleAdmin") == 0)
 	    {
-	      if (params->who != NULL) params->who->status = SFTPWHO_EMPTY;
-	      SftpWhoRelaseStruct();
+	      SftpWhoRelaseStruct(params->who);
 	      delete_hash();
 	      exit(0);
 	    }
@@ -191,7 +186,7 @@ int	main(int ac, char **av, char **env)
 	{
 	  mylog_printf(MYLOG_ERROR, "[%s][%s]Server reached maximum connexion (%i clients)",
 		       (char *)hash_get("User"), hostname, SFTPWHO_MAXCLIENT);
-	  SftpWhoRelaseStruct();
+	  SftpWhoRelaseStruct(NULL);
 	  delete_hash();
 	  mylog_close();
 	  exit(14);
@@ -200,7 +195,7 @@ int	main(int ac, char **av, char **env)
       hide_files = (char *)hash_get("HideFiles");
       deny_filter = (char *)hash_get("PathDenyFilter");
 
-      params->who->status |=
+      params->status |=
 	(hash_get_int("StayAtHome") ? SFTPWHO_STAY_AT_HOME : 0) +
 	(hash_get_int("VirtualChroot") ? SFTPWHO_VIRTUAL_CHROOT : 0) +
 	(hash_get_int("ResolveIP") ? SFTPWHO_RESOLVE_IP : 0) +
@@ -217,6 +212,7 @@ int	main(int ac, char **av, char **env)
 	(hash_get_int_with_default("CanRemoveDir", 1) ? SFTPWHO_CAN_RMDIR : 0) +
 	(hash_get_int_with_default("CanRemoveFile", 1) ? SFTPWHO_CAN_RMFILE : 0)
 	;
+      params->who->status = params->status;
       _sftpglobal->download_max = (u_int32_t )hash_get_int("GlobalDownload");
       _sftpglobal->upload_max = (u_int32_t )hash_get_int("GlobalUpload");
       if (hash_get_int("Download") > 0)
@@ -277,8 +273,7 @@ int	main(int ac, char **av, char **env)
 	      currentTime = time(NULL);
 	      if (currentTime > maxTime) //time elapsed
 		{
-		  params->who->status = SFTPWHO_EMPTY;
-		  SftpWhoRelaseStruct();
+		  SftpWhoRelaseStruct(params->who);
 		  delete_hash();
 		  mylog_close();
 		  exit(15);
