@@ -45,22 +45,9 @@ FILESRC	= $(DEST)/sftp_config $(DEST)/utils/sftp-kill $(DEST)/LICENSE	\
 	  $(DEST)/uninstaller.sh.in $(DEST)/locales_en $(DEST)/locales_fr\
 	  $(DEST)/utils/sftp-verif.in $(DEST)/utils/sftp-user 		\
 	  $(DEST)/man/*/man8/*.8
-CFLAGS	= -Wall -Wunused -Wpointer-arith -Wno-uninitialized -O2 -ISftpServer
-DEBUG	= 0
+CFLAGS	= -Wall -Wunused -Wpointer-arith -Wno-uninitialized -O2 -ISftpServer @MSS_DEBUG@
 
 LDFLAGS	= @LIBS@ @LINKER_OPT@
-
-ifeq ($(DEBUG), 1)
-	CFLAGS	+= -DDODEBUG -g3
-endif
-ifeq ($(DEBUG), 2)
-	CFLAGS	+= -DDODEBUG -g3 -pg
-	LDFLAGS	+= -pg
-endif
-ifeq ($(DEBUG), 3)
-	CFLAGS	+= -g3
-endif
-
 CC	= @CC@
 EXT	= @EXEEXT@
 

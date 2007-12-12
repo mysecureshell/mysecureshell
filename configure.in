@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT([MySecureShell],[1.0],[teka2nerdman@users.sourceforge.net])
+AC_INIT([MySecureShell],[1.1a1],[teka2nerdman@users.sourceforge.net])
 AC_CONFIG_HEADER(config.h)
 
 # Checks for programs.
@@ -83,6 +83,10 @@ AC_ARG_WITH(libiconv,
 		   fi
 		fi
 	])
+MSS_DEBUG=no
+AC_ARG_WITH(debug,
+	[  --with-debug=1,2        Change debug level (default: no)],
+	[ MSS_DEBUG=$withval ])
 
 # Checks for library functions.
 AC_FUNC_CLOSEDIR_VOID
@@ -112,6 +116,9 @@ MSSEXT_DISK=$ac_cv_header_sys_statvfs_h
 test "$MSSEXT_DISK" = "no" && MSSEXT_DISK=$ac_cv_header_sys_statfs_h
 test "$MSSEXT_DISK" = "no" && MSSEXT_DISK=$ac_cv_func_statfs
 MSSEXT_FILE_HASHING=$ac_cv_lib_crypto_OpenSSL_add_all_digests
+test "$MSS_DEBUG" = "1" && MSS_DEBUG="-DDODEBUG -g3"
+test "$MSS_DEBUG" = "2" && MSS_DEBUG="-g3"
+test "$MSS_DEBUG" = "no" && MSS_DEBUG=""
 
 A=`eval echo ${sysconfdir}`
 BINDIR=`eval echo ${bindir}` ; BINDIR=`eval echo ${BINDIR}`
@@ -119,6 +126,7 @@ AC_SUBST(ETCDIR, "${A}")
 AC_SUBST(BINDIR, "${BINDIR}")
 AC_SUBST(MSS_CONF, "${MSS_CONF}")
 AC_SUBST(MSS_LOG, "${MSS_LOG}")
+AC_SUBST(MSS_DEBUG, "${MSS_DEBUG}")
 AC_DEFINE_UNQUOTED(MSS_LOG, "${MSS_LOG}", Logdir)
 AC_DEFINE_UNQUOTED(SHUTDOWN_FILE, "${MSS_SHUT}", Etcdir)
 AC_DEFINE_UNQUOTED(CONFIG_FILE, "${MSS_CONF}", Etcdir)
@@ -157,13 +165,14 @@ echo ""
 echo "MySecureShell has been configured with the following options:"
 echo "          Log file: $MSS_LOG (color: $MSS_COLOR)"
 echo "     User binaries: $BINDIR"
-echo "     Shutdown file: $MSS_SHUT";
+echo "     Shutdown file: $MSS_SHUT"
 echo "Configuration file: $MSS_CONF"
+echo " Compilation flags: $MSS_DEBUG"
 echo ""
 echo "Option supported:"
-echo "ACL               : $MSS_ACL";
-echo "Remote Admin      : $MSS_ADMIN";
-echo "UTF-8 Encoding    : $MSS_UTF";
+echo "ACL               : $MSS_ACL"
+echo "Remote Admin      : $MSS_ADMIN"
+echo "UTF-8 Encoding    : $MSS_UTF"
 echo ""
 echo "Sftp extension supported:"
 echo "Disk Usage        : $MSSEXT_DISK"
