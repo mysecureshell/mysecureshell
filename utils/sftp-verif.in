@@ -1,6 +1,6 @@
 #!/bin/sh
 
-## MySecureShell Verification Tool v0.2 - Made by MySecureShell Team
+## MySecureShell Verification Tool v0.3 - Made by MySecureShell Team
 ## MySecureShell Team <teka2nerdman@users.sourceforge.net>
 
 BINDIR=@BINDIR@
@@ -131,10 +131,17 @@ EOF
     echo "MySecureShell rotation logs					[ OK ]"
 else
     if [ -f /etc/weekly ] ; then
+	# Mac OS 10.4
 	logstat=1
 	grep -e '^for' < /etc/weekly | grep -ve sftp-server.log > /dev/null
 	if [ "$?" = "0" ] ; then
 	    sed -e 's/^\(for i in.*\)\(; do\)$/\1 $MSS_LOG\2/' /etc/weekly > /tmp/weekly.tmp && mv /tmp/weekly.tmp /etc/weekly
+	fi
+    else
+	# Mac OS 10.5
+	logstat=1
+	if [ `grep -c sftp-server < /etc/syslog.conf | grep -v grep` != "1" ] ; then
+	    echo "sftp-server.*                                           /var/log/sftp-server.log" >> /etc/syslog.conf
 	fi
     fi
     if [ "$logstat" = "1" ] ; then
