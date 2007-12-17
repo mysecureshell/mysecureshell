@@ -26,8 +26,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "ip.h"
 #include "parsing.h"
 #include "string.h"
-#include "user.h"
 #include "security.h"
+#include "user.h"
 
 #define CONF_IS_EMPTY			0
 #define CONF_IS_STRING			1
@@ -228,16 +228,7 @@ int	load_config_file(const char *file, int verbose, int max_recursive_left)
 			(void )printf("[ERROR]Error parsing line %i is not valid in file '%s'!\n", line, file);
 		      exit (2);
 		    }
-		  if (is_for_user((char *)hash_get("USER"), verbose) == 1
-		      || is_for_group((char *)hash_get("GROUP"), verbose) == 1
-		      || is_for_rangeip((char *)hash_get("RANGEIP"), verbose) == 1
-		      || is_for_virtualhost((char *)hash_get("SERVER_IP"),
-					    hash_get_int("SERVER_PORT"),
-					    verbose) == 1
-		      || hash_get_int("DEFAULT") == 1)
-		    processTag = 1;
-		  else
-		    processTag = 0;
+		  processTag = tag_is_active(verbose);
 		}
 	      else if (processTag == 0)
 		continue;

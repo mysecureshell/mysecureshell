@@ -24,8 +24,35 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <strings.h>
 #include "string.h"
 #include "parsing.h"
+#include "user.h"
 
-int	parse_opened_tag = 0;
+static tTag	*_tags = NULL;
+int		parse_opened_tag = 0;
+
+int	tag_is_active(int verbose)
+{
+  tTag	*currentTag;
+
+  currentTag = _tags;
+  while (currentTag != NULL)
+    {
+      switch (currentTag->type)
+	{
+	case VTAG_DEFAULT:
+	  return 1;
+	case VTAG_USER:
+	  return is_for_user(currentTag->data1, verbose);
+	case VTAG_GROUP:
+	  return is_for_group(currentTag->data1, verbose);
+	case VTAG_RANGEIP:
+	  return is_for_rangeip(currentTag->data1, verbose);
+	case VTAG_VIRTUALHOST:
+	  return is_for_virtualhost(currentTag->data1, currentTag->data2, verbose);
+	}
+      currentTag = currentTag->next;
+    }
+  return 0;
+}
 
 void	parse_tag(char *buffer)
 {
@@ -42,33 +69,30 @@ void	parse_tag(char *buffer)
   str[len] = '\0';
   str = trim_right(str);
   if (is_close_tag == 1)
-    parse_tag_close(str);
+    parse_tag_close();
   else
     parse_tag_open(str);
 }
 
-void	parse_tag_close(const char *str)
+void	parse_tag_close()
 {
-  if (strcasecmp(str, TAG_GROUP) == 0)
-      hash_set("GROUP", 0);
-  else if (strcasecmp(str, TAG_USER) == 0)
-      hash_set("USER", 0);
-  else if (strcasecmp(str, TAG_RANGEIP) == 0)
-    hash_set("RANGEIP", 0);
-  else if (strcasecmp(str, TAG_VIRTUALHOST) == 0)
-  {
-  	hash_set("VIRTUALHOST_IP", 0);
-	hash_set_int("VIRTUALHOST_PORT", 0);
-  }
-  else if (strcasecmp(str, TAG_DEFAULT) == 0)
-    hash_set_int("DEFAULT", 0);
+  tTag	*deleteMe;
+
+  deleteMe = _tags;
+  if (_tags != NULL)
+    _tags = deleteMe->next;
+  if (deleteMe->data1)
+    free(deleteMe->data1);
+  free(deleteMe);
   parse_opened_tag--;
 }
 
 void	parse_tag_open(char *str)
 {
+  tTag	*newTag;
   char	*s;
 
+  newTag = calloc(1, sizeof(*newTag));
   if ((s = strchr(str, ' ')) != NULL || (s = strchr(str, '\t')) != NULL)
       {
 	*s = '\0';
@@ -76,19 +100,33 @@ void	parse_tag_open(char *str)
       }
   str = trim_right(str);
   if (strcasecmp(str, TAG_GROUP) == 0)
-    hash_set("GROUP", strdup(s));
+    {
+      newTag->type = VTAG_GROUP;
+      newTag->data1 = strdup(s);
+    }
   else if (strcasecmp(str, TAG_USER) == 0)
-    hash_set("USER", strdup(s));
+    {
+      newTag->type = VTAG_USER;
+      newTag->data1 = strdup(s);
+    }
   else if (strcasecmp(str, TAG_RANGEIP) == 0)
-    hash_set("RANGEIP", parse_range_ip(s));
+    {
+      newTag->type = VTAG_RANGEIP;
+      newTag->data1 = parse_range_ip(s);
+    }
   else if (strcasecmp(str, TAG_VIRTUALHOST) == 0)
-    parse_virtualhost(s);
-  else if (strcasecmp(str, TAG_DEFAULT) == 0)
-    hash_set_int("DEFAULT", 1);
+    {
+      newTag->type = VTAG_VIRTUALHOST;
+      parse_virtualhost(s, newTag);
+    }
+  else //TAG_DEFAULT
+    newTag->type = VTAG_DEFAULT;
   parse_opened_tag++;
+  newTag->next = _tags;
+  _tags = newTag;
 }
 
-void			parse_virtualhost(const char *str)
+void			parse_virtualhost(const char *str, tTag *newTag)
 {
   struct hostent	*h;
   char			*ptr;
@@ -111,11 +149,11 @@ void			parse_virtualhost(const char *str)
 		      (unsigned int)h->h_addr_list[0][2],
 		      (unsigned int)h->h_addr_list[0][3]
 		      );
-      hash_set("VIRTUALHOST_IP", strdup(buffer));
+      newTag->data1 = strdup(buffer);
     }
   else
-    hash_set("VIRTUALHOST_IP", strdup(str));
-  hash_set_int("VIRTUALHOST_PORT", port);
+    newTag->data1 = strdup(str);
+  newTag->data2 = port;
 }
 
 char	*parse_range_ip(const char *str)

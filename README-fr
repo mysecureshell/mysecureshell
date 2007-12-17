@@ -85,6 +85,11 @@ Forum:       http://mysecureshell.free.fr
 
 HISTORIQUE:
 -----------
+1.1 (??):
+	+ support de l'imbrication des tags de niveau 0
+	= fixe un bug sur la gestion des restrictions
+	= fixe un probleme sur le script sftp-verif sous Mac OSX 10.5
+
 1.0 (decembre 2007):
 	+ ajout des tags : ExpireDate et IsSimpleAdmin
 	+ ajout de statistiques pour les administrateurs a distances

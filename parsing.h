@@ -19,10 +19,25 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "hash.h"
 
+typedef struct	sTag
+{
+  int		type;
+  void		*next;
+  char		*data1;
+  int		data2;
+}		tTag;
+
+#define VTAG_DEFAULT		0
+#define VTAG_USER		1
+#define VTAG_GROUP		2
+#define VTAG_RANGEIP		3
+#define VTAG_VIRTUALHOST	4
+
+int	tag_is_active(int verbose);
 void	parse_tag(char *buffer);
 void	parse_tag_open(char *str);
-void	parse_tag_close(const char *str);
-void	parse_virtualhost(const char *str);
+void	parse_tag_close();
+void	parse_virtualhost(const char *str, tTag *newTag);
 char	*parse_range_ip(const char *str);
 char	**parse_cut_string(char *str);
 

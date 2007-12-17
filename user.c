@@ -30,7 +30,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "SftpServer/Access.h"
 
 static char	*user_name = NULL;
-static int	restrictions = REST_ALL;
 
 int		init_user_info()
 {
@@ -57,7 +56,7 @@ int	is_for_user(const char *user, int verbose)
 {
   if (user == NULL)
     return (0);
-  if (strcmp(user, TAG_ALL) == 0 && restrictions != REST_USER)
+  if (strcmp(user, TAG_ALL) == 0)
     {
       if (verbose >= 2) (void )printf("--- Apply restrictions for all users ---\n");
       return (1);
@@ -65,7 +64,6 @@ int	is_for_user(const char *user, int verbose)
   if (strcmp(user, user_name) == 0)
     {
       if (verbose >= 2) (void )printf("--- Apply restrictions for user '%s' ---\n", user);
-      restrictions = REST_USER;
       return (1);
     }
   return (0);
@@ -75,17 +73,14 @@ int		is_for_group(const char *group, int verbose)
 {
   struct group	*grp;
 
-  if (group == NULL || restrictions == REST_USER)
-    return (0);
-  if (strcmp(group, TAG_ALL) == 0 && restrictions == REST_ALL)
+  if (strcmp(group, TAG_ALL) == 0)
     {
       if (verbose >= 2) (void )printf("--- Apply restrictions for all groups ---\n");
       return (1);
     }
-  if (restrictions <= REST_GROUP && (grp = getgrnam(group)) != NULL)
+  if ((grp = getgrnam(group)) != NULL)
     if (UserIsInThisGroup(grp->gr_gid) == 1)
       {
-	restrictions = REST_GROUP;
 	if (verbose >= 2) (void )printf("--- Apply restrictions for group '%s' ---\n", group);
 	return (1);
       }
@@ -96,11 +91,11 @@ int	is_for_virtualhost(const char *host, int port, int verbose)
 {
   char	*current_host;
   int	current_port;
-  
-  current_host = (char *)hash_get("VIRTUALHOST_IP");
-  current_port = hash_get_int("VIRTUALHOST_PORT");	
-  if (current_host != NULL && (strcmp(host, current_host) == 0
-			       || strcmp(current_host, TAG_ALL) == 0))
+
+  current_host = (char *)hash_get("SERVER_IP");
+  current_port = hash_get_int("SERVER_PORT");
+  if (current_host != NULL && host != NULL
+      && (strcmp(host, current_host) == 0 || strcmp(host, TAG_ALL) == 0))
     if (current_port == 0 || port == current_port)
       {
 	if (verbose >= 2)
@@ -115,7 +110,7 @@ int	is_for_rangeip(const char *range, int verbose)
   char	*bip, *ip;
   int	pos, size;
 
-  if (range == NULL || restrictions == REST_USER)
+  if (range == NULL)
     return (0);
   size = (int )((unsigned char )range[8]);
   ip = get_ip(0); //don't resolv dns

@@ -17,10 +17,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#define	REST_ALL	0
-#define	REST_GROUP	1
-#define	REST_USER	2
-
 int	init_user_info();
 int	is_for_user(const char *user, int verbose);
 int	is_for_group(const char *group, int verbose);
