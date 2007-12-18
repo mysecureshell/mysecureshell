@@ -91,6 +91,7 @@ else
 	else
 		read rep3
 	fi
+	test -z "$rep3" && rep3="y"
 	if [ $rep3 = "y" ] ; then
 		echo "/bin/MySecureShell" >> /etc/shells
 		echo `MyGetLocale 'shellvalid'`"		"`MyGetLocale 'ok'`
@@ -143,6 +144,7 @@ if [ $fyesall = "1" ] ; then
 else
 	read rep7
 fi
+test -z "$rep7" && rep7="y"
 
 if [ "$rep7" = "y" ] ; then
     MyGetLocale 'LaunchMSS'
@@ -170,7 +172,7 @@ if [ "$fyesall" = "1" ] ; then
 else
 	read rep1
 fi
-
+test -z "$rep1" && rep1="y"
 
 if [ "$rep1" = "y" ] ; then
 	MyGetLocale 'installation'
@@ -211,6 +213,7 @@ else
 		else
 			read repssh
 		fi
+		test -z "$repssh" && repssh="y"
 		if [ $repssh = 'y' ] ; then
 			sshfolder=$ETCDIR/ssh
 			mkdir $sshfolder
@@ -234,6 +237,7 @@ if [ -f $MSS_CONF ] ; then
 	else
 		read rep2
 	fi
+	test -z "$rep2" && rep2="n"
 	if [ $rep2 = "y" ] ; then
 		cp -f ./sftp_config $MSS_CONF
 		chmod 644 $MSS_CONF
@@ -315,6 +319,7 @@ if [ $fyesall = "1" ] ; then
 else
 	read rep8
 fi
+test -z "$rep8" && rep8="y"
 if [ $rep8 = 'y' ] ; then
 	# Using for Debian like systems
 	if [ -d /etc/logrotate.d ] ; then

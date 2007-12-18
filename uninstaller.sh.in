@@ -44,6 +44,7 @@ fi
 clear
 MyGetLocale 'uninst?'
 read ans
+test -z "$ans" && ans="n"
 if [ $ans = "y" ] ; then
 	sudo rm -f /bin/MySecureShell $BINDIR/sftp-who $BINDIR/sftp-state $BINDIR/sftp-kill $BINDIR/sftp-admin $BINDIR/sftp-user
 	sudo cat /etc/shells | sudo grep -v MySecureShell > /tmp/shells~
@@ -69,6 +70,7 @@ if [ $ans = "y" ] ; then
 # Delete configuration ?
 	MyGetLocale 'delconf?'
 	read ans2
+	test -z "$ans2" && ans2="n"
 	if [ $ans2 = "y" ] ; then
 		sudo rm -f $ETCDIR/ssh/sftp-config $ETCDIR/sshd/sftp-config
 	else
