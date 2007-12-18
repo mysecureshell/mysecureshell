@@ -261,7 +261,7 @@ void	DoReadDir()
       while ((dp = readdir(dir)) != NULL)
 	{
 	  STRCPY(pathName + len, dp->d_name, sizeof(pathName) - len);
-	  if ((gl_var->status & SFTPWHO_LINKS_AS_LINKS))
+	  if (HAS_BIT(gl_var->status, SFTPWHO_LINKS_AS_LINKS))
 	    {
 	      if (lstat(pathName, &st) < 0)
 		{
@@ -626,7 +626,8 @@ void 	DoSetStat()
 	  if (truncate(path, a->size) == -1)
 	    status = errnoToPortable(errno);
 	}
-      if (a->flags & SSH2_FILEXFER_ATTR_PERMISSIONS)
+      if (a->flags & SSH2_FILEXFER_ATTR_PERMISSIONS
+	  && HAS_BIT(gl_var->status, SFTPWHO_CAN_CHG_RIGHTS))
 	{
 	  if (stat(path, &stats) == 0 && S_ISDIR(stats.st_mode))
 	    a->perm |= gl_var->minimum_rights_directory;
@@ -635,7 +636,8 @@ void 	DoSetStat()
 	  if (chmod(path, (a->perm & 0777)) == -1)
 	    status = errnoToPortable(errno);
 	}
-      if (a->flags & SSH2_FILEXFER_ATTR_ACMODTIME)
+      if (a->flags & SSH2_FILEXFER_ATTR_ACMODTIME
+	  && HAS_BIT(gl_var->status, SFTPWHO_CAN_CHG_TIME))
 	{
 	  if (utimes(path, AttributesToTimeval(a)) == -1)
 	    status = errnoToPortable(errno);
@@ -705,7 +707,7 @@ void	DoRemove()
   path = convertFromUtf8(BufferGetString(bIn), 1);
   if ((status = CheckRules(path, RULES_RMFILE, 0, 0)) == SSH2_FX_OK)
     {
-      if ((gl_var->status & SFTPWHO_CAN_RMFILE))
+      if (HAS_BIT(gl_var->status, SFTPWHO_CAN_RMFILE))
 	{
 	  if (unlink(path) == -1)
 	    status = errnoToPortable(errno);
@@ -759,7 +761,7 @@ void	DoRmDir()
   path = convertFromUtf8(BufferGetString(bIn), 1);
   if ((status = CheckRules(path, RULES_RMDIRECTORY, 0, 0)) == SSH2_FX_OK)
     {
-      if ((gl_var->status & SFTPWHO_CAN_RMDIR))
+      if (HAS_BIT(gl_var->status, SFTPWHO_CAN_RMDIR))
 	{
 	  if (rmdir(path) == -1)
 	    status = errnoToPortable(errno);

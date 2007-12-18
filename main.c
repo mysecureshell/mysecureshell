@@ -210,7 +210,9 @@ int	main(int ac, char **av, char **env)
 	(hash_get_int("IsAdmin") ? SFTPWHO_IS_ADMIN : 0) +
 	(hash_get_int("IsSimpleAdmin") ? SFTPWHO_IS_SIMPLE_ADMIN : 0) +
 	(hash_get_int_with_default("CanRemoveDir", 1) ? SFTPWHO_CAN_RMDIR : 0) +
-	(hash_get_int_with_default("CanRemoveFile", 1) ? SFTPWHO_CAN_RMFILE : 0)
+	(hash_get_int_with_default("CanRemoveFile", 1) ? SFTPWHO_CAN_RMFILE : 0) +
+	(hash_get_int_with_default("CanChangeRights", 1) ? SFTPWHO_CAN_CHG_RIGHTS : 0) +
+	(hash_get_int_with_default("CanChangeTime", 1) ? SFTPWHO_CAN_CHG_TIME : 0)
 	;
       params->who->status = params->status;
       _sftpglobal->download_max = (u_int32_t )hash_get_int("GlobalDownload");

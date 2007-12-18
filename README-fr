@@ -87,6 +87,7 @@ HISTORIQUE:
 -----------
 1.1 (??):
 	+ support de l'imbrication des tags de niveau 0
+	+ ajout des tags : CanChangeRights et CanChangeTime
 	= fixe un bug sur la gestion des restrictions
 	= fixe un probleme sur le script sftp-verif sous Mac OSX 10.5
 

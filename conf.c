@@ -90,6 +90,8 @@ static const tConf	confParams[] =
     { "GMTTime", CONF_IS_STRING_MAYBE_EMPTY, CONF_SHOW },
     { "CanRemoveDir", CONF_IS_BOOLEAN, CONF_SHOW },
     { "CanRemoveFile", CONF_IS_BOOLEAN, CONF_SHOW },
+    { "CanChangeRights", CONF_IS_BOOLEAN, CONF_SHOW },
+    { "CanChangeTime", CONF_IS_BOOLEAN, CONF_SHOW },
     { "ExpireDate", CONF_IS_STRING_MAYBE_EMPTY, CONF_SHOW },
     { NULL, CONF_IS_EMPTY, CONF_NOT_SHOW },
   };
@@ -103,6 +105,8 @@ void	load_config(int verbose)
     }
   hash_set_int("SERVER_PORT", get_port_server());
   hash_set("SERVER_IP", get_ip_server());
+  hash_set_int("CanChangeRights", 1);
+  hash_set_int("CanChangeTime", 1);
   if (load_config_file(CONFIG_FILE, verbose, 10) == 0)
     if (load_config_file(CONFIG_FILE2, verbose, 10) == 0 && verbose > 0)
       {
