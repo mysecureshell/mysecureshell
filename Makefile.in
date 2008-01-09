@@ -123,6 +123,6 @@ check	:
 	@$(SPLINT) -ISftpServer $(SRC2) || true
 	@$(SPLINT) -ISftpServer $(SRC3) || true
 
-%.o	: %.c
+.c.o	:
 	@echo "Compile		[$<]"
 	@$(CC) $(CFLAGS) -c -o $@ $<
