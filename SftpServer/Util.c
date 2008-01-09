@@ -33,6 +33,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "GetUsersInfos.h"
 #include "../security.h"
 
+#ifndef O_SYNC
+#define O_SYNC	O_FSYNC
+#endif //O_SYNC
+
 static void	StrMode(mode_t mode, char *d)
 {
   switch (mode & S_IFMT)
