@@ -89,6 +89,7 @@ HISTORIQUE:
 	+ support de l'imbrication des tags de niveau 0
 	+ ajout des tags : CanChangeRights et CanChangeTime
 	~ amelioration du script d'installation et de desinstallation (support des reponses par defaut)
+	~ amelioration de la compilation (portabilite du Makefile)
 	= fixe un bug sur la gestion des restrictions
 	= fixe un probleme sur le script sftp-verif sous Mac OSX 10.5
 
