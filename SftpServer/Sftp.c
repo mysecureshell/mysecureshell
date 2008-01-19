@@ -974,6 +974,7 @@ void	DoSFTPProtocol()
 int			SftpMain(tGlobal *params, int sftpProtocol)
 {
   struct timeval	tm;
+  long long		tmLast, tmCur, tmNeeded;
   fd_set		fdR, fdW;
   int			len, ret;
 
@@ -981,7 +982,9 @@ int			SftpMain(tGlobal *params, int sftpProtocol)
   bOut = BufferNew();
   HandleInit();
   ParseConf(params, sftpProtocol);
-  SET_TIMEOUT(tm, 1, 0);
+  tmNeeded = 1000000L;
+  gettimeofday(&tm, NULL);
+  tmLast = tm.tv_sec * 1000000L + tm.tv_usec;
   for (;;)
     {
     bypassChecks:
@@ -995,6 +998,24 @@ int			SftpMain(tGlobal *params, int sftpProtocol)
       if (bOut->length > 0 && (gl_var->download_max == 0
 			       || (gl_var->download_current < gl_var->download_max)))
 	FD_SET(1, &fdW);
+      gettimeofday(&tm, NULL);
+      tmCur = tm.tv_sec * 1000000L + tm.tv_usec;
+      tmCur -= tmLast;
+      if (tmCur > tmNeeded)
+	{
+	  tmNeeded = 0;
+	  SET_TIMEOUT(tm, 0, 0);
+	}
+      else if (tmCur == 0)
+	{
+	  SET_TIMEOUT(tm, 1, 0);
+	}
+      else
+	{
+	  tmNeeded -= tmCur;
+	  SET_TIMEOUT(tm, 0, tmNeeded);
+	}
+      //
       if ((ret = select(2, &fdR, &fdW, NULL, &tm)) == -1)
 	{
 	  if (errno != EINTR)
@@ -1002,8 +1023,7 @@ int			SftpMain(tGlobal *params, int sftpProtocol)
 	}
       else if (ret == 0)
 	{
-	  SET_TIMEOUT(tm, 1, 0);
-
+	  tmNeeded = 1000000L;
 	  if (gl_var->who == NULL) //dont check anything for administrator
 	    {
 	      StatsUpdate(stats);
@@ -1111,6 +1131,8 @@ int			SftpMain(tGlobal *params, int sftpProtocol)
 		}
 	    }
 	}
+      gettimeofday(&tm, NULL);
+      tmLast = tm.tv_sec * 1000000L + tm.tv_usec;
     }
   return (0);
 }
