@@ -56,7 +56,7 @@ void		delete_hash()
   _last_key = NULL;
 }
 
-void		hash_set(const char *key, void *value)
+void		hash_set(const char *key, char *value)
 {
   t_element	*t = _hash->hash[MAKE_HASH(key)];
 
@@ -105,7 +105,7 @@ void		hash_set_int(const char *key, int value)
     free(t);
 }
 
-void		*hash_get(const char *key)
+char		*hash_get(const char *key)
 {
   t_element	*t = _hash->hash[MAKE_HASH(key)];
 
@@ -139,22 +139,4 @@ int		hash_get_int(const char *key)
       t = t->next;
     }
   return (0);
-}
-
-int		hash_get_int_with_default(const char *key, int dft)
-{
-  t_element	*t = _hash->hash[MAKE_HASH(key)];
-
-  if (_last_key != NULL && strcmp(key, _last_key->key) == 0)
-    return (_last_key->number);
-  while (t)
-    {
-      if (strcmp(key, t->key) == 0)
-        {
-          _last_key = t;
-          return (t->number);
-        }
-      t = t->next;
-    }
-  return (dft);
 }

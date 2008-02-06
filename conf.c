@@ -100,17 +100,19 @@ void	load_config(int verbose)
 {
   if (init_user_info() == 0)
     {
-      if (verbose > 0) (void )printf("[ERROR]Error when fetching user informations\n");
+      (void )fprintf(stderr, "[ERROR]Error when fetching user informations\n");
       exit (2);
     }
   hash_set_int("SERVER_PORT", get_port_server());
   hash_set("SERVER_IP", get_ip_server());
+  hash_set_int("CanRemoveDir", 1);
+  hash_set_int("CanRemoveFile", 1);
   hash_set_int("CanChangeRights", 1);
   hash_set_int("CanChangeTime", 1);
   if (load_config_file(CONFIG_FILE, verbose, 10) == 0)
-    if (load_config_file(CONFIG_FILE2, verbose, 10) == 0 && verbose > 0)
+    if (load_config_file(CONFIG_FILE2, verbose, 10) == 0)
       {
-	(void )printf("[ERROR]No valid config file were found.\nPlease correct this.\n");
+	(void )fprintf(stderr, "[ERROR]No valid config file were found. Please correct this.\n");
 	exit (2);
       }
   free_user_info();
@@ -200,8 +202,7 @@ int	load_config_file(const char *file, int verbose, int max_recursive_left)
 
   if (max_recursive_left == 0)
     {
-      if (verbose > 0)
-	(void )printf("[ERROR]Too much inclusions !!!\n");
+      (void )fprintf(stderr, "[ERROR]Too much inclusions !!!\n");
       return (0);
     }
   processTag = 1;
@@ -221,15 +222,15 @@ int	load_config_file(const char *file, int verbose, int max_recursive_left)
 		      parse_tag(str);
 		      if (parse_opened_tag < 0)
 			{
-			  if (verbose > 0)
-			    (void )printf("[ERROR]Too much tag closed at line %i in file '%s'!\n", line, file);
+			  (void )fprintf(stderr,
+					 "[ERROR]Too much tag closed at line %i in file '%s'!\n", line, file);
 			  exit (2);
 			}
 		    }
 		  else
 		    {
-		      if (verbose > 0)
-			(void )printf("[ERROR]Error parsing line %i is not valid in file '%s'!\n", line, file);
+		      (void )fprintf(stderr,
+				     "[ERROR]Error parsing line %i is not valid in file '%s'!\n", line, file);
 		      exit (2);
 		    }
 		  processTag = tag_is_active(verbose);
@@ -246,16 +247,14 @@ int	load_config_file(const char *file, int verbose, int max_recursive_left)
 	}
       if (parse_opened_tag != 0)
 	{
-	  if (verbose > 0)
-	    (void )printf("[ERROR]Missing %i close(s) tag(s) in file '%s'!!!\n", parse_opened_tag, file);
+	  (void )fprintf(stderr, "[ERROR]Missing %i close(s) tag(s) in file '%s'!!!\n", parse_opened_tag, file);
 	  exit (2);
 	}
       xfclose(fh);
     }
   else
     {
-      if (verbose > 0 && strcmp(file, CONFIG_FILE) != 0)
-	(void )printf("[ERROR]Couldn't load config file '%s'. Error : %s\n", file, strerror(errno));
+      (void )fprintf(stderr, "[ERROR]Couldn't load config file '%s'. Error : %s\n", file, strerror(errno));
       return (0);
     }
   return (1);
@@ -326,7 +325,7 @@ void	processLine(char **tb, int max_recursive_left, int verbose)
 	  notRecognized = 0;
 	  (void )load_config_file(tb[1], verbose, max_recursive_left - 1);
 	}
-      if (verbose > 0 && notRecognized == 1)
-	(void )printf("Property '%s' is not recognized !\n", tb[0]);
+      if (notRecognized == 1)
+	(void )fprintf(stderr, "Property '%s' is not recognized !\n", tb[0]);
     }
 }

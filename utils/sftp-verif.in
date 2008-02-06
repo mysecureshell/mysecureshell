@@ -11,10 +11,9 @@ MSS_LOG=@MSS_LOG@
 if [ "$USER" != "root" ] ; then
     echo ""
     echo "#################################################################"
-    echo "#	Sorry $USER but you must be root to continue		#"
+    echo "#        Sorry $USER but you must be root to fix problems"
     echo "#################################################################"
     echo ""
-    exit 1
 fi
 
 ## Funtion
@@ -34,7 +33,7 @@ fi
 ## Starting validation
 
 echo "#################################################"
-echo "#	MySecureShell Verification Tool		#"
+echo "#        MySecureShell Verification Tool        #"
 echo "#################################################"
 
 # Finding MSS and utilities
@@ -172,6 +171,13 @@ echo ""
 echo "** Verifing server dependencies **"
 echo "Show only error(s):"
 /bin/MySecureShell --version > /dev/null
+
+# Server configuration
+echo ""
+echo ""
+echo "** Verifing server configuration (just for user: $USER) **"
+echo "Show only error(s):"
+/bin/MySecureShell --configtest > /dev/null
 
 #End
 echo ""

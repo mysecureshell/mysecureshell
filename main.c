@@ -134,36 +134,9 @@ int	main(int ac, char **av, char **env)
 	{
 	  params->who->time_begin = time(0);
 	  params->who->pid = (unsigned int)getpid();
-	  (void )strncat(params->who->home, (char *)hash_get("Home"), sizeof(params->who->home) - 1);
-	  (void )strncat(params->who->user, (char *)hash_get("User"), sizeof(params->who->user) - 1);
+	  (void )strncat(params->who->home, hash_get("Home"), sizeof(params->who->home) - 1);
+	  (void )strncat(params->who->user, hash_get("User"), sizeof(params->who->user) - 1);
 	  (void )strncat(params->who->ip, hostname, sizeof(params->who->ip) - 1);
-	}
-      max = hash_get_int("LimitConnectionByUser");
-      if (max > 0 && count_program_for_uid((char *)hash_get("User")) > max)
-	{//too many connection for the account
-	  SftpWhoRelaseStruct(params->who);
-	  delete_hash();
-	  exit(10);
-	}
-      max = hash_get_int("LimitConnectionByIP");
-      if (max > 0 && count_program_for_ip(hostname) > max)
-	{//too many connection for this IP
-	  SftpWhoRelaseStruct(params->who);
-	  delete_hash();
-	  exit(11);
-	}
-      max = hash_get_int("LimitConnection");
-      if (max > 0 && count_program_for_uid(0) > max)
-	{//too many connection for the server
-	  SftpWhoRelaseStruct(params->who);
-	  delete_hash();
-	  exit(12);
-	}
-      if (hash_get_int("DisableAccount"))
-	{//account is temporary disable
-	  SftpWhoRelaseStruct(params->who);
-	  delete_hash();
-	  exit(13);
 	}
       //check if the server is up ans user is not admin
       if ((fd = open(SHUTDOWN_FILE, O_RDONLY)) >= 0)
@@ -179,21 +152,56 @@ int	main(int ac, char **av, char **env)
 	    }
 	}
       if (hash_get("LogFile") != NULL)
-	mylog_open(strdup((char *)hash_get("LogFile")));
+	mylog_open(strdup(hash_get("LogFile")));
       else
 	mylog_open(MSS_LOG);
       if (params->who == NULL)
 	{
-	  mylog_printf(MYLOG_ERROR, "[%s][%s]Server reached maximum connexion (%i clients)",
-		       (char *)hash_get("User"), hostname, SFTPWHO_MAXCLIENT);
+	  mylog_printf(MYLOG_ERROR, "[%s]Server '%s' reached maximum connexion (%i clients)",
+		       hash_get("User"), hash_get("SERVER_IP"), SFTPWHO_MAXCLIENT);
 	  SftpWhoRelaseStruct(NULL);
 	  delete_hash();
 	  mylog_close();
 	  exit(14);
 	}
+      max = hash_get_int("LimitConnectionByUser");
+      if (max > 0 && count_program_for_uid(hash_get("User")) > max)
+	{
+	  mylog_printf(MYLOG_ERROR, "[%s]Too many connection for this account",
+		       hash_get("User"));
+	  SftpWhoRelaseStruct(params->who);
+	  delete_hash();
+	  exit(10);
+	}
+      max = hash_get_int("LimitConnectionByIP");
+      if (max > 0 && count_program_for_ip(hostname) > max)
+	{
+	  mylog_printf(MYLOG_ERROR, "[%s]Too many connection for this IP : %s",
+		       hash_get("User"), hostname);
+	  SftpWhoRelaseStruct(params->who);
+	  delete_hash();
+	  exit(11);
+	}
+      max = hash_get_int("LimitConnection");
+      if (max > 0 && count_program_for_uid(0) > max)
+	{
+	  mylog_printf(MYLOG_ERROR, "[%s]Too many connection for the server : %s",
+		       hash_get("User"), hash_get("SERVER_IP"));
+	  SftpWhoRelaseStruct(params->who);
+	  delete_hash();
+	  exit(12);
+	}
+      if (hash_get_int("DisableAccount"))
+	{
+	  mylog_printf(MYLOG_ERROR, "[%s]Account is closed",
+		       hash_get("User"));
+	  SftpWhoRelaseStruct(params->who);
+	  delete_hash();
+	  exit(13);
+	}
 
-      hide_files = (char *)hash_get("HideFiles");
-      deny_filter = (char *)hash_get("PathDenyFilter");
+      hide_files = hash_get("HideFiles");
+      deny_filter = hash_get("PathDenyFilter");
 
       params->status |=
 	(hash_get_int("StayAtHome") ? SFTPWHO_STAY_AT_HOME : 0) +
@@ -209,10 +217,10 @@ int	main(int ac, char **av, char **env)
 	(hash_get_int("ShowLinksAsLinks") ? SFTPWHO_LINKS_AS_LINKS : 0) + 
 	(hash_get_int("IsAdmin") ? SFTPWHO_IS_ADMIN : 0) +
 	(hash_get_int("IsSimpleAdmin") ? SFTPWHO_IS_SIMPLE_ADMIN : 0) +
-	(hash_get_int_with_default("CanRemoveDir", 1) ? SFTPWHO_CAN_RMDIR : 0) +
-	(hash_get_int_with_default("CanRemoveFile", 1) ? SFTPWHO_CAN_RMFILE : 0) +
-	(hash_get_int_with_default("CanChangeRights", 1) ? SFTPWHO_CAN_CHG_RIGHTS : 0) +
-	(hash_get_int_with_default("CanChangeTime", 1) ? SFTPWHO_CAN_CHG_TIME : 0)
+	(hash_get_int("CanRemoveDir") ? SFTPWHO_CAN_RMDIR : 0) +
+	(hash_get_int("CanRemoveFile") ? SFTPWHO_CAN_RMFILE : 0) +
+	(hash_get_int("CanChangeRights") ? SFTPWHO_CAN_CHG_RIGHTS : 0) +
+	(hash_get_int("CanChangeTime") ? SFTPWHO_CAN_CHG_TIME : 0)
 	;
       params->who->status = params->status;
       _sftpglobal->download_max = (u_int32_t )hash_get_int("GlobalDownload");
@@ -275,6 +283,8 @@ int	main(int ac, char **av, char **env)
 	      currentTime = time(NULL);
 	      if (currentTime > maxTime) //time elapsed
 		{
+		  mylog_printf(MYLOG_ERROR, "[%s]Account has expired : %s",
+			       hash_get("User"), hash_get("ExpireDate"));
 		  SftpWhoRelaseStruct(params->who);
 		  delete_hash();
 		  mylog_close();
@@ -309,9 +319,9 @@ int	main(int ac, char **av, char **env)
       if (hash_get_int("MinimumRightsFile") > 0)
 	params->minimum_rights_file = hash_get_int("MinimumRightsFile");
       if (hash_get("Charset") != NULL)
-	  setCharset((char *)hash_get("Charset"));
+	  setCharset(hash_get("Charset"));
       if (hash_get("GMTTime") != NULL)
-	  mylog_time(atoi((char *)hash_get("GMTTime")));
+	  mylog_time(atoi(hash_get("GMTTime")));
       delete_hash();
       if (hostname != NULL)
 	free(hostname);
@@ -330,7 +340,7 @@ int	main(int ac, char **av, char **env)
 	      exit(1);
 	    }
 	}
-      ptr = (char *)hash_get("Shell");
+      ptr = hash_get("Shell");
       av[0] = ptr;
       if (ptr != NULL)
 	(void )execve(ptr, av, env);
