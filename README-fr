@@ -90,6 +90,7 @@ HISTORIQUE:
 	+ ajout des tags : CanChangeRights et CanChangeTime
 	~ amelioration du script d'installation et de desinstallation (support des reponses par defaut)
 	~ amelioration de la compilation (portabilite du Makefile)
+	~ sftp-user : amelioration en cas de probleme sous Mac OSX
 	~ sftp-verif : verification du fichier de configuration
 	~ ajout des logs dans les cas de refus de connexion (limite ip/utilisateur/serveur)
 	= fixe un bug sur la gestion des statistiques

@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT([MySecureShell],[1.1a2],[teka2nerdman@users.sourceforge.net])
+AC_INIT([MySecureShell],[1.1a3],[teka2nerdman@users.sourceforge.net])
 AC_CONFIG_HEADER(config.h)
 
 # Checks for programs.
