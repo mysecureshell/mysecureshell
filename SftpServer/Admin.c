@@ -356,7 +356,7 @@ void    DoAdminStats(tStats *stats)
   BufferPutInt8FAST(b, SSH_ADMIN_STATS_REPLY);
   StatsSend(stats, lastRefresh, b);
   BufferPutPacket(bOut, b);
-  DEBUG((MYLOG_DEBUG, "[DoAdminStats]Last refresh :%ui", lastRefresh));
+  DEBUG((MYLOG_DEBUG, "[DoAdminStats]Last refresh :%u", lastRefresh));
   BufferDelete(b);
 }
 
