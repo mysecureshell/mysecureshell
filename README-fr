@@ -93,6 +93,8 @@ HISTORIQUE:
 	~ sftp-user : amelioration en cas de probleme sous Mac OSX
 	~ sftp-verif : verification du fichier de configuration
 	~ ajout des logs dans les cas de refus de connexion (limite ip/utilisateur/serveur)
+	= fixe un bug sur le tag IdleTimeOut (les unites rendaient invalides la valeur)
+	= fixe un bug si on active MSS dans le sshd_config et par shell
 	= fixe un bug sur la gestion des statistiques
 	= fixe un bug sur la gestion des restrictions
 	= fixe un probleme sur le script sftp-verif sous Mac OSX 10.5
