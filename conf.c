@@ -64,7 +64,7 @@ static const tConf	confParams[] =
     { "Home", CONF_IS_PATH_RESOLVE_ENV, CONF_SHOW },
     { "Shell", CONF_IS_STRING, CONF_SHOW },
     { "ResolveIP", CONF_IS_BOOLEAN, CONF_SHOW },
-    { "IdleTimeOut", CONF_IS_INT, CONF_SHOW },
+    { "IdleTimeOut", CONF_IS_TIME, CONF_SHOW },
     { "IgnoreHidden", CONF_IS_BOOLEAN, CONF_SHOW },
     { "DirFakeUser", CONF_IS_BOOLEAN, CONF_SHOW },
     { "DirFakeGroup", CONF_IS_BOOLEAN, CONF_SHOW },
