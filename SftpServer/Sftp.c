@@ -982,15 +982,13 @@ int			SftpMain(tGlobal *params, int sftpProtocol)
   bOut = BufferNew();
   HandleInit();
   ParseConf(params, sftpProtocol);
-  tmNeeded = 1000000L;
+  tmNeeded = 1000000;
   gettimeofday(&tm, NULL);
-  tmLast = tm.tv_sec * 1000000L + tm.tv_usec;
+  tmLast = tm.tv_sec * (long long )1000000 + tm.tv_usec;
   for (;;)
     {
-    bypassChecks:
       FD_ZERO(&fdR);
       FD_ZERO(&fdW);
-
       if (gl_var->must_shutdown)
 	exit(0);
       if (gl_var->upload_max == 0 || (gl_var->upload_current < gl_var->upload_max))
@@ -999,11 +997,10 @@ int			SftpMain(tGlobal *params, int sftpProtocol)
 			       || (gl_var->download_current < gl_var->download_max)))
 	FD_SET(1, &fdW);
       gettimeofday(&tm, NULL);
-      tmCur = tm.tv_sec * 1000000L + tm.tv_usec;
+      tmCur = tm.tv_sec * (long long )1000000 + tm.tv_usec;
       tmCur -= tmLast;
       if (tmCur > tmNeeded)
 	{
-	  tmNeeded = 0;
 	  SET_TIMEOUT(tm, 0, 0);
 	}
       else if (tmCur == 0)
@@ -1015,6 +1012,8 @@ int			SftpMain(tGlobal *params, int sftpProtocol)
 	  tmNeeded -= tmCur;
 	  SET_TIMEOUT(tm, 0, tmNeeded);
 	}
+      DEBUG((MYLOG_DEBUG, "[select: %i]tmLast: %lli tmCur: %lli tmNeeded: %lli",
+	     ret, tmLast, tmCur, tmNeeded));
       //
       if ((ret = select(2, &fdR, &fdW, NULL, &tm)) == -1)
 	{
@@ -1023,7 +1022,7 @@ int			SftpMain(tGlobal *params, int sftpProtocol)
 	}
       else if (ret == 0)
 	{
-	  tmNeeded = 1000000L;
+	  tmNeeded = 1000000;
 	  if (gl_var->who == NULL) //dont check anything for administrator
 	    {
 	      StatsUpdate(stats);
@@ -1131,8 +1130,9 @@ int			SftpMain(tGlobal *params, int sftpProtocol)
 		}
 	    }
 	}
+    bypassChecks:
       gettimeofday(&tm, NULL);
-      tmLast = tm.tv_sec * 1000000L + tm.tv_usec;
+      tmLast = tm.tv_sec * (long long )1000000 + tm.tv_usec;
     }
   return (0);
 }
