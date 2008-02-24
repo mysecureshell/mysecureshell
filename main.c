@@ -116,8 +116,10 @@ int	main(int ac, char **av, char **env)
 
   create_hash();
   if (ac == 3 && av[1] != NULL && av[2] != NULL
-      && strcmp("-c", av[1]) == 0 && strstr(av[2], "sftp-server") != NULL)
-      is_sftp = 1;
+      && strcmp("-c", av[1]) == 0
+      && (strstr(av[2], "sftp-server") != NULL ||
+	  strstr(av[2], "MySecureShell") != NULL))
+    is_sftp = 1;
   else
     parse_args(ac, av);
   load_config(0);
