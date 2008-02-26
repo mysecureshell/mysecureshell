@@ -26,17 +26,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Handle.h"
 #include "../security.h"
 
-#define	HANDLE_NUMBER	100
-
-typedef struct	sHandle
-{
-  int		state;
-  char		*path;
-  DIR		*dir;
-  int		fd;
-  int		fileIsText;
-}		tHandle;
-
 static tHandle	*gHandle = NULL;
 
 void	HandleInit()
@@ -45,10 +34,13 @@ void	HandleInit()
 	
   gHandle = calloc(HANDLE_NUMBER, sizeof(*gHandle));
   for (i = 0; i < HANDLE_NUMBER; i++)
-    gHandle[i].fd = -1;
+    {
+      gHandle[i].id = i;
+      gHandle[i].fd = -1;
+    }
 }
 
-int	HandleNew(int state, char *path, int fd, DIR *dir, int fileIsText)
+tHandle	*HandleNew(int state, char *path, int fd, DIR *dir, int fileIsText, int flags)
 {
   int	i;
 	
@@ -58,61 +50,61 @@ int	HandleNew(int state, char *path, int fd, DIR *dir, int fileIsText)
 	gHandle[i].state = state;
 	gHandle[i].dir = dir;
 	gHandle[i].fd = fd;
-	gHandle[i].path = strdup(path);
+	gHandle[i].path = path;
 	gHandle[i].fileIsText = fileIsText;
-	return (i);
+	gHandle[i].flags = flags;
+	return (&gHandle[i]);
       }
-  return (-1);
-}
-
-DIR	*HandleGetDir(int pos)
-{
-  if (pos >= 0 && pos < HANDLE_NUMBER)
-    return (gHandle[pos].dir);
   return (NULL);
 }
 
-int	HandleGetFd(int pos, int *fileIsText)
+tHandle	*HandleGet(int pos)
 {
   if (pos >= 0 && pos < HANDLE_NUMBER)
-    {
-      *fileIsText = gHandle[pos].fileIsText;
-      return (gHandle[pos].fd);
-    }
-  *fileIsText = 0;
-  return (-1);
+    return (&gHandle[pos]);
+  return (NULL);
 }
 
-char	*HandleGetPath(int pos)
+tHandle	*HandleGetFile(int pos)
 {
-  if (pos >= 0 && pos < HANDLE_NUMBER)
-    return (gHandle[pos].path);
-  return (0);
+  if (pos >= 0 && pos < HANDLE_NUMBER
+      && gHandle[pos].state == HANDLE_FILE)
+    return (&gHandle[pos]);
+  return (NULL);
 }
 
-int	HandleClose(int pos, int *isCloseFile)
+tHandle	*HandleGetDir(int pos)
+{
+  if (pos >= 0 && pos < HANDLE_NUMBER
+      && gHandle[pos].state == HANDLE_DIR)
+    return (&gHandle[pos]);
+  return (NULL);
+}
+
+tHandle	*HandleGetLastOpen(int state)
+{
+  tHandle	*lastHdl = NULL;
+  int		i;
+
+  for (i = 0; i < HANDLE_NUMBER; i++)
+    if (gHandle[i].state == state)
+      lastHdl = &gHandle[i];
+  return (lastHdl);
+}
+
+void	HandleClose(int pos)
 {
   if (pos >= 0 && pos < HANDLE_NUMBER)
-    {
-      int	ret = 0;
-      
+    {      
       if (gHandle[pos].state == HANDLE_DIR)
-	{
-	  ret = closedir(gHandle[pos].dir);
-	  *isCloseFile = 0;
-	}
+	  closedir(gHandle[pos].dir);
       else
-	{
 	  xclose(gHandle[pos].fd);
-	  *isCloseFile = 1;
-	}
       free(gHandle[pos].path);
       
       gHandle[pos].dir = NULL;
       gHandle[pos].fd = -1;
       gHandle[pos].path = NULL;
       gHandle[pos].state = HANDLE_UNUSED;
-      return (ret);
     }
-  return (-1);
 }

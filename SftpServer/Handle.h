@@ -22,6 +22,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <dirent.h>
 
+#define HANDLE_NUMBER	100
+
 enum
 {
   HANDLE_UNUSED,
@@ -29,11 +31,29 @@ enum
   HANDLE_FILE
 };
 
+typedef struct	sHandle
+{
+  int		id;
+  int		state;
+  char		*path;
+  DIR		*dir;
+  int		fd;
+  int		fileIsText;
+  int		flags;
+  u_int64_t	filePos;
+  u_int64_t	fileSize;
+}		tHandle;
+
+
 void	HandleInit();
-int	HandleNew(int state, char *path, int fd, DIR *dir, int fileIsText);
-DIR	*HandleGetDir(int pos);
-int	HandleGetFd(int pos, int *fileIsText);
-char	*HandleGetPath(int pos);
-int	HandleClose(int pos, int *isCloseFile);
+tHandle	*HandleNew(int state, char *path, int fd, DIR *dir, int fileIsText, int flags);
+tHandle	*HandleGet(int pos);
+tHandle	*HandleGetFile(int pos);
+tHandle	*HandleGetDir(int pos);
+tHandle	*HandleGetLastOpen(int state);
+void	HandleClose(int pos);
+
+#define HandleNewFile(_PATH, _FD, _FILE_IS_TEXT, _F)	HandleNew(HANDLE_FILE, _PATH, _FD, NULL, _FILE_IS_TEXT, _F)
+#define HandleNewDirectory(_PATH, _DIR)			HandleNew(HANDLE_DIR, _PATH, -1, _DIR, 0, 0)
 
 #endif //_HANDLE_H_
