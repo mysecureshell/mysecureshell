@@ -262,8 +262,6 @@ typedef struct	sGlobal
   unsigned int	upload_current;
   unsigned int	download_max;
   unsigned int	upload_max;
-  off_t		down_size;
-  off_t		down_max;
 }		tGlobal;
 
  

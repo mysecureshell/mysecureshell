@@ -190,6 +190,7 @@ void	DoRealPath()
 void	DoOpenDir()
 {
   u_int32_t	id;
+  tHandle	*hdl;
   char		*path;
   DIR		*dir;
   int		status = (cVersion <= 3 ? SSH2_FX_FAILURE : SSH4_FX_INVALID_HANDLE);
@@ -202,9 +203,7 @@ void	DoOpenDir()
 	status = errnoToPortable(errno);
       else
 	{
-	  int	h;
-
-	  if ((h = HandleNew(HANDLE_DIR, path, -1, dir, 0)) < 0)	  
+	  if ((hdl = HandleNewDirectory(path, dir)) == NULL)
 	    {
 	      (void )closedir(dir);
 	      status = errnoToPortable(EMFILE);
@@ -212,32 +211,33 @@ void	DoOpenDir()
 	  else
 	    {
 	      (void )snprintf(gl_var->who->path, sizeof(gl_var->who->path), "%s", path);
-	      SendHandle(bOut, id, h);
+	      SendHandle(bOut, id, hdl->id);
 	      status = SSH2_FX_OK;
 	    }
 	}
     }
   DEBUG((MYLOG_DEBUG, "[DoOpenDir]path:'%s' status:%i", path, status));
   if (status != SSH2_FX_OK)
-    SendStatus(bOut, id, status);
-  free(path);
+    {
+      SendStatus(bOut, id, status);
+      free(path);
+    }
 }
 
 void	DoReadDir()
 {
   struct dirent	*dp;
   u_int32_t	id;
-  char 		*path;
-  DIR		*dir;
+  tHandle	*hdl;
   int		h;
 
   id = BufferGetInt32(bIn);
   h = BufferGetHandle(bIn);
-  dir = HandleGetDir(h);
-  path = HandleGetPath(h);
-  DEBUG((MYLOG_DEBUG, "[DoReadDir]path:'%s' handle:%i", path, h));
-  if (dir == NULL || path == NULL || path[0] == '\0')
-    SendStatus(bOut, id, (cVersion <= 3 ? SSH2_FX_FAILURE : SSH4_FX_INVALID_HANDLE));
+  if ((hdl = HandleGetDir(h)) == NULL)
+    {
+      DEBUG((MYLOG_DEBUG, "[DoReadDir]handle:%i", h));
+      SendStatus(bOut, id, (cVersion <= 3 ? SSH2_FX_FAILURE : SSH4_FX_INVALID_HANDLE));
+    }
   else
     {
       struct stat	st;
@@ -245,20 +245,21 @@ void	DoReadDir()
       tStat 		*s;
       int		nstats = 100, count = 0, i, len;
       
+      DEBUG((MYLOG_DEBUG, "[DoReadDir]path:'%s' handle:%i", hdl->path, h));
       s = malloc(nstats * sizeof(tStat));
-      len = strlen(path);
+      len = strlen(hdl->path);
       if ((len + 256) >= sizeof(pathName))
 	{
 	  SendStatus(bOut, id, SSH2_FX_FAILURE);
 	  goto notEnoughtMemory;
 	}
-      STRCPY(pathName, path, sizeof(pathName));
+      STRCPY(pathName, hdl->path, sizeof(pathName));
       if (pathName[len - 1] != '/')
 	{
 	  pathName[len] = '/';
 	  len++;
 	}
-      while ((dp = readdir(dir)) != NULL)
+      while ((dp = readdir(hdl->dir)) != NULL)
 	{
 	  STRCPY(pathName + len, dp->d_name, sizeof(pathName) - len);
 	  if (HAS_BIT(gl_var->status, SFTPWHO_LINKS_AS_LINKS))
@@ -316,22 +317,36 @@ void	DoReadDir()
 void	DoClose()
 {
   u_int32_t	id;
-  int		h, isFile, status = (cVersion <= 3 ? SSH2_FX_FAILURE : SSH4_FX_INVALID_HANDLE);
+  tHandle	*hdl;
+  int		h;
+  int		status = (cVersion <= 3 ? SSH2_FX_FAILURE : SSH4_FX_INVALID_HANDLE);
 	
   id = BufferGetInt32(bIn);
   h = BufferGetHandle(bIn);
-  if ((HandleClose(h, &isFile)) == -1)
-    status = errnoToPortable(errno);
-  else
+  if ((hdl = HandleGet(h)) != NULL)
     status = SSH2_FX_OK;
   SendStatus(bOut, id, status);
-  gl_var->who->status = (gl_var->who->status & SFTPWHO_ARGS_MASK ) | SFTPWHO_IDLE;
-  gl_var->down_max = 0;
-  if (isFile)
+  if (hdl->state == HANDLE_FILE)
     {
-      BufferSetFastClean(bIn, 0);
-      BufferSetFastClean(bOut, 0);
+      if (hdl->flags & O_WRONLY)
+	{
+	  mylog_printf(MYLOG_TRANSFERT, "[%s][%s]End upload into file '%s' : %i%%",
+		       gl_var->who->user, gl_var->who->ip, hdl->path,
+		       hdl->filePos * 100 / hdl->fileSize);
+	}
+      else
+	{
+	  mylog_printf(MYLOG_TRANSFERT, "[%s][%s]End download file '%s' : %i%%",
+		       gl_var->who->user, gl_var->who->ip, hdl->path,
+		       hdl->filePos * 100 / hdl->fileSize);
+	  BufferSetFastClean(bIn, 0);
+	  BufferSetFastClean(bOut, 0);
+	}
+      HandleClose(h);
+      UpdateInfoForOpenFiles();
     }
+  else
+      HandleClose(h);
   DEBUG((MYLOG_DEBUG, "[DoClose] -> handle:%i status:%i", h, status));
 }
 
@@ -339,6 +354,7 @@ void	DoOpen()
 {
   u_int32_t	id, pflags;
   tAttributes	*a;
+  tHandle	*hdl;
   char		*path;
   int		fd, flags, mode, textMode, status = SSH2_FX_FAILURE;
 
@@ -361,20 +377,16 @@ void	DoOpen()
 	  status = errnoToPortable(errno);
 	else
 	  {
-	    int	h;
-	    
-	    if ((h = HandleNew(HANDLE_FILE, path, fd, NULL, textMode)) < 0)
+	    if ((hdl = HandleNewFile(path, fd, textMode, mode)) == NULL)
 	      {
 		xclose(fd);
 		status = errnoToPortable(EMFILE);
 	      }
 	    else
 	      {
-		(void )snprintf(gl_var->who->file, sizeof(gl_var->who->file), "%s", path);
 		if (flags & O_WRONLY)
 		  {
-		    gl_var->who->status = (gl_var->who->status & SFTPWHO_ARGS_MASK ) | SFTPWHO_PUT;
-		    mylog_printf(MYLOG_TRANSFERT, "[%s][%s]Upload into file '%s'",
+		    mylog_printf(MYLOG_TRANSFERT, "[%s][%s]Start upload into file '%s'",
 			       gl_var->who->user, gl_var->who->ip, path);
 		    if (fchmod(fd, mode) == -1)
 		      mylog_printf(MYLOG_WARNING, "[%s][%s]Unable to set %i rights for file '%s'",
@@ -382,22 +394,22 @@ void	DoOpen()
 		  }
 		else
 		  {
-		    gl_var->who->status = (gl_var->who->status & SFTPWHO_ARGS_MASK ) | SFTPWHO_GET;
-		    mylog_printf(MYLOG_TRANSFERT, "[%s][%s]Download file '%s'",
+		    mylog_printf(MYLOG_TRANSFERT, "[%s][%s]Start download file '%s'",
 			       gl_var->who->user, gl_var->who->ip, path);
 		    BufferSetFastClean(bIn, 1);
 		    BufferSetFastClean(bOut, 1);
 		  }
-		gl_var->down_size = 0;
-		gl_var->down_max = 0;
+		hdl->filePos = 0;
+		hdl->fileSize = 0;
 		if ((flags & O_WRONLY) == 0)
 		  {
 		    struct stat	st;
 		    
 		    if (stat(path, &st) != -1)
-		      gl_var->down_max = st.st_size;
+		      hdl->fileSize = st.st_size;
 		  }
-		SendHandle(bOut, id, h);
+		UpdateInfoForOpenFiles();
+		SendHandle(bOut, id, hdl->id);
 		status = SSH2_FX_OK;
 	      }
 	  }
@@ -405,24 +417,28 @@ void	DoOpen()
   DEBUG((MYLOG_DEBUG, "[DoOpen]file:'%s' pflags:%i[%i] perm:0%o fd:%i status:%i",
 	 path, pflags, flags, mode, fd, status));
   if (status != SSH2_FX_OK)
-    SendStatus(bOut, id, status);
-  free(path);
+    {
+      SendStatus(bOut, id, status);
+      free(path);
+    }
 }
 
 void	DoRead()
 {
   u_int32_t	id, len;
-  u_int64_t	off;
-  int		h, fileIsText, fd, status;
+  u_int64_t	off, pos;
+  tHandle	*hdl;
+  int		h, status;
   
   id = BufferGetInt32(bIn);
   h = BufferGetHandle(bIn);
   off = BufferGetInt64(bIn);
   if ((len = BufferGetInt32(bIn)) > SSH2_MAX_READ)
     len = SSH2_MAX_READ;
-  if ((fd = HandleGetFd(h, &fileIsText)) >= 0)
+  if ((hdl = HandleGetFile(h)) != NULL)
     {
-      if (fileIsText == 0 && lseek(fd, off, SEEK_SET) < 0)
+      pos = 0;
+      if (hdl->fileIsText == 0 && (pos = lseek(hdl->fd, off, SEEK_SET)) < 0)
 	status = errnoToPortable(errno);
       else
 	{ 
@@ -438,8 +454,8 @@ void	DoRead()
 	  BufferPutInt32(bOut, id);
 	  BufferPutInt32(bOut, 0);//Size of the data - unknown before read
 	  buf = BufferGetWritePointer(bOut);
-	  ret = read(fd, buf, len);
-	  if (fileIsText == 1)
+	  ret = read(hdl->fd, buf, len);
+	  if (hdl->fileIsText == 1)
 	    {
 	      for (len = 0; len < ret; len++)
 		if (buf[len] == '\r')
@@ -455,6 +471,8 @@ void	DoRead()
 	    }
 	  else
 	    {
+	      hdl->filePos = pos + ret;
+	      UpdateInfoForOpenFiles();
 	      newPos = BufferGetCurrentWritePosition(bOut) + (u_int32_t )ret;
 	      BufferSetCurrentWritePosition(bOut, oldPos);
 	      dataSize = 1 + 4 + 4 + (u_int32_t )ret;
@@ -475,23 +493,23 @@ void	DoRead()
 
 void	DoWrite()
 {
-  u_int64_t	off;
+  u_int64_t	off, pos;
   u_int32_t	id, dec, len;
+  tHandle	*hdl;
   ssize_t	ret;
-  int		fd, fileIsText, status;
+  int		status;
   char		*data;
 
   id = BufferGetInt32(bIn);
-  fd = HandleGetFd(BufferGetHandle(bIn), &fileIsText);
   off = BufferGetInt64(bIn);
   data = BufferGetData(bIn, &len);
-  if (fd >= 0)
+  if ((hdl = HandleGetFile(BufferGetHandle(bIn))) != NULL)
     {
-      if (fileIsText == 0 && lseek(fd, off, SEEK_SET) < 0)
+      if (hdl->fileIsText == 0 && (pos = lseek(hdl->fd, off, SEEK_SET)) < 0)
 	status = errnoToPortable(errno);
       else
 	{
-	  if (fileIsText == 1)
+	  if (hdl->fileIsText == 1)
 	    {
 	      for (dec = 0; dec < len; dec++)
 		if (data[dec] == '\r')
@@ -500,13 +518,15 @@ void	DoWrite()
 		    len--;
 		  }
 	    }
-	  ret = write(fd, data, len);
+	  ret = write(hdl->fd, data, len);
 	  if (ret == -1)
 	    status = errnoToPortable(errno);
 	  else if (ret == len)
 	    status = SSH2_FX_OK;
 	  else
 	    status = SSH2_FX_FAILURE;
+	  hdl->filePos = pos + ret;
+	  UpdateInfoForOpenFiles();
 	}
     }
   else
@@ -580,29 +600,29 @@ void	DoFStat()
   tAttributes	a;
   struct stat	st;
   u_int32_t	id, flags = 0;
-  int		fd, fh, fileIsText;
+  tHandle	*hdl;
+  int		fh;
 	
   id = BufferGetInt32(bIn);
   fh = BufferGetHandle(bIn);
-  fd = HandleGetFd(fh, &fileIsText);
   if (cVersion >= 4)
     flags = BufferGetInt32(bIn);
-  if (fd >= 0)
+  if ((hdl = HandleGetFile(fh)) != NULL)
     {
       int	r;
       
-      if ((r = fstat(fd, &st)) < 0)
+      if ((r = fstat(hdl->fd, &st)) < 0)
 	SendStatus(bOut, id, errnoToPortable(errno));
       else
 	{
-	  char	*path = HandleGetPath(fh);
+	  char	*path = hdl->path;
 
 	  StatToAttributes(&st, &a, path);
 	  if (cVersion >= 4)
 	    a.flags = flags;
 	  SendAttributes(bOut, id, &a, path);
 	}
-      DEBUG((MYLOG_DEBUG, "[DoFStat]fd:'%i' -> '%i'", fd, r));
+      DEBUG((MYLOG_DEBUG, "[DoFStat]fd:'%i' -> '%i'", hdl->fd, r));
     }
   else
     SendStatus(bOut, id, (cVersion <= 3 ? SSH2_FX_FAILURE : SSH4_FX_INVALID_HANDLE));
@@ -657,17 +677,19 @@ void 	DoFSetStat()
 {
   tAttributes	*a;
   u_int32_t	id;
+  tHandle	*hdl;
   char		*path;
   int		status = SSH2_FX_OK;
   struct stat	stats;
 
   id = BufferGetInt32(bIn);
-  path = HandleGetPath(BufferGetHandle(bIn));
+  hdl = HandleGetDir(BufferGetHandle(bIn));
   a = GetAttributes(bIn);
-  if (path == NULL)
+  if (hdl == NULL)
     status = (cVersion <= 3 ? SSH2_FX_FAILURE : SSH4_FX_INVALID_HANDLE);
   else
     {
+      path = hdl->path;
       if (a->flags & SSH2_FILEXFER_ATTR_SIZE)
 	{
 	  if (truncate(path, a->size) == -1)
@@ -1120,13 +1142,6 @@ int			SftpMain(tGlobal *params, int sftpProtocol)
 		{
 		  gl_var->download_current += len;
 		  gl_var->who->download_total += len;
-		  if (gl_var->down_max > 0)
-		    {
-		      gl_var->down_size += len;
-		      if (gl_var->down_size > gl_var->down_max)
-			gl_var->down_size = gl_var->down_max;
-		      gl_var->who->download_pos = gl_var->down_size * 100 / gl_var->down_max;
-		    }
 		}
 	    }
 	}

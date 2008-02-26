@@ -28,6 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Access.h"
 #include "Defines.h"
 #include "Encoding.h"
+#include "Handle.h"
 #include "Log.h"
 #include "Sftp.h"
 #include "GetUsersInfos.h"
@@ -297,4 +298,26 @@ void	ResolvPath(const char *path, char *dst, int dstMaxSize)
       if (stat(dst, &st) != -1 && (st.st_mode & S_IFMT) != S_IFREG)
         STRCAT(dst, "/", dstMaxSize);
     }
+}
+
+void	UpdateInfoForOpenFiles()
+{
+  tHandle	*lastFile;
+
+  lastFile = HandleGetLastOpen(HANDLE_FILE);
+  if (lastFile != NULL)
+    {
+      (void )snprintf(gl_var->who->file, sizeof(gl_var->who->file), "%s", lastFile->path);
+      if (lastFile->flags & O_WRONLY)
+	{
+	  gl_var->who->status = (gl_var->who->status & SFTPWHO_ARGS_MASK ) | SFTPWHO_PUT;
+	}
+      else
+	{
+	  gl_var->who->status = (gl_var->who->status & SFTPWHO_ARGS_MASK ) | SFTPWHO_GET;
+	}
+      gl_var->who->download_pos = lastFile->filePos * 100 / lastFile->fileSize;
+    }
+  else
+    gl_var->who->status = (gl_var->who->status & SFTPWHO_ARGS_MASK ) | SFTPWHO_IDLE;
 }

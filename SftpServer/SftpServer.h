@@ -34,6 +34,7 @@ void    ChangeRights(struct stat *st);
 int     CheckRulesAboutMaxFiles();
 void    ResolvPath(const char *path, char *dst, int dstMaxSize);
 void	ParseConf(tGlobal *params, int sftpProtocol);
+void	UpdateInfoForOpenFiles();
 
 extern tGlobal *gl_var;
 

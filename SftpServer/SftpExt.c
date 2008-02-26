@@ -190,11 +190,11 @@ static void DoExtFileHashing_FD(tBuffer *bIn, tBuffer *bOut, u_int32_t id, int f
 
 void    DoExtFileHashing_Handle(tBuffer *bIn, tBuffer *bOut, u_int32_t id)
 {
-  int	fd, fileIsText;
+  tHandle	*hdl;
 
   DEBUG((MYLOG_DEBUG, "[DoExtFileHashing_Handle]..."));
-  if ((fd = HandleGetFd(BufferGetHandle(bIn), &fileIsText)) >= 0)
-    DoExtFileHashing_FD(bIn, bOut, id, fd);
+  if ((hdl = HandleGetFile(BufferGetHandle(bIn))) != NULL)
+    DoExtFileHashing_FD(bIn, bOut, id, hdl->fd);
   else
     SendStatus(bOut, id, SSH4_FX_INVALID_HANDLE);
 }
