@@ -497,13 +497,14 @@ void	DoWrite()
   u_int32_t	id, dec, len;
   tHandle	*hdl;
   ssize_t	ret;
-  int		status;
+  int		status, h;
   char		*data;
 
   id = BufferGetInt32(bIn);
+  h = BufferGetHandle(bIn);
   off = BufferGetInt64(bIn);
   data = BufferGetData(bIn, &len);
-  if ((hdl = HandleGetFile(BufferGetHandle(bIn))) != NULL)
+  if ((hdl = HandleGetFile(h)) != NULL)
     {
       if (hdl->fileIsText == 0 && (pos = lseek(hdl->fd, off, SEEK_SET)) < 0)
 	status = errnoToPortable(errno);
