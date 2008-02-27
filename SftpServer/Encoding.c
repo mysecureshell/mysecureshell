@@ -93,7 +93,7 @@ char	*convertFromUtf8(char *str, int freeAfter)
 
 void	setCharset(const char *charset)
 {
-  if (charset)
+  if (charset != NULL)
     {
       _toUTF8 = iconv_open("UTF-8", charset);
       _fromUTF8 = iconv_open(charset, "UTF-8");

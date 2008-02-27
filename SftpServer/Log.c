@@ -108,6 +108,13 @@ void	mylog_reopen()
     _log->nextReopen = 1;
 }
 
+void	mylog_close_and_free()
+{
+  mylog_close();
+  free(_log);
+  _log = NULL;
+}
+
 void    mylog_time(int hours)
 {
   if (_log != NULL)

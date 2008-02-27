@@ -78,6 +78,26 @@ void		init_usersinfos()
     }
 }
 
+void	free_usersinfos()
+{
+  int	i;
+
+  if (_users != NULL)
+    {
+      for (i = 0; i <  _usersSize; i++)
+	free(_users[i].name);
+      free(_users);
+      _users = NULL;
+    }
+  if (_groups != NULL)
+    {
+      for (i = 0; i <  _groupsSize; i++)
+	free(_groups[i].name);
+      free(_groups);
+      _groups = NULL;
+    }
+}
+
 t_info	*mygetpwnam(const char *login)
 {
   int	i;

@@ -27,6 +27,7 @@ typedef struct  s_info
 }               t_info;
 
 void	init_usersinfos();
+void	free_usersinfos();
 t_info	*mygetpwuid(uid_t uid);
 t_info	*mygetpwnam(const char *login);
 t_info	*mygetgrgid(gid_t gid);

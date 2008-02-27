@@ -40,6 +40,17 @@ void	HandleInit()
     }
 }
 
+void	HandleCloseAll()
+{
+  int	i;
+
+  for (i = 0; i < HANDLE_NUMBER; i++)
+    if (gHandle[i].state != HANDLE_UNUSED)
+      HandleClose(i);
+  free(gHandle);
+  gHandle = NULL;
+}
+
 tHandle	*HandleNew(int state, char *path, int fd, DIR *dir, int fileIsText, int flags)
 {
   int	i;

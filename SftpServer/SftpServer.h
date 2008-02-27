@@ -35,6 +35,7 @@ int     CheckRulesAboutMaxFiles();
 void    ResolvPath(const char *path, char *dst, int dstMaxSize);
 void	ParseConf(tGlobal *params, int sftpProtocol);
 void	UpdateInfoForOpenFiles();
+void	CloseInfoForOpenFiles();
 
 extern tGlobal *gl_var;
 

@@ -318,7 +318,7 @@ void	DoClose()
 {
   u_int32_t	id;
   tHandle	*hdl;
-  int		h;
+  int		h, pourcentage;
   int		status = (cVersion <= 3 ? SSH2_FX_FAILURE : SSH4_FX_INVALID_HANDLE);
 	
   id = BufferGetInt32(bIn);
@@ -328,17 +328,21 @@ void	DoClose()
   SendStatus(bOut, id, status);
   if (hdl->state == HANDLE_FILE)
     {
+      if (hdl->fileSize > 0)
+	pourcentage = hdl->filePos * 100 / hdl->fileSize;
+      else
+	pourcentage = 0;
       if (hdl->flags & O_WRONLY)
 	{
 	  mylog_printf(MYLOG_TRANSFERT, "[%s][%s]End upload into file '%s' : %i%%",
 		       gl_var->who->user, gl_var->who->ip, hdl->path,
-		       hdl->filePos * 100 / hdl->fileSize);
+		       pourcentage);
 	}
       else
 	{
 	  mylog_printf(MYLOG_TRANSFERT, "[%s][%s]End download file '%s' : %i%%",
 		       gl_var->who->user, gl_var->who->ip, hdl->path,
-		       hdl->filePos * 100 / hdl->fileSize);
+		       pourcentage);
 	  BufferSetFastClean(bIn, 0);
 	  BufferSetFastClean(bOut, 0);
 	}
@@ -355,6 +359,7 @@ void	DoOpen()
   u_int32_t	id, pflags;
   tAttributes	*a;
   tHandle	*hdl;
+  struct stat	st;
   char		*path;
   int		fd, flags, mode, textMode, status = SSH2_FX_FAILURE;
 
@@ -401,13 +406,8 @@ void	DoOpen()
 		  }
 		hdl->filePos = 0;
 		hdl->fileSize = 0;
-		if ((flags & O_WRONLY) == 0)
-		  {
-		    struct stat	st;
-		    
-		    if (stat(path, &st) != -1)
-		      hdl->fileSize = st.st_size;
-		  }
+		if (stat(path, &st) != -1)
+		  hdl->fileSize = st.st_size;
 		UpdateInfoForOpenFiles();
 		SendHandle(bOut, id, hdl->id);
 		status = SSH2_FX_OK;

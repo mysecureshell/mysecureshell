@@ -46,6 +46,7 @@ typedef struct	sHandle
 
 
 void	HandleInit();
+void	HandleCloseAll();
 tHandle	*HandleNew(int state, char *path, int fd, DIR *dir, int fileIsText, int flags);
 tHandle	*HandleGet(int pos);
 tHandle	*HandleGetFile(int pos);

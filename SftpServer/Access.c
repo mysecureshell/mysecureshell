@@ -51,6 +51,12 @@ void	InitAccess()
   free(groups);
 }
 
+void	FreeAccess()
+{
+  free(_in_group);
+  _in_group = NULL;
+}
+
 int	UserIsInThisGroup(gid_t grp)
 {
   int	i;

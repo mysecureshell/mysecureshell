@@ -28,6 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Access.h"
 #include "Defines.h"
 #include "Encoding.h"
+#include "Global.h"
 #include "Handle.h"
 #include "Log.h"
 #include "Sftp.h"
@@ -37,13 +38,20 @@ tGlobal	*gl_var = NULL;
 
 #include "SftpServer.h"
 
+#ifdef MSSEXT_FILE_HASHING
+#include <openssl/evp.h>
+#endif
+
 static void	end_sftp()
 {
   if (gl_var)
     {
       if (cVersion != SSH2_ADMIN_VERSION)
-	mylog_printf(MYLOG_CONNECTION, "[%s][%s]Quit.", gl_var->who->user, gl_var->who->ip);
-      mylog_close();
+	{
+	  CloseInfoForOpenFiles();
+	  mylog_printf(MYLOG_CONNECTION, "[%s][%s]Quit.", gl_var->who->user, gl_var->who->ip);
+	}
+      mylog_close_and_free();
       SftpWhoRelaseStruct(gl_var->who);
       if (gl_var->has_hide_files == MSS_TRUE)
 	{
@@ -58,6 +66,14 @@ static void	end_sftp()
       free(gl_var);
       gl_var = NULL;
       setCharset(NULL);
+      BufferDelete(bIn);
+      BufferDelete(bOut);
+#ifdef MSSEXT_FILE_HASHING
+      EVP_cleanup();
+#endif
+      free_usersinfos();
+      HandleCloseAll();
+      FreeAccess();
     }
   _exit(0);
 }
@@ -84,10 +100,6 @@ void	ParseConf(tGlobal *params, int sftpProtocol)
   if (sftpProtocol > 0)
     cVersion = sftpProtocol;
 }
-
-#ifdef MSSEXT_FILE_HASHING
-#include <openssl/evp.h>
-#endif
 
 void	DoInitUser()
 {
@@ -316,8 +328,41 @@ void	UpdateInfoForOpenFiles()
 	{
 	  gl_var->who->status = (gl_var->who->status & SFTPWHO_ARGS_MASK ) | SFTPWHO_GET;
 	}
-      gl_var->who->download_pos = lastFile->filePos * 100 / lastFile->fileSize;
+      if (lastFile->fileSize > 0)
+	gl_var->who->download_pos = lastFile->filePos * 100 / lastFile->fileSize;
+      else
+	gl_var->who->download_pos = 0;
     }
   else
-    gl_var->who->status = (gl_var->who->status & SFTPWHO_ARGS_MASK ) | SFTPWHO_IDLE;
+    {
+      gl_var->who->file[0] = '\0';
+      gl_var->who->status = (gl_var->who->status & SFTPWHO_ARGS_MASK ) | SFTPWHO_IDLE;
+    }
+}
+
+void	CloseInfoForOpenFiles()
+{
+  tHandle	*hdl;
+  int		pourcentage;
+
+  while ((hdl = HandleGetLastOpen(HANDLE_FILE)) != NULL)
+    {
+      if (hdl->fileSize > 0)
+        pourcentage = hdl->filePos * 100 / hdl->fileSize;
+      else
+        pourcentage = 0;
+      if (hdl->flags & O_WRONLY)
+        {
+          mylog_printf(MYLOG_TRANSFERT, "[%s][%s]Interrupt upload into file '%s' : %i%%",
+                       gl_var->who->user, gl_var->who->ip, hdl->path,
+                       pourcentage);
+        }
+      else
+        {
+          mylog_printf(MYLOG_TRANSFERT, "[%s][%s]Interrupt download file '%s' : %i%%",
+                       gl_var->who->user, gl_var->who->ip, hdl->path,
+                       pourcentage);
+	}
+      HandleClose(hdl->id);
+    }
 }
