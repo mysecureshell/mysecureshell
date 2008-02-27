@@ -56,7 +56,7 @@ void	BufferClean(tBuffer *b)
       if (b->fastClean == 0)
 	{
 	  u_int32_t	nextSize;
-
+	  
 	  nextSize = b->size >> 2;
 	  if (b->length < nextSize && nextSize >= DEFAULT_GROW)
 	    {
@@ -141,13 +141,14 @@ void	BufferPutString(tBuffer *b, const char *data)
 
 void	BufferPutHandle(tBuffer *b, int h)
 {
-  if ((b->length + 5) > b->size)
-    BufferGrow(b, b->length + 5 - b->size + DEFAULT_GROW);
+  if ((b->length + BufferHandleSize) > b->size)
+    BufferGrow(b, b->length + BufferHandleSize - b->size + DEFAULT_GROW);
   b->data[b->length++] = 0;
   b->data[b->length++] = 0;
   b->data[b->length++] = 0;
-  b->data[b->length++] = 1;
-  BufferPutInt8FAST(b, h);
+  b->data[b->length++] = 2;
+  BufferPutInt8FAST(b, h + (int )'0');
+  BufferPutInt8FAST(b, '\0');
 }
 
 #ifdef DODEBUG
@@ -163,8 +164,8 @@ static void	dumpPacket(tBuffer *b, int trySize)
   
   mylog_printf(MYLOG_DEBUG, "[dumpPacket][length:%i][read:%i][size:%i][trySize:%i]",
 	       b->length, b->read, b->size, trySize);
-  buffer = malloc(b->size * 2 + 1);
-  for (i = 0, pos = 0; i < b->size; i++)
+  buffer = malloc(b->length * 2 + 1);
+  for (i = b->read, pos = 0; i < b->length; i++)
     {
       unsigned char	c = (unsigned char)b->data[i];
 
@@ -253,7 +254,7 @@ char	*BufferGetData(tBuffer *b, u_int32_t *size)
 #ifdef DODEBUG
       dumpPacket(b, *size);
 #endif
-      return (0);
+      return (NULL);
     }
   data = (char *)(b->data + b->read);
   b->read += *size;
@@ -286,9 +287,13 @@ char		*BufferGetString(tBuffer *b)
 int	BufferGetHandle(tBuffer *b)
 {
   u_int32_t	size;
+  int		hdl = -1;
 
   size = BufferGetInt32(b);
-  if (size == 1)
-    return (BufferGetInt8(b));
-  return (-1);
+  if (size == 2)
+    {
+      hdl = BufferGetInt8FAST(b) - (int )'0';
+      BufferIncrCurrentReadPosition(b, 1);
+    }
+  return (hdl);
 }
