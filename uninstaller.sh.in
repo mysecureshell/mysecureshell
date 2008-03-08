@@ -42,41 +42,73 @@ else
 fi
 
 clear
+
+## Root detection
+
+if [ "$USER" != "root" ] ; then
+	echo ""
+	echo "###################################################################"
+	tmp=`MyGetLocale 'sorry'`
+	echo "	               $tmp $USER"
+	MyGetLocale 'Warning root ask'
+	echo "###################################################################"
+	echo ""
+	exit 1
+fi
+
 MyGetLocale 'uninst?'
 read ans
 test -z "$ans" && ans="n"
-if [ $ans = "y" ] ; then
-	sudo rm -f /bin/MySecureShell $BINDIR/sftp-who $BINDIR/sftp-state $BINDIR/sftp-kill $BINDIR/sftp-admin $BINDIR/sftp-user
-	sudo cat /etc/shells | sudo grep -v MySecureShell > /tmp/shells~
-	sudo mv /tmp/shells~ /etc/shells
+case "$ans" in
+	[yY])
+		rm -f /bin/MySecureShell $BINDIR/sftp-who $BINDIR/sftp-state $BINDIR/sftp-kill $BINDIR/sftp-admin $BINDIR/sftp-user
+		cat /etc/shells | grep -v MySecureShell > /tmp/shells~
+		mv /tmp/shells~ /etc/shells
 
-# Only for Mac OS X
-	if [ -d /Applications/MySecureShell ] ; then
-		sudo rm -Rf /Applications/MySecureShell
-	else
-		break
-	fi
-	if [ -d /Library/Receipts ] ; then
-		sudo rm -Rf /Library/Receipts/MySecureShell*
-	else
-		break
-	fi
+	# Only for Mac OS X
+		if [ -d /Applications/MySecureShell ] ; then
+			rm -Rf /Applications/MySecureShell
+		else
+			break
+		fi
+		if [ -d /Library/Receipts ] ; then
+			rm -Rf /Library/Receipts/MySecureShell*
+		else
+			break
+		fi
 
-# Delete mans
-	test -d /usr/share/man/man8 && cd /usr/share/man/man8 && rm sftp-admin.8 sftp-kill.8 sftp-state.8 sftp-verif.8
-	test -d /usr/share/man/en/man8 && cd /usr/share/man/man8 && rm sftp-admin.8 sftp-kill.8 sftp-state.8 sftp-verif.8
-	test -d /usr/share/man/fr/man8 && cd /usr/share/man/man8 && rm sftp-admin.8 sftp-kill.8 sftp-state.8 sftp-verif.8
+	# Delete mans
+		if [ -d /usr/share/man/man8 ] ; then
+			rm -f /usr/share/man/man8/sftp-admin.8
+			rm -f /usr/share/man/man8/sftp-kill.8
+			rm -f /usr/share/man/man8/sftp-state.8
+			rm -f /usr/share/man/man8/sftp-verif.8
+		fi
+		if [ -d /usr/share/man/en/man8 ] ; then
+			rm -f /usr/share/man/en/man8/sftp-admin.8
+			rm -f /usr/share/man/en/man8/sftp-kill.8
+			rm -f /usr/share/man/en/man8/sftp-state.8
+			rm -f /usr/share/man/en/man8/sftp-verif.8
+		fi
+		if [ -d /usr/share/man/fr/man8 ] ; then
+			rm -f /usr/share/man/fr/man8/sftp-admin.8
+			rm -f /usr/share/man/fr/man8/sftp-kill.8
+			rm -f /usr/share/man/fr/man8/sftp-state.8
+			rm -f /usr/share/man/fr/man8/sftp-verif.8
+		fi
 
-# Delete configuration ?
-	MyGetLocale 'delconf?'
-	read ans2
-	test -z "$ans2" && ans2="n"
-	if [ $ans2 = "y" ] ; then
-		sudo rm -f $ETCDIR/ssh/sftp-config $ETCDIR/sshd/sftp-config
-	else
-		break
-	fi
-	MyGetLocale 'mssuninstok!'
-else
-	MyGetLocale 'mssuninstfail'
-fi
+	# Delete configuration ?
+		MyGetLocale 'delconf?'
+		read ans2
+		test -z "$ans2" && ans2="n"
+		case "$ans2" in
+			[yY])
+				rm -f $ETCDIR/ssh/sftp-config $ETCDIR/sshd/sftp-config
+				;;
+		esac
+		MyGetLocale 'mssuninstok!'
+		;;
+	*)
+		MyGetLocale 'mssuninstfail'
+		;;
+esac
