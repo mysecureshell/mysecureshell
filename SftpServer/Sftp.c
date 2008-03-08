@@ -332,11 +332,10 @@ void	DoClose()
 	pourcentage = hdl->filePos * 100 / hdl->fileSize;
       else
 	pourcentage = 0;
-      if (hdl->flags & O_WRONLY)
+      if (FILE_IS_UPLOAD(hdl->flags))
 	{
-	  mylog_printf(MYLOG_TRANSFERT, "[%s][%s]End upload into file '%s' : %i%%",
-		       gl_var->who->user, gl_var->who->ip, hdl->path,
-		       pourcentage);
+	  mylog_printf(MYLOG_TRANSFERT, "[%s][%s]End upload into file '%s'",
+		       gl_var->who->user, gl_var->who->ip, hdl->path);
 	}
       else
 	{
@@ -389,7 +388,7 @@ void	DoOpen()
 	      }
 	    else
 	      {
-		if (flags & O_WRONLY)
+		if (FILE_IS_UPLOAD(flags))
 		  {
 		    mylog_printf(MYLOG_TRANSFERT, "[%s][%s]Start upload into file '%s'",
 			       gl_var->who->user, gl_var->who->ip, path);
@@ -471,7 +470,7 @@ void	DoRead()
 	    }
 	  else
 	    {
-	      hdl->filePos = pos + ret;
+	      hdl->filePos = off + ret;
 	      UpdateInfoForOpenFiles();
 	      newPos = BufferGetCurrentWritePosition(bOut) + (u_int32_t )ret;
 	      BufferSetCurrentWritePosition(bOut, oldPos);
@@ -526,13 +525,13 @@ void	DoWrite()
 	    status = SSH2_FX_OK;
 	  else
 	    status = SSH2_FX_FAILURE;
-	  hdl->filePos = pos + ret;
+	  hdl->filePos = off + ret;
 	  UpdateInfoForOpenFiles();
 	}
     }
   else
     status = (cVersion <= 3 ? SSH2_FX_FAILURE : SSH4_FX_INVALID_HANDLE);
-  //DEBUG((MYLOG_DEBUG, "[DoWrite]fd:%i off:%llu len:%i fileIsText:%i status:%i", fd, off, len, fileIsText, status));
+  //DEBUG((MYLOG_DEBUG, "[DoWrite]hdl:%p off:%llu len:%i ret:%i status:%i", hdl, off, len, ret, status));
   SendStatus(bOut, id, status);
 }
 
@@ -1055,6 +1054,7 @@ int			SftpMain(tGlobal *params, int sftpProtocol)
 	    gl_var->who->time_transf++;
 	  else
 	    gl_var->who->time_idle++;
+
 	  gl_var->who->upload_current = gl_var->upload_current;
 	  gl_var->who->download_current = gl_var->download_current;
 	  gl_var->upload_current = 0;

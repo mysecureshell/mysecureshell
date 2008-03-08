@@ -20,6 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef _SFTPSERVER_H_
 #define _SFTPSERVER_H_
 
+#define FILE_IS_UPLOAD(_FLAGS)			((_FLAGS & O_WRONLY) || (_FLAGS & O_RDWR))
 #define SET_TIMEOUT(_TM, _TSEC, _TUSEC)         _TM .tv_sec = _TSEC; _TM .tv_usec = _TUSEC
 #define RULES_NONE              0
 #define RULES_FILE              1

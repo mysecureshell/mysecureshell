@@ -351,11 +351,10 @@ void	CloseInfoForOpenFiles()
         pourcentage = hdl->filePos * 100 / hdl->fileSize;
       else
         pourcentage = 0;
-      if (hdl->flags & O_WRONLY)
+      if (FILE_IS_UPLOAD(hdl->flags))
         {
-          mylog_printf(MYLOG_TRANSFERT, "[%s][%s]Interrupt upload into file '%s' : %i%%",
-                       gl_var->who->user, gl_var->who->ip, hdl->path,
-                       pourcentage);
+          mylog_printf(MYLOG_TRANSFERT, "[%s][%s]Interrupt upload into file '%s'",
+                       gl_var->who->user, gl_var->who->ip, hdl->path);
         }
       else
         {
