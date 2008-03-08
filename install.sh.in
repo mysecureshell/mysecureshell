@@ -90,21 +90,17 @@ else
 		rep3="y"
 	else
 		read rep3
+		test -z "$rep3" && rep3="y"
 	fi
-	test -z "$rep3" && rep3="y"
-	if [ $rep3 = "y" ] ; then
-		echo "/bin/MySecureShell" >> /etc/shells
-		echo `MyGetLocale 'shellvalid'`"		"`MyGetLocale 'ok'`
-	else
-		if [ $rep3 = "n" ] ; then
+	case "$rep3" in
+		[yY])
+			echo "/bin/MySecureShell" >> /etc/shells
+			echo `MyGetLocale 'shellvalid'`"		"`MyGetLocale 'ok'`
+			;;
+		*)
 			echo `MyGetLocale 'novalidshell'`"	"`MyGetLocale 'ok'`
-		else
-			clear  	    
-			echo `MyGetLocale 'installation'`"			"`MyGetLocale 'failed'`
-			MyGetLocale 'answers'
-			exit 1
-		fi
-	fi
+			;;
+	esac
 	echo ""
 fi
 }
@@ -143,14 +139,16 @@ if [ $fyesall = "1" ] ; then
 	rep7="y"
 else
 	read rep7
+	test -z "$rep7" && rep7="y"
 fi
-test -z "$rep7" && rep7="y"
 
-if [ "$rep7" = "y" ] ; then
-    MyGetLocale 'LaunchMSS'
-    ./MySecureShell --version > /dev/null
-    MyGetLocale 'Testsuccess'
-fi
+case "$rep7" in
+	[yY])
+		MyGetLocale 'LaunchMSS'
+		./MySecureShell --version > /dev/null
+		MyGetLocale 'Testsuccess'
+		;;
+esac
 
 ## Introduction text
 
@@ -171,22 +169,20 @@ if [ "$fyesall" = "1" ] ; then
 	rep1="y"
 else
 	read rep1
+	test -z "$rep1" && rep1="y"
 fi
-test -z "$rep1" && rep1="y"
 
-if [ "$rep1" = "y" ] ; then
-	MyGetLocale 'installation'
-	echo ""
-else
-	clear
-	if [ "$rep1" = "n" ] ; then
-		break
-	else
-		MyGetLocale 'answers'
-	fi
-	echo `MyGetLocale 'installation'`"				"`MyGetLocale 'failed'`
-	exit 1
-fi
+case "$rep1" in
+	[yY])
+		MyGetLocale 'installation'
+		echo ""
+		;;
+	*)
+		clear
+		echo `MyGetLocale 'installation'`"				"`MyGetLocale 'failed'`
+		exit 1
+		;;
+esac
 
 ## If MSS is present, stop server
 
@@ -212,17 +208,20 @@ else
 			repssh="y"
 		else
 			read repssh
+			test -z "$repssh" && repssh="y"
 		fi
-		test -z "$repssh" && repssh="y"
-		if [ $repssh = 'y' ] ; then
-			sshfolder=$ETCDIR/ssh
-			mkdir $sshfolder
-			echo `MyGetLocale 'lgsshfolder'`"				"`MyGetLocale 'ok'`
-		else
-			clear
-			MyGetLocale 'stopinstssh'
-			exit 1
-		fi
+		case "$repssh" in
+			[yY])
+				sshfolder=$ETCDIR/ssh
+				mkdir $sshfolder
+				echo `MyGetLocale 'lgsshfolder'`"				"`MyGetLocale 'ok'`
+				;;
+			*)
+				clear
+				MyGetLocale 'stopinstssh'
+				exit 1
+				;;
+		esac
 	fi
 fi
 
@@ -236,22 +235,18 @@ if [ -f $MSS_CONF ] ; then
 		rep2="n"
 	else
 		read rep2
+		test -z "$rep2" && rep2="n"
 	fi
-	test -z "$rep2" && rep2="n"
-	if [ $rep2 = "y" ] ; then
-		cp -f ./sftp_config $MSS_CONF
-		chmod 644 $MSS_CONF
-		echo `MyGetLocale 'conffilerep1'`"		"`MyGetLocale 'ok'`
-	else
-		if [ $rep2 = "n" ] ; then
+	case "$rep2" in
+		[yY])
+			cp -f ./sftp_config $MSS_CONF
+			chmod 644 $MSS_CONF
+			echo `MyGetLocale 'conffilerep1'`"		"`MyGetLocale 'ok'`
+			;;
+		*)
 			echo `MyGetLocale 'conffilerep2'`"	"`MyGetLocale 'ok'`
-		else
-			clear  	    
-			echo `MyGetLocale 'installation'`"				"`MyGetLocale 'failed'`
-			MyGetLocale 'answers'
-			exit 1
-		fi
-	fi
+			;;
+	esac
 else
 	cp -f ./sftp_config $MSS_CONF
 	chmod 644 $MSS_CONF
@@ -280,16 +275,15 @@ else
 		repshells="y"
 	else
 		read repshells
+		test -z "$repshells" && repshells="n"
 	fi
-	if [ $repshells = 'y' ] ; then
-		touch /etc/shells
-		chmod 644 /etc/shells
-		shellfunc
-	else
-		clear  	    
-		echo `MyGetLocale 'installation'`"			"`MyGetLocale 'failed'`
-		MyGetLocale 'answers'
-	fi
+	case "$repshells" in
+		[yY])
+			touch /etc/shells
+			chmod 644 /etc/shells
+			shellfunc
+			;;
+	esac
 fi
 
 ## Utilities installation
@@ -318,12 +312,14 @@ if [ $fyesall = "1" ] ; then
 	rep8="y"
 else
 	read rep8
+	test -z "$rep8" && rep8="y"
 fi
-test -z "$rep8" && rep8="y"
-if [ $rep8 = 'y' ] ; then
-	# Using for Debian like systems
-	if [ -d /etc/logrotate.d ] ; then
-	        cat > /etc/logrotate.d/mysecureshell <<\_ACEOF
+
+case "$rep8" in
+	[yY])
+		# Using for Debian like systems
+		if [ -d /etc/logrotate.d ] ; then
+			cat > /etc/logrotate.d/mysecureshell <<\_ACEOF
 $MSS_LOG {
 	weekly
 	size=500k
@@ -334,24 +330,25 @@ $MSS_LOG {
 	notifempty
 }
 _ACEOF
-		chmod 644 /etc/logrotate.d/mysecureshell
-		echo `MyGetLocale 'logrot'`"	"`MyGetLocale 'ok'`
-	else
-		# Others BSD systems
-		if [ -f /etc/weekly ] ; then
-		        logstat=1
-			grep -e '^for' < /etc/weekly | grep -ve sftp-server.log > /dev/null
-		        if [ "$?" = "0" ] ; then
-		                sed -e 's/^\(for i in.*\)\(; do\)$/\1 sftp-server.log\2/' /etc/weekly > /tmp/weekly.tmp && mv /tmp/weekly.tmp /etc/weekly
-		        fi
-		fi
-		if [ "$logstat" = "1" ] ; then
+			chmod 644 /etc/logrotate.d/mysecureshell
 			echo `MyGetLocale 'logrot'`"	"`MyGetLocale 'ok'`
 		else
-			echo `MyGetLocale 'logrot'`"	"`MyGetLocale 'failed'`
+			# Others BSD systems
+			if [ -f /etc/weekly ] ; then
+			        logstat=1
+				grep -e '^for' < /etc/weekly | grep -ve sftp-server.log > /dev/null
+			        if [ "$?" = "0" ] ; then
+			                sed -e 's/^\(for i in.*\)\(; do\)$/\1 sftp-server.log\2/' /etc/weekly > /tmp/weekly.tmp && mv /tmp/weekly.tmp /etc/weekly
+			        fi
+			fi
+			if [ "$logstat" = "1" ] ; then
+				echo `MyGetLocale 'logrot'`"	"`MyGetLocale 'ok'`
+			else
+				echo `MyGetLocale 'logrot'`"	"`MyGetLocale 'failed'`
+			fi
 		fi
-	fi
-fi
+		;;
+esac
 
 ## Mans
 
