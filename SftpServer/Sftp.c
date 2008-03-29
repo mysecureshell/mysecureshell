@@ -381,7 +381,7 @@ void	DoOpen()
 	  status = errnoToPortable(errno);
 	else
 	  {
-	    if ((hdl = HandleNewFile(path, fd, textMode, mode)) == NULL)
+	    if ((hdl = HandleNewFile(path, fd, textMode, flags)) == NULL)
 	      {
 		xclose(fd);
 		status = errnoToPortable(EMFILE);
