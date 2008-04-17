@@ -7,8 +7,6 @@
 
 BINDIR=@BINDIR@
 ETCDIR=@ETCDIR@
-MSS_CONF=@MSS_CONF@
-MSS_LOG=@MSS_LOG@
 LANG=
 
 ## Functions Looking for available languages
@@ -227,7 +225,7 @@ fi
 
 ## Config file
 
-if [ -f $MSS_CONF ] ; then
+if [ -f @MSS_CONF@ ] ; then
 	echo ""
 	MyGetLocale 'warnconf'
 	MyGetLocale 'warnerase'
@@ -239,8 +237,8 @@ if [ -f $MSS_CONF ] ; then
 	fi
 	case "$rep2" in
 		[yY])
-			cp -f ./sftp_config $MSS_CONF
-			chmod 644 $MSS_CONF
+			cp -f ./sftp_config @MSS_CONF@
+			chmod 644 @MSS_CONF@
 			echo `MyGetLocale 'conffilerep1'`"		"`MyGetLocale 'ok'`
 			;;
 		*)
@@ -248,8 +246,8 @@ if [ -f $MSS_CONF ] ; then
 			;;
 	esac
 else
-	cp -f ./sftp_config $MSS_CONF
-	chmod 644 $MSS_CONF
+	cp -f ./sftp_config @MSS_CONF@
+	chmod 644 @MSS_CONF@
 	echo `MyGetLocale 'mkconffile'`"				"`MyGetLocale 'ok'`
 fi
 
@@ -320,7 +318,7 @@ case "$rep8" in
 		# Using for Debian like systems
 		if [ -d /etc/logrotate.d ] ; then
 			cat > /etc/logrotate.d/mysecureshell <<\_ACEOF
-$MSS_LOG {
+@MSS_LOG@ {
 	weekly
 	size=500k
 	rotate 10
