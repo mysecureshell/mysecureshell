@@ -100,6 +100,7 @@ HISTORIQUE:
 	= fixe un bug sur la gestion des statistiques
 	= fixe un bug sur la gestion des restrictions
 	= fixe un probleme sur le script sftp-verif sous Mac OSX 10.5
+	= fixe un bug dans le sftp-user
 
 1.0 (decembre 2007):
 	+ ajout des tags : ExpireDate et IsSimpleAdmin
