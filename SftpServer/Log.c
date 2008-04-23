@@ -51,6 +51,10 @@ void	mylog_open(const char *file)
     {
       if (_log == NULL)
 	{
+	  time_t	t;
+
+	  t = time(NULL);
+	  (void )gmtime(&t);
 	  _log = calloc(1, sizeof(*_log));
 	  _log->pid = getpid();
 	}
@@ -141,8 +145,8 @@ void		mylog_printf(int level, const char *str, ...)
 	  mylog_open(_log->file);
 	}
       va_start(ap, str);
-      t = time(0) + _log->time;
-      if ((tm = localtime(&t)) == NULL)
+      t = time(NULL) + _log->time;
+      if ((tm = gmtime(&t)) == NULL)
 	{
 	  if (snprintf(fmt, sizeof(buffer), "[Error with time] [%i]%s\n", _log->pid, str) > 0)
 	    goto forceShowLog;

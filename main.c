@@ -157,6 +157,8 @@ int	main(int ac, char **av, char **env)
 	mylog_open(strdup(hash_get("LogFile")));
       else
 	mylog_open(MSS_LOG);
+      if (hash_get("GMTTime") != NULL)
+	  mylog_time(atoi(hash_get("GMTTime")));
       if (params->who == NULL)
 	{
 	  mylog_printf(MYLOG_ERROR, "[%s]Server '%s' reached maximum connexion (%i clients)",
@@ -322,8 +324,6 @@ int	main(int ac, char **av, char **env)
 	params->minimum_rights_file = hash_get_int("MinimumRightsFile");
       if (hash_get("Charset") != NULL)
 	  setCharset(hash_get("Charset"));
-      if (hash_get("GMTTime") != NULL)
-	  mylog_time(atoi(hash_get("GMTTime")));
       delete_hash();
       if (hostname != NULL)
 	free(hostname);
