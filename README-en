@@ -76,6 +76,25 @@ Forum:       http://mysecureshell.free.fr
 
 CHANGE LOG:
 -----------
+1.1 (??):
+	+ support multi-level of tags (level 1)
+	+ add tags : CanChangeRights and CanChangeTime
+	+ more log on transfert : begin / end / interrupt
+	+ sftp-user: add support of MacOSX Leopard (10.5)
+	~ improve installation script and uninstaller script (default choice)
+	~ improve compilation (Makefile more standard)
+	~ sftp-user : improve under MacOSX
+	~ sftp-verif : check config file
+	~ add log when connection is refused (limit ip/user/server)
+	= fix bug on time in log
+	= fix bug on tag IdleTimeOut (only if you use units)
+	= fix bug if we activate MSS in sshd_config and by shell
+	= fix bug on statistics
+	= fix bug on restrictions
+	= fix bug in script sftp-verif under MacOSX 10.5
+	= fix bug in sftp-user
+
+
 1.0 (december 2007):
         + add tags : ExpireDate and IsSimpleAdmin
         + add statistics for remote admin

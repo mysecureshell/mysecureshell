@@ -86,12 +86,13 @@ Forum:       http://mysecureshell.free.fr
 HISTORIQUE:
 -----------
 1.1 (??):
-	+ support de l'imbrication des tags de niveau 0
+	+ support de l'imbrication des tags de niveau 1
 	+ ajout des tags : CanChangeRights et CanChangeTime
 	+ le fichier de log affiche les transferts : debut / fin / interrompu
+	+ sftp-user: support de MacOSX 10.5
 	~ amelioration du script d'installation et de desinstallation (support des reponses par defaut)
 	~ amelioration de la compilation (portabilite du Makefile)
-	~ sftp-user : amelioration en cas de probleme sous Mac OSX
+	~ sftp-user : amelioration en cas de probleme sous MacOSX
 	~ sftp-verif : verification du fichier de configuration
 	~ ajout des logs dans les cas de refus de connexion (limite ip/utilisateur/serveur)
 	= fixe un bug sur la gestion des heures dans les logs
@@ -99,7 +100,7 @@ HISTORIQUE:
 	= fixe un bug si on active MSS dans le sshd_config et par shell
 	= fixe un bug sur la gestion des statistiques
 	= fixe un bug sur la gestion des restrictions
-	= fixe un probleme sur le script sftp-verif sous Mac OSX 10.5
+	= fixe un probleme sur le script sftp-verif sous MacOSX 10.5
 	= fixe un bug dans le sftp-user
 
 1.0 (decembre 2007):
