@@ -1,6 +1,6 @@
 #!/bin/sh
 
-## Users Script Manager v0.1 - Made by MySecureShell Team
+## Users Script Manager v0.2 - Made by MySecureShell Team
 ## MySecureShell Team <teka2nerdman@users.sourceforge.net>
 
 # Saving vars
@@ -32,7 +32,9 @@ vrf_create() {
 
 vrf_delhide() {
 	name=`id -un $nameuser 2>&1`
-	if [ $name != $nameuser ] ; then
+	if [ "$name" == 'nobody' ] || [ "$name" == "$nameuser" ] ; then
+		break
+	else
 		echo $doesntexist
 		exit 1
 	fi
@@ -47,7 +49,7 @@ vrf_getpass() {
 		fi
 	done
 	if [ "$dirPerl" != '' ] ; then
-		echo -n "Enter password:"
+		echo "Enter password:"
 		stty -echo
 		read pass
 		stty echo
@@ -66,7 +68,7 @@ EOF`
 
 vrf_useralreadyexit() {
 	name=`id -un $nameuser 2>&1`
-	if [ "$name" == "$nameuser" ] ; then
+	if [ "$name" == "$nameuser" ] || [ "$name" == 'nobody' ] ; then
 		echo $alreadyexist
 		exit 1
 	fi
@@ -78,37 +80,58 @@ vrf_useralreadyexit() {
 
 # Creation
 dar_add() {
-	newid=$[`nireport / /users uid | tail -1`+1]
-	# Add User
-	niutil -create -R / /users/$nameuser
-	#Check if success
-	test $? != 0 && exit $?
-	niutil -createprop -R / /users/$nameuser passwd "$encPass"
-	niutil -createprop -R / /users/$nameuser gid $newid
-	niutil -createprop -R / /users/$nameuser uid $newid
-	niutil -createprop -R / /users/$nameuser realname "$nameuser"
-	niutil -createprop -R / /users/$nameuser shell "/bin/MySecureShell"
-	niutil -createprop -R / /users/$nameuser picture "/Library/Caches/com.sourceforge.mysecureshell.picture.tiff"
-	#niutil -createprop -R / /users/$nameuser home "/Users/invite"
-	# Home create future versions
-	#cp -R /System/Library/User\ Template/French.lproj /Users/$nameuser
-	#chown -R $nameuser:staff /Users/$nameuser
+	if [ -x /usr/bin/niutil ] ; then
+		newid=$[`nireport / /users uid | tail -1`+1]
+		# Add User
+		niutil -create -R / /users/$nameuser
+		#Check if success
+		test $? != 0 && exit $?
+		niutil -createprop -R / /users/$nameuser passwd "$encPass"
+		niutil -createprop -R / /users/$nameuser gid $newid
+		niutil -createprop -R / /users/$nameuser uid $newid
+		niutil -createprop -R / /users/$nameuser realname "$nameuser"
+		niutil -createprop -R / /users/$nameuser shell "/bin/MySecureShell"
+		niutil -createprop -R / /users/$nameuser picture "/Library/Caches/com.sourceforge.mysecureshell.picture.tiff"
+		#niutil -createprop -R / /users/$nameuser home "/Users/invite"
+		# Home create future versions
+		#cp -R /System/Library/User\ Template/French.lproj /Users/$nameuser
+		#chown -R $nameuser:staff /Users/$nameuser
+	fi
 
+	if [ -x /usr/bin/dscl ] ; then
+		dscl . -create /Users/$nameuser
+		dscl . -create /Users/$nameuser UserShell "/bin/MySecureShell"
+		dscl . -create /Users/$nameuser RealName "$nameuser"
+		dscl . -passwd /Users/$nameuser "$encPass"
+		dscl . -append /Groups/staff GroupMembership $nameuser
+	fi
 	# Hide user
 	test $hideuser = 1 && defaults write /Library/Preferences/com.apple.loginwindow HiddenUsersList -array $nameuser && defaults write /Library/Preferences/com.apple.loginwindow HiddenUsersList -array-add $nameuser
 }
 
 # List users with MySecureShell Shell
 dar_list() {
-	nireport / /users name shell | grep /MySecureShell | awk '{ print $1 }'
+	if [ -x /usr/bin/nireport ] ; then
+		nireport / /users name shell | grep /MySecureShell | awk '{ print $1 }'
+	fi
+
+	if [ -x /usr/bin/dscl ] ; then
+		dscl . -list /Users shell | grep MySecureShell | awk '{ print $1 }'
+	fi
 	exit $?
 }
 
 # Deletion
 dar_del() {
-	niutil -destroy -R / /users/$nameuser
-	# Shell is remove home directory
-	#test $homeuser = 1 && rm -Rf /Users/$nameuser
+	if [ -x /usr/bin/niutil ] ; then
+		niutil -destroy -R / /users/$nameuser
+		# Shell is remove home directory
+		#test $homeuser = 1 && rm -Rf /Users/$nameuser
+	fi
+
+	if [ -x /usr/bin/dscl ] ; then
+		dscl . delete /Users/$nameuser
+	fi
 	exit $?
 }
 
