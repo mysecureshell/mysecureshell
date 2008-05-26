@@ -169,6 +169,9 @@
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
 
+/* Define to 1 if the system has the type `u_int16_t'. */
+#undef HAVE_U_INT16_T
+
 /* Define to 1 if the system has the type `u_int32_t'. */
 #undef HAVE_U_INT32_T
 
@@ -258,6 +261,9 @@
 
 /* Define to `int' if <sys/types.h> does not define. */
 #undef pid_t
+
+/* uint16 */
+#undef u_int16_t
 
 /* uint32 */
 #undef u_int32_t
