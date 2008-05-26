@@ -35,6 +35,7 @@ typedef struct		s_hash
 }			t_hash;
 
 void	delete_hash();
+int	hash_exists(const char *key);
 char	*hash_get(const char *key);
 int	hash_get_int(const char *key);
 void	hash_set(const char *key, char *value);
