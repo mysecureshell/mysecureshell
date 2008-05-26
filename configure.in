@@ -18,6 +18,7 @@ AC_STRUCT_TM
 AC_TYPE_SIGNAL
 AC_SYS_LARGEFILE
 AC_CHECK_TYPES(u_int8_t)
+AC_CHECK_TYPES(u_int16_t)
 AC_CHECK_TYPES(u_int32_t)
 AC_CHECK_TYPES(u_int64_t)
 
@@ -93,7 +94,7 @@ AC_FUNC_CLOSEDIR_VOID
 AC_FUNC_FORK
 AC_FUNC_STAT
 AC_CHECK_FUNCS([endgrent strcasecmp strchr strdup strerror strrchr strstr statfs statvfs getgroups strlcpy strlcat])
-AC_CHECK_FUNCS([connect gethostbyaddr gethostbyname], , AC_CHECK_LIB(nsl, connect))
+AC_CHECK_FUNCS([connect gethostbyaddr gethostbyname], , AC_CHECK_LIB(nsl, connect, socket))
 AC_CHECK_FUNCS([iconv_open iconv_close iconv], , AC_CHECK_LIB(iconv, libiconv_open))
 AC_CHECK_LIB(acl, acl_get_entry)
 AC_CHECK_LIB(crypto, OpenSSL_add_all_digests)
@@ -139,6 +140,9 @@ test "$MSSEXT_DISK" = "yes" && AC_DEFINE(MSSEXT_DISKUSAGE, 1, DiskUsage)
 test "$MSSEXT_FILE_HASHING" = "yes" && AC_DEFINE(MSSEXT_FILE_HASHING, 1, FileHashing)
 if test "$ac_cv_type_u_int8_t" = "no" ; then
    AC_DEFINE_UNQUOTED(u_int8_t, uint8_t, uint8)
+fi
+if test "$ac_cv_type_u_int16_t" = "no" ; then
+   AC_DEFINE_UNQUOTED(u_int16_t, uint16_t, uint16)
 fi
 if test "$ac_cv_type_u_int32_t" = "no" ; then
    AC_DEFINE_UNQUOTED(u_int32_t, uint32_t, uint32)
