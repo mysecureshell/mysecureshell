@@ -135,6 +135,9 @@ void	load_config(int verbose)
 	  char		*ptr;
 	  int		vInt;
 
+	  if (confParams[i].show != CONF_SHOW_IF_NOT_NULL
+	      && hash_exists(confParams[i].name) == 0)
+	    continue;
 	  (void )printf("%s", confParams[i].name);
 	  for (j = maxLen - strlen(confParams[i].name) + 1; j > 0; j--)
 	    (void )printf(" ");
