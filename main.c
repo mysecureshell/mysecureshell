@@ -304,11 +304,11 @@ int	main(int ac, char **av, char **env)
 	  DEBUG((MYLOG_DEBUG, "[%s][%s]ExpireDate time to rest: %i",
 		       params->who->user, params->who->ip, params->who->time_maxlife));
 	}
-      if (hash_get_int("MaxOpenFilesForUser") > 0)
+      if (hash_exists("MaxOpenFilesForUser") == MSS_TRUE)
 	params->max_openfiles = hash_get_int("MaxOpenFilesForUser");
-      if (hash_get_int("MaxReadFilesForUser") > 0)
+      if (hash_exists("MaxReadFilesForUser") == MSS_TRUE)
 	params->max_readfiles = hash_get_int("MaxReadFilesForUser");
-      if (hash_get_int("MaxWriteFilesForUser") > 0)
+      if (hash_exists("MaxWriteFilesForUser") == MSS_TRUE)
 	params->max_writefiles = hash_get_int("MaxWriteFilesForUser");
       if (hash_get_int("DefaultRightsDirectory") > 0)
 	params->rights_directory = hash_get_int("DefaultRightsDirectory");

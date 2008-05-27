@@ -251,9 +251,9 @@ int	CheckRulesAboutMaxFiles()
 		break;
 	      }
 	  }
-      if ((fileread > gl_var->max_readfiles && gl_var->max_readfiles > 0) ||
-	  (filewrite > gl_var->max_writefiles && gl_var->max_writefiles > 0) ||
-	  (fileall > gl_var->max_openfiles && gl_var->max_openfiles > 0))
+      if ((fileread > gl_var->max_readfiles && gl_var->max_readfiles != 0) ||
+	  (filewrite > gl_var->max_writefiles && gl_var->max_writefiles != 0) ||
+	  (fileall > gl_var->max_openfiles && gl_var->max_openfiles != 0))
 	return SSH2_FX_PERMISSION_DENIED;
     }
   return SSH2_FX_OK;
