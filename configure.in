@@ -27,7 +27,20 @@ AC_HEADER_DIRENT
 AC_HEADER_STDC
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h netdb.h netinet/in.h stdlib.h string.h strings.h sys/param.h sys/socket.h unistd.h sys/statfs.h sys/param.h sys/mount.h sys/statvfs.h cygwin/socket.h sys/socket netinet/in.h])
 
-test -e "/usr/include/linux/ext2_fs.h" && AC_DEFINE(HAVE_LINUX_EXT2_FS_H, 1, Etcdir)
+# Checks for target-specific
+case "$host" in
+*-*-cygwin*)
+	AC_CHECK_HEADERS(cygwin/acl.h, [AC_DEFINE(HAVE_CYGWIN, 1, HaveCygwin)])
+	AC_SUBST(LINKER_OPT, "-Xlinker --as-needed")
+	;;
+*-*-linux*)
+	test -e "/usr/include/linux/ext2_fs.h" && AC_DEFINE(HAVE_LINUX_EXT2_FS_H, 1, Etcdir)
+	AC_SUBST(LINKER_OPT, "-Xlinker --as-needed")
+	;;
+*)
+	AC_SUBST(LINKER_OPT, "")
+	;;
+esac
 
 #Help
 AC_ARG_WITH(conffile,
@@ -99,9 +112,6 @@ AC_CHECK_FUNCS([iconv_open iconv_close iconv], , AC_CHECK_LIB(iconv, libiconv_op
 AC_CHECK_LIB(acl, acl_get_entry)
 AC_CHECK_LIB(crypto, OpenSSL_add_all_digests)
 
-#Hosts specifications
-AC_CHECK_HEADERS(cygwin/acl.h, [AC_DEFINE(HAVE_CYGWIN, 1, HaveCygwin)])
-
 #Own defines
 test "$prefix" = "NONE" && prefix=
 test "$exec_prefix" = "NONE" && exec_prefix=/usr
@@ -149,14 +159,6 @@ if test "$ac_cv_type_u_int32_t" = "no" ; then
 fi
 if test "$ac_cv_type_u_int64_t" = "no" ; then
    AC_DEFINE_UNQUOTED(u_int64_t, uint64_t, uint64)
-fi
-if test "$GCC" = "yes" ; then
-   ld -v | grep GNU 2>&1 >/dev/null
-   if test "$?" = "0" ; then
-      AC_SUBST(LINKER_OPT, "-Xlinker --as-needed")
-   fi
-else
-   AC_SUBST(LINKER_OPT, "")
 fi
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([install.sh], [chmod +x install.sh])
