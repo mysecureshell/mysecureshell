@@ -312,12 +312,8 @@ int	main(int ac, char **av, char **env)
 	params->max_writefiles = hash_get_int("MaxWriteFilesForUser");
       if (hash_get_int("DefaultRightsDirectory") > 0)
 	params->rights_directory = hash_get_int("DefaultRightsDirectory");
-      else
-	params->rights_directory = 0777;
       if (hash_get_int("DefaultRightsFile") > 0)
 	params->rights_file = hash_get_int("DefaultRightsFile");
-      else
-	params->rights_file = 0666;
       if (hash_get_int("MinimumRightsDirectory") > 0)
 	params->minimum_rights_directory = hash_get_int("MinimumRightsDirectory");
       if (hash_get_int("MinimumRightsFile") > 0)
