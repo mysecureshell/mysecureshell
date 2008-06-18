@@ -51,10 +51,10 @@ int	tag_is_active(int verbose)
 	}
       currentTag = currentTag->next;
     }
-  return 0;
+  return 1;
 }
 
-void	parse_tag(char *buffer)
+int	parse_tag(char *buffer)
 {
   char	*str;
   int	len, is_close_tag = 0;
@@ -72,6 +72,7 @@ void	parse_tag(char *buffer)
     parse_tag_close();
   else
     parse_tag_open(str);
+  return (is_close_tag == 1 ? -1 : 1);
 }
 
 void	parse_tag_close()
@@ -84,7 +85,6 @@ void	parse_tag_close()
   if (deleteMe->data1)
     free(deleteMe->data1);
   free(deleteMe);
-  parse_opened_tag--;
 }
 
 void	parse_tag_open(char *str)
@@ -121,7 +121,6 @@ void	parse_tag_open(char *str)
     }
   else //TAG_DEFAULT
     newTag->type = VTAG_DEFAULT;
-  parse_opened_tag++;
   newTag->next = _tags;
   _tags = newTag;
 }

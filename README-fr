@@ -104,6 +104,7 @@ HISTORIQUE:
 	= fixe un bug dans le sftp-user
 	= fixe la compilation sur Solaris (merci JoKnarf)
 	= fixe un bug sur les valeurs par defaut sur le tag DefaultRights
+	= fixe un bug sur le tag Include
 
 1.0 (decembre 2007):
 	+ ajout des tags : ExpireDate et IsSimpleAdmin

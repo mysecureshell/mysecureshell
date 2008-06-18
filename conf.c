@@ -202,6 +202,7 @@ int	load_config_file(const char *file, int verbose, int max_recursive_left)
   char		buffer[1024];
   char		**tb, *str;
   int		line, processTag;
+  int		openedTag = 0;
 
   if (max_recursive_left == 0)
     {
@@ -211,6 +212,8 @@ int	load_config_file(const char *file, int verbose, int max_recursive_left)
   processTag = 1;
   if ((fh = fopen(file, "r")))
     {
+      if (verbose > 1)
+	(void )printf("- Parse config file: %s -\n", file);
       line = 0;
       while (fgets(buffer, sizeof(buffer), fh))
 	{
@@ -222,8 +225,8 @@ int	load_config_file(const char *file, int verbose, int max_recursive_left)
 		{
 		  if (str[len] == '>')
 		    {
-		      parse_tag(str);
-		      if (parse_opened_tag < 0)
+		      openedTag += parse_tag(str);
+		      if (openedTag < 0)
 			{
 			  (void )fprintf(stderr,
 					 "[ERROR]Too much tag closed at line %i in file '%s'!\n", line, file);
@@ -248,9 +251,9 @@ int	load_config_file(const char *file, int verbose, int max_recursive_left)
 		}
 	    }
 	}
-      if (parse_opened_tag != 0)
+      if (openedTag != 0)
 	{
-	  (void )fprintf(stderr, "[ERROR]Missing %i close(s) tag(s) in file '%s'!!!\n", parse_opened_tag, file);
+	  (void )fprintf(stderr, "[ERROR]Missing %i close(s) tag(s) in file '%s'!!!\n", openedTag, file);
 	  exit (2);
 	}
       xfclose(fh);

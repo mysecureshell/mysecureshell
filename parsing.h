@@ -34,14 +34,12 @@ typedef struct	sTag
 #define VTAG_VIRTUALHOST	4
 
 int	tag_is_active(int verbose);
-void	parse_tag(char *buffer);
+int	parse_tag(char *buffer);
 void	parse_tag_open(char *str);
 void	parse_tag_close();
 void	parse_virtualhost(const char *str, tTag *newTag);
 char	*parse_range_ip(const char *str);
 char	**parse_cut_string(char *str);
-
-extern int	parse_opened_tag;
 
 #define	TAG_GROUP	"group"
 #define TAG_USER	"user"

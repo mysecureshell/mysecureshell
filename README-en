@@ -95,6 +95,7 @@ CHANGE LOG:
 	= fix bug in sftp-user
 	= fix compilation under Solaris (thanks JoKnarf)
 	= fix bug on default with tag DefaultRights
+	= fix bug on tag Include
 
 1.0 (december 2007):
         + add tags : ExpireDate and IsSimpleAdmin
