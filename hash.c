@@ -106,10 +106,11 @@ void		hash_set_int(const char *key, int value)
 }
 
 int	hash_exists(const char *key)
-{  t_element	*t = _hash->hash[MAKE_HASH(key)];
+{
+  t_element	*t = _hash->hash[MAKE_HASH(key)];
 
   if (_last_key != NULL && strcmp(key, _last_key->key) == 0)
-    return (_last_key->str);
+    return (1);
   while (t)
     {
       if (strcmp(key, t->key) == 0)
