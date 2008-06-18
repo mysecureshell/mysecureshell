@@ -91,10 +91,10 @@ distclean: clean
 	@$(RM) $(NAME) $(NAME1) $(NAME2) $(NAME3)
 	@$(RM) -i `$(FIND) . | grep -F '~'` *.tgz || true
 
-cleanall:
+cleanautoconf:
 	@$(RM) config.h Makefile configure
 
-mrproper: distclean cleanall
+mrproper: distclean cleanautoconf
 
 
 install	:
@@ -110,7 +110,7 @@ package : re
 	@$(TAR) cfz $(ARCHIVE).tgz $(NAME) $(NAME1) $(NAME2) $(NAME3) $(FILE)
 	@echo "Package done."
 
-source	:
+source	: cleanautoconf
 	@echo "Tar the world"
 	@test -e ../$(DEST) || $(LN) -fs MySecureShell ../$(DEST)
 	@cd .. && $(TAR) cfz $(DEST)/$(ARCSRC) $(FILESRC) $(DEST)/*.[ch] $(DEST)/*/*.[ch]
