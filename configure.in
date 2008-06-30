@@ -62,9 +62,7 @@ AC_ARG_WITH(logcolor,
         [  --with-logcolor=xxx     Active color in log file (default: no)],
         [
 		
-                if test "x$withval" != "$no" ; then
-		   MSS_COLOR=yes
-                fi
+		MSS_COLOR=$withval
         ])
 AC_ARG_WITH(shutfile,
 	[  --with-shutfile=xxx     Change shut file (default: /etc/sftp.shut)],

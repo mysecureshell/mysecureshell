@@ -4949,9 +4949,7 @@ MSS_COLOR=no
 if test "${with_logcolor+set}" = set; then
   withval=$with_logcolor;
 
-                if test "x$withval" != "$no" ; then
-		   MSS_COLOR=yes
-                fi
+		MSS_COLOR=$withval
 
 fi
 
