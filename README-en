@@ -96,6 +96,7 @@ CHANGE LOG:
 	= fix compilation under Solaris (thanks JoKnarf)
 	= fix bug on default with tag DefaultRights
 	= fix bug on tag Include
+	= fix bug on script configure with option --with-logcolor
 
 1.0 (december 2007):
         + add tags : ExpireDate and IsSimpleAdmin
@@ -250,5 +251,5 @@ CHANGE LOG:
 		LimitConnection (limite of total connection on the server), Shell
 	+ file sftp-server has moved to sftp-server_MSS to keep original sftp of OpenSSH
 	+ restriction Home support environment variable
-	= fixe bug of "gost" client
-	= fixe bug on restrictions LimitConnection and LimitConnectionByIP
+	= fix bug of "gost" client
+	= fix bug on restrictions LimitConnection and LimitConnectionByIP

@@ -105,6 +105,7 @@ HISTORIQUE:
 	= fixe la compilation sur Solaris (merci JoKnarf)
 	= fixe un bug sur les valeurs par defaut sur le tag DefaultRights
 	= fixe un bug sur le tag Include
+	= fixe un bug sur le script configure avec l'option --with-logcolor
 
 1.0 (decembre 2007):
 	+ ajout des tags : ExpireDate et IsSimpleAdmin
