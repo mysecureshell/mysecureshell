@@ -58,7 +58,7 @@ CP	= cp -pf
 STRIP	= strip
 FIND	= find
 LN	= ln
-SPLINT	= splint -Du_int16_t=uint16_t -Du_int32_t=uint32_t -Du_int64_t=uint64_t -Du_int8_t=uint8_t
+SPLINT	= splint -Du_int16_t=uint16_t -Du_int32_t=uint32_t -Du_int64_t=uint64_t -Du_int8_t=uint8_t +posixlib
 
 all	: $(NAME) sftpwho sftpstate sftpadmin
 
