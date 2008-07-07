@@ -42,7 +42,7 @@ static void	showVersion(int showAll)
 	       ""
 #endif
 	       );
-  if (showAll)
+  if (showAll == 1)
     {
       (void )printf("\n\nOptions:\n  ACL support: "
 #if(HAVE_LIBACL)
@@ -341,7 +341,12 @@ int	main(int ac, char **av, char **env)
       ptr = hash_get("Shell");
       av[0] = ptr;
       if (ptr != NULL)
-	(void )execve(ptr, av, env);
+	{
+	  (void )execve(ptr, av, env);
+	  perror("execute shell");
+	}
+      else
+	(void )fprintf(stderr, "Shell access is disabled !");
       exit(1);
     }
 }
