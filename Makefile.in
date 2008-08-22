@@ -58,6 +58,7 @@ CP	= cp -pf
 STRIP	= strip
 FIND	= find
 LN	= ln
+LS	= ls
 SPLINT	= splint -Du_int16_t=uint16_t -Du_int32_t=uint32_t -Du_int64_t=uint64_t -Du_int8_t=uint8_t +posixlib
 
 all	: $(NAME) sftpwho sftpstate sftpadmin
@@ -115,6 +116,10 @@ source	: cleanautoconf
 	@test -e ../$(DEST) || $(LN) -fs MySecureShell ../$(DEST)
 	@cd .. && $(TAR) cfz $(DEST)/$(ARCSRC) $(FILESRC) $(DEST)/*.[ch] $(DEST)/*/*.[ch]
 	@echo "Source package done."
+
+files	:
+	@test -e ../$(DEST) || $(LN) -fs MySecureShell ../$(DEST)
+	@cd .. && $(LS) $(FILESRC) $(DEST)/*.[ch] $(DEST)/*/*.[ch]
 
 check	:
 	@echo "Check sources"
