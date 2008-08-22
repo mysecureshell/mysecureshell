@@ -511,10 +511,10 @@ void	DoWrite()
 	{
 	  if (hdl->fileIsText == 1)
 	    {
-	      for (dec = 0; dec < len; dec++)
-		if (data[dec] == '\r')
+	      for (dec = 0; (dec + 1) < len; dec++)
+		if (data[dec] == '\r' && data[dec + 1] == '\n')
 		  {
-		    memcpy(data + dec + 1, data + dec, len - dec - 1);
+		    memcpy(data + dec, data + dec + 1, len - dec - 1);
 		    len--;
 		  }
 	    }

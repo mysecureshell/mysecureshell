@@ -97,6 +97,7 @@ CHANGE LOG:
 	= fix bug on default with tag DefaultRights
 	= fix bug on tag Include
 	= fix bug on script configure with option --with-logcolor
+	= fix bug on ascii transfert (SFTP v5 only) (thanks xajez)
 
 1.0 (december 2007):
         + add tags : ExpireDate and IsSimpleAdmin
