@@ -107,6 +107,7 @@ HISTORIQUE:
 	= fixe un bug sur le tag Include
 	= fixe un bug sur le script configure avec l'option --with-logcolor
 	= fixe un bug sur le transfert ascii (SFTP v5 seulement) (merci xajez)
+	= fixe un bug lors du chargement du fichier de configuration (merci abompard)
 
 1.0 (decembre 2007):
 	+ ajout des tags : ExpireDate et IsSimpleAdmin
