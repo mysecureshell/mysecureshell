@@ -59,15 +59,18 @@ char	*trim_right(char *buffer)
 {
   size_t	i;
 
-  i = strlen(buffer) - 1;
-  for (;;)
+  i = strlen(buffer);
+  if (i == 0)
+    return (buffer);
+  do
     {
+      i--;
       if (buffer[i] > '\0' && buffer[i] <= ' ')
 	buffer[i] = '\0';
       else
 	break;
-      i--;
     }
+  while (i > 0);
   return (buffer);
 }
 
