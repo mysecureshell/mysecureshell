@@ -5,7 +5,9 @@
 
 ## Language local initialising
 
-BINDIR=@BINDIR@
+BINDIR=/bin
+MANDIR=/usr/share/man
+USRBINDIR=@BINDIR@
 ETCDIR=@ETCDIR@
 LANG=
 
@@ -48,6 +50,23 @@ else
 		fi
 	fi
 fi
+if [ "$2" != "" ] ; then
+	BINDIR="$2$BINDIR"
+	USRBINDIR="$2$USRBINDIR"
+	ETCDIR="$2$ETCDIR"
+	if [ ! -d "$BINDIR" ] ; then
+		mkdir -m 0755 -p $BINDIR
+	fi
+	if [ ! -d "$USRBINDIR" ] ; then
+		mkdir -m 0755 -p $USRBINDIR
+	fi
+	if [ ! -d "$ETCDIR" ] ; then
+		mkdir -m 0755 -p $ETCDIR
+	fi
+	if [ ! -d $ETCDIR/logrotate.d ] ; then
+		mkdir -m 0755 -p $ETCDIR/logrotate.d
+	fi
+fi
 
 ## Root detection
 
@@ -79,7 +98,7 @@ filefound() {
 }
 
 shellfunc() {
-grepshell=`grep /bin/MySecureShell /etc/shells`
+grepshell=`grep /bin/MySecureShell $ETCDIR/shells`
 if [ "$?" = "0" ] ; then
 	echo "`MyGetLocale 'shellalreadyvd'`		`MyGetLocale 'ok'`"
 else
@@ -92,7 +111,7 @@ else
 	fi
 	case "$rep3" in
 		[yY])
-			echo "/bin/MySecureShell" >> /etc/shells
+			echo "/bin/MySecureShell" >> $ETCDIR/shells
 			echo `MyGetLocale 'shellvalid'`"		"`MyGetLocale 'ok'`
 			;;
 		*)
@@ -184,11 +203,11 @@ esac
 
 ## If MSS is present, stop server
 
-if [ -f $BINDIR/sftp-state ] ; then
+if [ -f $USRBINDIR/sftp-state ] ; then
 	if [ $fyesall = "1" ] ; then
-		$BINDIR/sftp-state -yes stop > /dev/null
+		$USRBINDIR/sftp-state -yes stop > /dev/null
 	else
-		$BINDIR/sftp-state stop
+		$USRBINDIR/sftp-state stop
 	fi
 fi
 
@@ -254,31 +273,31 @@ fi
 ## Updating Detection
 
 echo ""
-if [ -f /bin/MySecureShell ] ; then
+if [ -f $BINDIR/MySecureShell ] ; then
 	echo `MyGetLocale 'upconffile'`"			"`MyGetLocale 'ok'`
 else
 	echo `MyGetLocale 'mkconffile'`"				"`MyGetLocale 'ok'`
 fi
-cp -f ./MySecureShell /bin
-chmod 4755 /bin/MySecureShell
+cp -f ./MySecureShell $BINDIR
+chmod 4755 $BINDIR/MySecureShell
 
 ## /shells detection
 
 echo ""
-if [ -f /etc/shells ] ; then
+if [ -f $ETCDIR/shells ] ; then
 	shellfunc
 else
 	MyGetLocale 'mkshells'
 	if [ $fyesall = "1" ] ; then
-		repshells="y"
+		repshells="n"
 	else
 		read repshells
 		test -z "$repshells" && repshells="n"
 	fi
 	case "$repshells" in
 		[yY])
-			touch /etc/shells
-			chmod 644 /etc/shells
+			touch $ETCDIR/shells
+			chmod 644 $ETCDIR/shells
 			shellfunc
 			;;
 	esac
@@ -289,15 +308,15 @@ fi
 echo ""
 if [ -d ./utils ] ; then
 	for tool in "sftp-who" "sftp-kill" "sftp-state" "sftp-admin" "sftp-verif" "sftp-user" ; do
-		cp -f ./utils/$tool $BINDIR
+		cp -f ./utils/$tool $USRBINDIR
 		echo `MyGetLocale 'tool'`" $tool			"`MyGetLocale 'ok'`
 	done
-	chmod 700 $BINDIR/sftp-kill
-	chmod 700 $BINDIR/sftp-state
-	chmod 700 $BINDIR/sftp-admin
-	chmod 755 $BINDIR/sftp-who
-	chmod 755 $BINDIR/sftp-verif
-	chmod 755 $BINDIR/sftp-user
+	chmod 700 $USRBINDIR/sftp-kill
+	chmod 700 $USRBINDIR/sftp-state
+	chmod 700 $USRBINDIR/sftp-admin
+	chmod 755 $USRBINDIR/sftp-who
+	chmod 755 $USRBINDIR/sftp-verif
+	chmod 755 $USRBINDIR/sftp-user
 else
 	echo `MyGetLocale 'noutilities'`"	"`MyGetLocale 'ok'`
 fi
@@ -316,8 +335,8 @@ fi
 case "$rep8" in
 	[yY])
 		# Using for Debian like systems
-		if [ -d /etc/logrotate.d ] ; then
-			cat > /etc/logrotate.d/mysecureshell <<\_ACEOF
+		if [ -d $ETCDIR/logrotate.d ] ; then
+			cat > $ETCDIR/logrotate.d/mysecureshell <<\_ACEOF
 @MSS_LOG@ {
 	weekly
 	size=500k
@@ -328,15 +347,15 @@ case "$rep8" in
 	notifempty
 }
 _ACEOF
-			chmod 644 /etc/logrotate.d/mysecureshell
+			chmod 644 $ETCDIR/logrotate.d/mysecureshell
 			echo `MyGetLocale 'logrot'`"	"`MyGetLocale 'ok'`
 		else
 			# Others BSD systems
-			if [ -f /etc/weekly ] ; then
+			if [ -f $ETCDIR/weekly ] ; then
 			        logstat=1
-				grep -e '^for' < /etc/weekly | grep -ve sftp-server.log > /dev/null
+				grep -e '^for' < $ETCDIR/weekly | grep -ve sftp-server.log > /dev/null
 			        if [ "$?" = "0" ] ; then
-			                sed -e 's/^\(for i in.*\)\(; do\)$/\1 sftp-server.log\2/' /etc/weekly > /tmp/weekly.tmp && mv /tmp/weekly.tmp /etc/weekly
+			                sed -e 's/^\(for i in.*\)\(; do\)$/\1 sftp-server.log\2/' $ETCDIR/weekly > /tmp/weekly.tmp && mv /tmp/weekly.tmp $ETCDIR/weekly
 			        fi
 			fi
 			if [ "$logstat" = "1" ] ; then
@@ -351,9 +370,12 @@ esac
 ## Mans
 
 if [ -d ./man ] ; then
-        cp ./man/en/man8/* /usr/share/man/man8
-        if [ -d /usr/share/man/fr ] ; then
-                cp ./man/fr/man8/* /usr/share/man/fr/man8
+	if [ ! -d $MANDIR/man8 ] ; then
+		mkdir -m 0755 -p $MANDIR/man8
+	fi
+        cp ./man/en/man8/* $MANDIR/man8
+        if [ -d $MANDIR/fr ] ; then
+                cp ./man/fr/man8/* $MANDIR/fr/man8
         fi
 	echo `MyGetLocale 'mans'`"				"`MyGetLocale 'ok'`
 else
@@ -364,8 +386,8 @@ fi
 # End of Installation
 
 # Only needed for version < 0.6 --> 0.8 & +
-$BINDIR/sftp-state fullshutdown > /dev/null
-$BINDIR/sftp-state start > /dev/null
+$USRBINDIR/sftp-state fullshutdown > /dev/null
+$USRBINDIR/sftp-state start > /dev/null
 
 echo ""
 MyGetLocale 'finishedinst'

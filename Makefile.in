@@ -99,7 +99,7 @@ mrproper: distclean cleanautoconf
 
 
 install	:
-	@./install.sh yesall
+	@./install.sh yesall $(DESTDIR)
 
 re	: distclean all
 
@@ -111,7 +111,7 @@ package : re
 	@$(TAR) cfz $(ARCHIVE).tgz $(NAME) $(NAME1) $(NAME2) $(NAME3) $(FILE)
 	@echo "Package done."
 
-source	: cleanautoconf
+source	:
 	@echo "Tar the world"
 	@test -e ../$(DEST) || $(LN) -fs MySecureShell ../$(DEST)
 	@cd .. && $(TAR) cfz $(DEST)/$(ARCSRC) $(FILESRC) $(DEST)/*.[ch] $(DEST)/*/*.[ch]
