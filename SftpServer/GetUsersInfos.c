@@ -39,7 +39,7 @@ static t_info	*add_element_in_table(t_info **tb, int *tbSize, char *name, int id
   DEBUG((MYLOG_DEBUG, "add_element_in_table(%p, %i, %s, %i)", *tb, *tbSize, name, id));
   if ((*tbSize % TB_ALLOC_SIZE) == 0)
     {
-      *tb = realloc(*tb, *tbSize + TB_ALLOC_SIZE);
+      *tb = realloc(*tb, (*tbSize + TB_ALLOC_SIZE) * sizeof(t_info));
       DEBUG((MYLOG_DEBUG, "Increaze size to: %i", *tbSize + TB_ALLOC_SIZE));
     }
   (*tb)[*tbSize].name = name;
