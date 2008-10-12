@@ -85,7 +85,7 @@ Forum:       http://mysecureshell.free.fr
 
 HISTORIQUE:
 -----------
-1.1 (??):
+1.1 (octobre 2008):
 	+ support de l'imbrication des tags de niveau 1
 	+ ajout des tags : CanChangeRights et CanChangeTime
 	+ le fichier de log affiche les transferts : debut / fin / interrompu
