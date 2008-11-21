@@ -85,6 +85,11 @@ Forum:       http://mysecureshell.free.fr
 
 HISTORIQUE:
 -----------
+1.1a (??):
+	= fixe un probleme de compilation sous 64bit (merci 8087)
+	= fixe un bug sur le tag VirtualHost sous Solaris (merci JoKnarf)
+	= fixe un bug sur le tag IpRange (seulement sur les masques non-multiple de 8)
+
 1.1 (octobre 2008):
 	+ support de l'imbrication des tags de niveau 1
 	+ ajout des tags : CanChangeRights et CanChangeTime
