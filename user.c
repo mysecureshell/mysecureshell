@@ -130,7 +130,7 @@ int	is_for_rangeip(const char *range, int verbose)
     {
       bip[pos] = (unsigned char )bip[pos] >> (8 - size);
       bip[pos] = (unsigned char )bip[pos] << (8 - size);
-      if (range[pos] < bip[pos] || bip[pos] > range[pos + 4])
+      if (range[pos] > bip[pos] || bip[pos] > range[pos + 4])
 	goto error_is_for_rangeip;
     }
   if (verbose >= 2)
