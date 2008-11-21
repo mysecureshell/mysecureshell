@@ -22,6 +22,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <stdio.h>
 #include <string.h>
 #include <strings.h>
+#ifdef HAVE_CYGWIN_SOCKET_H
+#include <cygwin/socket.h>
+#endif
+#include <sys/types.h>
+#ifdef HAVE_NETINET_IN_H
+#include <netinet/in.h>
+#endif
+#ifdef HAVE_SYS_SOCKET_H
+#include <sys/socket.h>
+#endif
+#include <arpa/inet.h>
 #include "string.h"
 #include "parsing.h"
 #include "user.h"
@@ -140,14 +151,21 @@ void			parse_virtualhost(const char *str, tTag *newTag)
       (h = gethostbyname(str)) != NULL &&
       h->h_addr_list != NULL && h->h_addr_list[0] != NULL)
     {
-      char	buffer[32];
+      char		buffer[32];
+#ifdef HAVE_INET_NTOA
+      struct in_addr	in;
+
+      (void )memcpy(&in.s_addr, *h->h_addr_list, sizeof(in.s_addr));
       
-      (void )snprintf(buffer, sizeof(buffer), "%ui.%ui.%ui.%ui",
-		      (unsigned int)h->h_addr_list[0][0],
-		      (unsigned int)h->h_addr_list[0][1],
-		      (unsigned int)h->h_addr_list[0][2],
-		      (unsigned int)h->h_addr_list[0][3]
-		      );
+      (void )snprintf(buffer, sizeof(buffer), "%s", inet_ntoa(in));
+#else //!HAVE_INET_NTOA
+      (void )snprintf(buffer, sizeof(buffer), "%u.%u.%u.%u",
+              (unsigned int)h->h_addr_list[0][0],
+              (unsigned int)h->h_addr_list[0][1],
+              (unsigned int)h->h_addr_list[0][2],
+              (unsigned int)h->h_addr_list[0][3]
+              );
+#endif
       newTag->data1 = strdup(buffer);
     }
   else
