@@ -61,24 +61,24 @@ LN	= ln
 LS	= ls
 SPLINT	= splint -Du_int16_t=uint16_t -Du_int32_t=uint32_t -Du_int64_t=uint64_t -Du_int8_t=uint8_t +posixlib
 
-all	: $(NAME) sftpwho sftpstate sftpadmin
+all	: $(NAME) $(NAME1) $(NAME2) $(NAME3)
 
 $(NAME)	: $(OBJ)
 	@echo "Compile binary	[$(NAME)]"
 	@$(CC) -o $(NAME) $(OBJ) $(LDFLAGS)
 	@$(CHMOD) 755 $(NAME)
 
-sftpwho : $(OBJ1)
+$(NAME1) : $(OBJ1)
 	@echo "Compile binary	[$(NAME1)]"
 	@$(CC) -o $(NAME1) $(OBJ1)
 	@$(CHMOD) 711 $(NAME1)
 
-sftpstate: $(OBJ2)
+$(NAME2) : $(OBJ2)
 	@echo "Compile binary	[$(NAME2)]"
 	@$(CC) -o $(NAME2) $(OBJ2)
 	@$(CHMOD) 711 $(NAME2)
 
-sftpadmin : $(OBJ3)
+$(NAME3) : $(OBJ3)
 	@echo "Compile binary	[$(NAME3)]"
 	@$(CC) -o $(NAME3) $(OBJ3)
 	@$(CHMOD) 711 $(NAME3)
