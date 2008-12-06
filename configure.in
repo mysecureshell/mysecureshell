@@ -11,7 +11,6 @@ AC_PATH_PROG(SED, sed)
 AC_REQUIRE_CPP
 AC_GNU_SOURCE
 AC_PROG_GCC_TRADITIONAL
-AC_PROG_INSTALL
 AC_PROG_LN_S
 
 
@@ -186,6 +185,7 @@ AC_CONFIG_FILES([install.sh], [chmod +x install.sh])
 AC_CONFIG_FILES([uninstaller.sh], [chmod +x uninstaller.sh])
 AC_CONFIG_FILES([utils/sftp-verif], [chmod +x utils/sftp-verif])
 AC_OUTPUT
+AC_PROG_INSTALL
 
 A=`eval echo ${sysconfdir}`
 echo ""
