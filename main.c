@@ -226,7 +226,7 @@ int	main(int ac, char **av, char **env)
 	(hash_get_int("CanChangeRights") ? SFTPWHO_CAN_CHG_RIGHTS : 0) +
 	(hash_get_int("CanChangeTime") ? SFTPWHO_CAN_CHG_TIME : 0)
 	;
-      params->who->status = params->status;
+      params->who->status |= params->status;
       _sftpglobal->download_max = (u_int32_t )hash_get_int("GlobalDownload");
       _sftpglobal->upload_max = (u_int32_t )hash_get_int("GlobalUpload");
       if (hash_get_int("Download") > 0)
