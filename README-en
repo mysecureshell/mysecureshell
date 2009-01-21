@@ -76,6 +76,12 @@ Forum:       http://mysecureshell.free.fr
 
 CHANGE LOG:
 -----------
+1.15 (april 2009):
+	= fix compilation problem under 64bit (thanks 8087)
+	= fix bug on tag VirtualHost under Solaris (thanks JoKnarf)
+	= fix bug on tag IpRange
+	= fix bug in sftp-who informations (thanks marckburgers)
+
 1.1 (october 2008):
 	+ support multi-level of tags (level 1)
 	+ add tags : CanChangeRights and CanChangeTime
