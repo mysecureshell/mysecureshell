@@ -2,7 +2,7 @@ VERSION = @PACKAGE_VERSION@
 DEST	= mysecureshell_$(VERSION)
 CPU	= "`uname -m`"
 ARCHIVE	= mysecureshell_$(VERSION)-$(OSTYPE)-$(CPU)
-ARCSRC	= MySecureShell-$(VERSION)_source.tgz
+ARCSRC	= mysecureshell_$(VERSION).tar.gz
 
 NAME	= MySecureShell$(EXT)
 SRC	= main.c string.c	\
@@ -98,7 +98,7 @@ cleanautoconf:
 mrproper: distclean cleanautoconf
 
 
-install	:
+install	: all
 	@./install.sh yesall $(DESTDIR)
 
 re	: distclean all
