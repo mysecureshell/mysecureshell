@@ -37,6 +37,7 @@ MyListLocale()
 }
 
 if [ "$1" = "yesall" ] ; then
+	LANG="en"
 	fyesall="1"
 	break
 else
@@ -52,10 +53,14 @@ else
 fi
 if [ "$2" != "" ] ; then
 	BINDIR="$2$BINDIR"
+	MANDIR="$2$MANDIR"
 	USRBINDIR="$2$USRBINDIR"
 	ETCDIR="$2$ETCDIR"
 	if [ ! -d "$BINDIR" ] ; then
 		mkdir -m 0755 -p $BINDIR
+	fi
+	if [ ! -d "$MANDIR" ] ; then
+		mkdir -m 0755 -p $MANDIR
 	fi
 	if [ ! -d "$USRBINDIR" ] ; then
 		mkdir -m 0755 -p $USRBINDIR
@@ -367,7 +372,7 @@ _ACEOF
 		;;
 esac
 
-## Mans
+## Manuals
 
 if [ -d ./man ] ; then
 	if [ ! -d $MANDIR/man8 ] ; then
@@ -375,8 +380,9 @@ if [ -d ./man ] ; then
 	fi
         cp ./man/en/man8/* $MANDIR/man8
         if [ -d $MANDIR/fr ] ; then
-                cp ./man/fr/man8/* $MANDIR/fr/man8
+		mkdir -m 0755 -p $MANDIR/man8
         fi
+        cp ./man/fr/man8/* $MANDIR/fr/man8
 	echo `MyGetLocale 'mans'`"				"`MyGetLocale 'ok'`
 else
         echo `MyGetLocale 'mans'`"				"`MyGetLocale 'failed'`
