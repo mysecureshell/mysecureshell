@@ -13,11 +13,11 @@ LANG=
 
 MyGetLocale()
 {
-	if [ "$LANG" == "" ] ; then
+	if [ "$LANG" = "" ] ; then
 		echo $1
 	else
 		tmp=`grep -F "$1=" locales_$LANG | cut -d= -f2-`
-		if [ "$tmp" == "" ] ; then
+		if [ "$tmp" = "" ] ; then
 			echo $1
 		else
 			echo $tmp
@@ -32,7 +32,7 @@ MyListLocale()
 	echo "Usage: ./uninstall.sh xx(language)"
 }
 
-if [ "$1" == "" ] ; then
+if [ "$1" = "" ] ; then
 	MyListLocale
 	exit 1
 else
@@ -79,22 +79,31 @@ case "$ans" in
 
 	# Delete mans
 		if [ -d /usr/share/man/man8 ] ; then
+			rm -f /usr/share/man/man8/MySecureShell.8
 			rm -f /usr/share/man/man8/sftp-admin.8
 			rm -f /usr/share/man/man8/sftp-kill.8
 			rm -f /usr/share/man/man8/sftp-state.8
+			rm -f /usr/share/man/man8/sftp-user.8
 			rm -f /usr/share/man/man8/sftp-verif.8
+			rm -f /usr/share/man/man8/sftp-who.8
 		fi
 		if [ -d /usr/share/man/en/man8 ] ; then
+			rm -f /usr/share/man/en/man8/MySecureShell.8
 			rm -f /usr/share/man/en/man8/sftp-admin.8
 			rm -f /usr/share/man/en/man8/sftp-kill.8
 			rm -f /usr/share/man/en/man8/sftp-state.8
+			rm -f /usr/share/man/en/man8/sftp-user.8
 			rm -f /usr/share/man/en/man8/sftp-verif.8
+			rm -f /usr/share/man/en/man8/sftp-who.8
 		fi
 		if [ -d /usr/share/man/fr/man8 ] ; then
+			rm -f /usr/share/man/fr/man8/MySecureShell.8
 			rm -f /usr/share/man/fr/man8/sftp-admin.8
 			rm -f /usr/share/man/fr/man8/sftp-kill.8
 			rm -f /usr/share/man/fr/man8/sftp-state.8
+			rm -f /usr/share/man/fr/man8/sftp-user.8
 			rm -f /usr/share/man/fr/man8/sftp-verif.8
+			rm -f /usr/share/man/fr/man8/sftp-who.8
 		fi
 
 	# Delete configuration ?
