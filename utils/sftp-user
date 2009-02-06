@@ -22,8 +22,8 @@ doesntexist="Sorry but this user doesn't exist !"
 encPass='*'
 
 vrf_create() {
-	for i in $nameuser $homeuser ; do
-		if [ -z $i ] ; then
+	for i in "$nameuser" "$homeuser" ; do
+		if [ -z "$i" ] ; then
 			echo $bardarg
 			exit 0
 		fi
@@ -32,7 +32,7 @@ vrf_create() {
 
 vrf_delhide() {
 	name=`id -un $nameuser 2>&1`
-	if [ "$name" == 'nobody' ] || [ "$name" == "$nameuser" ] ; then
+	if [ "$name" = 'nobody' ] || [ "$name" = "$nameuser" ] ; then
 		break
 	else
 		echo $doesntexist
@@ -68,7 +68,7 @@ EOF`
 
 vrf_useralreadyexit() {
 	name=`id -un $nameuser 2>&1`
-	if [ "$name" == "$nameuser" ] || [ "$name" == 'nobody' ] ; then
+	if [ "$name" = "$nameuser" ] || [ "$name" = 'nobody' ] ; then
 		echo $alreadyexist
 		exit 1
 	fi
@@ -106,7 +106,7 @@ dar_add() {
 		dscl . -append /Groups/staff GroupMembership $nameuser
 	fi
 	# Hide user
-	test $hideuser = 1 && defaults write /Library/Preferences/com.apple.loginwindow HiddenUsersList -array $nameuser && defaults write /Library/Preferences/com.apple.loginwindow HiddenUsersList -array-add $nameuser
+	test "$hideuser" = '1' && defaults write /Library/Preferences/com.apple.loginwindow HiddenUsersList -array $nameuser && defaults write /Library/Preferences/com.apple.loginwindow HiddenUsersList -array-add $nameuser
 }
 
 # List users with MySecureShell Shell
@@ -138,7 +138,7 @@ dar_del() {
 # Hidding
 dar_hid() {
 	# Home is choice
-	if [ $hideuser = 0 ] ; then
+	if [ "$hideuser" = '0' ] ; then
 		defaults write /Library/Preferences/com.apple.loginwindow HiddenUsersList $nameuser
 	else
 		defaults write /Library/Preferences/com.apple.loginwindow HiddenUsersList -array $nameuser
@@ -178,7 +178,7 @@ case $1 in
 		vrf_create
 		vrf_useralreadyexit
 		vrf_getpass
-		if [ $osdetection = Darwin ] ; then
+		if [ "$osdetection" = 'Darwin' ] ; then
 			dar_add
 		else
 			nux_add
@@ -186,21 +186,21 @@ case $1 in
 	;;
 	delete)
 		vrf_delhide
-		if [ $osdetection = Darwin ] ; then
+		if [ "$osdetection" = 'Darwin' ] ; then
 			dar_del
 		else
 			nux_del
 		fi
 	;;
 	list)
-		if [ $osdetection = Darwin ] ; then
+		if [ "$osdetection" = 'Darwin' ] ; then
 			dar_list
 		else
 			nux_list
 		fi
 	;;
 	hide)
-		if [ $osdetection = Darwin ] ; then
+		if [ "$osdetection" = 'Darwin' ] ; then
 		    vrf_delhide
 		    dar_hid
 		fi
