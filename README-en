@@ -76,7 +76,7 @@ Forum:       http://mysecureshell.free.fr
 
 CHANGE LOG:
 -----------
-1.15 (april 2009):
+1.15 (february 2009):
 	= fix compilation problem under 64bit (thanks 8087)
 	= fix bug on tag VirtualHost under Solaris (thanks JoKnarf)
 	= fix bug on tag IpRange

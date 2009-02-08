@@ -85,7 +85,7 @@ Forum:       http://mysecureshell.free.fr
 
 HISTORIQUE:
 -----------
-1.15 (april 2009):
+1.15 (fevrier 2009):
 	= fixe un probleme de compilation sous 64bit (merci 8087)
 	= fixe un bug sur le tag VirtualHost sous Solaris (merci JoKnarf)
 	= fixe un bug sur le tag IpRange (seulement sur les masques non-multiple de 8)
