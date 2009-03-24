@@ -320,6 +320,8 @@ int	main(int ac, char **av, char **env)
 	params->minimum_rights_file = hash_get_int("MinimumRightsFile");
       if (hash_get("Charset") != NULL)
 	  setCharset(hash_get("Charset"));
+      if (hash_get("ForceUser") != NULL)
+	  params->force_user = strdup(hash_get("ForceUser"));
       delete_hash();
       if (hostname != NULL)
 	free(hostname);

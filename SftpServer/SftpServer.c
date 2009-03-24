@@ -130,6 +130,24 @@ void	DoInitUser()
 	}
       gl_var->who->status = gl_var->status;
     }
+  if (gl_var->force_user != NULL)
+    {
+      t_info	*pw;
+
+      mylog_printf(MYLOG_WARNING, "[%s][%s]Using force user: %s",
+		gl_var->who->user, gl_var->who->ip, gl_var->force_user);
+      if ((pw = mygetpwnam(gl_var->force_user)) != NULL)
+	{
+	  if (setuid(pw->id) == -1)
+	    mylog_printf(MYLOG_WARNING, "[%s][%s]Unable to force user: %s (%s)",
+		gl_var->who->user, gl_var->who->ip,
+		gl_var->force_user, strerror(errno));
+	}
+      else
+	mylog_printf(MYLOG_WARNING,
+		"[%s][%s]Unable to force user: %s (user unknown)",
+		gl_var->who->user, gl_var->who->ip, gl_var->force_user);
+    }
   if (getuid() != geteuid()) //revoke root rights in user mode !
     {
       if (seteuid(getuid()) == -1 || setegid(getgid()) == -1)

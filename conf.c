@@ -93,6 +93,7 @@ static const tConf	confParams[] =
     { "CanChangeRights", CONF_IS_BOOLEAN, CONF_SHOW },
     { "CanChangeTime", CONF_IS_BOOLEAN, CONF_SHOW },
     { "ExpireDate", CONF_IS_STRING_MAYBE_EMPTY, CONF_SHOW },
+    { "ForceUser", CONF_IS_STRING, CONF_SHOW },
     { NULL, CONF_IS_EMPTY, CONF_NOT_SHOW },
   };
 

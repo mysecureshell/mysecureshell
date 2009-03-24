@@ -262,6 +262,7 @@ typedef struct	sGlobal
   unsigned int	upload_current;
   unsigned int	download_max;
   unsigned int	upload_max;
+  char		*force_user;
 }		tGlobal;
 
  
