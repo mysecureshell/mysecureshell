@@ -85,6 +85,14 @@ Forum:       http://mysecureshell.free.fr
 
 HISTORIQUE:
 -----------
+1.20 (??? 2009):
+	+ ajout des tags (merci JoKnarf) :
+		* ForceUser, ForceGroup, DisableRemoveDir,
+		* DisableRemoveFile, DisableReadDir, DisableReadFile,
+		* DisableWriteFile, DisableSetAttribute,
+		* DisableMakeDir, DisableRename, DisableSymLink,
+		* DisableOverwrite
+
 1.15 (fevrier 2009):
 	= fixe un probleme de compilation sous 64bit (merci 8087)
 	= fixe un bug sur le tag VirtualHost sous Solaris (merci JoKnarf)

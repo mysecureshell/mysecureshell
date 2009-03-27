@@ -85,12 +85,12 @@ void	DoInit()
 #ifdef MSS_HAVE_ADMIN
   if (clientVersion == SSH2_ADMIN_VERSION)
     {
-      if (HAS_BIT(gl_var->status, SFTPWHO_IS_ADMIN)
-	  || HAS_BIT(gl_var->status, SFTPWHO_IS_SIMPLE_ADMIN))
+      if (HAS_BIT(gl_var->flagsGlobals, SFTPWHO_IS_ADMIN)
+	  || HAS_BIT(gl_var->flagsGlobals, SFTPWHO_IS_SIMPLE_ADMIN))
 	{
 	  connectionStatus = CONN_ADMIN;
 	  cVersion = clientVersion;
-	  if (!HAS_BIT(gl_var->status, SFTPWHO_IS_ADMIN))
+	  if (!HAS_BIT(gl_var->flagsGlobals, SFTPWHO_IS_ADMIN))
 	    cVersion = SSH2_SIMPLE_ADMIN_VERSION;
 	  DEBUG((MYLOG_DEBUG, "[DoInit]New admin [use version: %i]", cVersion));
 	  //Hide admin to sftp-who !
@@ -233,7 +233,12 @@ void	DoReadDir()
 
   id = BufferGetInt32(bIn);
   h = BufferGetHandle(bIn);
-  if ((hdl = HandleGetDir(h)) == NULL)
+  if (HAS_BIT(gl_var->flagsDisable, SFTP_DISABLE_READ_DIR))
+    {
+      DEBUG((MYLOG_DEBUG, "[DoReadDir]Disabled by conf."));
+      SendStatus(bOut, id, SSH2_FX_PERMISSION_DENIED);
+    }
+  else if ((hdl = HandleGetDir(h)) == NULL)
     {
       DEBUG((MYLOG_DEBUG, "[DoReadDir]handle:%i", h));
       SendStatus(bOut, id, (cVersion <= 3 ? SSH2_FX_FAILURE : SSH4_FX_INVALID_HANDLE));
@@ -262,7 +267,7 @@ void	DoReadDir()
       while ((dp = readdir(hdl->dir)) != NULL)
 	{
 	  STRCPY(pathName + len, dp->d_name, sizeof(pathName) - len);
-	  if (HAS_BIT(gl_var->status, SFTPWHO_LINKS_AS_LINKS))
+	  if (HAS_BIT(gl_var->flagsGlobals, SFTPWHO_LINKS_AS_LINKS))
 	    {
 	      if (lstat(pathName, &st) < 0)
 		{
@@ -374,7 +379,19 @@ void	DoOpen()
   mode = gl_var->rights_file ? gl_var->rights_file :
     (a->flags & SSH2_FILEXFER_ATTR_PERMISSIONS) ? a->perm : 644;
   mode |= gl_var->minimum_rights_file;
-  if ((status = CheckRules(path, RULES_FILE, 0, flags)) == SSH2_FX_OK)
+  if ((HAS_BIT(gl_var->flagsDisable, SFTP_DISABLE_READ_FILE)
+		&& HAS_BIT(pflags, SSH2_FXF_READ))
+	|| (HAS_BIT(gl_var->flagsDisable, SFTP_DISABLE_WRITE_FILE)
+		&& HAS_BIT(pflags, SSH2_FXF_WRITE))
+	|| (HAS_BIT(gl_var->flagsDisable, SFTP_DISABLE_OVERWRITE)
+		&& HAS_BIT(pflags, SSH2_FXF_APPEND)
+		&& stat(path, &st) != -1)
+	)
+    {
+      DEBUG((MYLOG_DEBUG, "[DoOpen]Disabled by conf."));
+      status = SSH2_FX_PERMISSION_DENIED;
+    }
+  else if ((status = CheckRules(path, RULES_FILE, 0, flags)) == SSH2_FX_OK)
     if ((status = CheckRulesAboutMaxFiles()) == SSH2_FX_OK)
       {
 	if ((fd = open(path, flags, mode)) < 0)
@@ -639,7 +656,12 @@ void 	DoSetStat()
   id = BufferGetInt32(bIn);
   path = convertFromUtf8(BufferGetString(bIn), 1);
   a = GetAttributes(bIn);
-  if ((status = CheckRules(path, RULES_NONE, 0, 0)) == SSH2_FX_OK)
+  if (HAS_BIT(gl_var->flagsDisable, SFTP_DISABLE_SET_ATTRIBUTE))
+    {
+      DEBUG((MYLOG_DEBUG, "[DoSetStat]Disabled by conf."));
+      status = SSH2_FX_PERMISSION_DENIED;
+    }
+  else if ((status = CheckRules(path, RULES_NONE, 0, 0)) == SSH2_FX_OK)
     {
       if (a->flags & SSH2_FILEXFER_ATTR_SIZE)
 	{
@@ -647,7 +669,7 @@ void 	DoSetStat()
 	    status = errnoToPortable(errno);
 	}
       if (a->flags & SSH2_FILEXFER_ATTR_PERMISSIONS
-	  && HAS_BIT(gl_var->status, SFTPWHO_CAN_CHG_RIGHTS))
+	  && HAS_BIT(gl_var->flagsGlobals, SFTPWHO_CAN_CHG_RIGHTS))
 	{
 	  if (stat(path, &stats) == 0 && S_ISDIR(stats.st_mode))
 	    a->perm |= gl_var->minimum_rights_directory;
@@ -657,7 +679,7 @@ void 	DoSetStat()
 	    status = errnoToPortable(errno);
 	}
       if (a->flags & SSH2_FILEXFER_ATTR_ACMODTIME
-	  && HAS_BIT(gl_var->status, SFTPWHO_CAN_CHG_TIME))
+	  && HAS_BIT(gl_var->flagsGlobals, SFTPWHO_CAN_CHG_TIME))
 	{
 	  if (utimes(path, AttributesToTimeval(a)) == -1)
 	    status = errnoToPortable(errno);
@@ -685,7 +707,12 @@ void 	DoFSetStat()
   id = BufferGetInt32(bIn);
   hdl = HandleGetDir(BufferGetHandle(bIn));
   a = GetAttributes(bIn);
-  if (hdl == NULL)
+  if (HAS_BIT(gl_var->flagsDisable, SFTP_DISABLE_SET_ATTRIBUTE))
+    {
+      DEBUG((MYLOG_DEBUG, "[DoFSetStat]Disabled by conf."));
+      status = SSH2_FX_PERMISSION_DENIED;
+    }
+  else if (hdl == NULL)
     status = (cVersion <= 3 ? SSH2_FX_FAILURE : SSH4_FX_INVALID_HANDLE);
   else
     {
@@ -727,9 +754,14 @@ void	DoRemove()
 
   id = BufferGetInt32(bIn);
   path = convertFromUtf8(BufferGetString(bIn), 1);
-  if ((status = CheckRules(path, RULES_RMFILE, 0, 0)) == SSH2_FX_OK)
+  if (HAS_BIT(gl_var->flagsDisable, SFTP_DISABLE_REMOVE_FILE))
     {
-      if (HAS_BIT(gl_var->status, SFTPWHO_CAN_RMFILE))
+      DEBUG((MYLOG_DEBUG, "[DoRemove]Disabled by conf."));
+      status = SSH2_FX_PERMISSION_DENIED;
+    }
+  else if ((status = CheckRules(path, RULES_RMFILE, 0, 0)) == SSH2_FX_OK)
+    {
+      if (HAS_BIT(gl_var->flagsGlobals, SFTPWHO_CAN_RMFILE))
 	{
 	  if (unlink(path) == -1)
 	    status = errnoToPortable(errno);
@@ -758,7 +790,12 @@ void	DoMkDir()
   mode = gl_var->rights_directory ? gl_var->rights_directory :
     (a->flags & SSH2_FILEXFER_ATTR_PERMISSIONS) ? a->perm & 0777 : 0755;
   mode |= gl_var->minimum_rights_directory;
-  if ((status = CheckRules(path, RULES_DIRECTORY, 0, O_WRONLY)) == SSH2_FX_OK)
+  if (HAS_BIT(gl_var->flagsDisable, SFTP_DISABLE_MAKE_DIR))
+    {
+      DEBUG((MYLOG_DEBUG, "[DoMkDir]Disabled by conf."));
+      status = SSH2_FX_PERMISSION_DENIED;
+    }
+  else if ((status = CheckRules(path, RULES_DIRECTORY, 0, O_WRONLY)) == SSH2_FX_OK)
     {
       if (mkdir(path, mode) == -1)
 	status = errnoToPortable(errno);
@@ -781,9 +818,14 @@ void	DoRmDir()
 
   id = BufferGetInt32(bIn);
   path = convertFromUtf8(BufferGetString(bIn), 1);
-  if ((status = CheckRules(path, RULES_RMDIRECTORY, 0, 0)) == SSH2_FX_OK)
+  if (HAS_BIT(gl_var->flagsDisable, SFTP_DISABLE_REMOVE_DIR))
     {
-      if (HAS_BIT(gl_var->status, SFTPWHO_CAN_RMDIR))
+      DEBUG((MYLOG_DEBUG, "[DoRmDir]Disabled by conf."));
+      status = SSH2_FX_PERMISSION_DENIED;
+    }
+  else if ((status = CheckRules(path, RULES_RMDIRECTORY, 0, 0)) == SSH2_FX_OK)
+    {
+      if (HAS_BIT(gl_var->flagsGlobals, SFTPWHO_CAN_RMDIR))
 	{
 	  if (rmdir(path) == -1)
 	    status = errnoToPortable(errno);
@@ -810,7 +852,12 @@ void	DoRename()
   newPath = convertFromUtf8(BufferGetString(bIn), 1);
   if (cVersion >= 5)
     flags = BufferGetInt32(bIn);
-  if ((status = CheckRules(oldPath, RULES_RMFILE, 0, 0)) == SSH2_FX_OK
+  if (HAS_BIT(gl_var->flagsDisable, SFTP_DISABLE_RENAME))
+    {
+      DEBUG((MYLOG_DEBUG, "[DoRename]Disabled by conf."));
+      status = SSH2_FX_PERMISSION_DENIED;
+    }
+  else if ((status = CheckRules(oldPath, RULES_RMFILE, 0, 0)) == SSH2_FX_OK
       && (status = CheckRules(newPath, RULES_FILE, 0, O_WRONLY)) == SSH2_FX_OK)
     {
       if (stat(newPath, &sb) == 0 && HAS_BIT(flags, SSH5_FXP_RENAME_OVERWRITE))
@@ -845,7 +892,12 @@ void	DoSymLink()
   id = BufferGetInt32(bIn);
   newPath = convertFromUtf8(BufferGetString(bIn), 1);
   oldPath = convertFromUtf8(BufferGetString(bIn), 1);
-  if ((status = CheckRules(oldPath, RULES_FILE, 0, O_RDONLY)) == SSH2_FX_OK
+  if (HAS_BIT(gl_var->flagsDisable, SFTP_DISABLE_SYMLINK))
+    {
+      DEBUG((MYLOG_DEBUG, "[DoSymLink]Disabled by conf."));
+      status = SSH2_FX_PERMISSION_DENIED;
+    }
+  else if ((status = CheckRules(oldPath, RULES_FILE, 0, O_RDONLY)) == SSH2_FX_OK
       && (status = CheckRules(newPath, RULES_FILE, 0, O_WRONLY)) == SSH2_FX_OK)
     {
       if (symlink(oldPath, newPath) == -1)
@@ -933,7 +985,7 @@ void	DoSFTPProtocol()
 	case SSH2_FXP_WRITE: DoWrite(); break;
 	case SSH2_FXP_LSTAT: DoStat(lstat); break;
 	case SSH2_FXP_FSTAT: DoFStat(); break;
-	case SSH2_FXP_SETSTAT: DoSetStat(); break;
+	case SSH2_FXP_SETSTAT: DoSetStat(); break;//TODO fusionner les 2
 	case SSH2_FXP_FSETSTAT: DoFSetStat(); break;
 	case SSH2_FXP_OPENDIR: DoOpenDir(); break;
 	case SSH2_FXP_READDIR: DoReadDir(); break;
@@ -1076,12 +1128,12 @@ int			SftpMain(tGlobal *params, int sftpProtocol)
 	  (void )SftpWhoCleanBuggedClient();
 	  
 	  gl_var->download_max = gl_var->who->download_max;
-	  if (_sftpglobal->download_by_client > 0 && (gl_var->status & SFTPWHO_BYPASS_GLB_DWN) == 0
+	  if (_sftpglobal->download_by_client > 0 && (gl_var->flagsGlobals & SFTPWHO_BYPASS_GLB_DWN) == 0
 	      && ((_sftpglobal->download_by_client < gl_var->download_max) || gl_var->download_max == 0))
 	    gl_var->download_max = _sftpglobal->download_by_client;
 
 	  gl_var->upload_max = gl_var->who->upload_max;
-	  if (_sftpglobal->upload_by_client > 0 && (gl_var->status & SFTPWHO_BYPASS_GLB_UPL) == 0
+	  if (_sftpglobal->upload_by_client > 0 && (gl_var->flagsGlobals & SFTPWHO_BYPASS_GLB_UPL) == 0
 	      && ((_sftpglobal->upload_by_client < gl_var->upload_max) || gl_var->upload_max == 0))
 	    gl_var->upload_max = _sftpglobal->upload_by_client;
 

@@ -112,11 +112,11 @@ void	DoInitUser()
   OpenSSL_add_all_digests();
 #endif
   init_usersinfos();//load users / groups into memory
-  if (HAS_BIT(gl_var->status, SFTPWHO_VIRTUAL_CHROOT))
+  if (HAS_BIT(gl_var->flagsGlobals, SFTPWHO_VIRTUAL_CHROOT))
     {
       if (chroot(gl_var->who->home) != -1)
 	{
-	  gl_var->status &= ~SFTPWHO_STAY_AT_HOME;
+	  gl_var->flagsGlobals &= ~SFTPWHO_STAY_AT_HOME;
 	  if (chdir("/") == -1)
 	    mylog_printf(MYLOG_ERROR, "[%s][%s]Couldn't change directory : %s",
 			 gl_var->who->user, gl_var->who->ip, strerror(errno));
@@ -125,10 +125,10 @@ void	DoInitUser()
 	{
 	  mylog_printf(MYLOG_ERROR, "[%s][%s]Couldn't chroot : %s",
 		     gl_var->who->user, gl_var->who->ip, strerror(errno));
-	  gl_var->status &= ~SFTPWHO_VIRTUAL_CHROOT;
-	  gl_var->status |= SFTPWHO_STAY_AT_HOME;
+	  gl_var->flagsGlobals &= ~SFTPWHO_VIRTUAL_CHROOT;
+	  gl_var->flagsGlobals |= SFTPWHO_STAY_AT_HOME;
 	}
-      gl_var->who->status = gl_var->status;
+      gl_var->who->status = gl_var->flagsGlobals;
     }
   if (gl_var->force_user != NULL)
     {
@@ -147,6 +147,24 @@ void	DoInitUser()
 	mylog_printf(MYLOG_WARNING,
 		"[%s][%s]Unable to force user: %s (user unknown)",
 		gl_var->who->user, gl_var->who->ip, gl_var->force_user);
+    }
+  if (gl_var->force_group != NULL)
+    {
+      t_info	*pw;
+
+      mylog_printf(MYLOG_WARNING, "[%s][%s]Using force group: %s",
+		gl_var->who->user, gl_var->who->ip, gl_var->force_group);
+      if ((pw = mygetgrnam(gl_var->force_group)) != NULL)
+	{
+	  if (setgid(pw->id) == -1)
+	    mylog_printf(MYLOG_WARNING, "[%s][%s]Unable to force group: %s (%s)",
+		gl_var->who->user, gl_var->who->ip,
+		gl_var->force_group, strerror(errno));
+	}
+      else
+	mylog_printf(MYLOG_WARNING,
+		"[%s][%s]Unable to force group: %s (group unknown)",
+		gl_var->who->user, gl_var->who->ip, gl_var->force_group);
     }
   if (getuid() != geteuid()) //revoke root rights in user mode !
     {
@@ -175,7 +193,7 @@ int	CheckRules(const char *pwd, int operation, const struct stat *st, int flags)
       if (regexec(&gl_var->hide_files_regexp, str, 0, 0, 0) != REG_NOMATCH)
 	return SSH2_FX_NO_SUCH_FILE;
     }
-  if (operation != RULES_LISTING && HAS_BIT(gl_var->status, SFTPWHO_STAY_AT_HOME))
+  if (operation != RULES_LISTING && HAS_BIT(gl_var->flagsGlobals, SFTPWHO_STAY_AT_HOME))
     {
       if ((strncmp(pwd, gl_var->who->home, strlen(gl_var->who->home)) == 0 || pwd[0] != '/')
 	  && strstr(pwd, "/..") == NULL)
@@ -183,7 +201,7 @@ int	CheckRules(const char *pwd, int operation, const struct stat *st, int flags)
       else
 	return SSH2_FX_PERMISSION_DENIED;
     }
-  if (HAS_BIT(gl_var->status, SFTPWHO_IGNORE_HIDDEN)
+  if (HAS_BIT(gl_var->flagsGlobals, SFTPWHO_IGNORE_HIDDEN)
       && ((operation >= RULES_DIRECTORY && HAS_BIT(flags, O_RDONLY))
 	  || operation == RULES_FILE
 	  || operation == RULES_LISTING))
@@ -205,14 +223,14 @@ int	CheckRules(const char *pwd, int operation, const struct stat *st, int flags)
   //This code should always be at the end of this function
   if (operation == RULES_LISTING && st != NULL)
     {
-      if (HAS_BIT(gl_var->status, SFTPWHO_LINKS_AS_LINKS))
+      if (HAS_BIT(gl_var->flagsGlobals, SFTPWHO_LINKS_AS_LINKS))
 	{
 	  struct stat	localst;
 	  
 	  if ((st->st_mode & S_IFMT) == S_IFLNK && stat(pwd, &localst) != -1)
 	    st = &localst;
 	}
-      if (HAS_BIT(gl_var->status, SFTPWHO_HIDE_NO_ACESS))
+      if (HAS_BIT(gl_var->flagsGlobals, SFTPWHO_HIDE_NO_ACESS))
 	{
 	  if ((st->st_uid == getuid() && HAS_BIT(st->st_mode, S_IRUSR))
 	      || (UserIsInThisGroup(st->st_gid) == 1 && HAS_BIT(st->st_mode, S_IRGRP))
@@ -226,11 +244,11 @@ int	CheckRules(const char *pwd, int operation, const struct stat *st, int flags)
 
 void	ChangeRights(struct stat *st)
 {
-  if (HAS_BIT(gl_var->status, SFTPWHO_FAKE_USER))
+  if (HAS_BIT(gl_var->flagsGlobals, SFTPWHO_FAKE_USER))
     st->st_uid = getuid();
-  if (HAS_BIT(gl_var->status, SFTPWHO_FAKE_GROUP))
+  if (HAS_BIT(gl_var->flagsGlobals, SFTPWHO_FAKE_GROUP))
     st->st_gid = getgid();
-  if (HAS_BIT(gl_var->status, SFTPWHO_FAKE_MODE))
+  if (HAS_BIT(gl_var->flagsGlobals, SFTPWHO_FAKE_MODE))
     {
       st->st_mode = (st->st_mode & ~0x1fff) | gl_var->who->mode;
       if (HAS_BIT(st->st_mode, S_IFDIR))

@@ -28,6 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define	SFTPWHO_PUT		3
 #define	SFTPWHO_STATUS_MASK	0xff
 
+//Flags globals
 #define SFTPWHO_STAY_AT_HOME	(1 << 8)
 #define SFTPWHO_VIRTUAL_CHROOT	(1 << 9)
 #define	SFTPWHO_RESOLVE_IP	(1 << 10)
@@ -46,6 +47,18 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define SFTPWHO_CAN_CHG_RIGHTS	(1 << 23)
 #define SFTPWHO_CAN_CHG_TIME	(1 << 24)
 #define SFTPWHO_ARGS_MASK	0xffffff00
+
+//Flags disabled
+#define SFTP_DISABLE_REMOVE_DIR		(1 << 1)
+#define SFTP_DISABLE_REMOVE_FILE	(1 << 2)
+#define SFTP_DISABLE_READ_DIR		(1 << 3)
+#define SFTP_DISABLE_READ_FILE		(1 << 4)
+#define SFTP_DISABLE_WRITE_FILE		(1 << 5)
+#define SFTP_DISABLE_SET_ATTRIBUTE	(1 << 6)
+#define SFTP_DISABLE_MAKE_DIR		(1 << 7)
+#define SFTP_DISABLE_RENAME		(1 << 8)
+#define SFTP_DISABLE_SYMLINK		(1 << 9)
+#define SFTP_DISABLE_OVERWRITE		(1 << 10)
 
 typedef struct	s_sftpglobal
 {

@@ -245,7 +245,8 @@ typedef struct	sGlobal
 {
   t_sftpwho	*who;
 
-  u_int32_t	status;
+  u_int32_t	flagsGlobals;
+  u_int32_t	flagsDisable;
   int		has_hide_files;
   int		has_deny_filter;
   int		must_shutdown;
@@ -263,6 +264,7 @@ typedef struct	sGlobal
   unsigned int	download_max;
   unsigned int	upload_max;
   char		*force_user;
+  char		*force_group;
 }		tGlobal;
 
  

@@ -86,6 +86,16 @@ static const tConf	confParams[] =
     { "IsAdmin", CONF_IS_BOOLEAN, CONF_SHOW },
     { "IsSimpleAdmin", CONF_IS_BOOLEAN, CONF_SHOW },
 #endif
+    { "DisableRemoveDir", CONF_IS_BOOLEAN, CONF_SHOW },
+    { "DisableRemoveFile", CONF_IS_BOOLEAN, CONF_SHOW },
+    { "DisableReadFile", CONF_IS_BOOLEAN, CONF_SHOW },
+    { "DisableReadDir", CONF_IS_BOOLEAN, CONF_SHOW },
+    { "DisableWriteFile", CONF_IS_BOOLEAN, CONF_SHOW },
+    { "DisableSetAttribute", CONF_IS_BOOLEAN, CONF_SHOW },
+    { "DisableMakeDir", CONF_IS_BOOLEAN, CONF_SHOW },
+    { "DisableRename", CONF_IS_BOOLEAN, CONF_SHOW },
+    { "DisableSymLink", CONF_IS_BOOLEAN, CONF_SHOW },
+    { "DisableOverwrite", CONF_IS_BOOLEAN, CONF_SHOW },
     { "Charset", CONF_IS_STRING, CONF_SHOW },
     { "GMTTime", CONF_IS_STRING_MAYBE_EMPTY, CONF_SHOW },
     { "CanRemoveDir", CONF_IS_BOOLEAN, CONF_SHOW },
@@ -94,6 +104,7 @@ static const tConf	confParams[] =
     { "CanChangeTime", CONF_IS_BOOLEAN, CONF_SHOW },
     { "ExpireDate", CONF_IS_STRING_MAYBE_EMPTY, CONF_SHOW },
     { "ForceUser", CONF_IS_STRING, CONF_SHOW },
+    { "ForceGroup", CONF_IS_STRING, CONF_SHOW },
     { NULL, CONF_IS_EMPTY, CONF_NOT_SHOW },
   };
 
