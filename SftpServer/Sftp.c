@@ -645,18 +645,24 @@ void	DoFStat()
     SendStatus(bOut, id, (cVersion <= 3 ? SSH2_FX_FAILURE : SSH4_FX_INVALID_HANDLE));
 }
 
-void 	DoSetStat()
+void 	DoSetStat(int usePath)
 {
   tAttributes	*a;
   u_int32_t	id;
-  char		*path;
+  tHandle	*hdl = NULL;
+  char		*path = NULL;
   int		status = SSH2_FX_OK;
   struct stat	stats;
 
   id = BufferGetInt32(bIn);
-  path = convertFromUtf8(BufferGetString(bIn), 1);
+  if (usePath == 1)
+    path = convertFromUtf8(BufferGetString(bIn), 1);
+  else if ((hdl = HandleGetDir(BufferGetHandle(bIn))) != NULL)
+    path = hdl->path;
   a = GetAttributes(bIn);
-  if (HAS_BIT(gl_var->flagsDisable, SFTP_DISABLE_SET_ATTRIBUTE))
+  if (usePath == 0 && hdl == NULL)
+    status = (cVersion <= 3 ? SSH2_FX_FAILURE : SSH4_FX_INVALID_HANDLE);
+  else if (HAS_BIT(gl_var->flagsDisable, SFTP_DISABLE_SET_ATTRIBUTE))
     {
       DEBUG((MYLOG_DEBUG, "[DoSetStat]Disabled by conf."));
       status = SSH2_FX_PERMISSION_DENIED;
@@ -692,58 +698,8 @@ void 	DoSetStat()
     }
   DEBUG((MYLOG_DEBUG, "[DoSetStat]path:'%s' -> '%i'", path, status));
   SendStatus(bOut, id, status);
-  free(path);
-}
-
-void 	DoFSetStat()
-{
-  tAttributes	*a;
-  u_int32_t	id;
-  tHandle	*hdl;
-  char		*path;
-  int		status = SSH2_FX_OK;
-  struct stat	stats;
-
-  id = BufferGetInt32(bIn);
-  hdl = HandleGetDir(BufferGetHandle(bIn));
-  a = GetAttributes(bIn);
-  if (HAS_BIT(gl_var->flagsDisable, SFTP_DISABLE_SET_ATTRIBUTE))
-    {
-      DEBUG((MYLOG_DEBUG, "[DoFSetStat]Disabled by conf."));
-      status = SSH2_FX_PERMISSION_DENIED;
-    }
-  else if (hdl == NULL)
-    status = (cVersion <= 3 ? SSH2_FX_FAILURE : SSH4_FX_INVALID_HANDLE);
-  else
-    {
-      path = hdl->path;
-      if (a->flags & SSH2_FILEXFER_ATTR_SIZE)
-	{
-	  if (truncate(path, a->size) == -1)
-	    status = errnoToPortable(errno);
-	}
-      if (a->flags & SSH2_FILEXFER_ATTR_PERMISSIONS)
-	{
-	  if (stat(path, &stats) == 0 && S_ISDIR(stats.st_mode))
-            a->perm |= gl_var->minimum_rights_directory;
-          else
-            a->perm |= gl_var->minimum_rights_file;
-	  if (chmod(path, (a->perm & 0777)) == -1)
-	    status = errnoToPortable(errno);
-	}
-      if (a->flags & SSH2_FILEXFER_ATTR_ACMODTIME)
-	{
-	  if (utimes(path, AttributesToTimeval(a)) == -1)
-	    status = errnoToPortable(errno);
-	}
-      if (a->flags & SSH2_FILEXFER_ATTR_UIDGID)
-	{
-	  if (chown(path, a->uid, a->gid) == -1)
-	    status = errnoToPortable(errno);
-	}
-    }
-  DEBUG((MYLOG_DEBUG, "[DoFSetStat]path:'%s' -> '%i'", path, status));
-  SendStatus(bOut, id, status);
+  if (usePath == 1)
+    free(path);
 }
 
 void	DoRemove()
@@ -985,8 +941,8 @@ void	DoSFTPProtocol()
 	case SSH2_FXP_WRITE: DoWrite(); break;
 	case SSH2_FXP_LSTAT: DoStat(lstat); break;
 	case SSH2_FXP_FSTAT: DoFStat(); break;
-	case SSH2_FXP_SETSTAT: DoSetStat(); break;//TODO fusionner les 2
-	case SSH2_FXP_FSETSTAT: DoFSetStat(); break;
+	case SSH2_FXP_SETSTAT: DoSetStat(1); break;
+	case SSH2_FXP_FSETSTAT: DoSetStat(0); break;
 	case SSH2_FXP_OPENDIR: DoOpenDir(); break;
 	case SSH2_FXP_READDIR: DoReadDir(); break;
 	case SSH2_FXP_REMOVE: DoRemove(); break;

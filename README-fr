@@ -92,6 +92,7 @@ HISTORIQUE:
 		* DisableWriteFile, DisableSetAttribute,
 		* DisableMakeDir, DisableRename, DisableSymLink,
 		* DisableOverwrite
+	= factorisation de code
 
 1.15 (fevrier 2009):
 	= fixe un probleme de compilation sous 64bit (merci 8087)
