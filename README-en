@@ -260,5 +260,5 @@ CHANGE LOG:
 		LimitConnection (limite of total connection on the server), Shell
 	+ file sftp-server has moved to sftp-server_MSS to keep original sftp of OpenSSH
 	+ restriction Home support environment variable
-	= fix bug of "gost" client
+	= fix bug of "ghost" client
 	= fix bug on restrictions LimitConnection and LimitConnectionByIP
