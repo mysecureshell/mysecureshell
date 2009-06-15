@@ -70,7 +70,7 @@ $(NAME)	: $(OBJ)
 
 $(NAME1) : $(OBJ1)
 	@echo "Compile binary	[$(NAME1)]"
-	@$(CC) -o $(NAME1) $(OBJ1)
+	@$(CC) -o $(NAME1) $(OBJ1) $(LDFLAGS)
 	@$(CHMOD) 711 $(NAME1)
 
 $(NAME2) : $(OBJ2)

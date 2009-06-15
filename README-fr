@@ -93,6 +93,7 @@ HISTORIQUE:
 		* DisableMakeDir, DisableRename, DisableSymLink,
 		* DisableOverwrite
 	= factorisation de code
+	~ fix la compilation sur Solaris
 
 1.15 (fevrier 2009):
 	= fixe un probleme de compilation sous 64bit (merci 8087)
