@@ -259,6 +259,8 @@ typedef struct	sGlobal
   int		rights_directory;
   int		minimum_rights_file;
   int		minimum_rights_directory;
+  int		maximum_rights_file;
+  int		maximum_rights_directory;
   unsigned int	download_current;
   unsigned int	upload_current;
   unsigned int	download_max;

@@ -379,6 +379,7 @@ void	DoOpen()
   mode = gl_var->rights_file ? gl_var->rights_file :
     (a->flags & SSH2_FILEXFER_ATTR_PERMISSIONS) ? a->perm : 644;
   mode |= gl_var->minimum_rights_file;
+  mode &= gl_var->maximum_rights_file;
   if ((HAS_BIT(gl_var->flagsDisable, SFTP_DISABLE_READ_FILE)
 		&& HAS_BIT(pflags, SSH2_FXF_READ))
 	|| (HAS_BIT(gl_var->flagsDisable, SFTP_DISABLE_WRITE_FILE)
@@ -678,9 +679,15 @@ void 	DoSetStat(int usePath)
 	  && HAS_BIT(gl_var->flagsGlobals, SFTPWHO_CAN_CHG_RIGHTS))
 	{
 	  if (stat(path, &stats) == 0 && S_ISDIR(stats.st_mode))
+	  {
 	    a->perm |= gl_var->minimum_rights_directory;
+	    a->perm &= gl_var->maximum_rights_directory;
+	  }
 	  else
+	  {
 	    a->perm |= gl_var->minimum_rights_file;
+	    a->perm &= gl_var->maximum_rights_file;
+	  }
 	  if (chmod(path, (a->perm & 0777)) == -1)
 	    status = errnoToPortable(errno);
 	}
@@ -746,6 +753,7 @@ void	DoMkDir()
   mode = gl_var->rights_directory ? gl_var->rights_directory :
     (a->flags & SSH2_FILEXFER_ATTR_PERMISSIONS) ? a->perm & 0777 : 0755;
   mode |= gl_var->minimum_rights_directory;
+  mode &= gl_var->maximum_rights_directory;
   if (HAS_BIT(gl_var->flagsDisable, SFTP_DISABLE_MAKE_DIR))
     {
       DEBUG((MYLOG_DEBUG, "[DoMkDir]Disabled by conf."));

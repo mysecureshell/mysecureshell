@@ -224,7 +224,8 @@ int	main(int ac, char **av, char **env)
 	(hash_get_int("CanRemoveDir") ? SFTPWHO_CAN_RMDIR : 0) +
 	(hash_get_int("CanRemoveFile") ? SFTPWHO_CAN_RMFILE : 0) +
 	(hash_get_int("CanChangeRights") ? SFTPWHO_CAN_CHG_RIGHTS : 0) +
-	(hash_get_int("CanChangeTime") ? SFTPWHO_CAN_CHG_TIME : 0)
+	(hash_get_int("CanChangeTime") ? SFTPWHO_CAN_CHG_TIME : 0) +
+	(hash_get_int("CreateHome") ? SFTPWHO_CREATE_HOME : 0)
 	;
       params->flagsDisable =
 	(hash_get_int("DisableRemoveDir") ? SFTP_DISABLE_REMOVE_DIR : 0) +
@@ -330,6 +331,24 @@ int	main(int ac, char **av, char **env)
 	params->minimum_rights_directory = hash_get_int("MinimumRightsDirectory");
       if (hash_get_int("MinimumRightsFile") > 0)
 	params->minimum_rights_file = hash_get_int("MinimumRightsFile");
+      if (hash_get_int("MaximumRightsDirectory") > 0)
+	params->maximum_rights_directory = hash_get_int("MaximumRightsDirectory");
+      else
+	params->maximum_rights_directory = 6777;
+      if (hash_get_int("MaximumRightsFile") > 0)
+	params->maximum_rights_file = hash_get_int("MaximumRightsFile");
+      else
+	params->maximum_rights_file = 6777;
+      if (hash_get_int("ForceRightsDirectory") > 0)
+      {
+	params->minimum_rights_directory = hash_get_int("ForceRightsDirectory");
+	params->maximum_rights_directory = params->minimum_rights_directory;
+      }
+      if (hash_get_int("ForceRightsFile") > 0)
+      {
+	params->minimum_rights_file = hash_get_int("ForceRightsFile");
+	params->maximum_rights_file = params->minimum_rights_file;
+      }
       if (hash_get("Charset") != NULL)
 	  setCharset(hash_get("Charset"));
       if (hash_get("ForceUser") != NULL)

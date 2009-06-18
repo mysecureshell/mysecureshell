@@ -91,7 +91,8 @@ HISTORIQUE:
 		* DisableRemoveFile, DisableReadDir, DisableReadFile,
 		* DisableWriteFile, DisableSetAttribute,
 		* DisableMakeDir, DisableRename, DisableSymLink,
-		* DisableOverwrite
+		* DisableOverwrite, CreateHome,
+		* MaximumRights, ForceRights
 	= factorisation de code
 	~ fix la compilation sur Solaris
 

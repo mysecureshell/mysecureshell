@@ -46,6 +46,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define SFTPWHO_CAN_RMFILE	(1 << 22)
 #define SFTPWHO_CAN_CHG_RIGHTS	(1 << 23)
 #define SFTPWHO_CAN_CHG_TIME	(1 << 24)
+#define SFTPWHO_CREATE_HOME	(1 << 25)
 #define SFTPWHO_ARGS_MASK	0xffffff00
 
 //Flags disabled

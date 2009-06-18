@@ -38,6 +38,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define CONF_IS_SPEED			6
 #define CONF_IS_MODE			7
 #define CONF_IS_TIME			8
+#define CONF_IS_FILE_AND_DIR		9
 
 #define CONF_SHOW		0
 #define CONF_SHOW_IF_NOT_NULL	1
@@ -105,6 +106,11 @@ static const tConf	confParams[] =
     { "ExpireDate", CONF_IS_STRING_MAYBE_EMPTY, CONF_SHOW },
     { "ForceUser", CONF_IS_STRING, CONF_SHOW },
     { "ForceGroup", CONF_IS_STRING, CONF_SHOW },
+    { "CreateHome", CONF_IS_BOOLEAN, CONF_SHOW },
+    { "DefaultRights", CONF_IS_FILE_AND_DIR, CONF_SHOW },
+    { "MinimumRights", CONF_IS_FILE_AND_DIR, CONF_SHOW },
+    { "MaximumRights", CONF_IS_FILE_AND_DIR, CONF_SHOW },
+    { "ForceRights", CONF_IS_FILE_AND_DIR, CONF_SHOW },
     { NULL, CONF_IS_EMPTY, CONF_NOT_SHOW },
   };
 
@@ -131,7 +137,8 @@ void	load_config(int verbose)
   if (verbose > 0)
     {
       size_t	maxLen;
-      int	i, r, r2;
+      char	bTmp[256];
+      int	i, r;
 
       (void )printf("--- %s ---\n", (char *)hash_get("User"));
       for (i = 0, maxLen = 0; confParams[i].type != CONF_IS_EMPTY; i++)
@@ -191,19 +198,22 @@ void	load_config(int verbose)
 	    case CONF_IS_TIME:
 	      (void )printf("%is", hash_get_int(confParams[i].name));
 	      break;
+	    case CONF_IS_FILE_AND_DIR:
+	      (void )snprintf(bTmp, sizeof(bTmp), "%sFile", confParams[i].name);
+	      r = hash_get_int(bTmp);
+	      (void )printf("%i%i%i%i",
+		    r / (8 * 8 * 8), (r / ( 8 * 8)) % 8, (r / 8) % 8, r % 8);
+	      (void )snprintf(bTmp, sizeof(bTmp), "%sDir", confParams[i].name);
+	      r = hash_get_int(bTmp);
+	      if (r > 0)
+	      {
+		(void )printf(" %i%i%i%i",
+		    r / (8 * 8 * 8), (r / ( 8 * 8)) % 8, (r / 8) % 8, r % 8);
+	      }
+	      break;
 	    }
 	  (void )printf("\n");
 	}
-      r = hash_get_int("MinimumRightsFile");
-      r2 = hash_get_int("MinimumRightsDirectory");
-      (void )printf("MinimumRights         = %i%i%i%i %i%i%i%i\n",
-		    r / (8 * 8 * 8), (r / ( 8 * 8)) % 8, (r / 8) % 8, r % 8,
-		    r2 / (8 * 8 * 8), (r2 / ( 8 * 8)) % 8, (r2 / 8) % 8, r2 % 8);
-      r = hash_get_int("DefaultRightsFile");
-      r2 = hash_get_int("DefaultRightsDirectory");
-      (void )printf("DefaultRights         = %i%i%i%i %i%i%i%i\n",
-		    r / (8 * 8 * 8), (r / ( 8 * 8)) % 8, (r / 8) % 8, r % 8,
-		    r2 / (8 * 8 * 8), (r2 / ( 8 * 8)) % 8, (r2 / 8) % 8, r2 % 8);
     }
 }
 
@@ -280,6 +290,7 @@ int	load_config_file(const char *file, int verbose, int max_recursive_left)
 
 void	processLine(char **tb, int max_recursive_left, int verbose)
 {
+  char	bTmp[256];
   int	notRecognized;
   int	i;
   
@@ -319,26 +330,22 @@ void	processLine(char **tb, int max_recursive_left, int verbose)
 	  case CONF_IS_TIME:
 	    hash_set_int(tb[0], convert_time_to_int(tb + 1));
 	    break;
+	  case CONF_IS_FILE_AND_DIR:
+	    hash_set_int(tb[0], 42);
+	    (void )snprintf(bTmp, sizeof(bTmp), "%sFile", tb[0]);
+	    hash_set_int(bTmp, convert_mode_to_int(tb[1]));
+	    if (tb[2] != NULL)
+	    {
+	      (void )snprintf(bTmp, sizeof(bTmp), "%sDir", tb[0]);
+	      hash_set_int(bTmp, convert_mode_to_int(tb[2]));
+	    }
+	    break;
 	  }
 	break;
       }
   if (notRecognized == 1)
     {
-      if (strcmp(tb[0], "DefaultRights") == 0 && tb[1] != NULL)
-	{
-	  notRecognized = 0;
-	  hash_set_int("DefaultRightsFile", convert_mode_to_int(tb[1]));
-	  if (tb[2])
-	    hash_set_int("DefaultRightsDirectory", convert_mode_to_int(tb[2]));
-	}
-      else if (strcmp(tb[0], "MinimumRights") == 0 && tb[1] != NULL)
-	{
-	  notRecognized = 0;
-	  hash_set_int("MinimumRightsFile", convert_mode_to_int(tb[1]));
-	  if (tb[2])
-	    hash_set_int("MinimumRightsDirectory", convert_mode_to_int(tb[2]));
-	}
-      else if (strcmp(tb[0], "Include") == 0 && tb[1] != NULL)
+      if (strcmp(tb[0], "Include") == 0 && tb[1] != NULL)
 	{
 	  notRecognized = 0;
 	  (void )load_config_file(tb[1], verbose, max_recursive_left - 1);

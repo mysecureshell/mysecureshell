@@ -26,6 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <string.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 #include "Access.h"
 #include "Defines.h"
 #include "Encoding.h"
@@ -105,6 +106,22 @@ void	ParseConf(tGlobal *params, int sftpProtocol)
 void	DoInitUser()
 {
   mylog_printf(MYLOG_CONNECTION, "New client [%s] from [%s]", gl_var->who->user, gl_var->who->ip);
+  if (chdir(gl_var->who->home) == -1 && errno == ENOENT)
+  {
+    int	rights;
+
+    rights = gl_var->rights_directory ? gl_var->rights_directory : 0755;
+    rights |= gl_var->minimum_rights_directory;
+    if (gl_var->maximum_rights_directory > 0)
+      rights &= gl_var->maximum_rights_directory;
+    if (mkdir(gl_var->who->home, rights) == -1)
+    {
+      mylog_printf(MYLOG_ERROR, "[%s][%s]Couldn't create to home '%s' : %s",
+		 gl_var->who->user, gl_var->who->ip, gl_var->who->home, strerror(errno));
+    }
+    else
+       (void )chown(gl_var->who->home, getuid(), getgid());
+  }
   if (chdir(gl_var->who->home) == -1)
     mylog_printf(MYLOG_ERROR, "[%s][%s]Couldn't go to home '%s' : %s",
 		 gl_var->who->user, gl_var->who->ip, gl_var->who->home, strerror(errno));
