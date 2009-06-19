@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
@@ -112,6 +113,7 @@ static void	parse_args(int ac, char **av)
 
 int	main(int ac, char **av, char **env)
 {
+  char	*hostname;
   int	is_sftp = 0;
 
   create_hash();
@@ -122,11 +124,14 @@ int	main(int ac, char **av, char **env)
     is_sftp = 1;
   else
     parse_args(ac, av);
+  hostname = get_ip(0);
+  (void )setenv("SSH_IP", hostname, 1);
+  free(hostname);
   load_config(0);
   if (is_sftp == 1)
     {
       tGlobal	*params;
-      char	*hide_files, *deny_filter, *hostname;
+      char	*hide_files, *allow_filter, *deny_filter;
       int	max, fd, sftp_version;
 
       hostname = get_ip(hash_get_int("ResolveIP"));
@@ -205,6 +210,7 @@ int	main(int ac, char **av, char **env)
 	}
 
       hide_files = hash_get("HideFiles");
+      allow_filter = hash_get("PathAllowFilter");
       deny_filter = hash_get("PathDenyFilter");
 
       params->flagsGlobals |=
@@ -267,6 +273,21 @@ int	main(int ac, char **av, char **env)
               char	buffer[256];
 
               (void )regerror(r, &params->hide_files_regexp, buffer, sizeof(buffer));
+              mylog_printf(MYLOG_ERROR, "[%s][%s]Couldn't compile regex : %s",
+			   params->who->user, params->who->ip, buffer);
+            }
+	}
+      if (allow_filter != NULL && strlen(allow_filter) > 0)
+	{
+	  int	r;
+
+	  if ((r = regcomp(&params->allow_filter_regexp, allow_filter, REG_EXTENDED | REG_NOSUB | REG_NEWLINE)) == 0)
+            params->has_allow_filter = MSS_TRUE;
+          else
+            {
+              char      buffer[256];
+
+              (void )regerror(r, &params->allow_filter_regexp, buffer, sizeof(buffer));
               mylog_printf(MYLOG_ERROR, "[%s][%s]Couldn't compile regex : %s",
 			   params->who->user, params->who->ip, buffer);
             }
@@ -334,11 +355,12 @@ int	main(int ac, char **av, char **env)
       if (hash_get_int("MaximumRightsDirectory") > 0)
 	params->maximum_rights_directory = hash_get_int("MaximumRightsDirectory");
       else
-	params->maximum_rights_directory = 6777;
+	params->maximum_rights_directory = 07777;
       if (hash_get_int("MaximumRightsFile") > 0)
 	params->maximum_rights_file = hash_get_int("MaximumRightsFile");
       else
-	params->maximum_rights_file = 6777;
+	params->maximum_rights_file = 07777;
+mylog_printf(MYLOG_ERROR, "MaximumRights: %i/%i", params->maximum_rights_file, params->maximum_rights_directory);
       if (hash_get_int("ForceRightsDirectory") > 0)
       {
 	params->minimum_rights_directory = hash_get_int("ForceRightsDirectory");

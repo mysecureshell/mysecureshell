@@ -93,6 +93,8 @@ HISTORIQUE:
 		* DisableMakeDir, DisableRename, DisableSymLink,
 		* DisableOverwrite, CreateHome,
 		* MaximumRights, ForceRights
+	+ ajout du tag (merci pour la suggestion nik): PathAllowFilter
+	+ ajout d'une variable d'environnement SSH_IP contenant l'ip client
 	= factorisation de code
 	~ fix la compilation sur Solaris
 

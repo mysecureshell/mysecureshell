@@ -171,15 +171,6 @@ void	DoInitUser()
 	}
       gl_var->who->status = gl_var->flagsGlobals;
     }
-  if (gl_var->force_user != NULL)
-    {
-      mylog_printf(MYLOG_WARNING, "[%s][%s]Using force user: %s",
-		gl_var->who->user, gl_var->who->ip, gl_var->force_user);
-      if (setuid(uid) == -1)
-	mylog_printf(MYLOG_WARNING, "[%s][%s]Unable to force user: %s (%s)",
-		gl_var->who->user, gl_var->who->ip,
-		gl_var->force_user, strerror(errno));
-    }
   if (gl_var->force_group != NULL)
     {
       mylog_printf(MYLOG_WARNING, "[%s][%s]Using force group: %s",
@@ -188,6 +179,15 @@ void	DoInitUser()
 	mylog_printf(MYLOG_WARNING, "[%s][%s]Unable to force group: %s (%s)",
 		gl_var->who->user, gl_var->who->ip,
 		gl_var->force_group, strerror(errno));
+    }
+  if (gl_var->force_user != NULL)
+    {
+      mylog_printf(MYLOG_WARNING, "[%s][%s]Using force user: %s",
+		gl_var->who->user, gl_var->who->ip, gl_var->force_user);
+      if (setuid(uid) == -1)
+	mylog_printf(MYLOG_WARNING, "[%s][%s]Unable to force user: %s (%s)",
+		gl_var->who->user, gl_var->who->ip,
+		gl_var->force_user, strerror(errno));
     }
   if (getuid() != geteuid()) //revoke root rights in user mode !
     {
@@ -231,6 +231,17 @@ int	CheckRules(const char *pwd, int operation, const struct stat *st, int flags)
     {
       if (strstr(pwd, "/.") != NULL)
 	return SSH2_FX_NO_SUCH_FILE;
+    }
+  if (gl_var->has_allow_filter == MSS_TRUE
+      && ((operation == RULES_FILE && (HAS_BIT(flags, O_WRONLY) || HAS_BIT(flags, O_RDWR)))
+	  || (operation == RULES_DIRECTORY && HAS_BIT(flags, O_WRONLY))))
+    {
+      if ((str = strrchr(pwd, '/')) != NULL)
+	str = &str[1];
+      else
+	str = pwd;
+      if (regexec(&gl_var->allow_filter_regexp, str, 0, 0, 0) == REG_NOMATCH)
+	return SSH2_FX_PERMISSION_DENIED;
     }
   if (gl_var->has_deny_filter == MSS_TRUE
       && ((operation == RULES_FILE && (HAS_BIT(flags, O_WRONLY) || HAS_BIT(flags, O_RDWR)))

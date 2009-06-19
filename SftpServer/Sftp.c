@@ -377,7 +377,7 @@ void	DoOpen()
   a = GetAttributes(bIn);
   flags |= FlagsFromPortable(pflags, &textMode);
   mode = gl_var->rights_file ? gl_var->rights_file :
-    (a->flags & SSH2_FILEXFER_ATTR_PERMISSIONS) ? a->perm : 644;
+    (a->flags & SSH2_FILEXFER_ATTR_PERMISSIONS) ? a->perm : 0644;
   mode |= gl_var->minimum_rights_file;
   mode &= gl_var->maximum_rights_file;
   if ((HAS_BIT(gl_var->flagsDisable, SFTP_DISABLE_READ_FILE)

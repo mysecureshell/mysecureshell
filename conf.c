@@ -78,6 +78,7 @@ static const tConf	confParams[] =
     { "MaxReadFilesForUser", CONF_IS_INT, CONF_SHOW },
     { "MaxWriteFilesForUser", CONF_IS_INT, CONF_SHOW },
     { "ShowLinksAsLinks", CONF_IS_BOOLEAN, CONF_SHOW },
+    { "PathAllowFilter", CONF_IS_STRING, CONF_SHOW },
     { "PathDenyFilter", CONF_IS_STRING, CONF_SHOW },
     { "SftpProtocol", CONF_IS_INT, CONF_SHOW_IF_NOT_NULL },
     { "LogFile", CONF_IS_STRING, CONF_SHOW_IF_NOT_NULL },
