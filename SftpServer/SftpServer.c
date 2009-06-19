@@ -105,7 +105,35 @@ void	ParseConf(tGlobal *params, int sftpProtocol)
 
 void	DoInitUser()
 {
-  mylog_printf(MYLOG_CONNECTION, "New client [%s] from [%s]", gl_var->who->user, gl_var->who->ip);
+  t_info	*pw;
+  int		uid, gid;
+
+  mylog_printf(MYLOG_CONNECTION, "New client [%s] from [%s]",
+		gl_var->who->user, gl_var->who->ip);
+#ifdef MSSEXT_FILE_HASHING
+  OpenSSL_add_all_digests();
+#endif
+  init_usersinfos();//load users / groups into memory
+  uid = getuid();
+  if (gl_var->force_user != NULL)
+    {
+      if ((pw = mygetpwnam(gl_var->force_user)) != NULL)
+	uid = pw->id;
+      else
+	mylog_printf(MYLOG_WARNING,
+		"[%s][%s]Unable to force user: %s (user unknown)",
+		gl_var->who->user, gl_var->who->ip, gl_var->force_user);
+    }
+  gid = getgid();
+  if (gl_var->force_group != NULL)
+    {
+      if ((pw = mygetgrnam(gl_var->force_group)) != NULL)
+	gid = pw->id;
+      else
+	mylog_printf(MYLOG_WARNING,
+		"[%s][%s]Unable to force group: %s (group unknown)",
+		gl_var->who->user, gl_var->who->ip, gl_var->force_group);
+    }
   if (chdir(gl_var->who->home) == -1 && errno == ENOENT)
   {
     int	rights;
@@ -120,15 +148,11 @@ void	DoInitUser()
 		 gl_var->who->user, gl_var->who->ip, gl_var->who->home, strerror(errno));
     }
     else
-       (void )chown(gl_var->who->home, getuid(), getgid());
+       (void )chown(gl_var->who->home, uid, gid);
   }
   if (chdir(gl_var->who->home) == -1)
     mylog_printf(MYLOG_ERROR, "[%s][%s]Couldn't go to home '%s' : %s",
 		 gl_var->who->user, gl_var->who->ip, gl_var->who->home, strerror(errno));
-#ifdef MSSEXT_FILE_HASHING
-  OpenSSL_add_all_digests();
-#endif
-  init_usersinfos();//load users / groups into memory
   if (HAS_BIT(gl_var->flagsGlobals, SFTPWHO_VIRTUAL_CHROOT))
     {
       if (chroot(gl_var->who->home) != -1)
@@ -149,43 +173,25 @@ void	DoInitUser()
     }
   if (gl_var->force_user != NULL)
     {
-      t_info	*pw;
-
       mylog_printf(MYLOG_WARNING, "[%s][%s]Using force user: %s",
 		gl_var->who->user, gl_var->who->ip, gl_var->force_user);
-      if ((pw = mygetpwnam(gl_var->force_user)) != NULL)
-	{
-	  if (setuid(pw->id) == -1)
-	    mylog_printf(MYLOG_WARNING, "[%s][%s]Unable to force user: %s (%s)",
+      if (setuid(uid) == -1)
+	mylog_printf(MYLOG_WARNING, "[%s][%s]Unable to force user: %s (%s)",
 		gl_var->who->user, gl_var->who->ip,
 		gl_var->force_user, strerror(errno));
-	}
-      else
-	mylog_printf(MYLOG_WARNING,
-		"[%s][%s]Unable to force user: %s (user unknown)",
-		gl_var->who->user, gl_var->who->ip, gl_var->force_user);
     }
   if (gl_var->force_group != NULL)
     {
-      t_info	*pw;
-
       mylog_printf(MYLOG_WARNING, "[%s][%s]Using force group: %s",
 		gl_var->who->user, gl_var->who->ip, gl_var->force_group);
-      if ((pw = mygetgrnam(gl_var->force_group)) != NULL)
-	{
-	  if (setgid(pw->id) == -1)
-	    mylog_printf(MYLOG_WARNING, "[%s][%s]Unable to force group: %s (%s)",
+      if (setgid(gid) == -1)
+	mylog_printf(MYLOG_WARNING, "[%s][%s]Unable to force group: %s (%s)",
 		gl_var->who->user, gl_var->who->ip,
 		gl_var->force_group, strerror(errno));
-	}
-      else
-	mylog_printf(MYLOG_WARNING,
-		"[%s][%s]Unable to force group: %s (group unknown)",
-		gl_var->who->user, gl_var->who->ip, gl_var->force_group);
     }
   if (getuid() != geteuid()) //revoke root rights in user mode !
     {
-      if (seteuid(getuid()) == -1 || setegid(getgid()) == -1)
+      if (seteuid(uid) == -1 || setegid(gid) == -1)
 	{
 	  mylog_printf(MYLOG_ERROR, "[%s][%s]Couldn't revoke root rights : %s",
 		       gl_var->who->user, gl_var->who->ip, strerror(errno));
