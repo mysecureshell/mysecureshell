@@ -8,6 +8,7 @@ AC_CONFIG_HEADER(config.h)
 # Checks for programs.
 AC_PROG_CC
 AC_PATH_PROG(SED, sed)
+AC_PATH_PROG(SUDO, sudo)
 AC_REQUIRE_CPP
 AC_GNU_SOURCE
 AC_PROG_GCC_TRADITIONAL
@@ -126,7 +127,7 @@ AC_HEADER_STAT
 AC_HEADER_SYS_WAIT
 AC_HEADER_TIME
 AC_CHECK_FUNCS([endgrent strcasecmp strchr strdup strerror strrchr strstr statfs statvfs getgroups strlcpy strlcat])
-AC_CHECK_FUNCS([acl atexit dup2 endpwent gettimeofday memset mkdir realpath regcomp rmdir select])
+AC_CHECK_FUNCS([acl atexit dup2 endpwent gettimeofday memset mkdir realpath regcomp rmdir select setenv])
 AC_CHECK_FUNCS([connect gethostbyaddr gethostbyname inet_ntoa], , AC_CHECK_LIB(nsl, connect, socket))
 AC_CHECK_FUNCS([iconv_open iconv_close iconv], , AC_CHECK_LIB(iconv, libiconv_open))
 AC_CHECK_LIB(acl, acl_get_entry)

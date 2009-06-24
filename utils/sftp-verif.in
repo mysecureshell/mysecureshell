@@ -6,6 +6,7 @@
 BINDIR=@BINDIR@
 MSS_CONF=@MSS_CONF@
 MSS_LOG=@MSS_LOG@
+SUDO_BIN=@SUDO@
 
 ## Root detection
 if [ "$USER" != "root" ] ; then
@@ -175,9 +176,18 @@ echo "Show only error(s):"
 # Server configuration
 echo ""
 echo ""
-echo "** Verifing server configuration (just for user: $USER) **"
+echo "** Verifing server configuration **"
 echo "Show only error(s):"
+echo "Try user: $USER"
 /bin/MySecureShell --configtest > /dev/null
+if [ "$USER" != "root" ] ; then
+	if [ -x "$SUDO_BIN" ] ; then
+		for mssUser in `$BINDIR/sftp-user list` ; do
+			echo "Try user: $mssUser"
+			$SUDO_BIN -u $mssUser /bin/MySecureShell --configtest > /dev/null
+		done
+	fi
+fi
 
 #End
 echo ""
