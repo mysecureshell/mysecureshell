@@ -111,7 +111,7 @@ if [ -d /etc/logrotate.d ] ; then
     else
 	echo "No rotations logs found ! Do you want to create it one now ? (y/n)"
 	read logrotnow
-	if [ $logrotnow ="y" ] ; then
+	if [ $logrotnow = "y" ] ; then
 	    cat << EOF > /etc/logrotate.d/mysecureshell
 $MSS_LOG {
 	weekly
