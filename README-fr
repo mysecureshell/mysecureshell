@@ -98,6 +98,7 @@ HISTORIQUE:
 	+ amelioration du sftp-verif en cas de probleme de configuration
 	= factorisation de code
 	~ fix la compilation sur Solaris
+	~ fix un bug dans sftp-verif
 
 1.15 (fevrier 2009):
 	= fixe un probleme de compilation sous 64bit (merci 8087)
