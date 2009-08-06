@@ -10,6 +10,7 @@ MANDIR=/usr/share/man
 USRBINDIR=@BINDIR@
 ETCDIR=@ETCDIR@
 LANG=
+MSS_CONF=@MSS_CONF@
 
 ## Functions Looking for available languages
 
@@ -56,6 +57,7 @@ if [ "$2" != "" ] ; then
 	MANDIR="$2$MANDIR"
 	USRBINDIR="$2$USRBINDIR"
 	ETCDIR="$2$ETCDIR"
+	MSS_CONF="$2$MSS_CONF"
 	if [ ! -d "$BINDIR" ] ; then
 		mkdir -m 0755 -p $BINDIR
 	fi
@@ -249,7 +251,7 @@ fi
 
 ## Config file
 
-if [ -f @MSS_CONF@ ] ; then
+if [ -f $MSS_CONF ] ; then
 	echo ""
 	MyGetLocale 'warnconf'
 	MyGetLocale 'warnerase'
@@ -261,8 +263,8 @@ if [ -f @MSS_CONF@ ] ; then
 	fi
 	case "$rep2" in
 		[yY])
-			cp -f ./sftp_config @MSS_CONF@
-			chmod 644 @MSS_CONF@
+			cp -f ./sftp_config $MSS_CONF
+			chmod 644 $MSS_CONF
 			echo `MyGetLocale 'conffilerep1'`"		"`MyGetLocale 'ok'`
 			;;
 		*)
@@ -270,8 +272,8 @@ if [ -f @MSS_CONF@ ] ; then
 			;;
 	esac
 else
-	cp -f ./sftp_config @MSS_CONF@
-	chmod 644 @MSS_CONF@
+	cp -f ./sftp_config $MSS_CONF
+	chmod 644 $MSS_CONF
 	echo `MyGetLocale 'mkconffile'`"				"`MyGetLocale 'ok'`
 fi
 
