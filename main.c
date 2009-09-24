@@ -360,7 +360,6 @@ int	main(int ac, char **av, char **env)
 	params->maximum_rights_file = hash_get_int("MaximumRightsFile");
       else
 	params->maximum_rights_file = 07777;
-mylog_printf(MYLOG_ERROR, "MaximumRights: %i/%i", params->maximum_rights_file, params->maximum_rights_directory);
       if (hash_get_int("ForceRightsDirectory") > 0)
       {
 	params->minimum_rights_directory = hash_get_int("ForceRightsDirectory");
