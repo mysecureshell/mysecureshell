@@ -765,12 +765,13 @@ void	DoMkDir()
 	status = errnoToPortable(errno);
       mylog_printf(MYLOG_WARNING, "[%s][%s]Try to create directory '%s' : %s",
 		 gl_var->who->user, gl_var->who->ip, path, (status != SSH2_FX_OK ? strerror(errno) : "success"));
-      if (chmod(path, mode) == -1)
+      if ((mode & (S_ISUID | S_ISGID | S_ISVTX)) != 0
+            && chmod(path, mode) == -1)
 	mylog_printf(MYLOG_WARNING, "[%s][%s]Unable to set %i rights for directory '%s'",
 		     gl_var->who->user, gl_var->who->ip, mode, path);
     }
   SendStatus(bOut, id, status);
-  DEBUG((MYLOG_DEBUG, "[DoMkDir]path:'%s' -> '%i'", path, status));
+  DEBUG((MYLOG_DEBUG, "[DoMkDir]path:'%s', mode:%o -> '%i'", path, mode, status));
   free(path);
 }
 
@@ -1050,9 +1051,7 @@ int			SftpMain(tGlobal *params, int sftpProtocol)
 	  tmNeeded -= tmCur;
 	  SET_TIMEOUT(tm, 0, tmNeeded);
 	}
-      DEBUG((MYLOG_DEBUG, "[select: %i]tmLast: %lli tmCur: %lli tmNeeded: %lli",
-	     ret, tmLast, tmCur, tmNeeded));
-      //
+      //DEBUG((MYLOG_DEBUG, "[select: %i]tmLast: %lli tmCur: %lli tmNeeded: %lli", ret, tmLast, tmCur, tmNeeded));
       if ((ret = select(2, &fdR, &fdW, NULL, &tm)) == -1)
 	{
 	  if (errno != EINTR)

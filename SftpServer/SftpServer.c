@@ -198,6 +198,7 @@ void	DoInitUser()
 	  exit(255);
 	}
     }
+  umask(0);
 }
 
 int	CheckRules(const char *pwd, int operation, const struct stat *st, int flags)
