@@ -85,7 +85,7 @@ Forum:       http://mysecureshell.free.fr
 
 HISTORIQUE:
 -----------
-1.20 (??? 2009):
+1.20 (decembre 2010):
 	+ ajout des tags (merci JoKnarf) :
 		* ForceUser, ForceGroup, DisableRemoveDir,
 		* DisableRemoveFile, DisableReadDir, DisableReadFile,
@@ -99,6 +99,7 @@ HISTORIQUE:
 	= factorisation de code
 	~ fix la compilation sur Solaris
 	~ fix un bug dans sftp-verif
+	~ fix un bug sur la gestion des SGID lors de la creation des repertoires (merci 8087)
 
 1.15 (fevrier 2009):
 	= fixe un probleme de compilation sous 64bit (merci 8087)

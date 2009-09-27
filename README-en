@@ -76,6 +76,9 @@ Forum:       http://mysecureshell.free.fr
 
 CHANGE LOG:
 -----------
+1.20 (december 2010):
+    = TODO
+
 1.15 (february 2009):
 	= fix compilation problem under 64bit (thanks 8087)
 	= fix bug on tag VirtualHost under Solaris (thanks JoKnarf)
