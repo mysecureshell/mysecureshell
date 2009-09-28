@@ -410,9 +410,6 @@ void	DoOpen()
 		  {
 		    mylog_printf(MYLOG_TRANSFERT, "[%s][%s]Start upload into file '%s'",
 			       gl_var->who->user, gl_var->who->ip, path);
-		    if (fchmod(fd, mode) == -1)
-		      mylog_printf(MYLOG_WARNING, "[%s][%s]Unable to set %i rights for file '%s'",
-				   gl_var->who->user, gl_var->who->ip, mode, path);
 		  }
 		else
 		  {
@@ -762,13 +759,10 @@ void	DoMkDir()
   else if ((status = CheckRules(path, RULES_DIRECTORY, 0, O_WRONLY)) == SSH2_FX_OK)
     {
       if (mkdir(path, mode) == -1)
-	status = errnoToPortable(errno);
+        status = errnoToPortable(errno);
       mylog_printf(MYLOG_WARNING, "[%s][%s]Try to create directory '%s' : %s",
-		 gl_var->who->user, gl_var->who->ip, path, (status != SSH2_FX_OK ? strerror(errno) : "success"));
-      if ((mode & (S_ISUID | S_ISGID | S_ISVTX)) != 0
-            && chmod(path, mode) == -1)
-	mylog_printf(MYLOG_WARNING, "[%s][%s]Unable to set %i rights for directory '%s'",
-		     gl_var->who->user, gl_var->who->ip, mode, path);
+		            gl_var->who->user, gl_var->who->ip, path,
+                (status != SSH2_FX_OK ? strerror(errno) : "success"));
     }
   SendStatus(bOut, id, status);
   DEBUG((MYLOG_DEBUG, "[DoMkDir]path:'%s', mode:%o -> '%i'", path, mode, status));
