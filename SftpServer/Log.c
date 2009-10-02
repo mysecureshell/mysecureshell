@@ -60,7 +60,9 @@ void	mylog_open(const char *file)
 	}
       _log->file = file;
       _log->fd = fd;
-      (void )fchown(fd, 0, 0);
+      if (fchown(fd, 0, 0) == -1)
+        mylog_printf(MYLOG_ERROR, "Unable to chown log '%s' : %s",
+                      file, strerror(errno));
 /*
 Text color codes:
   30=black 31=red 32=green 33=yellow 34=blue 35=magenta 36=cyan 37=white
