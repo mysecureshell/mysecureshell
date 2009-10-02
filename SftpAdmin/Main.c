@@ -211,8 +211,9 @@ static void	DoGetLogContentReply(tBuffer *bIn)
   if (size > 0)
     {
       (void )fflush(stdout);
-      (void )write(1, str, size);
-      (void )write(1, "\n", 1);
+      if (write(1, str, size) == -1)
+        printf("Error while writing to console: %s", strerror(errno));
+      (void )printf("\n");
 #ifdef HAVE_LOG_IN_COLOR
       (void )printf("\33[37:40:0m");
 #endif
