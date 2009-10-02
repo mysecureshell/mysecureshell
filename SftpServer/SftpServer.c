@@ -148,7 +148,9 @@ void	DoInitUser()
 		 gl_var->who->user, gl_var->who->ip, gl_var->who->home, strerror(errno));
     }
     else
-       (void )chown(gl_var->who->home, uid, gid);
+       if (chown(gl_var->who->home, uid, gid) == -1)
+          mylog_printf(MYLOG_ERROR, "[%s][%s]Couldn't chown the home '%s' : %s",
+      		 gl_var->who->user, gl_var->who->ip, gl_var->who->home, strerror(errno));
   }
   if (chdir(gl_var->who->home) == -1)
     mylog_printf(MYLOG_ERROR, "[%s][%s]Couldn't go to home '%s' : %s",
