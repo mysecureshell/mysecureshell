@@ -91,6 +91,7 @@ CHANGE LOG:
 	~ fix compilation on Solaris
 	~ fix bug on sftp-verif
 	~ fix bug with rights SGID when creating directory (thanks 8087)
+	~ fix compilation under Solaris 10
 
 1.15 (february 2009):
 	= fix compilation problem under 64bit (thanks 8087)
