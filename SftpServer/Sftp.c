@@ -655,7 +655,7 @@ void 	DoSetStat(int usePath)
   id = BufferGetInt32(bIn);
   if (usePath == 1)
     path = convertFromUtf8(BufferGetString(bIn), 1);
-  else if ((hdl = HandleGetDir(BufferGetHandle(bIn))) != NULL)
+  else if ((hdl = HandleGet(BufferGetHandle(bIn))) != NULL)
     path = hdl->path;
   a = GetAttributes(bIn);
   if (usePath == 0 && hdl == NULL)
@@ -700,7 +700,8 @@ void 	DoSetStat(int usePath)
 	    status = errnoToPortable(errno);
 	}
     }
-  DEBUG((MYLOG_DEBUG, "[DoSetStat]path:'%s' -> '%i'", path, status));
+  DEBUG((MYLOG_DEBUG, "[DoSetStat]path:'%s'[hdl: %p] -> '%i'",
+          path, hdl, status));
   SendStatus(bOut, id, status);
   if (usePath == 1)
     free(path);
