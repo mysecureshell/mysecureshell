@@ -89,7 +89,7 @@ CHANGE LOG:
 	+ improve sftp-verif with configuration problem
 	= reduce code
 	~ fix compilation on Solaris
-	~ fix bug on sftp-verif
+	~ fix bug on sftp-user and sftp-verif
 	~ fix bug with rights SGID when creating directory (thanks 8087)
 	~ fix bug with SSHFS and editor gEdit or OpenOffice (thanks 8087)
 	~ fix compilation under Solaris 10
