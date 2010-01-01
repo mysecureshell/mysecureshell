@@ -5,7 +5,6 @@
 
 # Saving vars
 nameuser=$2
-#homeuser=$3
 hideuser=$3
 
 # OS Detection
@@ -22,7 +21,7 @@ doesntexist="Sorry but this user doesn't exist !"
 encPass='*'
 
 vrf_create() {
-	for i in "$nameuser" "$homeuser" ; do
+	for i in "$nameuser" ; do
 		if [ -z "$i" ] ; then
 			echo $bardarg
 			exit 0
@@ -125,8 +124,6 @@ dar_list() {
 dar_del() {
 	if [ -x /usr/bin/niutil ] ; then
 		niutil -destroy -R / /users/$nameuser
-		# Shell is remove home directory
-		#test $homeuser = 1 && rm -Rf /Users/$nameuser
 	fi
 
 	if [ -x /usr/bin/dscl ] ; then
