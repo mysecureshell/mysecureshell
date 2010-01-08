@@ -85,7 +85,7 @@ Forum:       http://mysecureshell.free.fr
 
 HISTORIQUE:
 -----------
-1.20 (decembre 2010):
+1.20 (janvier 2010):
 	+ ajout des tags (merci JoKnarf) :
 		* ForceUser, ForceGroup, DisableRemoveDir,
 		* DisableRemoveFile, DisableReadDir, DisableReadFile,
