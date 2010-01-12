@@ -134,7 +134,8 @@ void	DoInitUser()
 		"[%s][%s]Unable to force group: %s (group unknown)",
 		gl_var->who->user, gl_var->who->ip, gl_var->force_group);
     }
-  if (chdir(gl_var->who->home) == -1 && errno == ENOENT)
+  if (HAS_BIT(gl_var->flagsGlobals, SFTPWHO_CREATE_HOME)
+      && chdir(gl_var->who->home) == -1 && errno == ENOENT)
   {
     int	rights;
 
