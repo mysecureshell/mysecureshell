@@ -47,7 +47,7 @@ FILESRC	= $(DEST)/sftp_config $(DEST)/utils/sftp-kill $(DEST)/LICENSE	\
 	  $(DEST)/man/*/man8/*.8
 CFLAGS	= -Wall -Wunused -Wpointer-arith -Wno-uninitialized -O2 -ISftpServer @MSS_DEBUG@
 
-LDFLAGS	= @LIBS@ @LINKER_OPT@
+LDFLAGS	= @LDFLAGS@ @LIBS@ @LINKER_OPT@
 CC	= @CC@
 EXT	= @EXEEXT@
 
