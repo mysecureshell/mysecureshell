@@ -164,26 +164,30 @@ void	DoRealPath()
       free(path);
       path = strdup(".");
     }
-  if (realpath(path, resolvedName) == 0)
+  if (realpath(path, resolvedName) == NULL)
+  {
     SendStatus(bOut, id, errnoToPortable(errno));
+    DEBUG((MYLOG_DEBUG, "[DoRealPath]path:'%s' -> error: %s (%s)", path, strerror(errno), resolvedName));
+  }
   else
     {
       tStat	s;
       
+      DEBUG((MYLOG_DEBUG, "[DoRealPath]REAL path:'%s' -> '%s'", path, resolvedName));
       memset(&s, 0, sizeof(s));
       if (strcmp(path, ".") != 0 && strcmp(path, "./.") != 0)
-	ResolvPath(path, resolvedName, sizeof(resolvedName));
+      	ResolvPath(path, resolvedName, sizeof(resolvedName));
+      DEBUG((MYLOG_DEBUG, "[DoRealPath]EMULATE path:'%s' -> '%s'", path, resolvedName));
       if (cVersion >= 4)
-	s.name = convertToUtf8(resolvedName, 0);
+      	s.name = convertToUtf8(resolvedName, 0);
       else
-	{
-	  s.name = s.longName = resolvedName;
-	}
+	    {
+    	  s.name = s.longName = resolvedName;
+    	}
       SendStats(bOut, id, 1, &s);
       if (cVersion >= 4)
-	free(s.name);
+        free(s.name);
     }
-  DEBUG((MYLOG_DEBUG, "[DoRealPath]path:'%s' -> '%s'", path, resolvedName));
   free(path);
 }
 
