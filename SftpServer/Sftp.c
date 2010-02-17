@@ -81,7 +81,6 @@ void	DoInit()
   b = BufferNew();
   BufferPutInt8FAST(b, SSH2_FXP_VERSION);
   connectionStatus = CONN_SFTP;
-  cVersion = clientVersion;
 #ifdef MSS_HAVE_ADMIN
   if (clientVersion == SSH2_ADMIN_VERSION)
     {
@@ -108,12 +107,12 @@ void	DoInit()
   if (connectionStatus == CONN_SFTP)
     {
       DoInitUser();
-      if (cVersion < 3)
-	cVersion = 3;
-      else if (cVersion > SSH2_FILEXFER_VERSION)
-	cVersion = SSH2_FILEXFER_VERSION;
+      if (clientVersion < 3)
+        cVersion = 3;
+      else if (clientVersion < cVersion)
+        cVersion = clientVersion;
       BufferPutInt32(b, cVersion);
-      DEBUG((MYLOG_DEBUG, "[DoInit]New client version: %i [use: %i]", clientVersion, cVersion));
+      DEBUG((MYLOG_DEBUG, "[DoInit]New client want version: %i [use: %i]", clientVersion, cVersion));
       if (cVersion >= 4)
 	{
 	  BufferPutString(b, "newline");
