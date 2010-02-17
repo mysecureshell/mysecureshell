@@ -85,6 +85,9 @@ Forum:       http://mysecureshell.free.fr
 
 HISTORIQUE:
 -----------
+1.25 (??):
+	~ fix un bug sur le tag SftpProtocol
+
 1.20 (janvier 2010):
 	+ ajout des tags (merci JoKnarf) :
 		* ForceUser, ForceGroup, DisableRemoveDir,
