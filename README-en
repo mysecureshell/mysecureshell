@@ -78,6 +78,7 @@ CHANGE LOG:
 -----------
 1.25 (???):
 	~ fix bug on tag SftpProtocol
+	~ fix bug on tag VirtualChroot
 
 1.20 (january 2010):
 	+ add tags (thanks JoKnarf) :

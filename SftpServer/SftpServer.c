@@ -172,7 +172,7 @@ void	DoInitUser()
 	  gl_var->flagsGlobals &= ~SFTPWHO_VIRTUAL_CHROOT;
 	  gl_var->flagsGlobals |= SFTPWHO_STAY_AT_HOME;
 	}
-      gl_var->who->status = gl_var->flagsGlobals;
+      gl_var->who->status = gl_var->flagsGlobals | SFTPWHO_IDLE;
     }
   if (gl_var->force_group != NULL)
     {
