@@ -78,6 +78,7 @@ CHANGE LOG:
 -----------
 1.25 (???):
 	+ support extension statvfs@openssh.com and fstatvfs@openssh.com
+	= rewrite script "sftp-verif" in perl
 	~ fix bug on tag SftpProtocol
 	~ fix bug on tag VirtualChroot
 
