@@ -22,6 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -65,6 +66,66 @@ void	DoExtDiskSpace(tBuffer *bIn, tBuffer *bOut, u_int32_t id)
     }
   else
     SendStatus(bOut, id, status);
+  free(path);
+}
+
+static void  DoExtDiskSpaceOpenSSH_Path(tBuffer *bOut, u_int32_t id, const char *path)
+{
+  struct STATFS	stfs;
+  int           status;
+
+  DEBUG((MYLOG_DEBUG, "[DoExtDiskSpaceOpenSSH_Path]Path: %s", path));
+  if ((status = CheckRules(path, RULES_DIRECTORY, NULL, O_RDONLY)) == SSH2_FX_OK)
+  {
+    if (STATFS(path, &stfs) == 0)
+    {
+      tBuffer *b;
+
+      b = BufferNew();
+      BufferPutInt8(b, SSH2_FXP_EXTENDED_REPLY);
+      BufferPutInt32(b, id);
+      BufferPutInt64(b, stfs.f_bsize);    /* file system block size */
+      BufferPutInt64(b, stfs.f_frsize);   /* fundamental fs block size */
+      BufferPutInt64(b, stfs.f_blocks);   /* number of blocks (unit f_frsize) */
+      BufferPutInt64(b, stfs.f_bfree);    /* free blocks in file system */
+      BufferPutInt64(b, stfs.f_bavail);   /* free blocks for non-root */
+      BufferPutInt64(b, stfs.f_files);    /* total file inodes */
+      BufferPutInt64(b, stfs.f_ffree);    /* free file inodes */
+      BufferPutInt64(b, stfs.f_favail);   /* free file inodes for to non-root */
+      BufferPutInt64(b, stfs.f_fsid);     /* file system id */
+      BufferPutInt64(b, stfs.f_flag);     /* bit mask of f_flag values */
+      BufferPutInt64(b, stfs.f_namemax);  /* maximum filename length */
+	    BufferPutPacket(bOut, b);
+    }
+    else
+    {
+      DEBUG((MYLOG_DEBUG, "[DoExtDiskSpaceOpenSSH_Path]error: %s", strerror(errno)));
+      SendStatus(bOut, id, errnoToPortable(errno));
+    }
+  }
+  else
+  {
+    DEBUG((MYLOG_DEBUG, "[DoExtDiskSpaceOpenSSH_Path]CheckRules failed: %i", status));
+    SendStatus(bOut, id, status);
+  }
+}
+
+void  DoExtDiskSpaceOpenSSH_Handle(tBuffer *bIn, tBuffer *bOut, u_int32_t id)
+{
+  tHandle *hdl;
+
+  if ((hdl = HandleGetDir(BufferGetHandle(bIn))) != NULL)
+    DoExtDiskSpaceOpenSSH_Path(bOut, id, hdl->path);
+  else
+    SendStatus(bOut, id, SSH4_FX_INVALID_HANDLE);
+}
+
+void  DoExtDiskSpaceOpenSSH_Name(tBuffer *bIn, tBuffer *bOut, u_int32_t id)
+{
+  char  *path;
+
+  path = BufferGetString(bIn);
+  DoExtDiskSpaceOpenSSH_Path(bOut, id, path);
   free(path);
 }
 #endif //MSSEXT_DISKUSAGE

@@ -86,6 +86,7 @@ Forum:       http://mysecureshell.free.fr
 HISTORIQUE:
 -----------
 1.25 (??):
+	+ support de l'extension statvfs@openssh.com et fstatvfs@openssh.com
 	~ fix un bug sur le tag SftpProtocol
 	~ fix un bug sur le tag VirtualChroot
 

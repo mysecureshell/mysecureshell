@@ -77,6 +77,7 @@ Forum:       http://mysecureshell.free.fr
 CHANGE LOG:
 -----------
 1.25 (???):
+	+ support extension statvfs@openssh.com and fstatvfs@openssh.com
 	~ fix bug on tag SftpProtocol
 	~ fix bug on tag VirtualChroot
 

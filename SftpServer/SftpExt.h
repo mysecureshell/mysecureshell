@@ -42,6 +42,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #ifdef MSSEXT_DISKUSAGE
 void	DoExtDiskSpace(tBuffer *bIn, tBuffer *bOut, u_int32_t id);
+void	DoExtDiskSpaceOpenSSH_Handle(tBuffer *bIn, tBuffer *bOut, u_int32_t id);
+void	DoExtDiskSpaceOpenSSH_Name(tBuffer *bIn, tBuffer *bOut, u_int32_t id);
 #endif
 
 #ifdef MSSEXT_FILE_HASHING

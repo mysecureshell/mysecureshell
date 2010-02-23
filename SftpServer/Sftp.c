@@ -97,7 +97,9 @@ void	DoInit()
 	  gl_var->who = NULL;
 	  stats = StatsNew();
 	  BufferPutInt32(b, cVersion);
+#ifdef MSSEXT_DISKUSAGE
 	  BufferPutString(b, "space-available");
+#endif
 #ifdef MSSEXT_FILE_HASHING
 	  BufferPutString(b, "check-file");
 #endif
@@ -128,22 +130,35 @@ void	DoInit()
 	      BufferPutInt32(opt, SSH5_FXF__FLAGS);
 	      BufferPutInt32(opt, SSH5_FXF_ACCESS__FLAGS);
 	      BufferPutInt32(opt, SSH2_MAX_READ);
+#ifdef MSSEXT_DISKUSAGE
 	      BufferPutString(opt, "space-available");
+	      BufferPutString(opt, "statvfs@openssh.com");
+	      BufferPutString(opt, "fstatvfs@openssh.com");
+#endif
 #ifdef MSSEXT_FILE_HASHING
 	      BufferPutString(opt, "check-file");
 #endif
 	      BufferPutPacket(b, opt);
 	    }
+    else
+      goto DO_EXTENSION_V3;
+	}
 	  else
 	    {
+DO_EXTENSION_V3:
+#ifdef MSSEXT_DISKUSAGE
 	      BufferPutString(b, "space-available");
 	      BufferPutString(b, "");
+	      BufferPutString(b, "statvfs@openssh.com");
+	      BufferPutString(b, "2");
+	      BufferPutString(b, "fstatvfs@openssh.com");
+	      BufferPutString(b, "2");
+#endif
 #ifdef MSSEXT_FILE_HASHING
 	      BufferPutString(b, "check-file");
 	      BufferPutString(b, "");
 #endif
 	    }
-	}
     }
   BufferPutPacket(bOut, b);
   BufferDelete(b);
@@ -892,6 +907,10 @@ void	DoExtended()
 #ifdef MSSEXT_DISKUSAGE
   if (strcmp(request, "space-available") == 0)
       DoExtDiskSpace(bIn, bOut, id);
+  else if (strcmp(request, "statvfs@openssh.com") == 0)
+      DoExtDiskSpaceOpenSSH_Name(bIn, bOut, id);
+  else if (strcmp(request, "fstatvfs@openssh.com") == 0)
+      DoExtDiskSpaceOpenSSH_Handle(bIn, bOut, id);
   else
 #endif
 #ifdef MSSEXT_FILE_HASHING
