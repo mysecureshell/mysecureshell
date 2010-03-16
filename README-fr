@@ -88,8 +88,8 @@ HISTORIQUE:
 1.25 (??):
 	+ support de l'extension statvfs@openssh.com et fstatvfs@openssh.com
 	= reecriture du script "sftp-verif" en perl
-	~ fix un bug sur le tag SftpProtocol
-	~ fix un bug sur le tag VirtualChroot
+	~ fix un bug sur les tag: DefaultRights, MinimumRights, MaximumRights and ForceRights (merci aretni)
+	~ fix un bug sur les tags: SftpProtocol et VirtualChroot
 
 1.20 (janvier 2010):
 	+ ajout des tags (merci JoKnarf) :
