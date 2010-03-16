@@ -204,7 +204,7 @@ void	load_config(int verbose)
 	      r = hash_get_int(bTmp);
 	      (void )printf("%i%i%i%i",
 		    r / (8 * 8 * 8), (r / ( 8 * 8)) % 8, (r / 8) % 8, r % 8);
-	      (void )snprintf(bTmp, sizeof(bTmp), "%sDir", confParams[i].name);
+	      (void )snprintf(bTmp, sizeof(bTmp), "%sDirectory", confParams[i].name);
 	      r = hash_get_int(bTmp);
 	      if (r > 0)
 	      {

@@ -110,6 +110,7 @@ void	DoInitUser()
 
   mylog_printf(MYLOG_CONNECTION, "New client [%s] from [%s]",
 		gl_var->who->user, gl_var->who->ip);
+  umask(000);
 #ifdef MSSEXT_FILE_HASHING
   OpenSSL_add_all_digests();
 #endif
