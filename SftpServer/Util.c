@@ -167,7 +167,7 @@ int	FlagsFromPortable(int pFlags, int *textMode)
 	}
       if ((HAS_BIT(pFlags, SSH5_FXF_ACCESS_APPEND_DATA)) ||
 	  HAS_BIT(pFlags, SSH5_FXF_ACCESS_APPEND_DATA_ATOMIC))
-	flags = O_RDWR | O_APPEND;
+	flags |= O_APPEND;
       if (HAS_BIT(pFlags, SSH5_FXF_ACCESS_TEXT_MODE))
 	*textMode = 1;
     }
@@ -208,8 +208,6 @@ int	FlagsFromAccess(int access)
     flags = O_WRONLY;
   if (HAS_BIT(access, SSH5_ACE4_APPEND_DATA))
     flags |= O_APPEND;
-  else if (HAS_BIT(access, SSH5_ACE4_WRITE_DATA))
-    flags |= O_TRUNC;
   if (HAS_BIT(access, SSH5_ACE4_SYNCHRONIZE))
     flags |= O_SYNC;
   return (flags);
@@ -342,4 +340,10 @@ char	*ExecCommandWithArgs(char **args, int *myRet, const char *dataInput, int sh
     return (str);
   free(str);
   return (NULL);
+}
+
+void  MyStrCopy(char *dest, char *src, int length)
+{
+  while (length--)
+    *dest++ = *src++;
 }

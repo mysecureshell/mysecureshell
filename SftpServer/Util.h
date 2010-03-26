@@ -30,4 +30,6 @@ char	*ExecCommandWithArgs(char **args, int *myRet, const char *dataInput, int sh
 int	FlagsFromPortable(int pFlags, int *textMode);
 int	FlagsFromAccess(int access);
 
+void MyStrCopy(char *dest, char *src, int length);
+
 #endif //_UTIL_H_

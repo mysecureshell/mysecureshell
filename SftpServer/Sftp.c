@@ -474,8 +474,8 @@ void	DoRead()
 	status = errnoToPortable(errno);
       else
 	{ 
-	  unsigned char	*buf;
 	  u_int32_t	dataSize, oldPos, newPos;
+	  char	*buf;
 	  int		ret;
 	  
 	  oldPos = BufferGetCurrentWritePosition(bOut);
@@ -485,14 +485,14 @@ void	DoRead()
 	  BufferPutInt8FAST(bOut, SSH2_FXP_DATA);
 	  BufferPutInt32(bOut, id);
 	  BufferPutInt32(bOut, 0);//Size of the data - unknown before read
-	  buf = BufferGetWritePointer(bOut);
+	  buf = (char *)BufferGetWritePointer(bOut);
 	  ret = read(hdl->fd, buf, len);
 	  if (hdl->fileIsText == 1)
 	    {
-	      for (len = 0; len < ret; len++)
-		if (buf[len] == '\r')
+	      for (len = 0; (len + 1) < ret; len++)
+		if (buf[len] == '\r' && buf[len + 1] == '\n')
 		  {
-		    memcpy(buf + len + 1, buf + len, ret - len - 1);
+		    MyStrCopy(buf + len, buf + len + 1, ret - len - 1);
 		    ret--;
 		  }
 	    }
@@ -547,7 +547,7 @@ void	DoWrite()
 	      for (dec = 0; (dec + 1) < len; dec++)
 		if (data[dec] == '\r' && data[dec + 1] == '\n')
 		  {
-		    memcpy(data + dec, data + dec + 1, len - dec - 1);
+		    MyStrCopy(data + dec, data + dec + 1, len - dec - 1);
 		    len--;
 		  }
 	    }
