@@ -461,7 +461,7 @@ void	EncodeAttributes(tBuffer *b, const tAttributes *a, const char *file)
     }
   if (HAS_BIT(a->flags, SSH5_FILEXFER_ATTR_BITS))
     BufferPutInt32(b, a->attrib);
-  if (HAS_BIT(a->flags, SSH2_FILEXFER_ATTR_EXTENDED))
+  if (cVersion >= 5 && HAS_BIT(a->flags, SSH2_FILEXFER_ATTR_EXTENDED))
     BufferPutInt32(b, 0); //unsupported feature
 }
 
