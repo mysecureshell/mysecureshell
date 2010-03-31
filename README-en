@@ -81,6 +81,7 @@ CHANGE LOG:
 	= rewrite script "sftp-verif" in perl
 	~ fix bug on tags: DefaultRights, MinimumRights, MaximumRights and ForceRights (thanks aretni)
 	~ fix bug on tags: SftpProtocol and VirtualChroot
+	~ fix bug when handling files with protocol SFTP v4
 
 1.20 (january 2010):
 	+ add tags (thanks JoKnarf) :

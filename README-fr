@@ -90,6 +90,7 @@ HISTORIQUE:
 	= reecriture du script "sftp-verif" en perl
 	~ fix un bug sur les tag: DefaultRights, MinimumRights, MaximumRights and ForceRights (merci aretni)
 	~ fix un bug sur les tags: SftpProtocol et VirtualChroot
+	~ fix un bug lors des manipulations des fichiers avec le protocole SFTP v4
 
 1.20 (janvier 2010):
 	+ ajout des tags (merci JoKnarf) :
