@@ -89,11 +89,16 @@ tAttributes		*GetAttributes(tBuffer *bIn)
     {
       t_info	*pw;
       t_info	*gr;
+      char    *user, *group;
       
-      if ((pw = mygetpwnam(BufferGetString(bIn))))
+      user = BufferGetString(bIn);
+      group = BufferGetString(bIn);
+      if ((pw = mygetpwnam(user)) != NULL)
 	a.uid = pw->id;
-      if ((gr = mygetgrnam(BufferGetString(bIn))))
+      if ((gr = mygetgrnam(group)) != NULL)
 	a.gid = gr->id;
+      free(user);
+      free(group);
     }
   if (HAS_BIT(a.flags, SSH2_FILEXFER_ATTR_PERMISSIONS))
     a.perm = BufferGetInt32(bIn);

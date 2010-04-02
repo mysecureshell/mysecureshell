@@ -139,6 +139,7 @@ void	DoInit()
 	      BufferPutString(opt, "check-file");
 #endif
 	      BufferPutPacket(b, opt);
+        BufferDelete(opt);
 	    }
     else
       goto DO_EXTENSION_V3;
