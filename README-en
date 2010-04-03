@@ -83,6 +83,7 @@ CHANGE LOG:
 	~ fix bug on tags: SftpProtocol and VirtualChroot
 	~ fix bug when handling files with protocol SFTP v4
 	~ fix small memory leak
+	~ fix bug when using tags ForceUser and FakeDirUser at same time (thanks krushio)
 
 1.20 (january 2010):
 	+ add tags (thanks JoKnarf) :

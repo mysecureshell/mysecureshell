@@ -105,11 +105,12 @@ HISTORIQUE:
 	+ ajout d'une variable d'environnement SSH_IP contenant l'ip client
 	+ amelioration du sftp-verif en cas de probleme de configuration
 	= factorisation de code
-	~ fix la compilation sur Solaris
-	~ fix un bug dans sftp-user et sftp-verif
-	~ fix un bug sur la gestion des SGID lors de la creation des repertoires (merci 8087)
-	~ fix un bug lors d'un SSHFS et avec l'editeur gEdit ou OpenOffice (merci 8087)
-	~ fix la compilation sous Solaris 10
+	~ fixe la compilation sur Solaris
+	~ fixe un bug dans sftp-user et sftp-verif
+	~ fixe un bug sur la gestion des SGID lors de la creation des repertoires (merci 8087)
+	~ fixe un bug lors d'un SSHFS et avec l'editeur gEdit ou OpenOffice (merci 8087)
+	~ fixe la compilation sous Solaris 10
+	~ fixe un bug lorsque les tags ForceUser et FakeDirUser sont activés ensemble (merci krushio)
 
 1.15 (fevrier 2009):
 	= fixe un probleme de compilation sous 64bit (merci 8087)
