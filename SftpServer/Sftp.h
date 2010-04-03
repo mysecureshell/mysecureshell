@@ -20,6 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef _SFTP_H_
 #define _SFTP_H_
 
+#include <unistd.h>
 #include <sys/types.h>
 #include <regex.h>
 #include "SftpWho.h"
@@ -244,7 +245,8 @@ typedef struct	sStat
 typedef struct	sGlobal
 {
   t_sftpwho	*who;
-
+  uid_t		current_user;
+  gid_t		current_group;
   u_int32_t	flagsGlobals;
   u_int32_t	flagsDisable;
   int		has_hide_files;

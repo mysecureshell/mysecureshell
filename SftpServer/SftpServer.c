@@ -283,9 +283,9 @@ int	CheckRules(const char *pwd, int operation, const struct stat *st, int flags)
 void	ChangeRights(struct stat *st)
 {
   if (HAS_BIT(gl_var->flagsGlobals, SFTPWHO_FAKE_USER))
-    st->st_uid = getuid();
+    st->st_uid = gl_var->current_user;
   if (HAS_BIT(gl_var->flagsGlobals, SFTPWHO_FAKE_GROUP))
-    st->st_gid = getgid();
+    st->st_gid = gl_var->current_group;
   if (HAS_BIT(gl_var->flagsGlobals, SFTPWHO_FAKE_MODE))
     {
       st->st_mode = (st->st_mode & ~0x1fff) | gl_var->who->mode;

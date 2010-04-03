@@ -379,6 +379,8 @@ int	main(int ac, char **av, char **env)
       delete_hash();
       if (hostname != NULL)
 	free(hostname);
+  params->current_user = getuid();
+  params->current_group = getgid();
       return (SftpMain(params, sftp_version));
     }
   else
