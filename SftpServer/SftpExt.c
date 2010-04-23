@@ -68,7 +68,9 @@ void	DoExtDiskSpace(tBuffer *bIn, tBuffer *bOut, u_int32_t id)
     SendStatus(bOut, id, status);
   free(path);
 }
+#endif //MSSEXT_DISKUSAGE
 
+#ifdef MSSEXT_DISKUSAGE_SSH
 static void  DoExtDiskSpaceOpenSSH_Path(tBuffer *bOut, u_int32_t id, const char *path)
 {
   struct STATFS	stfs;
@@ -128,7 +130,7 @@ void  DoExtDiskSpaceOpenSSH_Name(tBuffer *bIn, tBuffer *bOut, u_int32_t id)
   DoExtDiskSpaceOpenSSH_Path(bOut, id, path);
   free(path);
 }
-#endif //MSSEXT_DISKUSAGE
+#endif //MSSEXT_DISKUSAGE_SSH
 
 #ifdef MSSEXT_FILE_HASHING
 #include <openssl/evp.h>

@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.63)
-AC_INIT([MySecureShell],[1.25rc2],[teka2nerdman@users.sourceforge.net])
+AC_INIT([MySecureShell],[1.25rc3],[teka2nerdman@users.sourceforge.net])
 AC_CONFIG_HEADER(config.h)
 
 # Checks for programs.
@@ -145,6 +145,7 @@ test "$MSS_UTF" = "no" && MSS_UTF=$ac_cv_lib_iconv_libiconv_open
 MSS_ACL=$ac_cv_lib_acl_acl_get_entry
 test "$ac_cv_header_cygwin_acl_h" = "yes" && MSS_ACL="yes"
 MSSEXT_DISK=$ac_cv_header_sys_statvfs_h
+MSSEXT_DISK_SSH=$ac_cv_header_sys_statvfs_h
 test "$MSSEXT_DISK" = "no" && MSSEXT_DISK=$ac_cv_header_sys_statfs_h
 test "$MSSEXT_DISK" = "no" && MSSEXT_DISK=$ac_cv_func_statfs
 MSSEXT_FILE_HASHING=$ac_cv_lib_crypto_OpenSSL_add_all_digests
@@ -168,6 +169,7 @@ AC_DEFINE_UNQUOTED(MSS_SFTPUSER, "${BINDIR}/sftp-user", Sftpuserdir)
 test "$MSS_COLOR" = "yes" && AC_DEFINE_UNQUOTED(HAVE_LOG_IN_COLOR, ${MSS_COLOR}, Colorlog)
 test "$MSS_ADMIN" = "yes" && AC_DEFINE(MSS_HAVE_ADMIN, 1, Admin)
 test "$MSSEXT_DISK" = "yes" && AC_DEFINE(MSSEXT_DISKUSAGE, 1, DiskUsage)
+test "$MSSEXT_DISK_SSH" = "yes" && AC_DEFINE(MSSEXT_DISKUSAGE_SSH, 1, DiskUsageSSH)
 test "$MSSEXT_FILE_HASHING" = "yes" && AC_DEFINE(MSSEXT_FILE_HASHING, 1, FileHashing)
 if test "$ac_cv_type_u_int8_t" = "no" ; then
    AC_DEFINE_UNQUOTED(u_int8_t, uint8_t, uint8)
@@ -204,4 +206,5 @@ echo "UTF-8 Encoding    : $MSS_UTF"
 echo ""
 echo "Sftp extension supported:"
 echo "Disk Usage        : $MSSEXT_DISK"
+echo "Disk Usage OpenSSH: $MSSEXT_DISK_SSH"
 echo "File Hashing      : $MSSEXT_FILE_HASHING"

@@ -132,12 +132,14 @@ void	DoInit()
 	      BufferPutInt32(opt, SSH2_MAX_READ);
 #ifdef MSSEXT_DISKUSAGE
 	      BufferPutString(opt, "space-available");
+#endif //MSSEXT_DISKUSAGE
+#ifdef MSSEXT_DISKUSAGE_SSH
 	      BufferPutString(opt, "statvfs@openssh.com");
 	      BufferPutString(opt, "fstatvfs@openssh.com");
-#endif
+#endif //MSSEXT_DISKUSAGE_SSH
 #ifdef MSSEXT_FILE_HASHING
 	      BufferPutString(opt, "check-file");
-#endif
+#endif //MSSEXT_FILE_HASHING
 	      BufferPutPacket(b, opt);
         BufferDelete(opt);
 	    }
@@ -150,15 +152,17 @@ DO_EXTENSION_V3:
 #ifdef MSSEXT_DISKUSAGE
 	      BufferPutString(b, "space-available");
 	      BufferPutString(b, "");
+#endif //MSSEXT_DISKUSAGE
+#ifdef MSSEXT_DISKUSAGE_SSH
 	      BufferPutString(b, "statvfs@openssh.com");
 	      BufferPutString(b, "2");
 	      BufferPutString(b, "fstatvfs@openssh.com");
 	      BufferPutString(b, "2");
-#endif
+#endif //MSSEXT_DISKUSAGE_SSH
 #ifdef MSSEXT_FILE_HASHING
 	      BufferPutString(b, "check-file");
 	      BufferPutString(b, "");
-#endif
+#endif //MSSEXT_FILE_HASHING
 	    }
     }
   BufferPutPacket(bOut, b);

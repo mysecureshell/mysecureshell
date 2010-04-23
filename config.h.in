@@ -279,6 +279,9 @@
 /* DiskUsage */
 #undef MSSEXT_DISKUSAGE
 
+/* DiskUsageSSH */
+#undef MSSEXT_DISKUSAGE_SSH
+
 /* FileHashing */
 #undef MSSEXT_FILE_HASHING
 
