@@ -912,19 +912,22 @@ void	DoExtended()
 #ifdef MSSEXT_DISKUSAGE
   if (strcmp(request, "space-available") == 0)
       DoExtDiskSpace(bIn, bOut, id);
-  else if (strcmp(request, "statvfs@openssh.com") == 0)
+  else
+#endif //MSSEXT_DISKUSAGE
+#ifdef MSSEXT_DISKUSAGE_SSH
+  if (strcmp(request, "statvfs@openssh.com") == 0)
       DoExtDiskSpaceOpenSSH_Name(bIn, bOut, id);
   else if (strcmp(request, "fstatvfs@openssh.com") == 0)
       DoExtDiskSpaceOpenSSH_Handle(bIn, bOut, id);
   else
-#endif
+#endif //MSSEXT_DISKUSAGE_SSH
 #ifdef MSSEXT_FILE_HASHING
     if (strcmp(request, "check-file-handle") == 0)
       DoExtFileHashing_Handle(bIn, bOut, id);
     else if (strcmp(request, "check-file-name") == 0)
       DoExtFileHashing_Name(bIn, bOut, id);
     else
-#endif
+#endif //MSSEXT_FILE_HASHING
     SendStatus(bOut, id, SSH2_FX_OP_UNSUPPORTED);
   free(request);
 }
