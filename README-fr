@@ -88,10 +88,11 @@ HISTORIQUE:
 1.25 (??):
 	+ support de l'extension statvfs@openssh.com et fstatvfs@openssh.com
 	= reecriture du script "sftp-verif" en perl
-	~ fix un bug sur les tag: DefaultRights, MinimumRights, MaximumRights and ForceRights (merci aretni)
-	~ fix un bug sur les tags: SftpProtocol et VirtualChroot
-	~ fix un bug lors des manipulations des fichiers avec le protocole SFTP v4
-	~ fix des petites fuites de mémoire
+	~ fixe un bug sur les tag: DefaultRights, MinimumRights, MaximumRights and ForceRights (merci aretni)
+	~ fixe un bug sur les tags: SftpProtocol et VirtualChroot
+	~ fixe un bug lors des manipulations des fichiers avec le protocole SFTP v4
+	~ fixe un plantage lors d'un fichier de configuration invalide (merci Zigobs)
+	~ fixe des petites fuites de mémoire
 
 1.20 (janvier 2010):
 	+ ajout des tags (merci JoKnarf) :
