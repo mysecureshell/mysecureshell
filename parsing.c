@@ -93,9 +93,12 @@ void	parse_tag_close()
   deleteMe = _tags;
   if (_tags != NULL)
     _tags = deleteMe->next;
-  if (deleteMe->data1)
-    free(deleteMe->data1);
-  free(deleteMe);
+  if (deleteMe != NULL)
+    {
+      if (deleteMe->data1)
+        free(deleteMe->data1);
+      free(deleteMe);
+    }
 }
 
 void	parse_tag_open(char *str)
@@ -103,12 +106,14 @@ void	parse_tag_open(char *str)
   tTag	*newTag;
   char	*s;
 
-  newTag = calloc(1, sizeof(*newTag));
   if ((s = strchr(str, ' ')) != NULL || (s = strchr(str, '\t')) != NULL)
       {
 	*s = '\0';
 	s = trim_left(s + 1);
       }
+  if (s == NULL || *s == '\0')
+    return;
+  newTag = calloc(1, sizeof(*newTag));
   str = trim_right(str);
   if (strcasecmp(str, TAG_GROUP) == 0)
     {
