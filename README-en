@@ -84,6 +84,7 @@ CHANGE LOG:
 	~ fix bug when handling files with protocol SFTP v4
 	~ fix bug when using tags ForceUser and FakeDirUser at same time (thanks krushio)
 	~ fix crash on incorrect configuratioN (thanks Zigobs)
+	~ fix bug when parsing configuration on 64bit (thanks renaud) 
 	~ fix small memory leak
 
 1.20 (january 2010):

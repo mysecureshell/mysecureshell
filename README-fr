@@ -92,6 +92,7 @@ HISTORIQUE:
 	~ fixe un bug sur les tags: SftpProtocol et VirtualChroot
 	~ fixe un bug lors des manipulations des fichiers avec le protocole SFTP v4
 	~ fixe un plantage lors d'un fichier de configuration invalide (merci Zigobs)
+	~ fixe un bug lors du chargement du fichier de configuration sous 64bit (merci renaud)
 	~ fixe des petites fuites de mémoire
 
 1.20 (janvier 2010):
