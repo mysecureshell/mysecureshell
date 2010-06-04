@@ -19,8 +19,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "config.h"
 #include <string.h>
-#include "SftpServer/Defines.h"
 #include "string.h"
+#include "SftpServer/Defines.h"
 
 static void	delete_comments(char *buffer)
 {
@@ -92,15 +92,20 @@ char	*clean_string(char *buffer)
       if (buffer[i] == '"' || buffer[i] == '\'')
 	{
 	  c = buffer[i];
-	  STRCPY(buffer + i, buffer + i + 1, max);
+	  MyStrCopy(buffer + i, buffer + i + 1, max - i);
 	  while (c != buffer[i] && i < max)
 	    i++;
 	  if (c == buffer[i])
-	    STRCPY(buffer + i, buffer + i + 1, max);
+	    MyStrCopy(buffer + i, buffer + i + 1, max - i);
 	}
       else if (buffer[i] == '\\')
-	STRCPY(buffer + i, buffer + i + 1, max);
+	MyStrCopy(buffer + i, buffer + i + 1, max - i);
     }
   return (buffer);
 }
 
+void  MyStrCopy(char *dest, char *src, int length)
+{
+  while (length--)
+    *dest++ = *src++;
+}

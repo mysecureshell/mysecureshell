@@ -21,3 +21,5 @@ char	*clean_buffer(char *buffer);
 char	*clean_string(char *buffer);
 char	*trim_right(char *buffer);
 char	*trim_left(char *buffer);
+
+void	MyStrCopy(char *dest, char *src, int length);

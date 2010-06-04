@@ -60,6 +60,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "SftpWho.h"
 #include "Util.h"
 #include "../security.h"
+#include "../string.h"
 
 #define CONN_INIT	0
 #define CONN_SFTP	1
