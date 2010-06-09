@@ -65,6 +65,16 @@ static void	end_sftp()
 	  regfree(&gl_var->deny_filter_regexp);
 	  gl_var->has_deny_filter = MSS_FALSE;
 	}
+      if (gl_var->force_user != NULL)
+	{
+	  free(gl_var->force_user);
+	  gl_var->force_user = NULL;
+	}
+      if (gl_var->force_group != NULL)
+	{
+	  free(gl_var->force_group);
+	  gl_var->force_group = NULL;
+	}
       free(gl_var);
       gl_var = NULL;
       setCharset(NULL);
