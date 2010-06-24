@@ -4409,7 +4409,7 @@ fi
 
 done
 
-for ac_header in unistd.h sys/statfs.h sys/param.h sys/mount.h sys/statvfs.h cygwin/socket.h sys/socket netinet/in.h
+for ac_header in unistd.h sys/statfs.h sys/param.h sys/statvfs.h sys/socket netinet/in.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
@@ -4437,10 +4437,38 @@ fi
 
 done
 
+for ac_header in sys/mount.h
+do :
+  ac_fn_c_check_header_compile "$LINENO" "sys/mount.h" "ac_cv_header_sys_mount_h" " $ac_includes_default
+		#if HAVE_SYS_PARAM_H
+			#include <sys/param.h>
+		#endif
+"
+if test "x$ac_cv_header_sys_mount_h" = x""yes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_SYS_MOUNT_H 1
+_ACEOF
+
+fi
+
+done
+
 
 # Checks for target-specific
 case "$host" in
 *-*-cygwin*)
+	for ac_header in cygwin/socket.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "cygwin/socket.h" "ac_cv_header_cygwin_socket_h" "$ac_includes_default"
+if test "x$ac_cv_header_cygwin_socket_h" = x""yes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_CYGWIN_SOCKET_H 1
+_ACEOF
+
+fi
+
+done
+
 	for ac_header in cygwin/acl.h
 do :
   ac_fn_c_check_header_mongrel "$LINENO" "cygwin/acl.h" "ac_cv_header_cygwin_acl_h" "$ac_includes_default"
