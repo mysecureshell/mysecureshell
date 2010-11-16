@@ -337,7 +337,7 @@ void	processLine(char **tb, int max_recursive_left, int verbose)
 	    hash_set_int(bTmp, convert_mode_to_int(tb[1]));
 	    if (tb[2] != NULL)
 	    {
-	      (void )snprintf(bTmp, sizeof(bTmp), "%sDir", tb[0]);
+	      (void )snprintf(bTmp, sizeof(bTmp), "%sDirectory", tb[0]);
 	      hash_set_int(bTmp, convert_mode_to_int(tb[2]));
 	    }
 	    break;
