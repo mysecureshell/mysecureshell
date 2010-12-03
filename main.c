@@ -61,6 +61,9 @@ static void	showVersion(int showAll)
 #ifdef MSSEXT_DISKUSAGE
 	     "  Disk Usage\n"
 #endif
+#ifdef MSSEXT_DISKUSAGE_SSH
+	     "  Disk Usage (OpenSSH)\n"
+#endif
 #ifdef MSSEXT_FILE_HASHING
 	     "  File Hashing\n"
 #endif
