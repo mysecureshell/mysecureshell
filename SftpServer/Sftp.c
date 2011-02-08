@@ -630,7 +630,7 @@ void	DoStat(int (*f_stat)(const char *, struct stat *))
     }
   else
     SendStatus(bOut, id, status);
-  DEBUG((MYLOG_DEBUG, "[Do%sStat]path:'%s' -> '%i'", f_stat == stat ? "" : "L", path, r));
+  DEBUG((MYLOG_DEBUG, "[Do%sStat]path:'%s' -> '%i' [%x]", f_stat == stat ? "" : "L", path, r, a.flags));
   free(path);
 }
 
@@ -957,7 +957,7 @@ void	DoSFTPProtocol()
     }
   oldRead += 4; //ignore size of msgLen
   msgType = BufferGetInt8FAST(bIn);
-  //DEBUG((MYLOG_DEBUG, "[DoSFTPProtocol] msgType:%i msgLen:%i", msgType, msgLen));
+  DEBUG((MYLOG_DEBUG, "[DoSFTPProtocol] msgType:%i msgLen:%i", msgType, msgLen));
   if (connectionStatus == CONN_INIT)
     {
       switch (msgType)
