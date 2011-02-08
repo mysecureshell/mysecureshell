@@ -85,7 +85,11 @@ Forum:       http://mysecureshell.free.fr
 
 HISTORIQUE:
 -----------
-1.25 (??):
+1.30 (???):
+	+ suppression du tag GMTTime car le fichier de log utilise maintenant l'heure locale du serveur
+	~ fixe sur la gestion des ACLs
+
+1.25 (janvier 2011):
 	+ support de l'extension statvfs@openssh.com et fstatvfs@openssh.com
 	= reecriture du script "sftp-verif" en perl
 	~ fixe un bug sur les tag: DefaultRights, MinimumRights, MaximumRights and ForceRights (merci aretni et sebastien)
@@ -161,7 +165,7 @@ HISTORIQUE:
 	= fixe un bug sur la gestion de l'administration
 	= fixe un bug sur l'extension sftp: verification des donnees
 	= fixe un bug sur le sftp-who (le pourcentage de progession contenait un 'h')
-	= sftp-user : fix un bug sur la creation d'utilisateur
+	= sftp-user : fixe un bug sur la creation d'utilisateur
 
 0.95 (fevrier 2007):
 	+ ajout du support des ACLs
