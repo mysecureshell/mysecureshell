@@ -165,8 +165,6 @@ int	main(int ac, char **av, char **env)
 	mylog_open(strdup(hash_get("LogFile")));
       else
 	mylog_open(MSS_LOG);
-      if (hash_get("GMTTime") != NULL)
-	  mylog_time(atoi(hash_get("GMTTime")));
       if (params->who == NULL)
 	{
 	  mylog_printf(MYLOG_ERROR, "[%s]Server '%s' reached maximum connexion (%i clients)",
