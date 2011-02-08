@@ -302,10 +302,10 @@ static void	EncodeACL(tBuffer *b, const char *file)
 	}
       (void )acl_free(acl);
     }
-  posNew = bAcl->length;
-  bAcl->length = 0;
+  posNew = BufferGetCurrentWritePosition(bAcl);
+  BufferSetCurrentWritePosition(bAcl, 0);
   BufferPutInt32(bAcl, nb);//Number of ACLs
-  bAcl->length = posNew;
+  BufferSetCurrentWritePosition(bAcl, posNew);
   BufferPutPacket(b, bAcl);
   BufferDelete(bAcl);
 }
@@ -456,7 +456,7 @@ void	EncodeAttributes(tBuffer *b, const tAttributes *a, const char *file)
   if (HAS_BIT(a->flags, SSH2_FILEXFER_ATTR_ACL))
     {
 #if(HAVE_LIBACL)
-      if (file != NULL)
+      if (file == NULL)
 #endif
 	BufferPutString(b, ""); //unsupported feature
 #if(HAVE_LIBACL)
