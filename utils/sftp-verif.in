@@ -14,7 +14,6 @@ my $mss_log='@MSS_LOG@';
 my $sudo_bin='@SUDO@';
 
 # Vars
-my @file_rights;
 
 ## Root detection
 if ($ENV{'USER'} ne 'root')
@@ -32,7 +31,7 @@ if ($ENV{'USER'} ne 'root')
 sub print_color
 {
     # Print message
-    printf "%-60s", "$_[0]";
+    printf "%-69s", "$_[0]";
     # Print OK in green
     if ($_[1] =~ /ok|reussi/i)
     {
@@ -43,7 +42,7 @@ sub print_color
         # Print failed in red
         print color 'bold red';
     }
-    printf "%20s", "$_[1]\n";
+    printf "%11s", "$_[1]\n";
     # Resetting colors
     print color 'reset';
 }
@@ -52,39 +51,61 @@ sub print_color
 # 1 args needed (whished rights in decimal format 'xxxx')
 sub rightsver
 {
-    foreach (@file_rights)
+    my $needed_owner = shift;
+    my $needed_group = shift;
+    my $needed_rights = shift;
+    my @file_rights = @_;
+
+    foreach my $current_file (@file_rights)
     {
-        if (-f $_)
+        if (-f $current_file)
         {
-            # Get current file rights in a good format
-            my $current_rights = sprintf "%04o", (stat $_)[2] & 07777;
-            my $needed_rights=$_[0];
-            my $current_file=$_;
-        
-            # If rights are ok, do not touch them
-            if ($current_rights == $needed_rights)
+            my @stat_file = stat($current_file);
+            my $current_owner = getpwuid($stat_file[4]);
+            my $current_group = getgrgid($stat_file[5]);
+            my $current_rights = sprintf("%04o", $stat_file[2] & 07777);
+
+            if ($current_rights == $needed_rights && $current_owner eq $needed_owner && $current_group eq $needed_group)
             {
                 &print_color("Verifing file rights of $current_file",'[ OK ]');
             }
             else
             {
-                # Else ask for reset
                 &print_color("Verifing file rights of $current_file",'[ FAILED ]');
-                print "Rights problems have been detected $current_rights and should be $needed_rights\nDo you want to repair $current_file file rights ? (Y/n)\n";
-                if (<STDIN> =~ /y|o/i)
+                if ($current_rights != $needed_rights)
                 {
-                    chmod oct($needed_rights), $_;
-                    &print_color("Good rights ($needed_rights) reseted on $current_file file",'[ OK ]');
+                    print "Rights problems have been detected $current_rights and should be $needed_rights\nDo you want to repair $current_file file rights ? (Y/n)\n";
+                    if (<STDIN> =~ /y|o/i)
+                    {
+                        chmod(oct($needed_rights), $current_file);
+                        &print_color("Good rights ($needed_rights) reseted on $current_file file",'[ OK ]');
+                    }
+                    else
+                    {
+                        &print_color("Needed rights ($needed_rights) have unchanged to $current_file file",'[ OK ]');
+                    }
                 }
-                else
+                if ($current_owner ne $needed_owner || $current_group ne $needed_group)
                 {
-                    &print_color("Needed rights ($needed_rights) have unchanged to $current_file file",'[ OK ]');
+                    print "Owner problems have been detected $current_owner:$current_group and should be $needed_owner:$needed_group\nDo you want to repair $current_file file owner ? (Y/n)\n";
+                    if (<STDIN> =~ /y|o/i)
+                    {
+                        my $file_uid = getpwnam($needed_owner);
+                        my $file_gid = getgrnam($needed_group);
+
+                        chown($file_uid, $file_gid, $current_file);
+                        &print_color("Good owner ($needed_owner:$needed_group) reseted on $current_file file",'[ OK ]');
+                    }
+                    else
+                    {
+                        &print_color("Needed owner ($needed_owner:$needed_group) have unchanged to $current_file file",'[ OK ]');
+                    }
                 }
             }
         }
         else
         {
-            &print_color("File $_ does not exist",'[ FAILED ]');
+            &print_color("File $current_file does not exist",'[ FAILED ]');
         }
     }
 }
@@ -187,22 +208,14 @@ foreach (@check_fsm)
 print "\n\n### Verifing rights ###\n\n";
 
 # To check rights, add files in this array
-@file_rights = ($mss_conf);
 # Give rights you which
-&rightsver('0644');
-# Flush the array
-@file_rights =();
+&rightsver('root', 'root', '0644', $mss_conf);
 
-@file_rights = ("$bindir/sftp-who", "$bindir/sftp-verif", "$bindir/sftp-user");
-&rightsver('0755');
-@file_rights =();
+&rightsver('root', 'root', '0755', "$bindir/sftp-who", "$bindir/sftp-verif", "$bindir/sftp-user");
 
-@file_rights = ("$bindir/sftp-kill", "$bindir/sftp-state", "$bindir/sftp-admin");
-&rightsver('0700');
-@file_rights =();
+&rightsver('root', 'root', '0700', "$bindir/sftp-kill", "$bindir/sftp-state", "$bindir/sftp-admin");
 
-@file_rights = ('/bin/MySecureShell');
-&rightsver('4755');
+&rightsver('root', 'root', '4755', '/bin/MySecureShell');
 
 # Logrotate
 
