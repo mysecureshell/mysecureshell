@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-## MySecureShell Verification Tool v0.4 - Made by MySecureShell Team
+## MySecureShell Verification Tool v0.5 - Made by MySecureShell Team
 ## MySecureShell Team <teka2nerdman@users.sourceforge.net>
 
 use diagnostics;
