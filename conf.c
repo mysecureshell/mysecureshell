@@ -23,6 +23,7 @@
 #include <string.h>
 #include <unistd.h>
 #include "conf.h"
+#include "FileSpec.h"
 #include "ip.h"
 #include "parsing.h"
 #include "string.h"
@@ -41,9 +42,9 @@
 #define CONF_IS_FILE_AND_DIR		9
 #define CONF_DEPRECATED				10
 
-#define CONF_SHOW				0
-#define CONF_SHOW_IF_NOT_NULL	1
-#define CONF_NOT_SHOW			2
+#define CONF_SHOW			0
+#define CONF_SHOW_ALWAYS	1
+#define CONF_NOT_SHOW		2
 
 typedef struct sConf
 {
@@ -71,7 +72,6 @@ static const tConf confParams[] =
 	{ "DirFakeUser", CONF_IS_BOOLEAN, CONF_SHOW },
 	{ "DirFakeGroup", CONF_IS_BOOLEAN, CONF_SHOW },
 	{ "DirFakeMode", CONF_IS_MODE, CONF_SHOW },
-	{ "HideFiles", CONF_IS_STRING_MAYBE_EMPTY, CONF_SHOW },
 	{ "HideNoAccess", CONF_IS_BOOLEAN, CONF_SHOW },
 	{ "ByPassGlobalDownload", CONF_IS_BOOLEAN, CONF_SHOW },
 	{ "ByPassGlobalUpload", CONF_IS_BOOLEAN, CONF_SHOW },
@@ -79,10 +79,8 @@ static const tConf confParams[] =
 	{ "MaxReadFilesForUser", CONF_IS_INT, CONF_SHOW },
 	{ "MaxWriteFilesForUser", CONF_IS_INT, CONF_SHOW },
 	{ "ShowLinksAsLinks", CONF_IS_BOOLEAN, CONF_SHOW },
-	{ "PathAllowFilter", CONF_IS_STRING, CONF_SHOW },
-	{ "PathDenyFilter", CONF_IS_STRING, CONF_SHOW },
-	{ "SftpProtocol", CONF_IS_INT, CONF_SHOW_IF_NOT_NULL },
-	{ "LogFile", CONF_IS_STRING, CONF_SHOW_IF_NOT_NULL },
+	{ "SftpProtocol", CONF_IS_INT, CONF_SHOW_ALWAYS },
+	{ "LogFile", CONF_IS_STRING, CONF_SHOW_ALWAYS },
 	{ "ConnectionMaxLife", CONF_IS_TIME, CONF_SHOW },
 	{ "DisableAccount", CONF_IS_BOOLEAN, CONF_SHOW },
 #ifdef MSS_HAVE_ADMIN
@@ -112,7 +110,11 @@ static const tConf confParams[] =
 	{ "MinimumRights", CONF_IS_FILE_AND_DIR, CONF_SHOW },
 	{ "MaximumRights", CONF_IS_FILE_AND_DIR, CONF_SHOW },
 	{ "ForceRights", CONF_IS_FILE_AND_DIR, CONF_SHOW },
+	{ "ApplyFileSpec", CONF_IS_STRING, CONF_SHOW_ALWAYS },
 	{ "GMTTime", CONF_DEPRECATED, CONF_NOT_SHOW },
+	{ "HideFiles", CONF_DEPRECATED, CONF_SHOW },
+	{ "PathAllowFilter", CONF_DEPRECATED, CONF_SHOW },
+	{ "PathDenyFilter", CONF_DEPRECATED, CONF_SHOW },
 	{ NULL, CONF_IS_EMPTY, CONF_NOT_SHOW }
 };
 
@@ -157,7 +159,7 @@ void load_config(int verbose)
 			char *ptr;
 			int vInt;
 
-			if (confParams[i].show != CONF_SHOW_IF_NOT_NULL && hash_exists(
+			if (confParams[i].show != CONF_SHOW_ALWAYS && hash_exists(
 					confParams[i].name) == 0)
 				continue;
 			(void) printf("%s", confParams[i].name);
@@ -169,7 +171,7 @@ void load_config(int verbose)
 			case CONF_IS_STRING:
 			case CONF_IS_PATH_RESOLVE_ENV:
 				ptr = (char *) hash_get(confParams[i].name);
-				if (ptr == NULL && confParams[i].show == CONF_SHOW_IF_NOT_NULL)
+				if (ptr == NULL && confParams[i].show == CONF_SHOW_ALWAYS)
 					(void) printf("{default}");
 				else
 					(void) printf("%s", ptr);
@@ -180,7 +182,7 @@ void load_config(int verbose)
 				break;
 			case CONF_IS_INT:
 				vInt = hash_get_int(confParams[i].name);
-				if (vInt == 0 && confParams[i].show == CONF_SHOW_IF_NOT_NULL)
+				if (vInt == 0 && confParams[i].show == CONF_SHOW_ALWAYS)
 					(void) printf("{default}");
 				else
 					(void) printf("%i", vInt);
@@ -257,7 +259,7 @@ int load_config_file(const char *file, int verbose, int max_recursive_left)
 				{
 					if (str[len] == '>')
 					{
-						openedTag += parse_tag(str);
+						openedTag += TagParse(str);
 						if (openedTag < 0)
 						{
 							(void) fprintf(
@@ -275,14 +277,19 @@ int load_config_file(const char *file, int verbose, int max_recursive_left)
 								line, file);
 						exit(2);
 					}
-					processTag = tag_is_active(verbose);
+					processTag = TagIsActive(verbose);
 				}
 				else if (processTag == 0)
 					continue;
-				else if ((tb = parse_cut_string(str)))
+				else if ((tb = ParseCutString(str)))
 				{
-					if (tb[0])
-						processLine(tb, max_recursive_left, verbose);
+					if (tb[0] != NULL)
+					{
+						if (TagIsOpen(VTAG_FILESPEC) == 1)
+							FileSpecParse(tb, verbose);
+						else
+							processLine(tb, max_recursive_left, verbose);
+					}
 					free(tb);
 				}
 			}

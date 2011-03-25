@@ -249,13 +249,7 @@ typedef struct	sGlobal
   gid_t		current_group;
   u_int32_t	flagsGlobals;
   u_int32_t	flagsDisable;
-  int		has_hide_files;
-  int		has_allow_filter;
-  int		has_deny_filter;
   int		must_shutdown;
-  regex_t	hide_files_regexp;
-  regex_t	allow_filter_regexp;
-  regex_t	deny_filter_regexp;
   int		max_openfiles;
   int		max_readfiles;
   int		max_writefiles;
