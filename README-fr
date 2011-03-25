@@ -86,7 +86,11 @@ Forum:       http://mysecureshell.free.fr
 HISTORIQUE:
 -----------
 1.30 (???):
+	+ ajout d'un nouveau tag FileSpec et ApplyFileSpec
 	+ suppression du tag GMTTime car le fichier de log utilise maintenant l'heure locale du serveur
+	+ support de la syntaxe des variables ${ENV}
+	+ amélioration de sftp-verif (vérification de l'utilisateur et groupe propriétaire du fichier)
+	+ suppression des tags HideFiles, PathAllowFilter et PathDenyFilter (remplacement par FileSpec)
 	~ fixe sur la gestion des ACLs
 
 1.25 (janvier 2011):
