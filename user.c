@@ -114,7 +114,7 @@ int	is_for_rangeip(const char *range, int verbose)
     return (0);
   size = (int )((unsigned char )range[8]);
   ip = get_ip(0); //don't resolv dns
-  bip = parse_range_ip(ip);
+  bip = TagParseRangeIP(ip);
   pos = 0;
   while (size >= 8)
     {
