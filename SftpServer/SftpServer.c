@@ -31,15 +31,16 @@
 #include "Access.h"
 #include "Defines.h"
 #include "Encoding.h"
+#include "FileSystem.h"
 #include "Global.h"
 #include "Handle.h"
 #include "Log.h"
 #include "Sftp.h"
 #include "GetUsersInfos.h"
+#include "SftpServer.h"
 
 tGlobal *gl_var = NULL;
 
-#include "SftpServer.h"
 
 #ifdef MSSEXT_FILE_HASHING
 #include <openssl/evp.h>
@@ -79,6 +80,7 @@ static void end_sftp()
 		HandleCloseAll();
 		FreeAccess();
 		FileSpecDestroy();
+		FSShutdown();
 	}
 	_exit(0);
 }
@@ -165,24 +167,11 @@ void DoInitUser()
 				gl_var->who->user, gl_var->who->ip, gl_var->who->home,
 				strerror(errno));
 	if (HAS_BIT(gl_var->flagsGlobals, SFTPWHO_VIRTUAL_CHROOT))
-	{
-		if (chroot(gl_var->who->home) != -1)
-		{
-			gl_var->flagsGlobals &= ~SFTPWHO_STAY_AT_HOME;
-			if (chdir("/") == -1)
-				mylog_printf(MYLOG_ERROR,
-						"[%s][%s]Couldn't change directory : %s",
-						gl_var->who->user, gl_var->who->ip, strerror(errno));
-		}
-		else
-		{
-			mylog_printf(MYLOG_ERROR, "[%s][%s]Couldn't chroot : %s",
-					gl_var->who->user, gl_var->who->ip, strerror(errno));
-			gl_var->flagsGlobals &= ~SFTPWHO_VIRTUAL_CHROOT;
-			gl_var->flagsGlobals |= SFTPWHO_STAY_AT_HOME;
-		}
-		gl_var->who->status = gl_var->flagsGlobals | SFTPWHO_IDLE;
-	}
+		FSInit(gl_var->who->home, "/", 1);
+	else if (HAS_BIT(gl_var->flagsGlobals, SFTPWHO_STAY_AT_HOME))
+		FSInit(gl_var->who->home, NULL, 1);
+	else
+		FSInit(gl_var->who->home, NULL, 0);
 	if (gl_var->force_group != NULL)
 	{
 		mylog_printf(MYLOG_WARNING, "[%s][%s]Using force group: %s",
@@ -214,6 +203,8 @@ void DoInitUser()
 	}
 }
 
+//TODO A supprimer !
+// Attention ces vérifications doivent être reportés
 int CheckRules(const char *pwd, int operation, const struct stat *st, int flags)
 {
 	if (FileSpecCheckRights(pwd, pwd) != SSH2_FX_OK)
