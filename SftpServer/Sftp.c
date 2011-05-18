@@ -245,8 +245,7 @@ void DoReadDir()
 	else if ((hdl = HandleGetDir(h)) == NULL)
 	{
 		DEBUG((MYLOG_DEBUG, "[DoReadDir]handle:%i", h));
-		SendStatus(bOut, id, (cVersion <= 3 ? SSH2_FX_FAILURE
-				: SSH4_FX_INVALID_HANDLE));
+		SendStatus(bOut, id, (cVersion <= 3 ? SSH2_FX_FAILURE : SSH4_FX_INVALID_HANDLE));
 	}
 	else
 	{
@@ -257,35 +256,8 @@ void DoReadDir()
 
 		DEBUG((MYLOG_DEBUG, "[DoReadDir]path:'%s' handle:%i", hdl->path, h));
 		s = malloc(nstats * sizeof(tStat));
-		while ((path = FSReadDir(hdl->path, hdl->dir)) != NULL)
+		while ((path = FSReadDir(hdl->path, hdl->dir, &st)) != NULL)
 		{
-			if (HAS_BIT(gl_var->flagsGlobals, SFTPWHO_IGNORE_HIDDEN))
-			{
-				if (path->path[0] == '.' && path->path[1] != '.' && path->path[1] != '\0')
-				{
-					FSDestroyPath(path);
-					continue;
-				}
-			}
-			if (HAS_BIT(gl_var->flagsGlobals, SFTPWHO_LINKS_AS_LINKS))
-			{
-				if (lstat(path->realPath, &st) < 0)
-				{
-					FSDestroyPath(path);
-					DEBUG((MYLOG_DEBUG, "[DoReadDir]ERROR lstat(%s): %s", path->realPath, strerror(errno)));
-					continue;
-				}
-			}
-			else
-			{
-				if (stat(path->realPath, &st) < 0)
-				{
-					FSDestroyPath(path);
-					DEBUG((MYLOG_DEBUG, "[DoReadDir]ERROR stat(%s): %s", path->realPath, strerror(errno)));
-					continue;
-				}
-			}
-			ChangeRights(&st);
 			StatToAttributes(&st, &(s[count].attributes), path->realPath);
 			s[count].name = convertToUtf8(path->path, 0);
 			if (cVersion <= 3)
@@ -382,8 +354,8 @@ void DoOpen()
 		DEBUG((MYLOG_DEBUG, "[DoOpen]Disabled by conf."));
 		status = SSH2_FX_PERMISSION_DENIED;
 	}
-	else if ((status = CheckRulesAboutMaxFiles()) == SSH2_FX_OK && (status
-			= FSOpenFile(path, &fd, flags, mode, &st)) == SSH2_FX_OK)
+	else if ((status = CheckRulesAboutMaxFiles()) == SSH2_FX_OK
+				&& (status = FSOpenFile(path, &fd, flags, mode, &st)) == SSH2_FX_OK)
 	{
 		if ((hdl = HandleNewFile(path, fd, textMode, flags)) == NULL)
 		{
@@ -413,7 +385,8 @@ void DoOpen()
 			SendHandle(bOut, id, hdl->id);
 			status = SSH2_FX_OK;
 		}
-	}DEBUG((MYLOG_DEBUG, "[DoOpen]file:'%s' pflags:%i[%i] perm:0%o fd:%i status:%i", path, pflags, flags, mode, fd, status));
+	}
+	DEBUG((MYLOG_DEBUG, "[DoOpen]file:'%s' pflags:%i[%i] perm:0%o fd:%i status:%i", path, pflags, flags, mode, fd, status));
 	if (status != SSH2_FX_OK)
 	{
 		SendStatus(bOut, id, status);
@@ -574,12 +547,12 @@ void DoStat(int doLStat)
 		SendStatus(bOut, id, status);
 	else
 	{
-		ChangeRights(&st);
 		StatToAttributes(&st, &a, path);
 		if (cVersion >= 4)
 			a.flags = flags;
 		SendAttributes(bOut, id, &a, path);
-	}DEBUG((MYLOG_DEBUG, "[Do%sStat]path:'%s' -> '%i' [%x]", doLStat == 0 ? "" : "L", path, status, a.flags));
+	}
+	DEBUG((MYLOG_DEBUG, "[Do%sStat]path:'%s' -> '%i' [%x]", doLStat == 0 ? "" : "L", path, status, a.flags));
 	free(path);
 }
 
@@ -597,10 +570,11 @@ void DoFStat()
 		flags = BufferGetInt32(bIn);
 	if ((hdl = HandleGetFile(fh)) != NULL)
 	{
-		int r;
+		int returnValue;
 
-		if ((r = fstat(hdl->fd, &st)) < 0)
-			SendStatus(bOut, id, errnoToPortable(errno));
+		returnValue = FSStat(hdl->path, 0, &st);
+		if (returnValue != SSH2_FX_OK)
+			SendStatus(bOut, id, returnValue);
 		else
 		{
 			char *path = hdl->path;
@@ -609,7 +583,8 @@ void DoFStat()
 			if (cVersion >= 4)
 				a.flags = flags;
 			SendAttributes(bOut, id, &a, path);
-		}DEBUG((MYLOG_DEBUG, "[DoFStat]fd:'%i' -> '%i'", hdl->fd, r));
+		}
+		DEBUG((MYLOG_DEBUG, "[DoFStat]fd:'%i' (path:'%s') -> returnValue='%i'", hdl->fd, hdl->path, returnValue));
 	}
 	else
 		SendStatus(bOut, id, (cVersion <= 3 ? SSH2_FX_FAILURE
@@ -675,7 +650,8 @@ void DoSetStat(int usePath)
 			if (chown(resolvedPath->realPath, a->uid, a->gid) == -1)
 				status = errnoToPortable(errno);
 		}
-	}DEBUG((MYLOG_DEBUG, "[DoSetStat]path:'%s'[hdl: %p] -> '%i'", path, hdl, status));
+	}
+	DEBUG((MYLOG_DEBUG, "[DoSetStat]path:'%s'[hdl: %p] -> '%i'", path, hdl, status));
 	SendStatus(bOut, id, status);
 	if (usePath == 1)
 		free(path);
@@ -1069,30 +1045,25 @@ int SftpMain(tGlobal *params, int sftpProtocol)
 		FD_ZERO(&fdW);
 		if (gl_var->must_shutdown)
 			exit(0);
-		if (gl_var->upload_max == 0 || (gl_var->upload_current
-				< gl_var->upload_max))
+		if (gl_var->upload_max == 0 || (gl_var->upload_current < gl_var->upload_max))
 			FD_SET(0, &fdR);
-		if (bOut->length > 0 && (gl_var->download_max == 0
-				|| (gl_var->download_current < gl_var->download_max)))
+		if (bOut->length > 0 && (gl_var->download_max == 0 || (gl_var->download_current < gl_var->download_max)))
 			FD_SET(1, &fdW);
 		gettimeofday(&tm, NULL);
 		tmCur = tm.tv_sec * (long long) 1000000 + tm.tv_usec;
 		tmCur -= tmLast;
 		if (tmCur > tmNeeded)
 		{
-			SET_TIMEOUT(tm, 0, 0)
-			;
+			SET_TIMEOUT(tm, 0, 0);
 		}
 		else if (tmCur == 0)
 		{
-			SET_TIMEOUT(tm, 1, 0)
-			;
+			SET_TIMEOUT(tm, 1, 0);
 		}
 		else
 		{
 			tmNeeded -= tmCur;
-			SET_TIMEOUT(tm, 0, tmNeeded)
-			;
+			SET_TIMEOUT(tm, 0, tmNeeded);
 		}
 		//DEBUG((MYLOG_DEBUG, "[select: %i]tmLast: %lli tmCur: %lli tmNeeded: %lli", ret, tmLast, tmCur, tmNeeded));
 		if ((ret = select(2, &fdR, &fdW, NULL, &tm)) == -1)
@@ -1118,8 +1089,7 @@ int SftpMain(tGlobal *params, int sftpProtocol)
 			gl_var->upload_current = 0;
 			gl_var->download_current = 0;
 			gl_var->who->time_total = time(0) - gl_var->who->time_begin;
-			if (gl_var->who->time_maxidle > 0 && gl_var->who->time_idle
-					>= gl_var->who->time_maxidle)
+			if (gl_var->who->time_maxidle > 0 && gl_var->who->time_idle >= gl_var->who->time_maxidle)
 			{
 				mylog_printf(MYLOG_CONNECTION, "[%s][%s]Connection time out",
 						gl_var->who->user, gl_var->who->ip);
@@ -1168,9 +1138,7 @@ int SftpMain(tGlobal *params, int sftpProtocol)
 				u_int32_t todo;
 
 				if (gl_var->upload_max > 0)
-					todo = SSH2_MAX_PACKET < (gl_var->upload_max
-							- gl_var->upload_current) ? SSH2_MAX_PACKET
-							: (gl_var->upload_max - gl_var->upload_current);
+					todo = SSH2_MAX_PACKET < (gl_var->upload_max - gl_var->upload_current) ? SSH2_MAX_PACKET : (gl_var->upload_max - gl_var->upload_current);
 				else
 					todo = SSH2_MAX_PACKET;
 				BufferEnsureFreeCapacity(bIn, todo);
@@ -1201,18 +1169,19 @@ int SftpMain(tGlobal *params, int sftpProtocol)
 				len = write(1, BufferGetReadPointer(bOut), todo);
 				if (len < 0)
 					exit(1);
-else					BufferIncrCurrentReadPosition(bOut, len);
-					BufferClean(bOut);
-					if (gl_var->who != NULL)
-					{
-						gl_var->download_current += len;
-						gl_var->who->download_total += len;
-					}
+				else
+					BufferIncrCurrentReadPosition(bOut, len);
+				BufferClean(bOut);
+				if (gl_var->who != NULL)
+				{
+					gl_var->download_current += len;
+					gl_var->who->download_total += len;
 				}
 			}
-			bypassChecks:
-			gettimeofday(&tm, NULL);
-			tmLast = tm.tv_sec * (long long )1000000 + tm.tv_usec;
 		}
-		return (0);
+bypassChecks:
+		gettimeofday(&tm, NULL);
+		tmLast = tm.tv_sec * (long long )1000000 + tm.tv_usec;
 	}
+	return (0);
+}

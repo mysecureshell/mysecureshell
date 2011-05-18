@@ -167,11 +167,14 @@ void DoInitUser()
 				gl_var->who->user, gl_var->who->ip, gl_var->who->home,
 				strerror(errno));
 	if (HAS_BIT(gl_var->flagsGlobals, SFTPWHO_VIRTUAL_CHROOT))
-		FSInit(gl_var->who->home, "/", 1);
+	{
+		gl_var->flagsGlobals &= ~SFTPWHO_STAY_AT_HOME;
+		FSInit(gl_var->who->home, "/");
+	}
 	else if (HAS_BIT(gl_var->flagsGlobals, SFTPWHO_STAY_AT_HOME))
-		FSInit(gl_var->who->home, NULL, 1);
+		FSInit(gl_var->who->home, NULL);
 	else
-		FSInit(gl_var->who->home, NULL, 0);
+		FSInit(gl_var->who->home, NULL);
 	if (gl_var->force_group != NULL)
 	{
 		mylog_printf(MYLOG_WARNING, "[%s][%s]Using force group: %s",
@@ -199,72 +202,6 @@ void DoInitUser()
 					"[%s][%s]Couldn't revoke root rights : %s",
 					gl_var->who->user, gl_var->who->ip, strerror(errno));
 			exit(255);
-		}
-	}
-}
-
-//TODO A supprimer !
-// Attention ces vérifications doivent être reportés
-int CheckRules(const char *pwd, int operation, const struct stat *st, int flags)
-{
-	if (FileSpecCheckRights(pwd, pwd) != SSH2_FX_OK)
-		return SSH2_FX_PERMISSION_DENIED;
-	if (operation != RULES_LISTING
-			&& HAS_BIT(gl_var->flagsGlobals, SFTPWHO_STAY_AT_HOME))
-	{
-		if ((strncmp(pwd, gl_var->who->home, strlen(gl_var->who->home)) == 0
-				|| pwd[0] != '/') && strstr(pwd, "/..") == NULL)
-			;
-		else
-			return SSH2_FX_PERMISSION_DENIED;
-	}
-	if (HAS_BIT(gl_var->flagsGlobals, SFTPWHO_IGNORE_HIDDEN) && ((operation
-			>= RULES_DIRECTORY && HAS_BIT(flags, O_RDONLY)) || operation
-			== RULES_FILE || operation == RULES_LISTING))
-	{
-		if (strstr(pwd, "/.") != NULL)
-			return SSH2_FX_NO_SUCH_FILE;
-	}
-	//This code should always be at the end of this function
-	if (operation == RULES_LISTING && st != NULL)
-	{
-		if (HAS_BIT(gl_var->flagsGlobals, SFTPWHO_LINKS_AS_LINKS))
-		{
-			struct stat localst;
-
-			if ((st->st_mode & S_IFMT) == S_IFLNK && stat(pwd, &localst) != -1)
-				st = &localst;
-		}
-		if (HAS_BIT(gl_var->flagsGlobals, SFTPWHO_HIDE_NO_ACESS))
-		{
-			if ((st->st_uid == getuid() && HAS_BIT(st->st_mode, S_IRUSR))
-					|| (UserIsInThisGroup(st->st_gid) == 1
-							&& HAS_BIT(st->st_mode, S_IRGRP))
-					|| HAS_BIT(st->st_mode, S_IROTH))
-				return SSH2_FX_OK;
-			return SSH2_FX_NO_SUCH_FILE;
-		}
-	}
-	return SSH2_FX_OK;
-}
-
-void ChangeRights(struct stat *st)
-{
-	if (HAS_BIT(gl_var->flagsGlobals, SFTPWHO_FAKE_USER))
-		st->st_uid = gl_var->current_user;
-	if (HAS_BIT(gl_var->flagsGlobals, SFTPWHO_FAKE_GROUP))
-		st->st_gid = gl_var->current_group;
-	if (HAS_BIT(gl_var->flagsGlobals, SFTPWHO_FAKE_MODE))
-	{
-		st->st_mode = (st->st_mode & ~0x1fff) | gl_var->who->mode;
-		if (HAS_BIT(st->st_mode, S_IFDIR))
-		{
-			if (HAS_BIT(gl_var->who->mode, S_IRUSR))
-				st->st_mode |= S_IXUSR;
-			if (HAS_BIT(gl_var->who->mode, S_IRGRP))
-				st->st_mode |= S_IXGRP;
-			if (HAS_BIT(gl_var->who->mode, S_IROTH))
-				st->st_mode |= S_IXOTH;
 		}
 	}
 }
@@ -301,60 +238,6 @@ int CheckRulesAboutMaxFiles()
 			return SSH2_FX_PERMISSION_DENIED;
 	}
 	return SSH2_FX_OK;
-}
-
-void ResolvPath(const char *path, char *dst, int dstMaxSize)
-{
-	const char *s = path;
-	char *ptr;
-	int i, beg, end, len;
-
-	dst[0] = '\0';
-	beg = 0;
-	len = strlen(path);
-	STRCPY(dst, path, dstMaxSize);
-	s = dst;
-	while ((ptr = strstr(s, "..")) != NULL)
-	{
-		beg = len - strlen(ptr);
-		end = beg + 2;
-		if ((dst[beg - 1] == '/' || beg == 0) && (dst[end] == '\0' || dst[end]
-				== '/'))
-		{
-			while (beg >= 1 && dst[beg - 1] == '/')
-				beg--;
-			for (i = beg - 1; i >= 0; i--)
-				if (dst[i] == '/' && (i == 0 || dst[i - 1] != '/'))
-					break;
-			if (i < 0)
-				i = 0;
-			if (dst[end] != '\0')
-				STRCPY(dst + i, dst + end, dstMaxSize);
-			else
-				dst[i] = '\0';
-			len = strlen(dst);
-		}
-		else
-			s = ptr + 2;
-	}
-	if (dst[0] == '\0')
-	{
-		if (path[0] == '/')
-			dst[0] = path[0];
-		else
-			dst[0] = '.';
-		dst[1] = '\0';
-	}
-	len = strlen(dst);
-	if (len >= 2 && dst[len - 2] == '/' && dst[len - 1] == '.')
-		dst[len - 1] = '\0';
-	else if (len >= 1 && dst[len - 1] != '/')
-	{
-		struct stat st;
-
-		if (stat(dst, &st) != -1 && (st.st_mode & S_IFMT) != S_IFREG)
-			STRCAT(dst, "/", dstMaxSize);
-	}
 }
 
 void UpdateInfoForOpenFiles()

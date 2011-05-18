@@ -30,10 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define RULES_RMDIRECTORY       5
 
 void    DoInitUser();
-int     CheckRules(const char *pwd, int operation, const struct stat *st, int flags);
-void    ChangeRights(struct stat *st);
 int     CheckRulesAboutMaxFiles();
-void    ResolvPath(const char *path, char *dst, int dstMaxSize);
 void	ParseConf(tGlobal *params, int sftpProtocol);
 void	UpdateInfoForOpenFiles();
 void	CloseInfoForOpenFiles();

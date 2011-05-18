@@ -26,17 +26,17 @@
 #include <string.h>
 #include <unistd.h>
 #include "../FileSpec.h"
+#include "Access.h"
 #include "FileSystem.h"
+#include "Global.h"
 #include "Sftp.h"
 #include "Util.h"
 #include "Log.h"
 
 static tFSPath *_home;
-static int _stayInPath;
 
-void FSInit(char *realPath, char *exposedPath, int stayInPath)
+void FSInit(char *realPath, char *exposedPath)
 {
-	_stayInPath = stayInPath;
 	_home = malloc(sizeof(*_home));
 	_home->realPath = realPath;
 	_home->exposedPath = exposedPath;
@@ -55,6 +55,7 @@ void FSShutdown()
 tFSPath *FSResolvePath(const char *path1, const char *path2, int permitDotDirectory)
 {
 	tFSPath *newPath;
+	int idx, len;
 
 	newPath = malloc(sizeof(*newPath));
 	if (_home->exposedPath == NULL)
@@ -94,22 +95,19 @@ tFSPath *FSResolvePath(const char *path1, const char *path2, int permitDotDirect
 	if (_home->exposedPath != NULL)
 		FSResolvRelativePath(newPath->realPath, permitDotDirectory);
 
-	//TODO Ici bug avec le '/' quand '/home/tests/'
-	{
-		int idx, len;
-
-		len = strlen(newPath->exposedPath);
-		for (idx = len - 2; idx >= 0; idx--)
-			if (newPath->exposedPath[idx] == '/')
-			{
-				newPath->path = strdup(newPath->exposedPath + idx + 1);
-				if (newPath->exposedPath[len - 1] == '/')
-					newPath->path[len - idx - 2] = '\0';
-				break;
-			}
-	}
+	//Strip directory and suffix from exposedPath
+	len = strlen(newPath->exposedPath);
+	for (idx = len - 2; idx >= 0; idx--)
+		if (newPath->exposedPath[idx] == '/')
+		{
+			newPath->path = strdup(newPath->exposedPath + idx + 1);
+			if (newPath->exposedPath[len - 1] == '/')
+				newPath->path[len - idx - 2] = '\0';
+			break;
+		}
 	if (newPath->path == NULL)
 		newPath->path = strdup(newPath->exposedPath);
+
 	DEBUG((MYLOG_DEBUG, "[FSResolvePath]realPath:'%s' exposedPath:'%s' path:'%s'", newPath->realPath, newPath->exposedPath, newPath->path));
 	return newPath;
 }
@@ -207,11 +205,51 @@ void FSDestroyPath(tFSPath *path)
 
 int FSCheckSecurity(const char *fullPath, const char *path)
 {
-	if (_stayInPath == 1
+	if (HAS_BIT(gl_var->flagsGlobals, SFTPWHO_STAY_AT_HOME)
 			&& _home != NULL && _home->realPath != NULL
 			&& strncmp(fullPath, _home->realPath, strlen(_home->realPath)) != 0)
 		return SSH2_FX_PERMISSION_DENIED;
+
+	if (HAS_BIT(gl_var->flagsGlobals, SFTPWHO_IGNORE_HIDDEN)
+			&& path[0] == '.'
+			&& path[1] != '.'
+			&& path[1] != '\0')
+		return SSH2_FX_NO_SUCH_FILE;
+
+	if (HAS_BIT(gl_var->flagsGlobals, SFTPWHO_HIDE_NO_ACESS))
+	{
+		struct stat st;
+
+		if (stat(fullPath, &st) == 0)
+		{
+			if (!((st.st_uid == getuid() && HAS_BIT(st.st_mode, S_IRUSR))
+					|| (UserIsInThisGroup(st.st_gid) == 1 && HAS_BIT(st.st_mode, S_IRGRP))
+					|| HAS_BIT(st.st_mode, S_IROTH)))
+				return SSH2_FX_NO_SUCH_FILE;
+		}
+	}
 	return FileSpecCheckRights(fullPath, path);
+}
+
+void FSChangeRights(struct stat *st)
+{
+	if (HAS_BIT(gl_var->flagsGlobals, SFTPWHO_FAKE_USER))
+		st->st_uid = gl_var->current_user;
+	if (HAS_BIT(gl_var->flagsGlobals, SFTPWHO_FAKE_GROUP))
+		st->st_gid = gl_var->current_group;
+	if (HAS_BIT(gl_var->flagsGlobals, SFTPWHO_FAKE_MODE))
+	{
+		st->st_mode = (st->st_mode & ~0x1fff) | gl_var->who->mode;
+		if (HAS_BIT(st->st_mode, S_IFDIR))
+		{
+			if (HAS_BIT(gl_var->who->mode, S_IRUSR))
+				st->st_mode |= S_IXUSR;
+			if (HAS_BIT(gl_var->who->mode, S_IRGRP))
+				st->st_mode |= S_IXGRP;
+			if (HAS_BIT(gl_var->who->mode, S_IROTH))
+				st->st_mode |= S_IXOTH;
+		}
+	}
 }
 
 tFSPath *FSCheckPath(const char *file)
@@ -251,6 +289,7 @@ tFSPath *FSRealPath(const char *file)
 int FSOpenFile(const char *file, int *fileHandle, int flags, mode_t mode, struct stat *st)
 {
 	tFSPath *path;
+	int returnValue;
 
 	path = FSResolvePath(file, NULL, 0);
 	if (FSCheckSecurity(path->realPath, path->path) != SSH2_FX_OK)
@@ -259,10 +298,16 @@ int FSOpenFile(const char *file, int *fileHandle, int flags, mode_t mode, struct
 		return SSH2_FX_PERMISSION_DENIED;
 	}
 	if ((*fileHandle = open(path->realPath, flags, mode)) == -1)
-		return errnoToPortable(errno);
-	if (stat(path->realPath, st) == -1)
-		memset(st, 0, sizeof(*st));
-	return SSH2_FX_OK;
+		returnValue = errnoToPortable(errno);
+	else
+	{
+		returnValue = SSH2_FX_OK;
+		if (st != NULL)
+			if (stat(path->realPath, st) == -1)
+				memset(st, 0, sizeof(*st));
+	}
+	FSDestroyPath(path);
+	return returnValue;
 }
 
 int FSOpenDir(const char *dir, DIR **dirHandle)
@@ -286,7 +331,7 @@ int FSOpenDir(const char *dir, DIR **dirHandle)
 	return returnValue;
 }
 
-tFSPath *FSReadDir(const char *readDir, DIR *dirHandle)
+tFSPath *FSReadDir(const char *readDir, DIR *dirHandle, struct stat *st)
 {
 	struct dirent *dp;
 
@@ -299,10 +344,28 @@ tFSPath *FSReadDir(const char *readDir, DIR *dirHandle)
 		path = FSResolvePath(readDir, dp->d_name, 1);
 		if (FSCheckSecurity(path->realPath, path->path) == SSH2_FX_OK)
 		{
+			if (HAS_BIT(gl_var->flagsGlobals, SFTPWHO_LINKS_AS_LINKS))
+			{
+				if (lstat(path->realPath, st) < 0)
+				{
+					FSDestroyPath(path);
+					DEBUG((MYLOG_DEBUG, "[FSReadDir]ERROR lstat(%s): %s", path->realPath, strerror(errno)));
+					continue;
+				}
+			}
+			else
+			{
+				if (stat(path->realPath, st) < 0)
+				{
+					FSDestroyPath(path);
+					DEBUG((MYLOG_DEBUG, "[FSReadDir]ERROR stat(%s): %s", path->realPath, strerror(errno)));
+					continue;
+				}
+			}
+			FSChangeRights(st);
 			DEBUG((MYLOG_DEBUG, "[FSReadDir] ACCEPTE '%s' (%s) => '%s' (%s)", path->exposedPath, dp->d_name, path->realPath, path->path));
 			return path;
-		}
-		DEBUG((MYLOG_DEBUG, "[FSReadDir] REFUSED '%s' (%s) => '%s' (%s)", path->exposedPath, dp->d_name, path->realPath, path->path));
+		} DEBUG((MYLOG_DEBUG, "[FSReadDir] REFUSED '%s' (%s) => '%s' (%s)", path->exposedPath, dp->d_name, path->realPath, path->path));
 		FSDestroyPath(path);
 	}
 	return NULL;
@@ -327,6 +390,8 @@ int FSStat(const char *file, int doLStat, struct stat *st)
 	FSDestroyPath(path);
 	if (returnValue == -1)
 		return errnoToPortable(errno);
+	else
+		FSChangeRights(st);
 	return SSH2_FX_OK;
 }
 

@@ -33,19 +33,20 @@ typedef struct sFSPath
 	char *path;
 } tFSPath;
 
-void FSInit(char *realPath, char *exposedPath, int stayInPath);
+void FSInit(char *realPath, char *exposedPath);
 void FSShutdown();
 tFSPath *FSResolvePath(const char *path1, const char *path2, int permitDotDirectory);
 void FSResolvRelativePath(char *path, int permitDotDirectory);
 char *FSBuildPath(const char *path1, const char *path2);
 void FSDestroyPath(tFSPath *path);
 int FSCheckSecurity(const char *fullPath, const char *path);
+void FSChangeRights(struct stat *st);
 
 tFSPath *FSCheckPath(const char *file);
 tFSPath *FSRealPath(const char *file);
 int FSOpenFile(const char *file, int *fileHandle, int flags, mode_t mode, struct stat *st);
 int FSOpenDir(const char *dir, DIR **dirHandle);
-tFSPath *FSReadDir(const char *readDir, DIR *dirHandle);
+tFSPath *FSReadDir(const char *readDir, DIR *dirHandle, struct stat *st);
 int FSStat(const char *file, int doLStat, struct stat *st);
 int FSReadLink(const char *file, char *readLink, int sizeofReadLink);
 int FSUnlink(const char *file);
