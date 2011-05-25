@@ -88,9 +88,11 @@ HISTORIQUE:
 1.30 (???):
 	+ ajout d'un nouveau tag FileSpec et ApplyFileSpec
 	+ suppression du tag GMTTime car le fichier de log utilise maintenant l'heure locale du serveur
+	+ suppression des tags CanRemoveFile et CanRemoveDir => remplacé par DisableRemoveFile et DisableRemoveDir
 	+ support de la syntaxe des variables ${ENV}
 	+ amélioration de sftp-verif (vérification de l'utilisateur et groupe propriétaire du fichier)
 	+ suppression des tags HideFiles, PathAllowFilter et PathDenyFilter (remplacement par FileSpec)
+	+ amélioration du code (séparation du système de fichier et de la gestion du protocol)
 	~ fixe sur la gestion des ACLs
 
 1.25 (janvier 2011):

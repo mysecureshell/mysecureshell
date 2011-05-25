@@ -98,8 +98,6 @@ static const tConf confParams[] =
 	{ "DisableSymLink", CONF_IS_BOOLEAN, CONF_SHOW },
 	{ "DisableOverwrite", CONF_IS_BOOLEAN, CONF_SHOW },
 	{ "Charset", CONF_IS_STRING, CONF_SHOW },
-	{ "CanRemoveDir", CONF_IS_BOOLEAN, CONF_SHOW },
-	{ "CanRemoveFile", CONF_IS_BOOLEAN, CONF_SHOW },
 	{ "CanChangeRights", CONF_IS_BOOLEAN, CONF_SHOW },
 	{ "CanChangeTime", CONF_IS_BOOLEAN, CONF_SHOW },
 	{ "ExpireDate", CONF_IS_STRING_MAYBE_EMPTY, CONF_SHOW },
@@ -111,6 +109,9 @@ static const tConf confParams[] =
 	{ "MaximumRights", CONF_IS_FILE_AND_DIR, CONF_SHOW },
 	{ "ForceRights", CONF_IS_FILE_AND_DIR, CONF_SHOW },
 	{ "ApplyFileSpec", CONF_IS_STRING, CONF_SHOW_ALWAYS },
+
+	{ "CanRemoveDir", CONF_DEPRECATED, CONF_SHOW },
+	{ "CanRemoveFile", CONF_DEPRECATED, CONF_SHOW },
 	{ "GMTTime", CONF_DEPRECATED, CONF_NOT_SHOW },
 	{ "HideFiles", CONF_DEPRECATED, CONF_SHOW },
 	{ "PathAllowFilter", CONF_DEPRECATED, CONF_SHOW },
@@ -127,8 +128,6 @@ void load_config(int verbose)
 	}
 	hash_set_int("SERVER_PORT", get_port_server());
 	hash_set("SERVER_IP", get_ip_server());
-	hash_set_int("CanRemoveDir", 1);
-	hash_set_int("CanRemoveFile", 1);
 	hash_set_int("CanChangeRights", 1);
 	hash_set_int("CanChangeTime", 1);
 	if (load_config_file(CONFIG_FILE, verbose, 10) == 0)

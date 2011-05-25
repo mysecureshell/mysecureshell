@@ -24,30 +24,28 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define	SFTPWHO_EMPTY		0
 #define	SFTPWHO_IDLE		1
-#define SFTPWHO_GET		2
-#define	SFTPWHO_PUT		3
+#define SFTPWHO_GET			2
+#define	SFTPWHO_PUT			3
 #define	SFTPWHO_STATUS_MASK	0xff
 
 //Flags globals
 #define SFTPWHO_STAY_AT_HOME	(1 << 8)
 #define SFTPWHO_VIRTUAL_CHROOT	(1 << 9)
-#define	SFTPWHO_RESOLVE_IP	(1 << 10)
+#define	SFTPWHO_RESOLVE_IP		(1 << 10)
 #define SFTPWHO_IGNORE_HIDDEN	(1 << 11)
-#define SFTPWHO_FAKE_USER	(1 << 12)
-#define SFTPWHO_FAKE_GROUP	(1 << 13)
-#define SFTPWHO_FAKE_MODE	(1 << 14)
+#define SFTPWHO_FAKE_USER		(1 << 12)
+#define SFTPWHO_FAKE_GROUP		(1 << 13)
+#define SFTPWHO_FAKE_MODE		(1 << 14)
 #define SFTPWHO_HIDE_NO_ACESS	(1 << 15)
 #define SFTPWHO_BYPASS_GLB_DWN	(1 << 16)
 #define SFTPWHO_BYPASS_GLB_UPL	(1 << 17)
 #define SFTPWHO_LINKS_AS_LINKS	(1 << 18)
-#define SFTPWHO_IS_ADMIN	(1 << 19)
+#define SFTPWHO_IS_ADMIN		(1 << 19)
 #define SFTPWHO_IS_SIMPLE_ADMIN	(1 << 20)
-#define SFTPWHO_CAN_RMDIR	(1 << 21)
-#define SFTPWHO_CAN_RMFILE	(1 << 22)
 #define SFTPWHO_CAN_CHG_RIGHTS	(1 << 23)
 #define SFTPWHO_CAN_CHG_TIME	(1 << 24)
-#define SFTPWHO_CREATE_HOME	(1 << 25)
-#define SFTPWHO_ARGS_MASK	0xffffff00
+#define SFTPWHO_CREATE_HOME		(1 << 25)
+#define SFTPWHO_ARGS_MASK		0xffffff00
 
 //Flags disabled
 #define SFTP_DISABLE_REMOVE_DIR		(1 << 1)
@@ -57,7 +55,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define SFTP_DISABLE_WRITE_FILE		(1 << 5)
 #define SFTP_DISABLE_SET_ATTRIBUTE	(1 << 6)
 #define SFTP_DISABLE_MAKE_DIR		(1 << 7)
-#define SFTP_DISABLE_RENAME		(1 << 8)
+#define SFTP_DISABLE_RENAME			(1 << 8)
 #define SFTP_DISABLE_SYMLINK		(1 << 9)
 #define SFTP_DISABLE_OVERWRITE		(1 << 10)
 

@@ -228,55 +228,32 @@ int main(int ac, char **av, char **env)
 
 		params->flagsGlobals
 				|= (hash_get_int("StayAtHome") ? SFTPWHO_STAY_AT_HOME : 0)
-						+ (hash_get_int("VirtualChroot") ? SFTPWHO_VIRTUAL_CHROOT
-								: 0)
+						+ (hash_get_int("VirtualChroot") ? SFTPWHO_VIRTUAL_CHROOT : 0)
 						+ (hash_get_int("ResolveIP") ? SFTPWHO_RESOLVE_IP : 0)
-						+ (hash_get_int("IgnoreHidden") ? SFTPWHO_IGNORE_HIDDEN
-								: 0)
+						+ (hash_get_int("IgnoreHidden") ? SFTPWHO_IGNORE_HIDDEN : 0)
 						+ (hash_get_int("DirFakeUser") ? SFTPWHO_FAKE_USER : 0)
-						+ (hash_get_int("DirFakeGroup") ? SFTPWHO_FAKE_GROUP
-								: 0)
+						+ (hash_get_int("DirFakeGroup") ? SFTPWHO_FAKE_GROUP : 0)
 						+ (hash_get_int("DirFakeMode") ? SFTPWHO_FAKE_MODE : 0)
-						+ (hash_get_int("HideNoAccess") ? SFTPWHO_HIDE_NO_ACESS
-								: 0)
-						+ (hash_get_int("ByPassGlobalDownload") ? SFTPWHO_BYPASS_GLB_DWN
-								: 0)
-						+ (hash_get_int("ByPassGlobalUpload") ? SFTPWHO_BYPASS_GLB_UPL
-								: 0)
-						+ (hash_get_int("ShowLinksAsLinks") ? SFTPWHO_LINKS_AS_LINKS
-								: 0)
+						+ (hash_get_int("HideNoAccess") ? SFTPWHO_HIDE_NO_ACESS : 0)
+						+ (hash_get_int("ByPassGlobalDownload") ? SFTPWHO_BYPASS_GLB_DWN : 0)
+						+ (hash_get_int("ByPassGlobalUpload") ? SFTPWHO_BYPASS_GLB_UPL : 0)
+						+ (hash_get_int("ShowLinksAsLinks") ? SFTPWHO_LINKS_AS_LINKS : 0)
 						+ (hash_get_int("IsAdmin") ? SFTPWHO_IS_ADMIN : 0)
-						+ (hash_get_int("IsSimpleAdmin") ? SFTPWHO_IS_SIMPLE_ADMIN
-								: 0)
-						+ (hash_get_int("CanRemoveDir") ? SFTPWHO_CAN_RMDIR : 0)
-						+ (hash_get_int("CanRemoveFile") ? SFTPWHO_CAN_RMFILE
-								: 0)
-						+ (hash_get_int("CanChangeRights") ? SFTPWHO_CAN_CHG_RIGHTS
-								: 0)
-						+ (hash_get_int("CanChangeTime") ? SFTPWHO_CAN_CHG_TIME
-								: 0)
+						+ (hash_get_int("IsSimpleAdmin") ? SFTPWHO_IS_SIMPLE_ADMIN : 0)
+						+ (hash_get_int("CanChangeRights") ? SFTPWHO_CAN_CHG_RIGHTS : 0)
+						+ (hash_get_int("CanChangeTime") ? SFTPWHO_CAN_CHG_TIME : 0)
 						+ (hash_get_int("CreateHome") ? SFTPWHO_CREATE_HOME : 0);
 		params->flagsDisable
-				= (hash_get_int("DisableRemoveDir") ? SFTP_DISABLE_REMOVE_DIR
-						: 0)
-						+ (hash_get_int("DisableRemoveFile") ? SFTP_DISABLE_REMOVE_FILE
-								: 0)
-						+ (hash_get_int("DisableReadDir") ? SFTP_DISABLE_READ_DIR
-								: 0)
-						+ (hash_get_int("DisableReadFile") ? SFTP_DISABLE_READ_FILE
-								: 0)
-						+ (hash_get_int("DisableWriteFile") ? SFTP_DISABLE_WRITE_FILE
-								: 0)
-						+ (hash_get_int("DisableSetAttribute") ? SFTP_DISABLE_SET_ATTRIBUTE
-								: 0)
-						+ (hash_get_int("DisableMakeDir") ? SFTP_DISABLE_MAKE_DIR
-								: 0)
-						+ (hash_get_int("DisableRename") ? SFTP_DISABLE_RENAME
-								: 0)
-						+ (hash_get_int("DisableSymLink") ? SFTP_DISABLE_SYMLINK
-								: 0)
-						+ (hash_get_int("DisableOverwrite") ? SFTP_DISABLE_OVERWRITE
-								: 0);
+				= (hash_get_int("DisableRemoveDir") ? SFTP_DISABLE_REMOVE_DIR : 0)
+						+ (hash_get_int("DisableRemoveFile") ? SFTP_DISABLE_REMOVE_FILE : 0)
+						+ (hash_get_int("DisableReadDir") ? SFTP_DISABLE_READ_DIR : 0)
+						+ (hash_get_int("DisableReadFile") ? SFTP_DISABLE_READ_FILE : 0)
+						+ (hash_get_int("DisableWriteFile") ? SFTP_DISABLE_WRITE_FILE : 0)
+						+ (hash_get_int("DisableSetAttribute") ? SFTP_DISABLE_SET_ATTRIBUTE : 0)
+						+ (hash_get_int("DisableMakeDir") ? SFTP_DISABLE_MAKE_DIR : 0)
+						+ (hash_get_int("DisableRename") ? SFTP_DISABLE_RENAME : 0)
+						+ (hash_get_int("DisableSymLink") ? SFTP_DISABLE_SYMLINK : 0)
+						+ (hash_get_int("DisableOverwrite") ? SFTP_DISABLE_OVERWRITE : 0);
 		params->who->status |= params->flagsGlobals;
 		_sftpglobal->download_max = (u_int32_t) hash_get_int("GlobalDownload");
 		_sftpglobal->upload_max = (u_int32_t) hash_get_int("GlobalUpload");

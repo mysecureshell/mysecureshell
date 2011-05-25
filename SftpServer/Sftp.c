@@ -672,15 +672,13 @@ void DoRemove()
 		DEBUG((MYLOG_DEBUG, "[DoRemove]Disabled by conf."));
 		status = SSH2_FX_PERMISSION_DENIED;
 	}
-	else if (HAS_BIT(gl_var->flagsGlobals, SFTPWHO_CAN_RMFILE))
+	else
 	{
 		status = FSUnlink(path);
 		mylog_printf(MYLOG_WARNING, "[%s][%s]Try to remove file '%s' : %s",
 				gl_var->who->user, gl_var->who->ip, path,
 				(status != SSH2_FX_OK ? strerror(errno) : "success"));
 	}
-	else
-		status = SSH2_FX_PERMISSION_DENIED;
 	DEBUG((MYLOG_DEBUG, "[DoRemove]path:'%s' -> '%i'", path, status));
 	SendStatus(bOut, id, status);
 	free(path);
@@ -731,7 +729,7 @@ void DoRmDir()
 		DEBUG((MYLOG_DEBUG, "[DoRmDir]Disabled by conf."));
 		status = SSH2_FX_PERMISSION_DENIED;
 	}
-	else if (HAS_BIT(gl_var->flagsGlobals, SFTPWHO_CAN_RMDIR))
+	else
 	{
 		status = FSRmdir(path);
 		mylog_printf(MYLOG_WARNING,
@@ -739,8 +737,6 @@ void DoRmDir()
 					gl_var->who->user, gl_var->who->ip, path, (status
 							!= SSH2_FX_OK ? strerror(errno) : "success"));
 	}
-	else
-		status = SSH2_FX_PERMISSION_DENIED;
 	SendStatus(bOut, id, status);
 	DEBUG((MYLOG_DEBUG, "[DoRmDir]path:'%s' -> '%i'", path, status));
 	free(path);
