@@ -1,21 +1,21 @@
 /*
-MySecureShell permit to add restriction to modified sftp-server
-when using MySecureShell as shell.
-Copyright (C) 2007 Sebastien Tardif
+ MySecureShell permit to add restriction to modified sftp-server
+ when using MySecureShell as shell.
+ Copyright (C) 2007 Sebastien Tardif
 
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation (version 2)
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation (version 2)
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-*/
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
 
 #include "../config.h"
 #include <errno.h>
@@ -65,159 +65,231 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #endif
 #include <unistd.h>
 #include "Encode.h"
+#include "FileSystem.h"
 #include "GetUsersInfos.h"
 #include "Log.h"
 #include "../security.h"
 
-tAttributes		*GetAttributes(tBuffer *bIn)
+tAttributes *GetAttributes(tBuffer *bIn)
 {
-  static tAttributes	a;
+	static tAttributes a;
 
-  memset(&a, 0, sizeof(a));
-  a.flags = BufferGetInt32(bIn);
-  //DEBUG((MYLOG_DEBUG, "FLAGS[%x][%i]", a.flags, a.flags));
-  if (cVersion >= 4)
-    a.type = BufferGetInt8(bIn);
-  if (HAS_BIT(a.flags, SSH2_FILEXFER_ATTR_SIZE))
-    a.size = BufferGetInt64(bIn);
-  if (cVersion <= 3 && HAS_BIT(a.flags, SSH2_FILEXFER_ATTR_UIDGID))
-    {
-      a.uid = BufferGetInt32(bIn);
-      a.gid = BufferGetInt32(bIn);
-    }
-  if (cVersion >= 4 && HAS_BIT(a.flags, SSH4_FILEXFER_ATTR_OWNERGROUP))
-    {
-      t_info	*pw;
-      t_info	*gr;
-      char    *user, *group;
-      
-      user = BufferGetString(bIn);
-      group = BufferGetString(bIn);
-      if ((pw = mygetpwnam(user)) != NULL)
-	a.uid = pw->id;
-      if ((gr = mygetgrnam(group)) != NULL)
-	a.gid = gr->id;
-      free(user);
-      free(group);
-    }
-  if (HAS_BIT(a.flags, SSH2_FILEXFER_ATTR_PERMISSIONS))
-    a.perm = BufferGetInt32(bIn);
-  if (cVersion <= 3)
-    {
-      if (HAS_BIT(a.flags, SSH2_FILEXFER_ATTR_ACMODTIME))
+	memset(&a, 0, sizeof(a));
+	a.flags = BufferGetInt32(bIn);
+	//DEBUG((MYLOG_DEBUG, "FLAGS[%x][%i]", a.flags, a.flags));
+	if (cVersion >= 4)
+		a.type = BufferGetInt8(bIn);
+	if (HAS_BIT(a.flags, SSH2_FILEXFER_ATTR_SIZE))
+		a.size = BufferGetInt64(bIn);
+	if (cVersion <= 3 && HAS_BIT(a.flags, SSH2_FILEXFER_ATTR_UIDGID))
 	{
-	  a.atime = BufferGetInt32(bIn);
-	  a.mtime = BufferGetInt32(bIn);
+		a.uid = BufferGetInt32(bIn);
+		a.gid = BufferGetInt32(bIn);
 	}
-    }
-  else //version >= 4
-    {
-      if (HAS_BIT(a.flags, SSH4_FILEXFER_ATTR_ACCESSTIME))
-	a.atime = BufferGetInt64(bIn);
-      if (HAS_BIT(a.flags, SSH4_FILEXFER_ATTR_SUBSECOND_TIMES))
-	(void )BufferGetInt32(bIn);
-      if (HAS_BIT(a.flags, SSH4_FILEXFER_ATTR_CREATETIME))
-	a.ctime = BufferGetInt64(bIn);
-      if (HAS_BIT(a.flags, SSH4_FILEXFER_ATTR_SUBSECOND_TIMES))
-	(void )BufferGetInt32(bIn);
-      if (HAS_BIT(a.flags, SSH4_FILEXFER_ATTR_MODIFYTIME))
-	a.mtime = BufferGetInt64(bIn);
-      if (HAS_BIT(a.flags, SSH4_FILEXFER_ATTR_SUBSECOND_TIMES))
-	(void )BufferGetInt32(bIn);
-    }
-  if (HAS_BIT(a.flags, SSH2_FILEXFER_ATTR_ACL)) //unsupported feature
-    {
-      free(BufferGetString(bIn));
-    }
-  if (HAS_BIT(a.flags, SSH2_FILEXFER_ATTR_EXTENDED)) //unsupported feature
-    {
-      int	i, count;
+	if (cVersion >= 4 && HAS_BIT(a.flags, SSH4_FILEXFER_ATTR_OWNERGROUP))
+	{
+		t_info *pw;
+		t_info *gr;
+		char *user, *group;
 
-      count = BufferGetInt32(bIn);
-      for (i = 0; i < count; i++)
-	{
-	  free(BufferGetString(bIn));
-	  free(BufferGetString(bIn));
+		user = BufferGetString(bIn);
+		group = BufferGetString(bIn);
+		if ((pw = mygetpwnam(user)) != NULL)
+			a.uid = pw->id;
+		if ((gr = mygetgrnam(group)) != NULL)
+			a.gid = gr->id;
+		free(user);
+		free(group);
 	}
-    }
-  return (&a);
+	if (HAS_BIT(a.flags, SSH2_FILEXFER_ATTR_PERMISSIONS))
+		a.perm = BufferGetInt32(bIn);
+	if (cVersion <= 3)
+	{
+		if (HAS_BIT(a.flags, SSH2_FILEXFER_ATTR_ACMODTIME))
+		{
+			a.atime = BufferGetInt32(bIn);
+			a.mtime = BufferGetInt32(bIn);
+		}
+	}
+	else //version >= 4
+	{
+		if (HAS_BIT(a.flags, SSH4_FILEXFER_ATTR_ACCESSTIME))
+			a.atime = BufferGetInt64(bIn);
+		if (HAS_BIT(a.flags, SSH4_FILEXFER_ATTR_SUBSECOND_TIMES))
+			(void) BufferGetInt32(bIn);
+		if (HAS_BIT(a.flags, SSH4_FILEXFER_ATTR_CREATETIME))
+			a.ctime = BufferGetInt64(bIn);
+		if (HAS_BIT(a.flags, SSH4_FILEXFER_ATTR_SUBSECOND_TIMES))
+			(void) BufferGetInt32(bIn);
+		if (HAS_BIT(a.flags, SSH4_FILEXFER_ATTR_MODIFYTIME))
+			a.mtime = BufferGetInt64(bIn);
+		if (HAS_BIT(a.flags, SSH4_FILEXFER_ATTR_SUBSECOND_TIMES))
+			(void) BufferGetInt32(bIn);
+	}
+	if (HAS_BIT(a.flags, SSH2_FILEXFER_ATTR_ACL)) //unsupported feature
+	{
+		free(BufferGetString(bIn));
+	}
+	if (HAS_BIT(a.flags, SSH2_FILEXFER_ATTR_EXTENDED)) //unsupported feature
+	{
+		int i, count;
+
+		count = BufferGetInt32(bIn);
+		for (i = 0; i < count; i++)
+		{
+			free(BufferGetString(bIn));
+			free(BufferGetString(bIn));
+		}
+	}
+	return (&a);
 }
 
-void	StatToAttributes(const struct stat *st, tAttributes *a, const char *fileName)
+void StatToAttributes(const struct stat *st, tAttributes *a, const char *fileName)
 {
-  memset(a, 0, sizeof(*a));
-  a->flags = SSH2_FILEXFER_ATTR_SIZE;
-  a->size = st->st_size;
-  a->uid = st->st_uid;
-  a->gid = st->st_gid;
-  a->flags |= SSH2_FILEXFER_ATTR_PERMISSIONS;
-  a->perm = st->st_mode;
-  a->flags |= SSH2_FILEXFER_ATTR_ACMODTIME;
-  a->atime = st->st_atime;
-  a->mtime = st->st_mtime;
-  a->ctime = st->st_ctime;
-  if (cVersion >= 4)
-    {
-      if ((st->st_mode & S_IFMT) == S_IFREG)
-	a->type = SSH4_FILEXFER_TYPE_REGULAR;
-      else if ((st->st_mode & S_IFMT) == S_IFDIR)
-	a->type = SSH4_FILEXFER_TYPE_DIRECTORY;
-      else if ((st->st_mode & S_IFMT) == S_IFLNK)
-	a->type = SSH4_FILEXFER_TYPE_SYMLINK;
-      else
-	a->type = SSH4_FILEXFER_TYPE_SPECIAL;
-      if (cVersion >= 5)
+	memset(a, 0, sizeof(*a));
+	a->flags = SSH2_FILEXFER_ATTR_SIZE;
+	a->size = st->st_size;
+	a->uid = st->st_uid;
+	a->gid = st->st_gid;
+	a->flags |= SSH2_FILEXFER_ATTR_PERMISSIONS;
+	a->perm = st->st_mode;
+	a->flags |= SSH2_FILEXFER_ATTR_ACMODTIME;
+	a->atime = st->st_atime;
+	a->mtime = st->st_mtime;
+	a->ctime = st->st_ctime;
+	if (cVersion >= 4)
 	{
-	  if ((st->st_mode & S_IFMT) == S_IFSOCK)
-	    a->type = SSH5_FILEXFER_TYPE_SOCKET;
-	  else if ((st->st_mode & S_IFMT) == S_IFCHR)
-	    a->type = SSH5_FILEXFER_TYPE_CHAR_DEVICE;
-	  else if ((st->st_mode & S_IFMT) == S_IFBLK)
-	    a->type = SSH5_FILEXFER_TYPE_BLOCK_DEVICE;
-	  else if ((st->st_mode & S_IFMT) == S_IFIFO)
-	    a->type = SSH5_FILEXFER_TYPE_FIFO;
+		if ((st->st_mode & S_IFMT) == S_IFREG)
+			a->type = SSH4_FILEXFER_TYPE_REGULAR;
+		else if ((st->st_mode & S_IFMT) == S_IFDIR)
+			a->type = SSH4_FILEXFER_TYPE_DIRECTORY;
+		else if ((st->st_mode & S_IFMT) == S_IFLNK)
+			a->type = SSH4_FILEXFER_TYPE_SYMLINK;
+		else
+			a->type = SSH4_FILEXFER_TYPE_SPECIAL;
+		if (cVersion >= 5)
+		{
+			if ((st->st_mode & S_IFMT) == S_IFSOCK)
+				a->type = SSH5_FILEXFER_TYPE_SOCKET;
+			else if ((st->st_mode & S_IFMT) == S_IFCHR)
+				a->type = SSH5_FILEXFER_TYPE_CHAR_DEVICE;
+			else if ((st->st_mode & S_IFMT) == S_IFBLK)
+				a->type = SSH5_FILEXFER_TYPE_BLOCK_DEVICE;
+			else if ((st->st_mode & S_IFMT) == S_IFIFO)
+				a->type = SSH5_FILEXFER_TYPE_FIFO;
+		}
+		a->flags |= SSH4_FILEXFER_ATTR_OWNERGROUP
+				| SSH4_FILEXFER_ATTR_ACCESSTIME | SSH4_FILEXFER_ATTR_CREATETIME
+				| SSH4_FILEXFER_ATTR_MODIFYTIME;
 	}
-      a->flags |= SSH4_FILEXFER_ATTR_OWNERGROUP | SSH4_FILEXFER_ATTR_ACCESSTIME
-	| SSH4_FILEXFER_ATTR_CREATETIME | SSH4_FILEXFER_ATTR_MODIFYTIME;
-    }
-  else
-    a->flags |= SSH2_FILEXFER_ATTR_UIDGID;
-  if (cVersion >= 5 && fileName != NULL)
-    {
-      int	pos = strlen(fileName) - 1;
+	else
+		a->flags |= SSH2_FILEXFER_ATTR_UIDGID;
+	if (cVersion >= 5 && fileName != NULL)
+	{
+		int pos = strlen(fileName) - 1;
 #ifdef HAVE_LINUX_EXT2_FS_H
-      int	fd;
+		int fd;
 #endif
 
-      a->attrib = 0;
-      a->flags |= SSH5_FILEXFER_ATTR_BITS;
-      while (pos >= 1 && fileName[pos - 1] != '/')
-	pos--;
-      if (pos >= 0 && fileName[pos] == '.')
-	a->attrib |= SSH5_FILEXFER_ATTR_FLAGS_HIDDEN;
+		a->attrib = 0;
+		a->flags |= SSH5_FILEXFER_ATTR_BITS;
+		while (pos >= 1 && fileName[pos - 1] != '/')
+			pos--;
+		if (pos >= 0 && fileName[pos] == '.')
+			a->attrib |= SSH5_FILEXFER_ATTR_FLAGS_HIDDEN;
 #ifdef HAVE_LINUX_EXT2_FS_H
-      if ((fd = open(fileName, O_RDONLY)) >= 0)
-	{
-	  int	flags;
+		if ((fd = open(fileName, O_RDONLY)) >= 0)
+		{
+			int flags;
 
-	  if (ioctl(fd, EXT2_IOC_GETFLAGS, &flags) != -1)
-	    {
-	      if (flags & EXT2_COMPR_FL)
-		a->attrib |= SSH5_FILEXFER_ATTR_FLAGS_COMPRESSED;
-	      if (flags & EXT2_APPEND_FL)
-		a->attrib |= SSH5_FILEXFER_ATTR_FLAGS_APPEND_ONLY;
-	      if (flags & EXT2_IMMUTABLE_FL)
-		a->attrib |= SSH5_FILEXFER_ATTR_FLAGS_IMMUTABLE;
-	      if (flags & EXT2_SYNC_FL)
-		a->attrib |= SSH5_FILEXFER_ATTR_FLAGS_SYNC;
-	    }
-	  xclose(fd);
-	}
+			if (ioctl(fd, EXT2_IOC_GETFLAGS, &flags) != -1)
+			{
+				if (flags & EXT2_COMPR_FL)
+				a->attrib |= SSH5_FILEXFER_ATTR_FLAGS_COMPRESSED;
+				if (flags & EXT2_APPEND_FL)
+				a->attrib |= SSH5_FILEXFER_ATTR_FLAGS_APPEND_ONLY;
+				if (flags & EXT2_IMMUTABLE_FL)
+				a->attrib |= SSH5_FILEXFER_ATTR_FLAGS_IMMUTABLE;
+				if (flags & EXT2_SYNC_FL)
+				a->attrib |= SSH5_FILEXFER_ATTR_FLAGS_SYNC;
+			}
+			xclose(fd);
+		}
 #endif
-    }
+	}
 }
 
-#if(HAVE_LIBACL)
+static void EncodeACLCallBack(void *data, int type, int id, int mode)
+{
+	tBuffer *bAcl = (tBuffer *) data;
+
+	BufferPutInt32(bAcl, SSH5_ACE4_ACCESS_ALLOWED_ACE_TYPE);
+	BufferPutInt32(bAcl, 0);//ace-flag ???
+	BufferPutInt32(bAcl, mode);
+	switch (type)
+	{
+	/*case ACL_USER_OBJ:
+		BufferPutString(bAcl, "USER");
+		break;
+	case ACL_GROUP_OBJ:
+		BufferPutString(bAcl, "GROUP");
+		break;*/
+	case FS_ENUM_OTHER:
+		BufferPutString(bAcl, "OTHER");
+		break;
+	case FS_ENUM_USER:
+		{
+			t_info *pw;
+			char buf[11 + 1];
+			char *str;
+
+			if ((pw = mygetpwuid(id)))
+				str = pw->name;
+			else
+			{
+				(void) snprintf(buf, sizeof(buf), "%i", id);
+				str = buf;
+			}
+			BufferPutString(bAcl, str);
+		}
+		break;
+	case FS_ENUM_GROUP:
+		{
+			t_info *gr;
+			char buf[11 + 1];
+			char *str;
+
+			if ((gr = mygetgrgid(id)))
+				str = gr->name;
+			else
+			{
+				(void) snprintf(buf, sizeof(buf), "%i", id);
+				str = buf;
+			}
+			BufferPutString(bAcl, str);
+		}
+		break;
+	}
+}
+//TODO Appeler seulement sur DoStat & DoFStat
+static void EncodeACL(tBuffer *b, const char *file)
+{
+	u_int32_t posNew;
+	tBuffer *bAcl;
+	int nbEntries;
+
+	bAcl = BufferNew();
+	BufferPutInt32(bAcl, 0);//Number of ACL
+	FSEnumAcl(file, 1, EncodeACLCallBack, bAcl, &nbEntries);
+	posNew = BufferGetCurrentWritePosition(bAcl);
+	BufferSetCurrentWritePosition(bAcl, 0);
+	BufferPutInt32(bAcl, nbEntries);//Number of ACLs
+	BufferSetCurrentWritePosition(bAcl, posNew);
+	BufferPutPacket(b, bAcl);
+	BufferDelete(bAcl);
+}
+
+/*#if(HAVE_LIBACL)
 
 #ifndef HAVE_CYGWIN
 #include <acl/libacl.h>
@@ -225,258 +297,266 @@ void	StatToAttributes(const struct stat *st, tAttributes *a, const char *fileNam
 #include <sys/acl.h>
 
 #ifndef HAVE_CYGWIN
-static void	EncodeACL(tBuffer *b, const char *file)
+static void EncodeACL(tBuffer *b, const char *file)
 {
-  tBuffer	*bAcl = BufferNew();
-  acl_entry_t	entry;
-  u_int32_t	posNew, nb = 0;
-  acl_t		acl;
+	tBuffer *bAcl = BufferNew();
+	acl_entry_t entry;
+	u_int32_t posNew, nb = 0;
+	acl_t acl;
 
-  BufferPutInt32(bAcl, 0);//Number of ACL
-  if ((acl = acl_get_file(file, ACL_TYPE_ACCESS)) != NULL)
-    {
-      if (acl_get_entry(acl, ACL_FIRST_ENTRY, &entry) == 1)
+	BufferPutInt32(bAcl, 0);//Number of ACL
+	if ((acl = acl_get_file(file, ACL_TYPE_ACCESS)) != NULL)
 	{
-	  acl_permset_t	permset;
-	  acl_tag_t	tag;
-	  int		*data;
-	  
-	  do
-	    {
-	      if (acl_get_tag_type(entry, &tag) == 0 && acl_get_permset(entry, &permset) == 0)
+		if (acl_get_entry(acl, ACL_FIRST_ENTRY, &entry) == 1)
 		{
-		  if (tag == ACL_MASK)
-		    continue;
-		  nb++;
-		  BufferPutInt32(bAcl, SSH5_ACE4_ACCESS_ALLOWED_ACE_TYPE);
-		  BufferPutInt32(bAcl, 0);//ace-flag ???
-		  BufferPutInt32(bAcl,
-				 (acl_get_perm(permset, ACL_READ) == 1 ? SSH5_ACE4_READ_DATA : 0) |
-				 (acl_get_perm(permset, ACL_WRITE) == 1 ? SSH5_ACE4_WRITE_DATA : 0) |
-				 (acl_get_perm(permset, ACL_EXECUTE) == 1 ? SSH5_ACE4_EXECUTE : 0));
-		  switch (tag)
-		    {
-		    case ACL_USER_OBJ: BufferPutString(bAcl, "USER"); break;
-		    case ACL_GROUP_OBJ: BufferPutString(bAcl, "GROUP"); break;
-		    case ACL_OTHER: BufferPutString(bAcl, "OTHER"); break;
-		    case ACL_USER:
-		      data = (int *)acl_get_qualifier(entry);
-		      if (data)
+			acl_permset_t permset;
+			acl_tag_t tag;
+			int *data;
+
+			do
 			{
-			  t_info	*pw;
-			  char		buf[11+1];
-			  char		*str;
-			  
-			  if ((pw = mygetpwuid(*data)))
-			    str = pw->name;
-			  else
-			    {
-			      (void )snprintf(buf, sizeof(buf), "%i", *data);
-			      str = buf;
-			    }
-			  BufferPutString(bAcl, str);
-			}
-		      break;
-		    case ACL_GROUP:
-		      data = (int *)acl_get_qualifier(entry);
-		      if (data)
-			{
-			  t_info	*gr;
-			  char		buf[11+1];
-			  char		*str;
-			  
-			  if ((gr = mygetgrgid(*data)))
-			    str = gr->name;
-			  else
-			    {
-			      (void )snprintf(buf, sizeof(buf), "%i", *data);
-			      str = buf;
-			    }
-			  BufferPutString(bAcl, str);
-			}
-		      break;
-		    }
+				if (acl_get_tag_type(entry, &tag) == 0 && acl_get_permset(
+						entry, &permset) == 0)
+				{
+					if (tag == ACL_MASK)
+						continue;
+					nb++;
+					BufferPutInt32(bAcl, SSH5_ACE4_ACCESS_ALLOWED_ACE_TYPE);
+					BufferPutInt32(bAcl, 0);//ace-flag ???
+					BufferPutInt32(
+							bAcl,
+							(acl_get_perm(permset, ACL_READ) == 1 ? SSH5_ACE4_READ_DATA
+									: 0) | (acl_get_perm(permset, ACL_WRITE)
+									== 1 ? SSH5_ACE4_WRITE_DATA : 0)
+									| (acl_get_perm(permset, ACL_EXECUTE) == 1 ? SSH5_ACE4_EXECUTE
+											: 0));
+					switch (tag)
+					{
+					case ACL_USER_OBJ:
+						BufferPutString(bAcl, "USER");
+						break;
+					case ACL_GROUP_OBJ:
+						BufferPutString(bAcl, "GROUP");
+						break;
+					case ACL_OTHER:
+						BufferPutString(bAcl, "OTHER");
+						break;
+					case ACL_USER:
+						data = (int *) acl_get_qualifier(entry);
+						if (data)
+						{
+							t_info *pw;
+							char buf[11 + 1];
+							char *str;
+
+							if ((pw = mygetpwuid(*data)))
+								str = pw->name;
+							else
+							{
+								(void) snprintf(buf, sizeof(buf), "%i", *data);
+								str = buf;
+							}
+							BufferPutString(bAcl, str);
+						}
+						break;
+					case ACL_GROUP:
+						data = (int *) acl_get_qualifier(entry);
+						if (data)
+						{
+							t_info *gr;
+							char buf[11 + 1];
+							char *str;
+
+							if ((gr = mygetgrgid(*data)))
+								str = gr->name;
+							else
+							{
+								(void) snprintf(buf, sizeof(buf), "%i", *data);
+								str = buf;
+							}
+							BufferPutString(bAcl, str);
+						}
+						break;
+					}
+				}
+			} while (acl_get_entry(acl, ACL_NEXT_ENTRY, &entry) == 1);
 		}
-	    }
-	  while (acl_get_entry(acl, ACL_NEXT_ENTRY, &entry) == 1);
+		(void) acl_free(acl);
 	}
-      (void )acl_free(acl);
-    }
-  posNew = BufferGetCurrentWritePosition(bAcl);
-  BufferSetCurrentWritePosition(bAcl, 0);
-  BufferPutInt32(bAcl, nb);//Number of ACLs
-  BufferSetCurrentWritePosition(bAcl, posNew);
-  BufferPutPacket(b, bAcl);
-  BufferDelete(bAcl);
+	posNew = BufferGetCurrentWritePosition(bAcl);
+	BufferSetCurrentWritePosition(bAcl, 0);
+	BufferPutInt32(bAcl, nb);//Number of ACLs
+	BufferSetCurrentWritePosition(bAcl, posNew);
+	BufferPutPacket(b, bAcl);
+	BufferDelete(bAcl);
 }
 
 #else //ifdef HAVE_CYGWIN
-
-static void     EncodeACL(tBuffer *b, const char *file)
+static void EncodeACL(tBuffer *b, const char *file)
 {
-  tBuffer	*bAcl = BufferNew();
-  aclent_t	acls[MAX_ACL_ENTRIES];
-  int		nbAcls;
+	tBuffer *bAcl = BufferNew();
+	aclent_t acls[MAX_ACL_ENTRIES];
+	int nbAcls;
 
-  nbAcls = acl(file, GETACL, MAX_ACL_ENTRIES, acls);
-  if (nbAcls < 0)
-    nbAcls = 0;
-  BufferPutInt32(bAcl, nbAcls);
-  if (nbAcls > 0)
-    {
-      int	i;
-
-      for (i = 0; i < nbAcls; i++)
+	nbAcls = acl(file, GETACL, MAX_ACL_ENTRIES, acls);
+	if (nbAcls < 0)
+	nbAcls = 0;
+	BufferPutInt32(bAcl, nbAcls);
+	if (nbAcls > 0)
 	{
-	  switch (acls[i].a_type)
-	    {
-	    case USER_OBJ:
-	    case USER:
-	    case GROUP_OBJ:
-	    case GROUP:
-	    case OTHER:
-	      break;
-	    default:
-	      continue;
-	    }
-	  BufferPutInt32(bAcl, SSH5_ACE4_ACCESS_ALLOWED_ACE_TYPE);
-	  BufferPutInt32(bAcl, 0);//ace-flag ???
-	  BufferPutInt32(bAcl,
-			 ((acls[i].a_perm & 2) ? SSH5_ACE4_READ_DATA : 0) |
-			 ((acls[i].a_perm & 4) ? SSH5_ACE4_WRITE_DATA : 0) |
-			 ((acls[i].a_perm & 1) ? SSH5_ACE4_EXECUTE : 0));
-	  switch (acls[i].a_type)
-	    {
-	    case ACL_USER_OBJ: BufferPutString(bAcl, "USER"); break;
-	    case ACL_GROUP_OBJ: BufferPutString(bAcl, "GROUP"); break;
-	    case ACL_OTHER: BufferPutString(bAcl, "OTHER"); break;
-	    case ACL_USER:
-	      {
-		t_info	*pw;
-		char	buf[11+1];
-		char	*str;
+		int i;
 
-		if ((pw = mygetpwuid(acls[i].a_id)))
-		  str = pw->name;
-		else
-		  {
-		    (void )snprintf(buf, sizeof(buf), "%u", *data);
-		    str = buf;
-		  }
-		BufferPutString(bAcl, str);
-	      }
-	    case ACL_GROUP:
-	      {
-		t_info	*gr;
-		char		buf[11+1];
-		char		*str;
-		
-		if ((gr = mygetgrgid(*data)))
-		  str = gr->name;
-		else
-		  {
-		    (void )snprintf(buf, sizeof(buf), "%u", *data);
-		    str = buf;
-		  }
-		BufferPutString(bAcl, str);
-		break;
-	      }
-	    }
+		for (i = 0; i < nbAcls; i++)
+		{
+			switch (acls[i].a_type)
+			{
+				case USER_OBJ:
+				case USER:
+				case GROUP_OBJ:
+				case GROUP:
+				case OTHER:
+				break;
+				default:
+				continue;
+			}
+			BufferPutInt32(bAcl, SSH5_ACE4_ACCESS_ALLOWED_ACE_TYPE);
+			BufferPutInt32(bAcl, 0);//ace-flag ???
+			BufferPutInt32(bAcl,
+					((acls[i].a_perm & 2) ? SSH5_ACE4_READ_DATA : 0) |
+					((acls[i].a_perm & 4) ? SSH5_ACE4_WRITE_DATA : 0) |
+					((acls[i].a_perm & 1) ? SSH5_ACE4_EXECUTE : 0));
+			switch (acls[i].a_type)
+			{
+				case ACL_USER_OBJ: BufferPutString(bAcl, "USER"); break;
+				case ACL_GROUP_OBJ: BufferPutString(bAcl, "GROUP"); break;
+				case ACL_OTHER: BufferPutString(bAcl, "OTHER"); break;
+				case ACL_USER:
+				{
+					t_info *pw;
+					char buf[11+1];
+					char *str;
+
+					if ((pw = mygetpwuid(acls[i].a_id)))
+					str = pw->name;
+					else
+					{
+						(void )snprintf(buf, sizeof(buf), "%u", *data);
+						str = buf;
+					}
+					BufferPutString(bAcl, str);
+				}
+				case ACL_GROUP:
+				{
+					t_info *gr;
+					char buf[11+1];
+					char *str;
+
+					if ((gr = mygetgrgid(*data)))
+					str = gr->name;
+					else
+					{
+						(void )snprintf(buf, sizeof(buf), "%u", *data);
+						str = buf;
+					}
+					BufferPutString(bAcl, str);
+					break;
+				}
+			}
+		}
 	}
-    }
-  BufferPutPacket(b, bAcl);
-  BufferDelete(bAcl);
+	BufferPutPacket(b, bAcl);
+	BufferDelete(bAcl);
 }
 
 #endif //HAVE_CYGWIN
-
 #endif //HAVE_LIBACL
-
-void	EncodeAttributes(tBuffer *b, const tAttributes *a, const char *file)
+*/
+void EncodeAttributes(tBuffer *b, const tAttributes *a, const char *file)
 {
-  BufferPutInt32(b, a->flags);
-  if (cVersion >= 4)
-    BufferPutInt8(b, a->type);
-  if (HAS_BIT(a->flags, SSH2_FILEXFER_ATTR_SIZE))
-    BufferPutInt64(b, a->size);
-  if (cVersion <= 3 && HAS_BIT(a->flags, SSH2_FILEXFER_ATTR_UIDGID))
-    {
-      BufferPutInt32(b, a->uid);
-      BufferPutInt32(b, a->gid);
-    }
-  if (HAS_BIT(a->flags, SSH4_FILEXFER_ATTR_OWNERGROUP))
-    {
-      t_info	*pw;
-      t_info	*gr;
-      char	buf[11+1];
-      char	*str;
-	
-      if ((pw = mygetpwuid(a->uid)))
-	str = pw->name;
-      else
+	DEBUG((MYLOG_DEBUG, "[EncodeAttributes]flags=%i", a->flags));
+	BufferPutInt32(b, a->flags);
+	if (cVersion >= 4)
+		BufferPutInt8(b, a->type);
+	if (HAS_BIT(a->flags, SSH2_FILEXFER_ATTR_SIZE))
+		BufferPutInt64(b, a->size);
+	if (cVersion <= 3 && HAS_BIT(a->flags, SSH2_FILEXFER_ATTR_UIDGID))
 	{
-	  (void )snprintf(buf, sizeof(buf), "%u", a->uid);
-	  str = buf;
+		BufferPutInt32(b, a->uid);
+		BufferPutInt32(b, a->gid);
 	}
-      BufferPutString(b, str);
-      if ((gr = mygetgrgid(a->gid)))
-	str = gr->name;
-      else
+	if (HAS_BIT(a->flags, SSH4_FILEXFER_ATTR_OWNERGROUP))
 	{
-	  (void )snprintf(buf, sizeof(buf), "%u", a->gid);
-	  str = buf;
+		t_info *pw;
+		t_info *gr;
+		char buf[11 + 1];
+		char *str;
+
+		if ((pw = mygetpwuid(a->uid)))
+			str = pw->name;
+		else
+		{
+			(void) snprintf(buf, sizeof(buf), "%u", a->uid);
+			str = buf;
+		}
+		BufferPutString(b, str);
+		if ((gr = mygetgrgid(a->gid)))
+			str = gr->name;
+		else
+		{
+			(void) snprintf(buf, sizeof(buf), "%u", a->gid);
+			str = buf;
+		}
+		BufferPutString(b, str);
 	}
-      BufferPutString(b, str);
-    }
-  if (HAS_BIT(a->flags, SSH2_FILEXFER_ATTR_PERMISSIONS))
-    BufferPutInt32(b, a->perm);
-  if (cVersion <= 3)
-    {
-      if (HAS_BIT(a->flags, SSH2_FILEXFER_ATTR_ACMODTIME))
+	if (HAS_BIT(a->flags, SSH2_FILEXFER_ATTR_PERMISSIONS))
+		BufferPutInt32(b, a->perm);
+	if (cVersion <= 3)
 	{
-	  BufferPutInt32(b, a->atime);
-	  BufferPutInt32(b, a->mtime);
+		if (HAS_BIT(a->flags, SSH2_FILEXFER_ATTR_ACMODTIME))
+		{
+			BufferPutInt32(b, a->atime);
+			BufferPutInt32(b, a->mtime);
+		}
 	}
-    }
-  else //cVersion >= 4
-    {
-      if (HAS_BIT(a->flags, SSH4_FILEXFER_ATTR_ACCESSTIME))
-	BufferPutInt64(b, a->atime);
-      if (HAS_BIT(a->flags, SSH4_FILEXFER_ATTR_SUBSECOND_TIMES))
-	BufferPutInt32(b, 0);
-      if (HAS_BIT(a->flags, SSH4_FILEXFER_ATTR_CREATETIME))
-	BufferPutInt64(b, a->ctime);
-      if (HAS_BIT(a->flags, SSH4_FILEXFER_ATTR_SUBSECOND_TIMES))
-	BufferPutInt32(b, 0);	
-      if (HAS_BIT(a->flags, SSH4_FILEXFER_ATTR_MODIFYTIME))
-	BufferPutInt64(b, a->mtime);
-      if (HAS_BIT(a->flags, SSH4_FILEXFER_ATTR_SUBSECOND_TIMES))
-	BufferPutInt32(b, 0);
-    }
-  if (HAS_BIT(a->flags, SSH2_FILEXFER_ATTR_ACL))
-    {
+	else //cVersion >= 4
+	{
+		if (HAS_BIT(a->flags, SSH4_FILEXFER_ATTR_ACCESSTIME))
+			BufferPutInt64(b, a->atime);
+		if (HAS_BIT(a->flags, SSH4_FILEXFER_ATTR_SUBSECOND_TIMES))
+			BufferPutInt32(b, 0);
+		if (HAS_BIT(a->flags, SSH4_FILEXFER_ATTR_CREATETIME))
+			BufferPutInt64(b, a->ctime);
+		if (HAS_BIT(a->flags, SSH4_FILEXFER_ATTR_SUBSECOND_TIMES))
+			BufferPutInt32(b, 0);
+		if (HAS_BIT(a->flags, SSH4_FILEXFER_ATTR_MODIFYTIME))
+			BufferPutInt64(b, a->mtime);
+		if (HAS_BIT(a->flags, SSH4_FILEXFER_ATTR_SUBSECOND_TIMES))
+			BufferPutInt32(b, 0);
+	}
+	if (HAS_BIT(a->flags, SSH2_FILEXFER_ATTR_ACL))
+	{
 #if(HAVE_LIBACL)
-      if (file == NULL)
+		if (file == NULL)
 #endif
-	BufferPutString(b, ""); //unsupported feature
+			BufferPutString(b, ""); //unsupported feature
 #if(HAVE_LIBACL)
-      else
-	EncodeACL(b, file);
+		else
+			EncodeACL(b, file);
 #endif
-    }
-  if (HAS_BIT(a->flags, SSH5_FILEXFER_ATTR_BITS))
-    BufferPutInt32(b, a->attrib);
-  if (cVersion >= 5 && HAS_BIT(a->flags, SSH2_FILEXFER_ATTR_EXTENDED))
-    BufferPutInt32(b, 0); //unsupported feature
+	}
+	if (HAS_BIT(a->flags, SSH5_FILEXFER_ATTR_BITS))
+		BufferPutInt32(b, a->attrib);
+	if (cVersion >= 5 && HAS_BIT(a->flags, SSH2_FILEXFER_ATTR_EXTENDED))
+		BufferPutInt32(b, 0); //unsupported feature
 }
 
-struct timeval		*AttributesToTimeval(const tAttributes *a)
+struct timeval *AttributesToTimeval(const tAttributes *a)
 {
-  static struct timeval	tv[2];
+	static struct timeval tv[2];
 
-  tv[0].tv_sec = a->atime;
-  tv[0].tv_usec = 0;
-  tv[1].tv_sec = a->mtime;
-  tv[1].tv_usec = 0;
-  return (tv);
+	tv[0].tv_sec = a->atime;
+	tv[0].tv_usec = 0;
+	tv[1].tv_sec = a->mtime;
+	tv[1].tv_usec = 0;
+	return (tv);
 }

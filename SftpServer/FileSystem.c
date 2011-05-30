@@ -203,6 +203,26 @@ void FSDestroyPath(tFSPath *path)
 	free(path);
 }
 
+static void FSCheckSecurityACL(void *data, int type, int id, int mode)
+{
+	int *result = (int *)data;
+
+	switch (type)
+	{
+	case FS_ENUM_USER:
+		if (id == getuid())
+			*result = SSH2_FX_OK;
+	case FS_ENUM_GROUP:
+		if (id == getgid())
+			*result = SSH2_FX_OK;
+		break;
+	case FS_ENUM_OTHER:
+		if ((mode & (SSH5_ACE4_READ_DATA | SSH5_ACE4_WRITE_DATA | SSH5_ACE4_EXECUTE)) != 0)
+			*result = SSH2_FX_OK;
+		break;
+	}
+}
+
 int FSCheckSecurity(const char *fullPath, const char *path)
 {
 	if (HAS_BIT(gl_var->flagsGlobals, SFTPWHO_STAY_AT_HOME)
@@ -215,18 +235,23 @@ int FSCheckSecurity(const char *fullPath, const char *path)
 			&& path[1] != '.'
 			&& path[1] != '\0')
 		return SSH2_FX_NO_SUCH_FILE;
-
+//TODO Gérer les ACls
 	if (HAS_BIT(gl_var->flagsGlobals, SFTPWHO_HIDE_NO_ACESS))
 	{
 		struct stat st;
+		int nbEntries;
+		int result = SSH2_FX_NO_SUCH_FILE;
 
+		FSEnumAcl(fullPath, 0, FSCheckSecurityACL, &result, &nbEntries);
 		if (stat(fullPath, &st) == 0)
 		{
-			if (!((st.st_uid == getuid() && HAS_BIT(st.st_mode, S_IRUSR))
+			if ((st.st_uid == getuid() && HAS_BIT(st.st_mode, S_IRUSR))
 					|| (UserIsInThisGroup(st.st_gid) == 1 && HAS_BIT(st.st_mode, S_IRGRP))
-					|| HAS_BIT(st.st_mode, S_IROTH)))
-				return SSH2_FX_NO_SUCH_FILE;
+					|| HAS_BIT(st.st_mode, S_IROTH))
+				result = SSH2_FX_OK;
 		}
+		if (result != SSH2_FX_OK)
+			return result;
 	}
 	return FileSpecCheckRights(fullPath, path);
 }
@@ -377,7 +402,7 @@ int FSStat(const char *file, int doLStat, struct stat *st)
 	int	returnValue;
 
 	path = FSResolvePath(file, NULL, 0);
-	DEBUG((MYLOG_DEBUG, "[FSOpenDir]realPath:'%s' exposedPath:'%s' path:'%s'", path->realPath, path->exposedPath, path->path));
+	DEBUG((MYLOG_DEBUG, "[FSStat]realPath:'%s' exposedPath:'%s' path:'%s'", path->realPath, path->exposedPath, path->path));
 	if (FSCheckSecurity(path->realPath, path->path) != SSH2_FX_OK)
 	{
 		FSDestroyPath(path);
