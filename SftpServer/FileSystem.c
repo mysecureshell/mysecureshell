@@ -235,7 +235,6 @@ int FSCheckSecurity(const char *fullPath, const char *path)
 			&& path[1] != '.'
 			&& path[1] != '\0')
 		return SSH2_FX_NO_SUCH_FILE;
-//TODO Gérer les ACls
 	if (HAS_BIT(gl_var->flagsGlobals, SFTPWHO_HIDE_NO_ACESS))
 	{
 		struct stat st;
