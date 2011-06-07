@@ -228,12 +228,12 @@ static void EncodeACLCallBack(void *data, int type, int id, int mode)
 	BufferPutInt32(bAcl, mode);
 	switch (type)
 	{
-	/*case ACL_USER_OBJ:
+	case FS_ENUM_USER_OBJ:
 		BufferPutString(bAcl, "USER");
 		break;
-	case ACL_GROUP_OBJ:
+	case FS_ENUM_GROUP_OBJ:
 		BufferPutString(bAcl, "GROUP");
-		break;*/
+		break;
 	case FS_ENUM_OTHER:
 		BufferPutString(bAcl, "OTHER");
 		break;
@@ -271,7 +271,8 @@ static void EncodeACLCallBack(void *data, int type, int id, int mode)
 		break;
 	}
 }
-//TODO Appeler seulement sur DoStat & DoFStat
+
+//Only call for SSH2_FXP_STAT, SSH2_FXP_LSTAT or SSH2_FXP_FSTAT
 static void EncodeACL(tBuffer *b, const char *file)
 {
 	u_int32_t posNew;
@@ -289,188 +290,6 @@ static void EncodeACL(tBuffer *b, const char *file)
 	BufferDelete(bAcl);
 }
 
-/*#if(HAVE_LIBACL)
-
-#ifndef HAVE_CYGWIN
-#include <acl/libacl.h>
-#endif
-#include <sys/acl.h>
-
-#ifndef HAVE_CYGWIN
-static void EncodeACL(tBuffer *b, const char *file)
-{
-	tBuffer *bAcl = BufferNew();
-	acl_entry_t entry;
-	u_int32_t posNew, nb = 0;
-	acl_t acl;
-
-	BufferPutInt32(bAcl, 0);//Number of ACL
-	if ((acl = acl_get_file(file, ACL_TYPE_ACCESS)) != NULL)
-	{
-		if (acl_get_entry(acl, ACL_FIRST_ENTRY, &entry) == 1)
-		{
-			acl_permset_t permset;
-			acl_tag_t tag;
-			int *data;
-
-			do
-			{
-				if (acl_get_tag_type(entry, &tag) == 0 && acl_get_permset(
-						entry, &permset) == 0)
-				{
-					if (tag == ACL_MASK)
-						continue;
-					nb++;
-					BufferPutInt32(bAcl, SSH5_ACE4_ACCESS_ALLOWED_ACE_TYPE);
-					BufferPutInt32(bAcl, 0);//ace-flag ???
-					BufferPutInt32(
-							bAcl,
-							(acl_get_perm(permset, ACL_READ) == 1 ? SSH5_ACE4_READ_DATA
-									: 0) | (acl_get_perm(permset, ACL_WRITE)
-									== 1 ? SSH5_ACE4_WRITE_DATA : 0)
-									| (acl_get_perm(permset, ACL_EXECUTE) == 1 ? SSH5_ACE4_EXECUTE
-											: 0));
-					switch (tag)
-					{
-					case ACL_USER_OBJ:
-						BufferPutString(bAcl, "USER");
-						break;
-					case ACL_GROUP_OBJ:
-						BufferPutString(bAcl, "GROUP");
-						break;
-					case ACL_OTHER:
-						BufferPutString(bAcl, "OTHER");
-						break;
-					case ACL_USER:
-						data = (int *) acl_get_qualifier(entry);
-						if (data)
-						{
-							t_info *pw;
-							char buf[11 + 1];
-							char *str;
-
-							if ((pw = mygetpwuid(*data)))
-								str = pw->name;
-							else
-							{
-								(void) snprintf(buf, sizeof(buf), "%i", *data);
-								str = buf;
-							}
-							BufferPutString(bAcl, str);
-						}
-						break;
-					case ACL_GROUP:
-						data = (int *) acl_get_qualifier(entry);
-						if (data)
-						{
-							t_info *gr;
-							char buf[11 + 1];
-							char *str;
-
-							if ((gr = mygetgrgid(*data)))
-								str = gr->name;
-							else
-							{
-								(void) snprintf(buf, sizeof(buf), "%i", *data);
-								str = buf;
-							}
-							BufferPutString(bAcl, str);
-						}
-						break;
-					}
-				}
-			} while (acl_get_entry(acl, ACL_NEXT_ENTRY, &entry) == 1);
-		}
-		(void) acl_free(acl);
-	}
-	posNew = BufferGetCurrentWritePosition(bAcl);
-	BufferSetCurrentWritePosition(bAcl, 0);
-	BufferPutInt32(bAcl, nb);//Number of ACLs
-	BufferSetCurrentWritePosition(bAcl, posNew);
-	BufferPutPacket(b, bAcl);
-	BufferDelete(bAcl);
-}
-
-#else //ifdef HAVE_CYGWIN
-static void EncodeACL(tBuffer *b, const char *file)
-{
-	tBuffer *bAcl = BufferNew();
-	aclent_t acls[MAX_ACL_ENTRIES];
-	int nbAcls;
-
-	nbAcls = acl(file, GETACL, MAX_ACL_ENTRIES, acls);
-	if (nbAcls < 0)
-	nbAcls = 0;
-	BufferPutInt32(bAcl, nbAcls);
-	if (nbAcls > 0)
-	{
-		int i;
-
-		for (i = 0; i < nbAcls; i++)
-		{
-			switch (acls[i].a_type)
-			{
-				case USER_OBJ:
-				case USER:
-				case GROUP_OBJ:
-				case GROUP:
-				case OTHER:
-				break;
-				default:
-				continue;
-			}
-			BufferPutInt32(bAcl, SSH5_ACE4_ACCESS_ALLOWED_ACE_TYPE);
-			BufferPutInt32(bAcl, 0);//ace-flag ???
-			BufferPutInt32(bAcl,
-					((acls[i].a_perm & 2) ? SSH5_ACE4_READ_DATA : 0) |
-					((acls[i].a_perm & 4) ? SSH5_ACE4_WRITE_DATA : 0) |
-					((acls[i].a_perm & 1) ? SSH5_ACE4_EXECUTE : 0));
-			switch (acls[i].a_type)
-			{
-				case ACL_USER_OBJ: BufferPutString(bAcl, "USER"); break;
-				case ACL_GROUP_OBJ: BufferPutString(bAcl, "GROUP"); break;
-				case ACL_OTHER: BufferPutString(bAcl, "OTHER"); break;
-				case ACL_USER:
-				{
-					t_info *pw;
-					char buf[11+1];
-					char *str;
-
-					if ((pw = mygetpwuid(acls[i].a_id)))
-					str = pw->name;
-					else
-					{
-						(void )snprintf(buf, sizeof(buf), "%u", *data);
-						str = buf;
-					}
-					BufferPutString(bAcl, str);
-				}
-				case ACL_GROUP:
-				{
-					t_info *gr;
-					char buf[11+1];
-					char *str;
-
-					if ((gr = mygetgrgid(*data)))
-					str = gr->name;
-					else
-					{
-						(void )snprintf(buf, sizeof(buf), "%u", *data);
-						str = buf;
-					}
-					BufferPutString(bAcl, str);
-					break;
-				}
-			}
-		}
-	}
-	BufferPutPacket(b, bAcl);
-	BufferDelete(bAcl);
-}
-
-#endif //HAVE_CYGWIN
-#endif //HAVE_LIBACL
-*/
 void EncodeAttributes(tBuffer *b, const tAttributes *a, const char *file)
 {
 	DEBUG((MYLOG_DEBUG, "[EncodeAttributes]flags=%i", a->flags));
