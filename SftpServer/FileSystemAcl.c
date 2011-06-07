@@ -75,22 +75,30 @@ int FSEnumAcl(const char *file, int resolvePath, void (*callback)(void *data, in
 							(acl_get_perm(permset, ACL_EXECUTE) == 1 ? SSH5_ACE4_EXECUTE : 0);
 					switch (tag)
 					{
-					 case ACL_USER:
-						 id = (int *)acl_get_qualifier(entry);
-						 if (id != NULL)
-							 (*callback)(data, FS_ENUM_USER, *id, mode);
-						 (*nbEntries)++;
-						 break;
-					 case ACL_GROUP:
-						 id = (int *)acl_get_qualifier(entry);
-						 if (id != NULL)
-							 (*callback)(data, FS_ENUM_GROUP, *id, mode);
-						 (*nbEntries)++;
-						 break;
-					 case ACL_OTHER:
-						 (*callback)(data, FS_ENUM_OTHER, -1, mode);
-						 (*nbEntries)++;
-						 break;
+					case ACL_USER:
+						id = (int *) acl_get_qualifier(entry);
+						if (id != NULL)
+							(*callback)(data, FS_ENUM_USER, *id, mode);
+						(*nbEntries)++;
+						break;
+					case ACL_GROUP:
+						id = (int *) acl_get_qualifier(entry);
+						if (id != NULL)
+							(*callback)(data, FS_ENUM_GROUP, *id, mode);
+						(*nbEntries)++;
+						break;
+					case ACL_USER_OBJ:
+						(*callback)(data, FS_ENUM_USER_OBJ, -1, mode);
+						(*nbEntries)++;
+						break;
+					case ACL_GROUP_OBJ:
+						(*callback)(data, FS_ENUM_GROUP_OBJ, -1, mode);
+						(*nbEntries)++;
+						break;
+					case ACL_OTHER:
+						(*callback)(data, FS_ENUM_OTHER, -1, mode);
+						(*nbEntries)++;
+						break;
 					}
 					DEBUG((MYLOG_DEBUG, "[FSEnumAcl]enum tag=%i id=%i mode=%i (permset: %i)", tag, id == NULL ? -42 : *id, mode));
 					DEBUG((MYLOG_DEBUG, "[FSEnumAcl]permset ACL_READ=%i", acl_get_perm(permset, ACL_READ)));
@@ -139,9 +147,11 @@ int FSEnumAcl(const char *file, int resolvePath, void (*callback)(void *data, in
 			 ((acls[i].a_perm & 1) ? SSH5_ACE4_EXECUTE : 0);
 			switch (acls[i].a_type)
 			{
-			case ACL_USER: (*callback)(data, FS_ENUM_USER, acls[i].a_id, mode); break;
-			case ACL_GROUP: (*callback)(data, FS_ENUM_GROUP, acls[i].a_id, mode); break;
-			case ACL_OTHER: (*callback)(data, FS_ENUM_OTHER, -1, mode); break;
+				case ACL_USER: (*callback)(data, FS_ENUM_USER, acls[i].a_id, mode); break;
+				case ACL_GROUP: (*callback)(data, FS_ENUM_GROUP, acls[i].a_id, mode); break;
+				case ACL_USER_OBJ: (*callback)(data, FS_ENUM_USER_OBJ, -1, mode); break;
+				case ACL_GROUP_OBJ: (*callback)(data, FS_ENUM_GROUP_OBJ, -1, mode); break;
+				case ACL_OTHER: (*callback)(data, FS_ENUM_OTHER, -1, mode); break;
 			}
 			DEBUG((MYLOG_DEBUG, "[FSEnumAcl]enum tag=%i id=%i mode=%i", acls[i].a_type, acls[i].a_id, mode));
 		}

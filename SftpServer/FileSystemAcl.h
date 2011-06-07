@@ -22,9 +22,11 @@
 #ifndef _FILESYSTEMACL_H_
 #define _FILESYSTEMACL_H_
 
-#define FS_ENUM_USER	1
-#define FS_ENUM_GROUP	2
-#define FS_ENUM_OTHER	3
+#define FS_ENUM_USER		1
+#define FS_ENUM_GROUP		2
+#define FS_ENUM_USER_OBJ	3
+#define FS_ENUM_GROUP_OBJ	4
+#define FS_ENUM_OTHER		5
 
 #if(HAVE_LIBACL)
 
