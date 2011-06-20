@@ -78,13 +78,19 @@ int FSEnumAcl(const char *file, int resolvePath, void (*callback)(void *data, in
 					case ACL_USER:
 						id = (int *) acl_get_qualifier(entry);
 						if (id != NULL)
+						{
 							(*callback)(data, FS_ENUM_USER, *id, mode);
+							(void )acl_free(id);
+						}
 						(*nbEntries)++;
 						break;
 					case ACL_GROUP:
 						id = (int *) acl_get_qualifier(entry);
 						if (id != NULL)
+						{
 							(*callback)(data, FS_ENUM_GROUP, *id, mode);
+							(void )acl_free(id);
+						}
 						(*nbEntries)++;
 						break;
 					case ACL_USER_OBJ:
@@ -100,10 +106,6 @@ int FSEnumAcl(const char *file, int resolvePath, void (*callback)(void *data, in
 						(*nbEntries)++;
 						break;
 					}
-					DEBUG((MYLOG_DEBUG, "[FSEnumAcl]enum tag=%i id=%i mode=%i (permset: %i)", tag, id == NULL ? -42 : *id, mode));
-					DEBUG((MYLOG_DEBUG, "[FSEnumAcl]permset ACL_READ=%i", acl_get_perm(permset, ACL_READ)));
-					DEBUG((MYLOG_DEBUG, "[FSEnumAcl]permset ACL_WRITE=%i", acl_get_perm(permset, ACL_WRITE)));
-					DEBUG((MYLOG_DEBUG, "[FSEnumAcl]permset ACL_EXECUTE=%i", acl_get_perm(permset, ACL_EXECUTE)));
 				}
 			}
 			while (acl_get_entry(acl, ACL_NEXT_ENTRY, &entry) == 1);
