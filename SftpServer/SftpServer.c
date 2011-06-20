@@ -119,7 +119,6 @@ void DoInitUser()
 #ifdef MSSEXT_FILE_HASHING
 	OpenSSL_add_all_digests();
 #endif
-	init_usersinfos();//load users / groups into memory
 	uid = getuid();
 	if (gl_var->force_user != NULL)
 	{
