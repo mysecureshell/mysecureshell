@@ -172,7 +172,7 @@ int main(int ac, char **av, char **env)
 		if (hash_get("LogFile") != NULL)
 			mylog_open(strdup(hash_get("LogFile")));
 		else
-			mylog_open(MSS_LOG);
+			mylog_open(strdup(MSS_LOG));
 		if (params->who == NULL)
 		{
 			mylog_printf(MYLOG_ERROR,
