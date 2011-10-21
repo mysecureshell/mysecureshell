@@ -142,75 +142,75 @@ char		*LsFile(const char *name, const struct stat *st)
 
 int	FlagsFromPortable(int pFlags, int *textMode)
 {
-  int	flags = 0;
+	int	flags = 0;
 
-  *textMode = 0;
-  if (cVersion >= 5)
-    {
-      switch (pFlags & SSH5_FXF_ACCESS_DISPOSITION)
+	*textMode = 0;
+	if (cVersion >= 5)
 	{
-	case SSH5_FXF_CREATE_NEW:
-	  flags = O_EXCL | O_CREAT;
-	  break;
-	case SSH5_FXF_CREATE_TRUNCATE:
-	  flags = O_TRUNC | O_CREAT;
-	  break;
-	case SSH5_FXF_OPEN_EXISTING:
-	  flags = 0;
-	  break;
-	case SSH5_FXF_OPEN_OR_CREATE:
-	  flags = O_CREAT;
-	  break;
-	case SSH5_FXF_TRUNCATE_EXISTING:
-	  flags = O_TRUNC | O_EXCL | O_CREAT;
-	  break;
+		switch (pFlags & SSH5_FXF_ACCESS_DISPOSITION)
+		{
+		case SSH5_FXF_CREATE_NEW:
+			flags = O_EXCL | O_CREAT;
+			break;
+		case SSH5_FXF_CREATE_TRUNCATE:
+			flags = O_TRUNC | O_CREAT;
+			break;
+		case SSH5_FXF_OPEN_EXISTING:
+			flags = 0;
+			break;
+		case SSH5_FXF_OPEN_OR_CREATE:
+			flags = O_CREAT;
+			break;
+		case SSH5_FXF_TRUNCATE_EXISTING:
+			flags = O_TRUNC | O_EXCL | O_CREAT;
+			break;
+		}
+		if ((HAS_BIT(pFlags, SSH5_FXF_ACCESS_APPEND_DATA)) ||
+				HAS_BIT(pFlags, SSH5_FXF_ACCESS_APPEND_DATA_ATOMIC))
+			flags |= O_APPEND;
+		if (HAS_BIT(pFlags, SSH5_FXF_ACCESS_TEXT_MODE))
+			*textMode = 1;
 	}
-      if ((HAS_BIT(pFlags, SSH5_FXF_ACCESS_APPEND_DATA)) ||
-	  HAS_BIT(pFlags, SSH5_FXF_ACCESS_APPEND_DATA_ATOMIC))
-	flags |= O_APPEND;
-      if (HAS_BIT(pFlags, SSH5_FXF_ACCESS_TEXT_MODE))
-	*textMode = 1;
-    }
-  else
-    {
-      if (HAS_BIT(pFlags, SSH2_FXF_READ)
-	  && HAS_BIT(pFlags, SSH2_FXF_WRITE))
-	flags = O_RDWR;
-      else if (HAS_BIT(pFlags, SSH2_FXF_READ))
-	flags = O_RDONLY;
-      else if (HAS_BIT(pFlags, SSH2_FXF_WRITE))
-	flags = O_WRONLY;
-      
-      if (HAS_BIT(pFlags, SSH2_FXF_CREAT))
-	flags |= O_CREAT;
-      if (HAS_BIT(pFlags, SSH2_FXF_TRUNC))
-	flags |= O_TRUNC;
-      if (HAS_BIT(pFlags, SSH2_FXF_EXCL))
-	flags |= O_EXCL;
-      if (HAS_BIT(pFlags, SSH4_FXF_TEXT))
-	*textMode = 1;
-    }
-  return (flags);
+	else
+	{
+		if (HAS_BIT(pFlags, SSH2_FXF_READ)
+				&& HAS_BIT(pFlags, SSH2_FXF_WRITE))
+			flags = O_RDWR;
+		else if (HAS_BIT(pFlags, SSH2_FXF_READ))
+			flags = O_RDONLY;
+		else if (HAS_BIT(pFlags, SSH2_FXF_WRITE))
+			flags = O_WRONLY;
+
+		if (HAS_BIT(pFlags, SSH2_FXF_CREAT))
+			flags |= O_CREAT;
+		if (HAS_BIT(pFlags, SSH2_FXF_TRUNC))
+			flags |= O_TRUNC;
+		if (HAS_BIT(pFlags, SSH2_FXF_EXCL))
+			flags |= O_EXCL;
+		if (HAS_BIT(pFlags, SSH4_FXF_TEXT))
+			*textMode = 1;
+	}
+	return (flags);
 }
 
 int	FlagsFromAccess(int access)
 {
-  int	flags = 0;
+	int	flags = 0;
 
-  if (HAS_BIT(access, SSH5_ACE4_READ_DATA))
-    {
-      if (HAS_BIT(access, SSH5_ACE4_WRITE_DATA))
-	flags = O_RDWR;
-      else
-	flags = O_RDONLY;
-    }
-  else if (HAS_BIT(access, SSH5_ACE4_WRITE_DATA))
-    flags = O_WRONLY;
-  if (HAS_BIT(access, SSH5_ACE4_APPEND_DATA))
-    flags |= O_APPEND;
-  if (HAS_BIT(access, SSH5_ACE4_SYNCHRONIZE))
-    flags |= O_SYNC;
-  return (flags);
+	if (HAS_BIT(access, SSH5_ACE4_READ_DATA))
+	{
+		if (HAS_BIT(access, SSH5_ACE4_WRITE_DATA))
+			flags = O_RDWR;
+		else
+			flags = O_RDONLY;
+	}
+	else if (HAS_BIT(access, SSH5_ACE4_WRITE_DATA))
+		flags = O_WRONLY;
+	if (HAS_BIT(access, SSH5_ACE4_APPEND_DATA))
+		flags |= O_APPEND;
+	if (HAS_BIT(access, SSH5_ACE4_SYNCHRONIZE))
+		flags |= O_SYNC;
+	return (flags);
 }
 
 int	errnoToPortable(int unixErrno)
