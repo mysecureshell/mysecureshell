@@ -95,6 +95,9 @@ HISTORIQUE:
 	+ amélioration du code (séparation du système de fichier et de la gestion du protocol)
 	+ le tag HideNoAccess vérifie les droits ACLs
 	~ fixe sur la gestion des ACLs
+	~ fixe des plantages
+	~ fixe des petites fuites de mémoire
+	~ fixe un éventuel bug sur les tags DisableReadFile et DisableWriteFile
 
 1.25 (janvier 2011):
 	+ support de l'extension statvfs@openssh.com et fstatvfs@openssh.com
