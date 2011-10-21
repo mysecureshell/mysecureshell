@@ -57,7 +57,7 @@ tFSPath *FSResolvePath(const char *path1, const char *path2, int permitDotDirect
 	tFSPath *newPath;
 	int idx, len;
 
-	newPath = malloc(sizeof(*newPath));
+	newPath = calloc(sizeof(*newPath), 1);
 	if (_home->exposedPath == NULL)
 	{
 		if (path1[0] == '/')
@@ -249,6 +249,8 @@ int FSCheckSecurity(const char *fullPath, const char *path)
 					|| HAS_BIT(st.st_mode, S_IROTH))
 				result = SSH2_FX_OK;
 		}
+		if (errno == ENOENT)
+			result = SSH2_FX_OK;
 		if (result != SSH2_FX_OK)
 			return result;
 	}
@@ -318,6 +320,7 @@ int FSOpenFile(const char *file, int *fileHandle, int flags, mode_t mode, struct
 	path = FSResolvePath(file, NULL, 0);
 	if (FSCheckSecurity(path->realPath, path->path) != SSH2_FX_OK)
 	{
+		DEBUG((MYLOG_DEBUG, "[FSOpenFile]realPath:'%s' path:'%s' : DENIED", path->realPath, path->path));
 		FSDestroyPath(path);
 		return SSH2_FX_PERMISSION_DENIED;
 	}
