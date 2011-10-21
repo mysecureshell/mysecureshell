@@ -344,12 +344,7 @@ void DoOpen()
 			& SSH2_FILEXFER_ATTR_PERMISSIONS) ? a->perm : 0644;
 	mode |= gl_var->minimum_rights_file;
 	mode &= gl_var->maximum_rights_file;
-	if ((HAS_BIT(gl_var->flagsDisable, SFTP_DISABLE_READ_FILE)
-			&& HAS_BIT(pflags, SSH2_FXF_READ))
-			|| (HAS_BIT(gl_var->flagsDisable, SFTP_DISABLE_WRITE_FILE)
-					&& HAS_BIT(pflags, SSH2_FXF_WRITE))
-			|| (HAS_BIT(gl_var->flagsDisable, SFTP_DISABLE_OVERWRITE)
-					&& HAS_BIT(pflags, SSH2_FXF_APPEND)))
+	if (HAS_BIT(gl_var->flagsDisable, SFTP_DISABLE_OVERWRITE) && HAS_BIT(flags, O_APPEND))
 	{
 		DEBUG((MYLOG_DEBUG, "[DoOpen]Disabled by conf."));
 		status = SSH2_FX_PERMISSION_DENIED;
@@ -386,7 +381,7 @@ void DoOpen()
 			status = SSH2_FX_OK;
 		}
 	}
-	DEBUG((MYLOG_DEBUG, "[DoOpen]file:'%s' pflags:%i[%i] perm:0%o fd:%i status:%i", path, pflags, flags, mode, fd, status));
+	DEBUG((MYLOG_DEBUG, "[DoOpen]file:'%s' pflags:%x[%o] perm:0%o fd:%i status:%i", path, pflags, flags, mode, fd, status));
 	if (status != SSH2_FX_OK)
 	{
 		SendStatus(bOut, id, status);
@@ -406,7 +401,9 @@ void DoRead()
 	off = BufferGetInt64(bIn);
 	if ((len = BufferGetInt32(bIn)) > SSH2_MAX_READ)
 		len = SSH2_MAX_READ;
-	if ((hdl = HandleGetFile(h)) != NULL)
+	if (HAS_BIT(gl_var->flagsDisable, SFTP_DISABLE_READ_FILE))
+		status = SSH2_FX_FAILURE;
+	else if ((hdl = HandleGetFile(h)) != NULL)
 	{
 		pos = 0;
 		if (hdl->fileIsText == 0 && (pos = lseek(hdl->fd, off, SEEK_SET)) < 0)
@@ -475,7 +472,9 @@ void DoWrite()
 	h = BufferGetHandle(bIn);
 	off = BufferGetInt64(bIn);
 	data = BufferGetData(bIn, &len);
-	if ((hdl = HandleGetFile(h)) != NULL)
+	if (HAS_BIT(gl_var->flagsDisable, SFTP_DISABLE_WRITE_FILE))
+		status = SSH2_FX_FAILURE;
+	else if ((hdl = HandleGetFile(h)) != NULL)
 	{
 		if (hdl->fileIsText == 0 && (pos = lseek(hdl->fd, off, SEEK_SET)) < 0)
 			status = errnoToPortable(errno);
