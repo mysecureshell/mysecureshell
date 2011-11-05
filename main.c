@@ -302,16 +302,14 @@ int main(int ac, char **av, char **env)
 			} DEBUG((MYLOG_DEBUG, "[%s][%s]ExpireDate time to rest: %i",
 							params->who->user, params->who->ip, params->who->time_maxlife));
 		}
+
 		if (hash_exists("MaxOpenFilesForUser") == MSS_TRUE)
 			params->max_openfiles = hash_get_int("MaxOpenFilesForUser");
 		if (hash_exists("MaxReadFilesForUser") == MSS_TRUE)
 			params->max_readfiles = hash_get_int("MaxReadFilesForUser");
 		if (hash_exists("MaxWriteFilesForUser") == MSS_TRUE)
 			params->max_writefiles = hash_get_int("MaxWriteFilesForUser");
-		if (hash_get_int("DefaultRightsDirectory") > 0)
-			params->rights_directory = hash_get_int("DefaultRightsDirectory");
-		if (hash_get_int("DefaultRightsFile") > 0)
-			params->rights_file = hash_get_int("DefaultRightsFile");
+
 		if (hash_get_int("MinimumRightsDirectory") > 0)
 			params->minimum_rights_directory = hash_get_int(
 					"MinimumRightsDirectory");
@@ -326,10 +324,19 @@ int main(int ac, char **av, char **env)
 			params->maximum_rights_file = hash_get_int("MaximumRightsFile");
 		else
 			params->maximum_rights_file = 07777;
+		if (hash_get_int("DefaultRightsDirectory") > 0)
+		{
+			params->minimum_rights_directory = hash_get_int("DefaultRightsDirectory");
+			params->maximum_rights_directory = params->minimum_rights_directory;
+		}
+		if (hash_get_int("DefaultRightsFile") > 0)
+		{
+			params->minimum_rights_file = hash_get_int("DefaultRightsFile");
+			params->maximum_rights_file = params->minimum_rights_file;
+		}
 		if (hash_get_int("ForceRightsDirectory") > 0)
 		{
-			params->minimum_rights_directory = hash_get_int(
-					"ForceRightsDirectory");
+			params->minimum_rights_directory = hash_get_int("ForceRightsDirectory");
 			params->maximum_rights_directory = params->minimum_rights_directory;
 		}
 		if (hash_get_int("ForceRightsFile") > 0)
@@ -337,12 +344,14 @@ int main(int ac, char **av, char **env)
 			params->minimum_rights_file = hash_get_int("ForceRightsFile");
 			params->maximum_rights_file = params->minimum_rights_file;
 		}
-		if (hash_get("Charset") != NULL)
-			setCharset(hash_get("Charset"));
+
 		if (hash_get("ForceUser") != NULL)
 			params->force_user = strdup(hash_get("ForceUser"));
 		if (hash_get("ForceGroup") != NULL)
 			params->force_group = strdup(hash_get("ForceGroup"));
+
+		if (hash_get("Charset") != NULL)
+			setCharset(hash_get("Charset"));
 		if (hash_get("ApplyFileSpec") != NULL)
 			FileSpecActiveProfils(hash_get("ApplyFileSpec"), 0);
 		delete_hash();

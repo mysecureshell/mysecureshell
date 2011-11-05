@@ -253,8 +253,6 @@ typedef struct	sGlobal
   int		max_openfiles;
   int		max_readfiles;
   int		max_writefiles;
-  int		rights_file;
-  int		rights_directory;
   int		minimum_rights_file;
   int		minimum_rights_directory;
   int		maximum_rights_file;

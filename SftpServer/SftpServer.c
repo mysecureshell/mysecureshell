@@ -139,16 +139,14 @@ void DoInitUser()
 					"[%s][%s]Unable to force group: %s (group unknown)",
 					gl_var->who->user, gl_var->who->ip, gl_var->force_group);
 	}
-	if (HAS_BIT(gl_var->flagsGlobals, SFTPWHO_CREATE_HOME) && chdir(
-			gl_var->who->home) == -1 && errno == ENOENT)
+	if (HAS_BIT(gl_var->flagsGlobals, SFTPWHO_CREATE_HOME)
+			&& chdir(gl_var->who->home) == -1 && errno == ENOENT)
 	{
-		int rights;
+		int mode = 0755;
 
-		rights = gl_var->rights_directory ? gl_var->rights_directory : 0755;
-		rights |= gl_var->minimum_rights_directory;
-		if (gl_var->maximum_rights_directory > 0)
-			rights &= gl_var->maximum_rights_directory;
-		if (mkdir(gl_var->who->home, rights) == -1)
+		mode |= gl_var->minimum_rights_directory;
+		mode &= gl_var->maximum_rights_directory;
+		if (mkdir(gl_var->who->home, mode) == -1)
 		{
 			mylog_printf(MYLOG_ERROR,
 					"[%s][%s]Couldn't create to home '%s' : %s",

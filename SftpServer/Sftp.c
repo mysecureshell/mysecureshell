@@ -340,8 +340,7 @@ void DoOpen()
 	pflags = BufferGetInt32(bIn);
 	a = GetAttributes(bIn);
 	flags |= FlagsFromPortable(pflags, &textMode);
-	mode = gl_var->rights_file ? gl_var->rights_file : (a->flags
-			& SSH2_FILEXFER_ATTR_PERMISSIONS) ? a->perm : 0644;
+	mode = (a->flags & SSH2_FILEXFER_ATTR_PERMISSIONS) ? a->perm : 0644;
 	mode |= gl_var->minimum_rights_file;
 	mode &= gl_var->maximum_rights_file;
 	if ((HAS_BIT(gl_var->flagsDisable, SFTP_DISABLE_OVERWRITE) && HAS_BIT(flags, O_APPEND))
@@ -383,7 +382,7 @@ void DoOpen()
 			status = SSH2_FX_OK;
 		}
 	}
-	DEBUG((MYLOG_DEBUG, "[DoOpen]file:'%s' pflags:%x[%o] perm:0%o fd:%i status:%i", path, pflags, flags, mode, fd, status));
+	DEBUG((MYLOG_DEBUG, "[DoOpen]file:'%s' pflags:%x[%o] perm:%o fd:%i status:%i", path, pflags, flags, mode, fd, status));
 	if (status != SSH2_FX_OK)
 	{
 		SendStatus(bOut, id, status);
@@ -635,7 +634,7 @@ void DoSetStat(int usePath)
 				a->perm |= gl_var->minimum_rights_file;
 				a->perm &= gl_var->maximum_rights_file;
 			}
-			if (chmod(resolvedPath->realPath, (a->perm & 0777)) == -1)
+			if (chmod(resolvedPath->realPath, a->perm) == -1)
 				status = errnoToPortable(errno);
 		}
 		if (a->flags & SSH2_FILEXFER_ATTR_ACMODTIME
@@ -693,8 +692,7 @@ void DoMkDir()
 	id = BufferGetInt32(bIn);
 	path = convertFromUtf8(BufferGetString(bIn), 1);
 	a = GetAttributes(bIn);
-	mode = gl_var->rights_directory ? gl_var->rights_directory : (a->flags
-			& SSH2_FILEXFER_ATTR_PERMISSIONS) ? a->perm & 0777 : 0755;
+	mode = (a->flags & SSH2_FILEXFER_ATTR_PERMISSIONS) ? a->perm : 0755;
 	mode |= gl_var->minimum_rights_directory;
 	mode &= gl_var->maximum_rights_directory;
 	if (HAS_BIT(gl_var->flagsDisable, SFTP_DISABLE_MAKE_DIR))
