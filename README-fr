@@ -98,6 +98,7 @@ HISTORIQUE:
 	~ fixe des plantages
 	~ fixe des petites fuites de mémoire
 	~ fixe un éventuel bug sur les tags DisableReadFile et DisableWriteFile
+	~ fixe un bug lors d'un changement de droits (les droits de de type STICKY BIT n'était pas pris en compte)
 
 1.25 (janvier 2011):
 	+ support de l'extension statvfs@openssh.com et fstatvfs@openssh.com
