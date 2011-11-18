@@ -86,6 +86,10 @@ CHANGE LOG:
 	+ code rewrite (file system)
 	+ tag HideNoAccess check ACL rights
 	~ fix bug on ACLs
+	~ fix some crash
+	~ fix memory leaks
+	~ fix bug with tags DisableReadFile and DisableWriteFile
+	~ fix bug when changing rights (STICKY BIT was ignored)
 
 1.25 (january 2011):
 	+ support extension statvfs@openssh.com and fstatvfs@openssh.com
