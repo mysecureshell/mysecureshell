@@ -92,6 +92,13 @@ void FileSpecParse(char **words, int verbose)
 	{
 		int r;
 
+		if (strcmp("all", words[1]) == 0)
+			return;
+		if (strcmp("Allow", words[0]) != 0 && _allSpecs->type == FILESPEC_ALLOW_DENY)
+			return;
+		if (strcmp("Deny", words[0]) != 0 && _allSpecs->type == FILESPEC_DENY_ALLOW)
+			return;
+
 		_allSpecs->expressions = realloc(_allSpecs->expressions, (_allSpecs->nbExpression + 1) * sizeof(*_allSpecs->expressions));
 		r = regcomp(&_allSpecs->expressions[_allSpecs->nbExpression], words[1], REG_EXTENDED | REG_NOSUB | REG_NEWLINE);
 		if (r == 0)
@@ -163,15 +170,19 @@ int FileSpecCheckRights(const char *fullPath, const char *path)
 		{
 			for (nb = next->nbExpression - 1; nb >= 0; nb--)
 				if (regexec(next->expressions + nb, p, 0, NULL, 0) != REG_NOMATCH)
-					continue;
-			return SSH2_FX_PERMISSION_DENIED;
+					goto nextSpec;
+			if (next->nbExpression > 0)
+				return SSH2_FX_PERMISSION_DENIED;
 		}
 		else //FILESPEC_DENY_ALLOW
 		{
+			if (next->nbExpression == 0)
+				return SSH2_FX_PERMISSION_DENIED;
 			for (nb = next->nbExpression - 1; nb >= 0; nb--)
 				if (regexec(next->expressions + nb, p, 0, NULL, 0) != REG_NOMATCH)
 					return SSH2_FX_PERMISSION_DENIED;
 		}
+nextSpec:
 		next = next->next;
 	}
 	return SSH2_FX_OK;
