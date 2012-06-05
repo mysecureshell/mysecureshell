@@ -143,6 +143,11 @@ int main(int ac, char **av, char **env)
 
 		hostname = get_ip(hash_get_int("ResolveIP"));
 		params = calloc(1, sizeof(*params));
+		if (params == NULL)
+		{
+			perror("unable to alloc memory");
+			exit(15);
+		}
 		params->who = SftpWhoGetStruct(1);
 		if (params->who != NULL)
 		{
