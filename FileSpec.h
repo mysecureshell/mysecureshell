@@ -43,9 +43,9 @@ void FileSpecInit();
 void FileSpecDestroy();
 void FileSpecEnter(const char *specName);
 void FileSpecLeave();
-void FileSpecParse(char **words, int verbose);
+void FileSpecParse(/*@null@*/ char **words);
 void FileSpecActiveProfil(const char *specName, const int verbose);
-void FileSpecActiveProfils(char *specsName, const int verbose);
+void FileSpecActiveProfils(/*@null@*/ char *specsName, const int verbose);
 int FileSpecCheckRights(const char *fullPath, const char *path);
 
 #endif /* FILESPEC_H_ */

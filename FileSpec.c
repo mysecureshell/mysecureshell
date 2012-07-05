@@ -24,8 +24,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "SftpServer/Sftp.h"
 #include "FileSpec.h"
 
-static tFileSpec *_allSpecs = NULL;
-static tFileSpec *_selectedSpecs = NULL;
+/*@null@*/ static tFileSpec *_allSpecs = NULL;
+/*@null@*/ static tFileSpec *_selectedSpecs = NULL;
 
 void FileSpecInit()
 {
@@ -39,17 +39,21 @@ void FileSpecDestroy()
 
 	for (next = _allSpecs; next != NULL; )
 	{
+		int	i;
+
 		current = next;
+		next = current->next;
+		for (i = 0; i < current->nbExpression; i++)
+			regfree(&current->expressions[i]);
 		free(current->expressions);
 		free(current->name);
 		free(current);
-		next = current->next;
 	}
 	for (next = _selectedSpecs; next != NULL; )
 	{
 		current = next;
-		free(current);
 		next = current->next;
+		free(current);
 	}
 }
 
@@ -58,13 +62,16 @@ void FileSpecEnter(const char *specName)
 	tFileSpec *newSpec;
 
 	newSpec = malloc(sizeof(*newSpec));
-	newSpec->name = strdup(specName);
-	newSpec->type = FILESPEC_DENY_ALLOW;
-	newSpec->useFullPath = 0;
-	newSpec->nbExpression = 0;
-	newSpec->expressions = NULL;
-	newSpec->next = _allSpecs;
-	_allSpecs = newSpec;
+	if (newSpec != NULL)
+	{
+		newSpec->name = strdup(specName);
+		newSpec->type = FILESPEC_DENY_ALLOW;
+		newSpec->useFullPath = 0;
+		newSpec->nbExpression = 0;
+		newSpec->expressions = NULL;
+		newSpec->next = _allSpecs;
+		_allSpecs = newSpec;
+	}
 }
 
 void FileSpecLeave()
@@ -72,7 +79,7 @@ void FileSpecLeave()
 	;
 }
 
-void FileSpecParse(char **words, int verbose)
+void FileSpecParse(/*@null@*/ char **words)
 {
 	if (_allSpecs == NULL)
 		return;
@@ -99,35 +106,42 @@ void FileSpecParse(char **words, int verbose)
 		if (strcmp("Deny", words[0]) != 0 && _allSpecs->type == FILESPEC_DENY_ALLOW)
 			return;
 
-		_allSpecs->expressions = realloc(_allSpecs->expressions, (_allSpecs->nbExpression + 1) * sizeof(*_allSpecs->expressions));
-		r = regcomp(&_allSpecs->expressions[_allSpecs->nbExpression], words[1], REG_EXTENDED | REG_NOSUB | REG_NEWLINE);
-		if (r == 0)
-			_allSpecs->nbExpression++;
-		else
+		_allSpecs->expressions = (regex_t *) realloc(_allSpecs->expressions, (_allSpecs->nbExpression + 1) * sizeof(regex_t));
+		if (_allSpecs->expressions != NULL)
 		{
-			char buffer[256];
+			r = regcomp(&_allSpecs->expressions[_allSpecs->nbExpression], words[1], REG_EXTENDED | REG_NOSUB | REG_NEWLINE);
+			if (r == 0)
+				_allSpecs->nbExpression++;
+			else
+			{
+				char buffer[256];
 
-			(void) regerror(r, &_allSpecs->expressions[_allSpecs->nbExpression], buffer, sizeof(buffer));
-			(void) printf("[ERROR]Couldn't compile regex \"%s\" : %s\n", words[1], buffer);
+				(void) regerror(r, &_allSpecs->expressions[_allSpecs->nbExpression], buffer, sizeof(buffer));
+				(void) printf("[ERROR]Couldn't compile regex \"%s\" : %s\n", words[1], buffer);
+			}
 		}
+		else
+			perror("unable to allocate list of regexp");
 	}
 }
 
-void FileSpecActiveProfils(char *specsName, const int verbose)
+void FileSpecActiveProfils(/*@null@*/ char *specsName, const int verbose)
 {
-	char *specName = specsName;
-	int lenSpecsName;
-	int len;
+	if (specsName != NULL)
+	{
+		size_t lenSpecsName, len;
+		char *specName = specsName;
 
-	lenSpecsName = strlen(specsName);
-	for (len = lenSpecsName - 1; len >= 0; len--)
-		if (specsName[len] == ',')
-		{
-			specsName[len] = '\0';
-			specName = specsName + len + 1;
-			FileSpecActiveProfil(specName, verbose);
-		}
-	FileSpecActiveProfil(specsName, verbose);
+		lenSpecsName = strlen(specsName);
+		for (len = lenSpecsName - 1; len > 0; len--)
+			if (specsName[len] == ',')
+			{
+				specsName[len] = '\0';
+				specName = specsName + len + 1;
+				FileSpecActiveProfil(specName, verbose);
+			}
+		FileSpecActiveProfil(specsName, verbose);
+	}
 }
 
 void FileSpecActiveProfil(const char *specName, const int verbose)
@@ -140,11 +154,14 @@ void FileSpecActiveProfil(const char *specName, const int verbose)
 	{
 		if (strcmp(next->name, specName) == 0)
 		{
-			tFileSpec *new = malloc(sizeof(*new));
+			tFileSpec *new = malloc(sizeof(tFileSpec));
 
-			memcpy(new, next, sizeof(*new));
-			new->next = _selectedSpecs;
-			_selectedSpecs = new;
+			if (new != NULL)
+			{
+				memcpy(new, next, sizeof(tFileSpec));
+				new->next = _selectedSpecs;
+				_selectedSpecs = new;
+			}
 			return;
 		}
 		next = next->next;
