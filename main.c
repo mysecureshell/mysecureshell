@@ -142,6 +142,11 @@ int main(int ac, char **av, char **env)
 		int max, fd, sftp_version;
 
 		hostname = get_ip(hash_get_int("ResolveIP"));
+		if (hostname == NULL)
+		{
+			perror("unable to resolve ip");
+			exit(16);
+		}
 		params = calloc(1, sizeof(*params));
 		if (params == NULL)
 		{
@@ -151,14 +156,16 @@ int main(int ac, char **av, char **env)
 		params->who = SftpWhoGetStruct(1);
 		if (params->who != NULL)
 		{
-			params->who->time_begin = time(0);
-			params->who->pid = (unsigned int) getpid();
-			(void) strncat(params->who->home, hash_get("Home"),
-					sizeof(params->who->home) - 1);
-			(void) strncat(params->who->user, hash_get("User"),
-					sizeof(params->who->user) - 1);
-			(void) strncat(params->who->ip, hostname, sizeof(params->who->ip)
-					- 1);
+			char *ptr;
+
+			params->who->time_begin = (u_int32_t) time(0);
+			params->who->pid = (u_int32_t) getpid();
+			ptr = hash_get("Home");
+			(void) strncat(params->who->home, (ptr == NULL ? "{error home}" : ptr ), sizeof(params->who->home) - 1);
+			ptr = hash_get("User");
+			(void) strncat(params->who->user, (ptr == NULL ? "{error user}" : ptr ), sizeof(params->who->user) - 1);
+			ptr = hostname;
+			(void) strncat(params->who->ip, (ptr == NULL ? "{error ip}" : ptr ), sizeof(params->who->ip) - 1);
 		}
 		//check if the server is up ans user is not admin
 		if ((fd = open(SHUTDOWN_FILE, O_RDONLY)) >= 0)
@@ -168,7 +175,7 @@ int main(int ac, char **av, char **env)
 			if (hash_get_int("IsAdmin") == 0 && hash_get_int("IsSimpleAdmin")
 					== 0)
 			{
-				SftpWhoRelaseStruct(params->who);
+				SftpWhoReleaseStruct(params->who);
 				delete_hash();
 				FileSpecDestroy();
 				exit(0);
@@ -183,7 +190,7 @@ int main(int ac, char **av, char **env)
 			mylog_printf(MYLOG_ERROR,
 					"[%s]Server '%s' reached maximum connexion (%i clients)",
 					hash_get("User"), hash_get("SERVER_IP"), SFTPWHO_MAXCLIENT);
-			SftpWhoRelaseStruct(NULL);
+			SftpWhoReleaseStruct(NULL);
 			delete_hash();
 			mylog_close();
 			FileSpecDestroy();
@@ -195,7 +202,7 @@ int main(int ac, char **av, char **env)
 			mylog_printf(MYLOG_ERROR,
 					"[%s]Too many connection for this account",
 					hash_get("User"));
-			SftpWhoRelaseStruct(params->who);
+			SftpWhoReleaseStruct(params->who);
 			delete_hash();
 			FileSpecDestroy();
 			exit(10);
@@ -206,18 +213,18 @@ int main(int ac, char **av, char **env)
 			mylog_printf(MYLOG_ERROR,
 					"[%s]Too many connection for this IP : %s",
 					hash_get("User"), hostname);
-			SftpWhoRelaseStruct(params->who);
+			SftpWhoReleaseStruct(params->who);
 			delete_hash();
 			FileSpecDestroy();
 			exit(11);
 		}
 		max = hash_get_int("LimitConnection");
-		if (max > 0 && count_program_for_uid(0) > max)
+		if (max > 0 && count_program_for_uid(NULL) > max)
 		{
 			mylog_printf(MYLOG_ERROR,
 					"[%s]Too many connection for the server : %s", hash_get(
 							"User"), hash_get("SERVER_IP"));
-			SftpWhoRelaseStruct(params->who);
+			SftpWhoReleaseStruct(params->who);
 			delete_hash();
 			FileSpecDestroy();
 			exit(12);
@@ -225,7 +232,7 @@ int main(int ac, char **av, char **env)
 		if (hash_get_int("DisableAccount"))
 		{
 			mylog_printf(MYLOG_ERROR, "[%s]Account is closed", hash_get("User"));
-			SftpWhoRelaseStruct(params->who);
+			SftpWhoReleaseStruct(params->who);
 			delete_hash();
 			FileSpecDestroy();
 			exit(13);
@@ -273,12 +280,12 @@ int main(int ac, char **av, char **env)
 			params->who->upload_max = params->upload_max;
 		}
 		if (hash_get_int("IdleTimeOut") > 0)
-			params->who->time_maxidle = hash_get_int("IdleTimeOut");
+			params->who->time_maxidle = (u_int32_t) hash_get_int("IdleTimeOut");
 		if (hash_get_int("DirFakeMode") > 0)
-			params->who->mode = hash_get_int("DirFakeMode");
+			params->who->mode = (u_int16_t) hash_get_int("DirFakeMode");
 		sftp_version = hash_get_int("SftpProtocol");
 		if (hash_get_int("ConnectionMaxLife") > 0)
-			params->who->time_maxlife = hash_get_int("ConnectionMaxLife");
+			params->who->time_maxlife = (u_int32_t) hash_get_int("ConnectionMaxLife");
 		if (hash_get("ExpireDate") != NULL)
 		{
 			struct tm tm;
@@ -293,7 +300,7 @@ int main(int ac, char **av, char **env)
 				{
 					mylog_printf(MYLOG_ERROR, "[%s]Account has expired : %s",
 							hash_get("User"), hash_get("ExpireDate"));
-					SftpWhoRelaseStruct(params->who);
+					SftpWhoReleaseStruct(params->who);
 					delete_hash();
 					mylog_close();
 					exit(15);
@@ -301,8 +308,8 @@ int main(int ac, char **av, char **env)
 				else
 				{ //check if expireDate < time_maxlife
 					currentTime = maxTime - currentTime;
-					if (currentTime < params->who->time_maxlife)
-						params->who->time_maxlife = currentTime;
+					if ((u_int32_t) currentTime < params->who->time_maxlife)
+						params->who->time_maxlife = (u_int32_t) currentTime;
 				}
 			} DEBUG((MYLOG_DEBUG, "[%s][%s]ExpireDate time to rest: %i",
 							params->who->user, params->who->ip, params->who->time_maxlife));

@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 int	init_user_info();
-int	is_for_user(const char *user, int verbose);
+int	is_for_user(/*@null@*/ const char *user, int verbose);
 int	is_for_group(const char *group, int verbose);
 int	is_for_rangeip(const char *range, int verbose);
 int	is_for_virtualhost(const char *host, int port, int verbose);

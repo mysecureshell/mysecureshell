@@ -22,14 +22,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 typedef struct  s_info
 {
-  int           id;
+  u_int32_t      id;
   char          *name;
 }               t_info;
 
 void	free_usersinfos();
-t_info	*mygetpwuid(uid_t uid);
+t_info	*mygetpwuid(u_int32_t uid);
 t_info	*mygetpwnam(const char *login);
-t_info	*mygetgrgid(gid_t gid);
+t_info	*mygetgrgid(u_int32_t gid);
 t_info	*mygetgrnam(const char *group);
 
 #endif //_GETUSERSINFOS_H_

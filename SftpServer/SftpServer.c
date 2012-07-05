@@ -57,7 +57,7 @@ static void end_sftp()
 					gl_var->who->ip);
 		}
 		mylog_close_and_free();
-		SftpWhoRelaseStruct(gl_var->who);
+		SftpWhoReleaseStruct(gl_var->who);
 		if (gl_var->force_user != NULL)
 		{
 			free(gl_var->force_user);

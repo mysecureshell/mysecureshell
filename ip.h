@@ -17,6 +17,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-char	*get_ip(int resolve);
-char	*get_ip_server();
+/*@null@*/ char	*get_ip(int resolve);
+/*@null@*/ char	*get_ip_server();
 int		get_port_server();

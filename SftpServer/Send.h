@@ -21,9 +21,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define _SEND_H_
 
 void	SendAttributes(tBuffer *bOut, u_int32_t id, const tAttributes *a, const char *file);
-void	SendStats(tBuffer *bOut, u_int32_t id, int count, const tStat *s);
+void	SendStats(tBuffer *bOut, u_int32_t id, u_int32_t count, const tStat *s);
 void	SendHandle(tBuffer *bOut, u_int32_t id, int h);
-void	SendData(tBuffer *bOut, u_int32_t id, const char *data, int len);
+void	SendData(tBuffer *bOut, u_int32_t id, const char *data, u_int32_t len);
 void	SendStatus(tBuffer *bOut, u_int32_t id, u_int32_t status);
 
 #endif //_SEND_H_

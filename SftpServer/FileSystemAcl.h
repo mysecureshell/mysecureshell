@@ -30,7 +30,7 @@
 
 #if(HAVE_LIBACL)
 
-int FSEnumAcl(const char *file, int resolvePath, void (*callback)(void *data, int type, int id, int mode), void *data, int *nbEntries);
+int FSEnumAcl(const char *file, int resolvePath, void (*callback)(void *data, int type, u_int32_t id, u_int32_t mode), void *data, u_int32_t *nbEntries);
 
 #else
 

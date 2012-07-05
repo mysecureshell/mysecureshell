@@ -257,10 +257,10 @@ typedef struct	sGlobal
   int		minimum_rights_directory;
   int		maximum_rights_file;
   int		maximum_rights_directory;
-  unsigned int	download_current;
-  unsigned int	upload_current;
-  unsigned int	download_max;
-  unsigned int	upload_max;
+  u_int32_t	download_current;
+  u_int32_t	upload_current;
+  u_int32_t	download_max;
+  u_int32_t	upload_max;
   char		*force_user;
   char		*force_group;
 }		tGlobal;

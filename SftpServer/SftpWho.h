@@ -61,11 +61,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 typedef struct	s_sftpglobal
 {
-  unsigned int	download_max;
-  unsigned int	upload_max;
-  unsigned int	download_by_client;
-  unsigned int	upload_by_client;
-}		t_sftpglobal;
+	u_int32_t	download_max;
+	u_int32_t	upload_max;
+	u_int32_t	download_by_client;
+	u_int32_t	upload_by_client;
+}				t_sftpglobal;
 
 typedef struct	s_sftpwho
 {
@@ -106,7 +106,7 @@ extern t_sftpglobal     *_sftpglobal;
 t_sftpwho	*SftWhoGetAllStructs();
 t_sftpwho	*SftpWhoGetStruct(int create);
 int		SftpWhoCleanBuggedClient();
-void		SftpWhoRelaseStruct(t_sftpwho *currentSession);
+void	SftpWhoReleaseStruct(/*@null@*/ t_sftpwho *currentSession);
 int		SftpWhoDeleteStructs();
 
 #endif

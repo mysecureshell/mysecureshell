@@ -37,7 +37,7 @@ char *convert_to_path(char *path)
 	return (path);
 }
 
-char *convert_str_with_resolv_env_to_str(const char *str)
+/*@null@*/ char *convert_str_with_resolv_env_to_str(const char *str)
 {
 	size_t beg, end, i, max;
 	char *env_var, *env_str, *new, *res;
@@ -66,26 +66,32 @@ char *convert_str_with_resolv_env_to_str(const char *str)
 			}
 			end = i;
 			env_str = malloc(end - beg + 1);
-			strncpy(env_str, res + beg + firstIsBlock, end - beg - firstIsBlock);
-			env_str[end - beg - firstIsBlock] = '\0';
-			if (firstIsBlock && (end + 1) <= max)
-				end++;
-			if ((env_var = getenv(env_str)))
+			if (env_str != NULL)
 			{
-				size_t len;
+				strncpy(env_str, res + beg + firstIsBlock, end - beg - firstIsBlock);
+				env_str[end - beg - firstIsBlock] = '\0';
+				if (firstIsBlock == 1 && (end + 1) <= max)
+					end++;
+				if ((env_var = getenv(env_str)))
+				{
+					size_t len;
 
-				len = strlen(res) - (end - beg) + strlen(env_var) + 1;
-				new = malloc(len);
-				strncpy(new, res, beg - 1);
-				new[beg - 1] = '\0';
-				STRCAT(new, env_var, len);
-				STRCAT(new, res + end, len);
-				free(res);
-				res = new;
-				i = 0;
-				max = len - 1;
+					len = strlen(res) - (end - beg) + strlen(env_var) + 1;
+					new = malloc(len);
+					if (new != NULL)
+					{
+						strncpy(new, res, beg - 1);
+						new[beg - 1] = '\0';
+						STRCAT(new, env_var, len);
+						STRCAT(new, res + end, len);
+						free(res);
+						res = new;
+						i = 0;
+						max = len - 1;
+					}
+				}
+				free(env_str);
 			}
-			free(env_str);
 		}
 	return (res);
 }
@@ -157,12 +163,15 @@ int convert_time_to_int(char **tb)
 				case 'd':
 				case 'D':
 					nb *= 24;
+					/*@fallthrough@*/
 				case 'h':
 				case 'H':
 					nb *= 60;
+					/*@fallthrough@*/
 				case 'm':
 				case 'M':
 					nb *= 60;
+					break;
 				}
 		}
 	}

@@ -67,11 +67,11 @@
 #define CONN_SFTP	1
 #define	CONN_ADMIN	2
 
-tBuffer *bIn = NULL;
-tBuffer *bOut = NULL;
 u_int32_t cVersion = SSH2_FILEXFER_VERSION;
-static char connectionStatus = CONN_INIT;
-static tStats *stats = NULL;
+static int connectionStatus = CONN_INIT;
+/*@null@*/ static tStats *stats = NULL;
+/*@null@*/ tBuffer *bIn = NULL;
+/*@null@*/ tBuffer *bOut = NULL;
 
 void DoInit()
 {
@@ -80,6 +80,8 @@ void DoInit()
 
 	clientVersion = BufferGetInt32(bIn);
 	b = BufferNew();
+	if (b == NULL)
+		return;
 	BufferPutInt8FAST(b, SSH2_FXP_VERSION);
 	connectionStatus = CONN_SFTP;
 #ifdef MSS_HAVE_ADMIN

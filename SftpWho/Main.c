@@ -259,7 +259,7 @@ int		main(int ac, char **av)
 	(void )sleep(do_loop);
     }
   while (do_loop > 0);
-  SftpWhoRelaseStruct(NULL);
+  SftpWhoReleaseStruct(NULL);
   delete_hash();
   return (0);
 }

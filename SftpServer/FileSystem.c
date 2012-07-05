@@ -203,7 +203,7 @@ void FSDestroyPath(tFSPath *path)
 	free(path);
 }
 
-static void FSCheckSecurityACL(void *data, int type, int id, int mode)
+static void FSCheckSecurityACL(void *data, int type, u_int32_t id, u_int32_t mode)
 {
 	int *result = (int *)data;
 
@@ -238,7 +238,7 @@ int FSCheckSecurity(const char *fullPath, const char *path)
 	if (HAS_BIT(gl_var->flagsGlobals, SFTPWHO_HIDE_NO_ACESS))
 	{
 		struct stat st;
-		int nbEntries;
+		u_int32_t nbEntries;
 		int result = SSH2_FX_NO_SUCH_FILE;
 
 		FSEnumAcl(fullPath, 0, FSCheckSecurityACL, &result, &nbEntries);

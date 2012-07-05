@@ -83,7 +83,7 @@ t_info *mygetpwnam(const char *login)
 	return (NULL);
 }
 
-t_info *mygetpwuid(uid_t uid)
+t_info *mygetpwuid(u_int32_t uid)
 {
 	struct passwd *pwd;
 	int i;
@@ -113,7 +113,7 @@ t_info *mygetgrnam(const char *group)
 	return (NULL);
 }
 
-t_info *mygetgrgid(gid_t gid)
+t_info *mygetgrgid(u_int32_t gid)
 {
 	struct group *grp;
 	int i;

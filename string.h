@@ -17,9 +17,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-char	*clean_buffer(char *buffer);
+/*@null@*/ char	*clean_buffer(char *buffer);
 char	*clean_string(char *buffer);
 char	*trim_right(char *buffer);
 char	*trim_left(char *buffer);
 
-void	MyStrCopy(char *dest, char *src, int length);
+void	MyStrCopy(char *dest, char *src, size_t length);

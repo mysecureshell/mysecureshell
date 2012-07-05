@@ -160,7 +160,7 @@ int		SftpWhoCleanBuggedClient()
   return (nb);
 }
 
-void	SftpWhoRelaseStruct(t_sftpwho *currentSession)
+void	SftpWhoReleaseStruct(/*@null@*/ t_sftpwho *currentSession)
 {
   if (currentSession != NULL)
       currentSession->status = SFTPWHO_EMPTY;

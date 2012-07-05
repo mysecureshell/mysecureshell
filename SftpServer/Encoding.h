@@ -22,9 +22,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #if(HAVE_ICONV||HAVE_LIBICONV)
 
-char    *convertToUtf8(char *str, int freeAfter);
-char    *convertFromUtf8(char *str, int freeAfter);
-void	setCharset(const char *charset);
+/*@null@*/ char    *convertToUtf8(char *str, int freeAfter);
+/*@null@*/ char    *convertFromUtf8(char *str, int freeAfter);
+void	setCharset(/*@null@*/ const char *charset);
 
 #else
 #include <string.h>

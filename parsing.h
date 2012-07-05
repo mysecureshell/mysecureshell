@@ -46,5 +46,5 @@ int TagParse(char *buffer);
 void TagParseOpen(char *str);
 void TagParseClose();
 void TagParseVirtualHost(const char *str, tTag *newTag);
-char *TagParseRangeIP(const char *str);
-char **ParseCutString(char *str);
+/*@null@*/ char *TagParseRangeIP(const char *str);
+/*@null@*/ char **ParseCutString(char *str);

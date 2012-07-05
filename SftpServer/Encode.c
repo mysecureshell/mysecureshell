@@ -132,7 +132,7 @@ tAttributes *GetAttributes(tBuffer *bIn)
 	}
 	if (HAS_BIT(a.flags, SSH2_FILEXFER_ATTR_EXTENDED)) //unsupported feature
 	{
-		int i, count;
+		u_int32_t i, count;
 
 		count = BufferGetInt32(bIn);
 		for (i = 0; i < count; i++)
@@ -148,11 +148,11 @@ void StatToAttributes(const struct stat *st, tAttributes *a, const char *fileNam
 {
 	memset(a, 0, sizeof(*a));
 	a->flags = SSH2_FILEXFER_ATTR_SIZE;
-	a->size = st->st_size;
-	a->uid = st->st_uid;
-	a->gid = st->st_gid;
+	a->size = (u_int64_t) st->st_size;
+	a->uid = (u_int32_t) st->st_uid;
+	a->gid = (u_int32_t) st->st_gid;
 	a->flags |= SSH2_FILEXFER_ATTR_PERMISSIONS;
-	a->perm = st->st_mode;
+	a->perm = (u_int32_t) st->st_mode;
 	a->flags |= SSH2_FILEXFER_ATTR_ACMODTIME;
 	a->atime = st->st_atime;
 	a->mtime = st->st_mtime;
@@ -186,7 +186,7 @@ void StatToAttributes(const struct stat *st, tAttributes *a, const char *fileNam
 		a->flags |= SSH2_FILEXFER_ATTR_UIDGID;
 	if (cVersion >= 5 && fileName != NULL)
 	{
-		int pos = strlen(fileName) - 1;
+		size_t pos = strlen(fileName) - 1;
 #ifdef HAVE_LINUX_EXT2_FS_H
 		int fd;
 #endif
@@ -219,7 +219,7 @@ void StatToAttributes(const struct stat *st, tAttributes *a, const char *fileNam
 	}
 }
 
-static void EncodeACLCallBack(void *data, int type, int id, int mode)
+static void EncodeACLCallBack(void *data, int type, u_int32_t id, u_int32_t mode)
 {
 	tBuffer *bAcl = (tBuffer *) data;
 
@@ -247,7 +247,7 @@ static void EncodeACLCallBack(void *data, int type, int id, int mode)
 				str = pw->name;
 			else
 			{
-				(void) snprintf(buf, sizeof(buf), "%i", id);
+				(void) snprintf(buf, sizeof(buf), "%u", (unsigned int) id);
 				str = buf;
 			}
 			BufferPutString(bAcl, str);
@@ -263,7 +263,7 @@ static void EncodeACLCallBack(void *data, int type, int id, int mode)
 				str = gr->name;
 			else
 			{
-				(void) snprintf(buf, sizeof(buf), "%i", id);
+				(void) snprintf(buf, sizeof(buf), "%u", (unsigned int) id);
 				str = buf;
 			}
 			BufferPutString(bAcl, str);
@@ -275,22 +275,30 @@ static void EncodeACLCallBack(void *data, int type, int id, int mode)
 //Only call for SSH2_FXP_STAT, SSH2_FXP_LSTAT or SSH2_FXP_FSTAT
 static void EncodeACL(tBuffer *b, const char *file)
 {
-	u_int32_t posNew;
+	u_int32_t nbEntries;
 	tBuffer *bAcl;
-	int nbEntries;
 
 	bAcl = BufferNew();
-	BufferPutInt32(bAcl, 0);//Number of ACL
-	FSEnumAcl(file, 1, EncodeACLCallBack, bAcl, &nbEntries);
-	posNew = BufferGetCurrentWritePosition(bAcl);
-	BufferSetCurrentWritePosition(bAcl, 0);
-	BufferPutInt32(bAcl, nbEntries);//Number of ACLs
-	BufferSetCurrentWritePosition(bAcl, posNew);
-	BufferPutPacket(b, bAcl);
-	BufferDelete(bAcl);
+	if (bAcl != NULL)
+	{
+		BufferPutInt32(bAcl, 0);//Number of ACL
+		if (FSEnumAcl(file, 1, EncodeACLCallBack, bAcl, &nbEntries) == SSH2_FX_OK)
+		{
+			u_int32_t posNew;
+
+			posNew = BufferGetCurrentWritePosition(bAcl);
+			BufferSetCurrentWritePosition(bAcl, 0);
+			BufferPutInt32(bAcl, nbEntries);//Number of ACLs
+			BufferSetCurrentWritePosition(bAcl, posNew);
+		}
+		BufferPutPacket(b, bAcl);
+		BufferDelete(bAcl);
+	}
+	else
+		BufferPutInt32(b, 0);
 }
 
-void EncodeAttributes(tBuffer *b, const tAttributes *a, const char *file)
+void EncodeAttributes(tBuffer *b, const tAttributes *a, /*@null@*/ const char *file)
 {
 	DEBUG((MYLOG_DEBUG, "[EncodeAttributes]flags=%i", a->flags));
 	BufferPutInt32(b, a->flags);
@@ -314,7 +322,7 @@ void EncodeAttributes(tBuffer *b, const tAttributes *a, const char *file)
 			str = pw->name;
 		else
 		{
-			(void) snprintf(buf, sizeof(buf), "%u", a->uid);
+			(void) snprintf(buf, sizeof(buf), "%u", (unsigned int) a->uid);
 			str = buf;
 		}
 		BufferPutString(b, str);
@@ -322,7 +330,7 @@ void EncodeAttributes(tBuffer *b, const tAttributes *a, const char *file)
 			str = gr->name;
 		else
 		{
-			(void) snprintf(buf, sizeof(buf), "%u", a->gid);
+			(void) snprintf(buf, sizeof(buf), "%u", (unsigned int) a->gid);
 			str = buf;
 		}
 		BufferPutString(b, str);

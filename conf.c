@@ -116,7 +116,7 @@ static const tConf confParams[] =
 	{ "HideFiles", CONF_DEPRECATED, CONF_SHOW },
 	{ "PathAllowFilter", CONF_DEPRECATED, CONF_SHOW },
 	{ "PathDenyFilter", CONF_DEPRECATED, CONF_SHOW },
-	{ NULL, CONF_IS_EMPTY, CONF_NOT_SHOW }
+	{ "{last item}", CONF_IS_EMPTY, CONF_NOT_SHOW }
 };
 
 void load_config(int verbose)
@@ -177,7 +177,7 @@ void load_config(int verbose)
 				break;
 			case CONF_IS_STRING_MAYBE_EMPTY:
 				ptr = (char *) hash_get(confParams[i].name);
-				(void) printf("%s", ptr ? ptr : "{nothing}");
+				(void) printf("%s", ptr != NULL ? ptr : "{nothing}");
 				break;
 			case CONF_IS_INT:
 				vInt = hash_get_int(confParams[i].name);
@@ -188,8 +188,7 @@ void load_config(int verbose)
 				break;
 			case CONF_IS_BOOLEAN:
 				(void) printf("%s",
-						hash_get_int(confParams[i].name) == 0 ? "false"
-								: "true");
+						hash_get_int(confParams[i].name) == 0 ? "false" : "true");
 				break;
 			case CONF_IS_SPEED:
 				(void) printf("%i bytes/s", hash_get_int(confParams[i].name));
@@ -205,18 +204,15 @@ void load_config(int verbose)
 				(void) printf("%is", hash_get_int(confParams[i].name));
 				break;
 			case CONF_IS_FILE_AND_DIR:
-				(void) snprintf(bTmp, sizeof(bTmp), "%sFile",
-						confParams[i].name);
+				(void) snprintf(bTmp, sizeof(bTmp), "%sFile", confParams[i].name);
 				r = hash_get_int(bTmp);
 				(void) printf("%i%i%i%i", r / (8 * 8 * 8), (r / (8 * 8)) % 8,
 						(r / 8) % 8, r % 8);
-				(void) snprintf(bTmp, sizeof(bTmp), "%sDirectory",
-						confParams[i].name);
+				(void) snprintf(bTmp, sizeof(bTmp), "%sDirectory", confParams[i].name);
 				r = hash_get_int(bTmp);
 				if (r > 0)
 				{
-					(void) printf(" %i%i%i%i", r / (8 * 8 * 8), (r / (8 * 8))
-							% 8, (r / 8) % 8, r % 8);
+					(void) printf(" %i%i%i%i", r / (8 * 8 * 8), (r / (8 * 8)) % 8, (r / 8) % 8, r % 8);
 				}
 				break;
 			case CONF_DEPRECATED:
@@ -248,7 +244,7 @@ int load_config_file(const char *file, int verbose, int max_recursive_left)
 		if (verbose > 1)
 			(void) printf("- Parse config file: %s -\n", file);
 		line = 0;
-		while (fgets(buffer, sizeof(buffer), fh))
+		while (fgets(buffer, (int) sizeof(buffer), fh))
 		{
 			line++;
 			if ((str = clean_buffer(buffer)))
@@ -285,7 +281,7 @@ int load_config_file(const char *file, int verbose, int max_recursive_left)
 					if (tb[0] != NULL)
 					{
 						if (TagIsOpen(VTAG_FILESPEC) == 1)
-							FileSpecParse(tb, verbose);
+							FileSpecParse(tb);
 						else
 							processLine(tb, max_recursive_left, verbose);
 					}
@@ -336,7 +332,8 @@ void processLine(char **tb, int max_recursive_left, int verbose)
 			{
 				char *path = convert_str_with_resolv_env_to_str(tb[1]);
 
-				hash_set(tb[0], (void *) convert_to_path(path));
+				if (path != NULL)
+					hash_set(tb[0], (void *) convert_to_path(path));
 			}
 				break;
 			case CONF_IS_INT:

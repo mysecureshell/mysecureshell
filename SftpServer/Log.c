@@ -40,7 +40,7 @@ unsigned char color[MYLOG_MAX][3];
 #endif
 } t_log;
 
-static t_log *_log = NULL;
+/*@null@*/ static t_log *_log = NULL;
 
 void mylog_open(char *file)
 {
@@ -55,13 +55,21 @@ void mylog_open(char *file)
 			t = time(NULL);
 			(void) localtime(&t);
 			_log = calloc(1, sizeof(*_log));
-			_log->pid = getpid();
+			if (_log != NULL)
+				_log->pid = getpid();
 		}
-		_log->file = file;
-		_log->fd = fd;
-		if (fchown(fd, 0, 0) == -1)
-			mylog_printf(MYLOG_ERROR, "Unable to chown log '%s' : %s", file,
-					strerror(errno));
+		if (_log != NULL)
+		{
+			_log->file = file;
+			_log->fd = fd;
+			if (fchown(fd, 0, 0) == -1)
+				mylog_printf(MYLOG_ERROR, "Unable to chown log '%s' : %s", file, strerror(errno));
+		}
+		else
+		{
+			perror("unable to allocate log structure");
+			xclose(fd);
+		}
 		/*
 		 Text color codes:
 		 30=black 31=red 32=green 33=yellow 34=blue 35=magenta 36=cyan 37=white
@@ -128,9 +136,9 @@ void mylog_printf(int level, const char *str, ...)
 	va_list ap;
 	struct tm *tm;
 	time_t t;
+	size_t size;
 	char buffer[1024];
 	char fmt[1024];
-	int size;
 
 	if (_log != NULL)
 	{
@@ -148,6 +156,7 @@ void mylog_printf(int level, const char *str, ...)
 		{
 			if (snprintf(fmt, sizeof(buffer), "[Error with time] [%i]%s\n", _log->pid, str) > 0)
 				goto forceShowLog;
+			return;
 		}
 #ifndef HAVE_LOG_IN_COLOR
 		if (snprintf(fmt, sizeof(buffer), "%i-%02i-%02i %02i:%02i:%02i [%i]%s\n",

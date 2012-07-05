@@ -24,8 +24,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 char	*LsFile(const char *name, const struct stat *st);
 int	errnoToPortable(int unixErrno);
-char	*ExecCommand(char *cmd, int *myRet);
-char	*ExecCommandWithArgs(char **args, int *myRet, const char *dataInput, int shouldReturnString);
+/*@null@*/ char	*ExecCommand(char *cmd, int *myRet);
+/*@null@*/ char	*ExecCommandWithArgs(char **args, int *myRet, /*@null@*/ const char *dataInput, int shouldReturnString);
 
 int	FlagsFromPortable(int pFlags, int *textMode);
 int	FlagsFromAccess(int access);

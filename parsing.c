@@ -38,13 +38,12 @@
 #include "parsing.h"
 #include "user.h"
 
-static tTag *_tags = NULL;
+/*@null@*/ static tTag *_tags = NULL;
 
 int TagIsActive(int verbose)
 {
-	tTag *currentTag;
+	tTag *currentTag = _tags;
 
-	currentTag = _tags;
 	while (currentTag != NULL)
 	{
 		switch (currentTag->type)
@@ -75,8 +74,9 @@ int TagIsOpen(eTagType tagType)
 
 int TagParse(char *buffer)
 {
+	size_t len;
 	char *str;
-	int len, is_close_tag = 0;
+	int is_close_tag = 0;
 
 	str = trim_left(buffer + 1);
 	if (*str == '/')
@@ -103,7 +103,7 @@ void TagParseClose()
 	if (deleteMe != NULL)
 	{
 		_tags = deleteMe->next;
-		if (deleteMe->data1)
+		if (deleteMe->data1 != NULL)
 			free(deleteMe->data1);
 		free(deleteMe);
 	}
@@ -122,6 +122,8 @@ void TagParseOpen(char *str)
 	if (s == NULL || *s == '\0')
 		return;
 	newTag = calloc(1, sizeof(*newTag));
+	if (newTag == NULL)
+		return;
 	str = trim_right(str);
 	if (strcasecmp(str, TAG_GROUP) == 0)
 	{
@@ -137,6 +139,11 @@ void TagParseOpen(char *str)
 	{
 		newTag->type = VTAG_RANGEIP;
 		newTag->data1 = TagParseRangeIP(s);
+		if (newTag->data1 == NULL)
+		{
+			free(newTag);
+			return;
+		}
 	}
 	else if (strcasecmp(str, TAG_VIRTUALHOST) == 0)
 	{
@@ -191,11 +198,13 @@ void TagParseVirtualHost(const char *str, tTag *newTag)
 	newTag->data2 = port;
 }
 
-char *TagParseRangeIP(const char *str)
+/*@null@*/ char *TagParseRangeIP(const char *str)
 {
 	char *mask = calloc(10, sizeof(char));
 	int i, nb, pos;
 
+	if (mask == NULL)
+		return (NULL);
 	mask[8] = (char) 32;
 	for (i = 0, nb = 0, pos = 0; str[i] != '\0'; i++)
 		if (str[i] >= '0' && str[i] <= '9')
@@ -216,7 +225,7 @@ char *TagParseRangeIP(const char *str)
 	return (mask);
 }
 
-char **ParseCutString(char *str)
+/*@null@*/ char **ParseCutString(char *str)
 {
 	char **tb = NULL;
 	char *word = NULL;
@@ -233,6 +242,8 @@ char **ParseCutString(char *str)
 				if (*word != '\0' && strcmp(word, "=") != 0)
 				{
 					tb = realloc(tb, (nb + 2) * sizeof(*tb));
+					if (tb == NULL)
+						return (NULL);
 					tb[nb++] = word;
 					tb[nb] = 0;
 				}
@@ -262,6 +273,8 @@ char **ParseCutString(char *str)
 		if (*word != '\0' && strcmp(word, "=") != 0)
 		{
 			tb = realloc(tb, (nb + 2) * sizeof(*tb));
+			if (tb == NULL)
+				return (NULL);
 			tb[nb++] = word;
 			tb[nb] = 0;
 		}

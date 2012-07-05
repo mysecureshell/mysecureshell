@@ -34,7 +34,7 @@ typedef struct	sBuffer
 #define	DEFAULT_GROW		256
 #define	BufferHandleSize	6 //sizeof(int32) + 1 char + '\0'
 
-tBuffer	*BufferNew();
+/*@null@*/ tBuffer	*BufferNew();
 void	BufferClean(tBuffer *b);
 void	BufferDelete(tBuffer *b);
 void	BufferGrow(tBuffer *b, u_int32_t toAdd);

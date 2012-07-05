@@ -22,16 +22,19 @@
 #include <string.h>
 #include "Buffer.h"
 
-tBuffer *BufferNew()
+/*@null@*/ tBuffer *BufferNew()
 {
 	tBuffer *b;
 
 	b = malloc(sizeof(*b));
-	b->size = DEFAULT_GROW;
-	b->data = malloc(b->size);
-	b->length = 0;
-	b->read = 0;
-	b->fastClean = 0;
+	if (b != NULL)
+	{
+		b->size = DEFAULT_GROW;
+		b->data = malloc(b->size);
+		b->length = 0;
+		b->read = 0;
+		b->fastClean = 0;
+	}
 	return (b);
 }
 
@@ -126,7 +129,7 @@ void BufferPutRawData(tBuffer *b, const void *data, u_int32_t size)
 
 void BufferPutString(tBuffer *b, const char *data)
 {
-	int size;
+	size_t size;
 
 	size = strlen(data);
 	if ((b->length + size + 4) > b->size)
