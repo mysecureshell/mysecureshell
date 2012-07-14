@@ -6177,7 +6177,7 @@ test "$MSS_DEBUG" = "no" && MSS_DEBUG=""
 A=`eval echo ${sysconfdir}`
 BINDIR=`eval echo ${bindir}` ; BINDIR=`eval echo ${BINDIR}`
 SBINDIR=`eval echo ${sbindir}` ; SBINDIR=`eval echo ${SBINDIR}`
-MANDIR=`eval echo ${exec_prefix}/${mandir}` ; MANDIR=`eval echo ${MANDIR}`
+MANDIR=`eval echo ${mandir}` ; MANDIR=`eval echo ${MANDIR}`
 ETCDIR="${A}"
 
 SBINDIR="${SBINDIR}"
