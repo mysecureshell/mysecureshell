@@ -6,6 +6,7 @@
 # Saving vars
 nameuser=$2
 hideuser=$3
+bindir='@BINDIR@';
 
 # OS Detection
 osdetection=`uname -s`
@@ -89,7 +90,7 @@ dar_add() {
 		niutil -createprop -R / /users/$nameuser gid $newid
 		niutil -createprop -R / /users/$nameuser uid $newid
 		niutil -createprop -R / /users/$nameuser realname "$nameuser"
-		niutil -createprop -R / /users/$nameuser shell "/bin/MySecureShell"
+		niutil -createprop -R / /users/$nameuser shell "$bindir/MySecureShell"
 		niutil -createprop -R / /users/$nameuser picture "/Library/Caches/com.sourceforge.mysecureshell.picture.tiff"
 		#niutil -createprop -R / /users/$nameuser home "/Users/invite"
 		# Home create future versions
@@ -99,7 +100,7 @@ dar_add() {
 
 	if [ -x /usr/bin/dscl ] ; then
 		dscl . -create /Users/$nameuser
-		dscl . -create /Users/$nameuser UserShell "/bin/MySecureShell"
+		dscl . -create /Users/$nameuser UserShell "$bindir/MySecureShell"
 		dscl . -create /Users/$nameuser RealName "$nameuser"
 		dscl . -passwd /Users/$nameuser "$encPass"
 		dscl . -append /Groups/staff GroupMembership $nameuser
@@ -151,7 +152,7 @@ dar_hid() {
 
 # Creation
 nux_add() {
-	useradd -p $encPass -s /bin/MySecureShell $nameuser
+	useradd -p $encPass -s $bindir/MySecureShell $nameuser
 	exit $?
 }
 

@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.63)
-AC_INIT([MySecureShell],[1.30b2],[teka2nerdman@users.sourceforge.net])
+AC_INIT([MySecureShell],[1.30b3],[teka2nerdman@users.sourceforge.net])
 AC_CONFIG_HEADER(config.h)
 
 # Checks for programs.
@@ -161,8 +161,12 @@ test "$MSS_DEBUG" = "no" && MSS_DEBUG=""
 
 A=`eval echo ${sysconfdir}`
 BINDIR=`eval echo ${bindir}` ; BINDIR=`eval echo ${BINDIR}`
+SBINDIR=`eval echo ${sbindir}` ; SBINDIR=`eval echo ${SBINDIR}`
+MANDIR=`eval echo ${exec_prefix}/${mandir}` ; MANDIR=`eval echo ${MANDIR}`
 AC_SUBST(ETCDIR, "${A}")
+AC_SUBST(SBINDIR, "${SBINDIR}")
 AC_SUBST(BINDIR, "${BINDIR}")
+AC_SUBST(MANDIR, "${MANDIR}")
 AC_SUBST(MSS_CONF, "${MSS_CONF}")
 AC_SUBST(MSS_LOG, "${MSS_LOG}")
 AC_SUBST(MSS_DEBUG, "${MSS_DEBUG}")
@@ -192,6 +196,7 @@ fi
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([install.sh], [chmod +x install.sh])
 AC_CONFIG_FILES([uninstaller.sh], [chmod +x uninstaller.sh])
+AC_CONFIG_FILES([utils/sftp-user], [chmod +x utils/sftp-verif])
 AC_CONFIG_FILES([utils/sftp-verif], [chmod +x utils/sftp-verif])
 AC_OUTPUT
 AC_PROG_INSTALL

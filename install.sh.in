@@ -5,12 +5,12 @@
 
 ## Language local initialising
 
-BINDIR=/bin
-MANDIR=/usr/share/man
+BINDIR=@BINDIR@
+MANDIR=@MANDIR@
 USRBINDIR=@BINDIR@
 ETCDIR=@ETCDIR@
-LANG=
 MSS_CONF=@MSS_CONF@
+LANG=
 
 ## Functions Looking for available languages
 

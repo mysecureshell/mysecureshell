@@ -6,6 +6,8 @@
 ## Language local initialising
 
 BINDIR=@BINDIR@
+MANDIR=@MANDIR@
+USRBINDIR=@BINDIR@
 ETCDIR=@ETCDIR@
 LANG=
 
@@ -61,7 +63,7 @@ read ans
 test -z "$ans" && ans="n"
 case "$ans" in
 	[yY])
-		rm -f /bin/MySecureShell $BINDIR/sftp-who $BINDIR/sftp-state $BINDIR/sftp-kill $BINDIR/sftp-admin $BINDIR/sftp-user
+		rm -f $BINDIR/MySecureShell $BINDIR/sftp-who $BINDIR/sftp-state $BINDIR/sftp-kill $BINDIR/sftp-admin $BINDIR/sftp-user
 		cat /etc/shells | grep -v MySecureShell > /tmp/shells~
 		mv /tmp/shells~ /etc/shells
 
@@ -78,32 +80,32 @@ case "$ans" in
 		fi
 
 	# Delete mans
-		if [ -d /usr/share/man/man8 ] ; then
-			rm -f /usr/share/man/man8/MySecureShell.8
-			rm -f /usr/share/man/man8/sftp-admin.8
-			rm -f /usr/share/man/man8/sftp-kill.8
-			rm -f /usr/share/man/man8/sftp-state.8
-			rm -f /usr/share/man/man8/sftp-user.8
-			rm -f /usr/share/man/man8/sftp-verif.8
-			rm -f /usr/share/man/man8/sftp-who.8
+		if [ -d $MANDIR/man8 ] ; then
+			rm -f $MANDIR/man8/MySecureShell.8
+			rm -f $MANDIR/man8/sftp-admin.8
+			rm -f $MANDIR/man8/sftp-kill.8
+			rm -f $MANDIR/man8/sftp-state.8
+			rm -f $MANDIR/man8/sftp-user.8
+			rm -f $MANDIR/man8/sftp-verif.8
+			rm -f $MANDIR/man8/sftp-who.8
 		fi
-		if [ -d /usr/share/man/en/man8 ] ; then
-			rm -f /usr/share/man/en/man8/MySecureShell.8
-			rm -f /usr/share/man/en/man8/sftp-admin.8
-			rm -f /usr/share/man/en/man8/sftp-kill.8
-			rm -f /usr/share/man/en/man8/sftp-state.8
-			rm -f /usr/share/man/en/man8/sftp-user.8
-			rm -f /usr/share/man/en/man8/sftp-verif.8
-			rm -f /usr/share/man/en/man8/sftp-who.8
+		if [ -d $MANDIR/en/man8 ] ; then
+			rm -f $MANDIR/en/man8/MySecureShell.8
+			rm -f $MANDIR/en/man8/sftp-admin.8
+			rm -f $MANDIR/en/man8/sftp-kill.8
+			rm -f $MANDIR/en/man8/sftp-state.8
+			rm -f $MANDIR/en/man8/sftp-user.8
+			rm -f $MANDIR/en/man8/sftp-verif.8
+			rm -f $MANDIR/en/man8/sftp-who.8
 		fi
-		if [ -d /usr/share/man/fr/man8 ] ; then
-			rm -f /usr/share/man/fr/man8/MySecureShell.8
-			rm -f /usr/share/man/fr/man8/sftp-admin.8
-			rm -f /usr/share/man/fr/man8/sftp-kill.8
-			rm -f /usr/share/man/fr/man8/sftp-state.8
-			rm -f /usr/share/man/fr/man8/sftp-user.8
-			rm -f /usr/share/man/fr/man8/sftp-verif.8
-			rm -f /usr/share/man/fr/man8/sftp-who.8
+		if [ -d $MANDIR/fr/man8 ] ; then
+			rm -f $MANDIR/fr/man8/MySecureShell.8
+			rm -f $MANDIR/fr/man8/sftp-admin.8
+			rm -f $MANDIR/fr/man8/sftp-kill.8
+			rm -f $MANDIR/fr/man8/sftp-state.8
+			rm -f $MANDIR/fr/man8/sftp-user.8
+			rm -f $MANDIR/fr/man8/sftp-verif.8
+			rm -f $MANDIR/fr/man8/sftp-who.8
 		fi
 
 	# Delete configuration ?
