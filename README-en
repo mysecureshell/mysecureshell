@@ -76,7 +76,7 @@ Forum:       http://mysecureshell.free.fr
 
 CHANGE LOG:
 -----------
-1.30 (???):
+1.30 (october 2012):
 	+ add new tag FileSpec et ApplyFileSpec
 	+ remove tag GMTTime because MySecureShell use local time
 	+ removes tags CanRemoveFile and CanRemoveDir => use DisableRemoveFile and DisableRemoveDir
@@ -85,6 +85,7 @@ CHANGE LOG:
 	+ improve sftp-verif (check user and group for files)
 	+ code rewrite (file system)
 	+ tag HideNoAccess check ACL rights
+	+ improve script "configure"
 	~ fix bug on ACLs
 	~ fix some crash
 	~ fix memory leaks
