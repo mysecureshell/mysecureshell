@@ -20,16 +20,12 @@
 #	DirFakeGroup		true	#Hide real file/directory group (just change displayed permissions)
 #	DirFakeMode		0400	#Hide real file/directory rights (just change displayed permissions)
 					#Add execution right for directory if read right is set
-#	HideFiles		"^(lost\+found|public_html)$"	#Hide file/directory which match
-								#this extented POSIX regex
 	HideNoAccess		true	#Hide file/directory which user has no access
 #	MaxOpenFilesForUser	20	#limit user to open x files on same time
 #	MaxWriteFilesForUser	10	#limit user to x upload on same time
 #	MaxReadFilesForUser	10	#limit user to x download on same time
 	DefaultRights		0640 0750	#Set default rights for new file and new directory
 #	MinimumRights		0400 0700	#Set minimum rights for files and dirs
-
-#	PathDenyFilter		"^\."	#deny upload of directory/file which match this extented POSIX regex
 
 	ShowLinksAsLinks	false	#show links as their destinations
 #	ConnectionMaxLife	1d	#limits connection lifetime to 1 day
@@ -63,7 +59,6 @@
 #	DirFakeUser		false	#show real user on file/directory
 #	DirFakeGroup		false	#show real group on file/directory
 #	DirFakeMode		0	#show real rights on file/directory
-#	HideFiles		""	#show all files
 #	MaxReadFilesForUser	0	#0 = unlimited but still have the restriction MaxOpenFilesForUser
 #</Group>
 
