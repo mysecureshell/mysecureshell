@@ -1,0 +1,221 @@
+#!/bin/sh
+
+## Users Script Manager v0.2 - Made by MySecureShell Team
+## MySecureShell Team <teka2nerdman@users.sourceforge.net>
+
+# Saving vars
+nameuser=$2
+hideuser=$3
+bindir='@BINDIR@';
+
+# OS Detection
+osdetection=`uname -s`
+
+# Error messages
+badarg="Sorry but you gave me a bad argument !"
+alreadyexist="Sorry but this user already exist !"
+doesntexist="Sorry but this user doesn't exist !"
+
+##########################
+## User sftp-user verif ##
+##########################
+encPass='*'
+
+vrf_create() {
+	for i in "$nameuser" ; do
+		if [ -z "$i" ] ; then
+			echo $bardarg
+			exit 0
+		fi
+	done
+}
+
+vrf_delhide() {
+	name=`id -un $nameuser 2>&1`
+	if [ "$name" = 'nobody' ] || [ "$name" = "$nameuser" ] ; then
+		break
+	else
+		echo $doesntexist
+		exit 1
+	fi
+}
+
+vrf_getpass() {
+	dirPerl=
+	for dir in `echo $PATH | tr : "\n"` ; do
+		if [ -x $dir/perl ] ; then
+			dirPerl=$dir;
+			break
+		fi
+	done
+	if [ "$dirPerl" != '' ] ; then
+		echo "Enter password:"
+		stty -echo
+		read pass
+		stty echo
+		echo
+		encPass=`$dirPerl/perl <<EOF
+my \\$itoa64 = './0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+my \\$salt = '';
+for (1..2) { \\$salt .= substr \\$itoa64, rand(length(\\$itoa64)), 1; }
+print crypt("$pass", \\$salt);
+EOF`
+	else
+		echo "Please install 'perl' to have full features of $0";
+		echo "Or use the commande 'passwd {user}' to set the password of the user"
+	fi
+}
+
+vrf_useralreadyexit() {
+	name=`id -un $nameuser 2>&1`
+	if [ "$name" = "$nameuser" ] || [ "$name" = 'nobody' ] ; then
+		echo $alreadyexist
+		exit 1
+	fi
+}
+
+##########################
+## Darwin users manager ##
+##########################
+
+# Creation
+dar_add() {
+	if [ -x /usr/bin/niutil ] ; then
+		newid=$[`nireport / /users uid | tail -1`+1]
+		# Add User
+		niutil -create -R / /users/$nameuser
+		#Check if success
+		test $? != 0 && exit $?
+		niutil -createprop -R / /users/$nameuser passwd "$encPass"
+		niutil -createprop -R / /users/$nameuser gid $newid
+		niutil -createprop -R / /users/$nameuser uid $newid
+		niutil -createprop -R / /users/$nameuser realname "$nameuser"
+		niutil -createprop -R / /users/$nameuser shell "$bindir/MySecureShell"
+		niutil -createprop -R / /users/$nameuser picture "/Library/Caches/com.sourceforge.mysecureshell.picture.tiff"
+		#niutil -createprop -R / /users/$nameuser home "/Users/invite"
+		# Home create future versions
+		#cp -R /System/Library/User\ Template/French.lproj /Users/$nameuser
+		#chown -R $nameuser:staff /Users/$nameuser
+	fi
+
+	if [ -x /usr/bin/dscl ] ; then
+		dscl . -create /Users/$nameuser
+		dscl . -create /Users/$nameuser UserShell "$bindir/MySecureShell"
+		dscl . -create /Users/$nameuser RealName "$nameuser"
+		dscl . -passwd /Users/$nameuser "$encPass"
+		dscl . -append /Groups/staff GroupMembership $nameuser
+	fi
+	# Hide user
+	test "$hideuser" = '1' && defaults write /Library/Preferences/com.apple.loginwindow HiddenUsersList -array $nameuser && defaults write /Library/Preferences/com.apple.loginwindow HiddenUsersList -array-add $nameuser
+}
+
+# List users with MySecureShell Shell
+dar_list() {
+	if [ -x /usr/bin/nireport ] ; then
+		nireport / /users name shell | grep /MySecureShell | awk '{ print $1 }'
+	fi
+
+	if [ -x /usr/bin/dscl ] ; then
+		dscl . -list /Users shell | grep MySecureShell | awk '{ print $1 }'
+	fi
+	exit $?
+}
+
+# Deletion
+dar_del() {
+	if [ -x /usr/bin/niutil ] ; then
+		niutil -destroy -R / /users/$nameuser
+	fi
+
+	if [ -x /usr/bin/dscl ] ; then
+		dscl . delete /Users/$nameuser
+	fi
+	exit $?
+}
+
+# Hidding
+dar_hid() {
+	# Home is choice
+	if [ "$hideuser" = '0' ] ; then
+		defaults write /Library/Preferences/com.apple.loginwindow HiddenUsersList $nameuser
+	else
+		defaults write /Library/Preferences/com.apple.loginwindow HiddenUsersList -array $nameuser
+		defaults write /Library/Preferences/com.apple.loginwindow HiddenUsersList -array-add $nameuser
+	fi
+	exit $?
+}
+
+
+#########################
+## Linux users manager ##
+#########################
+
+# Creation
+nux_add() {
+	useradd -p $encPass -s $bindir/MySecureShell $nameuser
+	exit $?
+}
+
+# Deletion
+nux_list() {
+	grep -F /MySecureShell /etc/passwd | cut -d: -f1
+}
+
+# Deletion
+nux_del() {
+	userdel -f $nameuser
+	exit $?
+}
+
+###############
+## User Menu ##
+###############
+
+case $1 in
+	create)
+		vrf_create
+		vrf_useralreadyexit
+		vrf_getpass
+		if [ "$osdetection" = 'Darwin' ] ; then
+			dar_add
+		else
+			nux_add
+		fi
+	;;
+	delete)
+		vrf_delhide
+		if [ "$osdetection" = 'Darwin' ] ; then
+			dar_del
+		else
+			nux_del
+		fi
+	;;
+	list)
+		if [ "$osdetection" = 'Darwin' ] ; then
+			dar_list
+		else
+			nux_list
+		fi
+	;;
+	hide)
+		if [ "$osdetection" = 'Darwin' ] ; then
+		    vrf_delhide
+		    dar_hid
+		fi
+	;;
+	*)
+	echo "Usage 1: sftp-user create [user] [hide user]"
+	echo "Usage 2: sftp-user delete [user]"
+	echo "Usage 3: sftp-user list"
+	echo "Usage 4: sftp-user hide [user] [hide] (Mac OS X Only)"
+	echo ""
+	echo ""
+	echo "	Options		Choices		Descriptions"
+	echo "	user		Username	User Name"
+	echo "	hide user	1/0		hide user from login panel and user managements (Max OS X Only)"
+	echo "	delete home	1/0		Remove user Home directory"
+	echo "	hide		1/0		Hide/Unhide (Mac OS X Only)"
+	;;
+esac
+
+exit 0

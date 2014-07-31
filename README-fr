@@ -1,0 +1,343 @@
+Installation:
+-------------
+Executer le script shell d'installation de la facon suivante:
+sh install.sh fr
+
+Pour la version Mac, lancez le package d'installation et suivre les instructions.
+
+
+Compilation:
+------------
+Necessite : gnu-make (par defaut sous linux)
+
+1/ Taper la commande:
+	./configure
+	make all
+
+2/ Et ensuite, taper la commande :
+	./install.sh fr
+
+
+Requiere:
+--------
+OpenSSH 3.8.1 (ou superieur)
+
+Optionnel:
+----------
+OpenSSL 0.9.7 (ou superieur) pour l'extension : verification des donnees
+
+
+Fichier de configuration:
+-------------------------
+Voir le fichier sftp_config d'exemple.
+
+
+Arguments de MySecureShell:
+---------------------------
+--configtest = test le fichier de configuration et affiche les erreurs du fichier
+
+
+Utilitaires:
+------------
+Dans le repertoire utils, il existe l'utilitaire suivant:
+- sftp-who : permet de savoir qui est connecte puis affiche le PID du processus du client,
+ 	 	l'heure de connexion, le temps de connection et d'autres informations
+		concernant les limites utilisees pour le client
+- sftp-kill : permet de deconnecter un ou plusieurs utilisateurs juste en passant
+		le nom de l'utilisateur ou all en argument
+- sftp-state : permet d'activer ou de desactiver le serveur sftp
+- sftp-user : permet de creer / supprimer des comptes MySecureShell
+- sftp-verif : permet de tester et corriger MySecureShell quand vous rencontrez un probleme
+
+
+---
+
+
+INFO IMPORTANTES:
+-----------------
+1/ Les droits:
+La configuration prise pour un compte possede les priorites suivantes
+(classe en allant vers la regle la plus prioritaires):
+- Restriction "Default"
+- Restriction sur tout les groupes / comptes
+- Restriction sur un des ses groupes
+- Restriction sur une plage d'IP
+- Restriction sur l'utilisateur
+Si un utilisateur est dans plusieurs groupes alors la derniere configuration
+applicable sera utilisee.
+
+2/ Le chroot:
+Le chroot enferme l'utilisateur dans son repertoire home, l'utilisateur voit son home
+en tant que repertoire racine du serveur.
+
+
+IMPOSSIBLE A IMPLEMENTER:
+-------------------------
+- interdire les personnes qui brutent force un compte (deja implemente dans PAM et OpenSSH)
+
+
+CONTACTS ET INFORMATIONS:
+-------------------------
+Site web:    http://mysecureshell.sourceforge.net
+E-Mail:      teka2nerdman@users.sourceforge.net
+Forum:       http://mysecureshell.free.fr 
+
+
+HISTORIQUE:
+-----------
+1.30 (octobre 2012):
+	+ ajout d'un nouveau tag FileSpec et ApplyFileSpec
+	+ suppression du tag GMTTime car le fichier de log utilise maintenant l'heure locale du serveur
+	+ suppression des tags CanRemoveFile et CanRemoveDir => remplacé par DisableRemoveFile et DisableRemoveDir
+	+ suppression des tags HideFiles, PathAllowFilter et PathDenyFilter (remplacement par FileSpec)
+	+ support de la syntaxe des variables ${ENV}
+	+ amélioration de sftp-verif (vérification de l'utilisateur et groupe propriétaire du fichier)
+	+ amélioration du code (séparation du système de fichier et de la gestion du protocol)
+	+ le tag HideNoAccess vérifie les droits ACLs
+	+ amélioration du script "configure"
+	~ fixe sur la gestion des ACLs
+	~ fixe des plantages
+	~ fixe des petites fuites de mémoire
+	~ fixe un éventuel bug sur les tags DisableReadFile et DisableWriteFile
+	~ fixe un bug lors d'un changement de droits (les droits de de type STICKY BIT n'était pas pris en compte)
+
+1.25 (janvier 2011):
+	+ support de l'extension statvfs@openssh.com et fstatvfs@openssh.com
+	= reecriture du script "sftp-verif" en perl
+	~ fixe un bug sur les tag: DefaultRights, MinimumRights, MaximumRights and ForceRights (merci aretni et sebastien)
+	~ fixe un bug sur les tags: SftpProtocol et VirtualChroot
+	~ fixe un bug lors des manipulations des fichiers avec le protocole SFTP v4
+	~ fixe un plantage lors d'un fichier de configuration invalide (merci Zigobs)
+	~ fixe un bug lors du chargement du fichier de configuration sous 64bit (merci renaud)
+	~ fixe des petites fuites de mémoire
+
+1.20 (janvier 2010):
+	+ ajout des tags (merci JoKnarf) :
+		* ForceUser, ForceGroup, DisableRemoveDir,
+		* DisableRemoveFile, DisableReadDir, DisableReadFile,
+		* DisableWriteFile, DisableSetAttribute,
+		* DisableMakeDir, DisableRename, DisableSymLink,
+		* DisableOverwrite, CreateHome,
+		* MaximumRights, ForceRights
+	+ ajout du tag (merci pour la suggestion nik): PathAllowFilter
+	+ ajout d'une variable d'environnement SSH_IP contenant l'ip client
+	+ amelioration du sftp-verif en cas de probleme de configuration
+	= factorisation de code
+	~ fixe la compilation sur Solaris
+	~ fixe un bug dans sftp-user et sftp-verif
+	~ fixe un bug sur la gestion des SGID lors de la creation des repertoires (merci 8087)
+	~ fixe un bug lors d'un SSHFS et avec l'editeur gEdit ou OpenOffice (merci 8087)
+	~ fixe la compilation sous Solaris 10
+	~ fixe un bug lorsque les tags ForceUser et FakeDirUser sont activés ensemble (merci krushio)
+
+1.15 (fevrier 2009):
+	= fixe un probleme de compilation sous 64bit (merci 8087)
+	= fixe un bug sur le tag VirtualHost sous Solaris (merci JoKnarf)
+	= fixe un bug sur le tag IpRange (seulement sur les masques non-multiple de 8)
+	= fixe un bug sur les informations sftp-who (merci marckburgers)
+
+1.1 (octobre 2008):
+	+ support de l'imbrication des tags de niveau 1
+	+ ajout des tags : CanChangeRights et CanChangeTime
+	+ le fichier de log affiche les transferts : debut / fin / interrompu
+	+ sftp-user: support de MacOSX 10.5
+	~ amelioration du script d'installation et de desinstallation (support des reponses par defaut)
+	~ amelioration de la compilation (portabilite du Makefile)
+	~ sftp-user : amelioration en cas de probleme sous MacOSX
+	~ sftp-verif : verification du fichier de configuration
+	~ ajout des logs dans les cas de refus de connexion (limite ip/utilisateur/serveur)
+	= fixe un bug sur la gestion des heures dans les logs
+	= fixe un bug sur le tag IdleTimeOut (les unites rendaient invalides la valeur)
+	= fixe un bug si on active MSS dans le sshd_config et par shell
+	= fixe un bug sur la gestion des statistiques
+	= fixe un bug sur la gestion des restrictions
+	= fixe un probleme sur le script sftp-verif sous MacOSX 10.5
+	= fixe un bug dans le sftp-user
+	= fixe la compilation sur Solaris (merci JoKnarf)
+	= fixe un bug sur les valeurs par defaut sur le tag DefaultRights
+	= fixe un bug sur le tag Include
+	= fixe un bug sur le script configure avec l'option --with-logcolor
+	= fixe un bug sur le transfert ascii (SFTP v5 seulement) (merci xajez)
+	= fixe un bug lors du chargement du fichier de configuration (merci abompard)
+	= fixe un bug dans la gestion des caches utilisateurs/groupes (merci 8087)
+
+1.0 (decembre 2007):
+	+ ajout des tags : ExpireDate et IsSimpleAdmin
+	+ ajout de statistiques pour les administrateurs a distances
+	+ ajout du tag : MinimumRights (merci a Florent)
+	~ amelioration de sftp-verif (detection des problemes de dependances)
+	~ amelioration des fonctions d'administration (securite accrue)
+	~ amelioration des supports des unix
+	~ optimisations pour les systems qui ont beaucoup d'utilisateurs/groupes
+	~ optimisations pour les reseaux rapides
+	= fixe un bug si plus de 128 clients sont connectes en meme temps
+	= fixe une fuite memoire dans l'administration a distance
+	= fixe la gestion des signaux
+	= mise au propre du code source (programme: splint)
+	= fixe un bug sur la gestion de l'administration
+	= fixe un bug sur l'extension sftp: verification des donnees
+	= fixe un bug sur le sftp-who (le pourcentage de progession contenait un 'h')
+	= sftp-user : fixe un bug sur la creation d'utilisateur
+
+0.95 (fevrier 2007):
+	+ ajout du support des ACLs
+	+ ajout de l'extension sftp: verification des donnees
+	+ ajout du tag LogFile
+	+ support complet de l'administration a distance (ajout de la gestion des utilisateurs)
+	+ sftp-who: ajout de la bande passante globale utilisee par MySecureShell
+	~ diminution des ressources necessaires pour MySecureShell
+	~ optimisation lors des transferts et du listing des repertoires
+	~ optimisation de la lecture du fichier de configuration
+	= fixe un bug sur la creation des liens symboliques
+	= fixe un bug sur les tags PathDenyFilter et HideFiles
+	= fixe un bug dans l'affichage du --configtest
+	= fixe un bug sur les tags LimitConnection, LimitConnectionByUser et LimitConnectionByIP qui ne
+	  fonctionnaient pas dans certains cas
+	= fixe un bug sur le tag StayAtHome
+	= fixe un bug sur le tag ShowLinksAsLinks qui etait actif seulement quand HideNoAccess etait actif
+	= fixe des fuites memoires lors du chargement du fichier de configuration
+
+0.9 (aout 2006) :
+	+ ajout du tag : CanRemoveDir, CanRemoveFile
+	+ UTF-8 actif sur le protocol SFTP v3 (evite des erreurs sous FileZilla)
+	+ ajout du repertoire courant dans le sftp-who
+	+ ajout du parametre --version (permet de voir la version mais aussi si le support UTF-8 est actif)
+	+ ajout de nouvelle couleur pour le fichier de log
+	+ ajout des pages de man (francais et anglais)
+	~ fusion des executables sftp-server_MSS et MySecureShell (evite les problemes des mise a jour OpenSSH)
+	~ meilleur support des fonctions de securite sous Unix
+	~ amelioration de l'administration a distance
+	~ amelioration du sftp-kill
+	~ possibilite de ne pas compiler l'administration a distance
+	~ amelioration du support de l'UTF-8 (marche sur tout les linux et unix)
+	= fixe un bug lors de la lecture / ecriture d'un fichier texte
+	= fixe un bug lors d'un trop grand nombre de fichiers / repertoires ouvert
+	= fixe des bugs avec les accomptes en mode administrateur
+	= fixe un bug quand l'option VirtualChroot est actif en mode administration a distance
+	= fixe un bug sur la restriction DefaultRights
+	= fixe le script d'installation sur FreeBSD 6 et Solaris 9 (merci Kyle)
+	= fixe un bug sur les creations / ouvertures des fichiers
+	= fixe un bug sur les clients fantomes
+
+0.8 (mars 2006) :
+	+ ajout des tags : GMTTime, Charset
+	+ support de l'utf-8 pour les noms des fichiers / repertoires
+	+ support du renouvellement du fichier de log
+	+ support du protocol SFTP v5
+	+ sftp-admin : ajout de la possibilite de fermer TOUT MySecureShell
+	+ sftp extentions : support des informations sur l'espace libre des disques durs
+	+ ajout d'un outil sftp-verif pour verifier que MySecureShell fonctionne bien et corrige les eventuels erreurs
+	+ ajout du package Universal Binaries pour les macs
+	~ optimization global sur MySecureShell
+	~ amelioration sftp-who : la vitesse affiche des nombres a virgules
+	~ meilleur support des clients sftp (WebDrive fonctionne maintenant)
+	~ amelioration de l'installeur (support du logrotate)
+	~ amelioration globale sur l'installateur mac
+	= sftp-who: fixe un bug sur la vitesse maximum affiche
+	= fixe un bug dans la gestion de la memoire
+	= fixe un bug sur les droits lors de la creation de fichier / repertoire
+	= fixe un bug pour les utilisateurs qui sont administrateur de MySecureShell
+
+0.7 (novembre 2005) :
+	+ ajout des tags : DisableAccount, IsAdmin
+	+ ajout d'un programme :
+		- sftp-admin : permet de faire de l'administration d'un serveur MySecureShell a distance
+	~ amelioration de la gestion de la memoire
+	~ amelioration du fichier de log :
+		- on peut differencier chaque connection
+		- plus de detail en cas d'erreur
+	= fixe des bugs entre les changements de chaque version de MySecureShell
+	= fixe un bug sur le shell
+	= fixe un bug si l'utilisateur est dans trop de groupe
+	= fixe un probleme de protocol
+	= fixe un probleme de gestion de la memoire
+
+0.61 (aout 2005) :
+	+ ajout du tag ConnectionMaxLife
+	= fixe un bug sur l'upload des fichiers avec gFtp
+
+0.6 (juillet 2005) :
+	+ reecriture totale du sftp-server_MSS
+	+ support du protocol SFTP v4
+	+ ajout du tag VirtualHost (attention aux restrictions)
+	+ ajout d'un script pour desinstaller MySecureShell
+	+ ajout du mot clef SftpProtocol
+	= fixe les problemes sous 64bit
+	= fixe la compilation sous gcc 4.0
+	= fixe des bugs sur la resolution des chemins descendants
+
+0.5 (mai 2005) :
+	+ support Cygwin (Windows 2000/XP) [un package special sera bientot creer]
+	+ ajout des mots clefs ByPassGlobalDownload, ByPassGlobalUpload et ShowLinksAsLinks
+	+ sftp-state :
+		- Ajout de l'option -yes pour accepter toutes les questions
+	~ amelioration du tag IpRange
+	= fixe un bug sur les limitations de vitesse
+	= fixe des bug sur les restrictions IgnoreHidden et VirtualChroot
+	= sftp-who :
+		- fixe une boucle infini dans certain cas
+		- fixe des fuites de memoire
+	- suppression de l'installateur java car le script shell est plus complet
+
+0.4 (janvier 2005) :
+	+ ajout d'un tag:
+		- IpRange (pour definir des restrictions suivant l'ip de l'utilisateur)
+		- Default (pour definir des restrictions par defaut)
+	+ ajout des mots clefs GlobalDownload et GlobalUpload
+	+ maintenant les liens sont "transparents" et ils ne posent plus de probleme avec la
+		restriction StayAtHome
+	+ MySecureShell :
+		- ajout d'un mode verbose pour voir quelles regles sont appliquees
+	+ sftp-kill :
+		- ajout d'une question pour deconnecter les clients quand on stoppe le serveur
+	~ sftp-who :
+		- affiche le nombre maximum de connection puis ajoute des informations au mode verbose
+		- affiche la vitesse de transfert en vitesse reelle (et non une moyenne comme avant)
+		- affiche le pourcentage de telechargement des fichiers
+	= fixe un bug sur les limitations de vitesse
+	= fixe divers bugs
+
+0.3 (decembre 2004) :
+	+ ajout des mots clefs HideNoAcess, MaxOpenFilesForUser, MaxWriteFilesForUser, MaxReadFilesForUser et
+		Include, Umask, PathDenyFilter
+	+ la restriction Umask s'appelle desormais DefaultRights pour plus de logique
+	+ sftp-who :
+		- ajout de l'argument -v pour afficher les restrictions activees sur un compte
+	+ ajout de l'utilitaire sftp-state
+	~ amelioration de l'installation MacOSX (entierement graphique)
+	~ amelioration du script d'installation (support plus simple pour le multi-langage)
+	~ amelioration de l'option --configtest (de MySecureShell)
+	= fixe des bugs sur les restrictions HideFiles et IgnoreHidden
+	= fixe un bug sur le sftp-kill
+
+0.2 (octobre 2004) :
+	+ support de OpenBSD, FreeBSD et de NetBSD
+	+ ajout des restrictions LimitConnectionByUser (anciennement LimitConnection),
+		LimitConnection (limite le nombre de connection au serveur), Shell
+	+ le fichier sftp-server s'appelle desormais sftp-server_MSS pour garder le
+		serveur sftp original de OpenSSH
+	+ la restriction Home supporte les variables d'environnements
+	~ sftp-who :
+		- le nombre des clients connectes est ecrit en premier
+		- n'affiche plus des vitesses de transmissions "bizzares"
+		- ajout d'une option pour afficher en permance le sftp-who (avec refresh automatique)
+	~ sftp-kill :
+		- fixe un bug si on essayer de deconnecter tout le monde alors que personne n'est connecter
+	= fixe un bug sur des clients "fantomes"
+	= fixe un bug sur les restrictions LimitConnection et LimitConnectionByIP
+
+0.1 (septembre 2004) :
+	+ ajout d'un installateur graphique en JAVA
+	+ ajout d'un installateur MacOSX et linux en script shell
+	+ ajout de l'utilitaire sftp-kill (pour deconnecter des utilisateurs)
+	+ ajout de l'utilitaire sftp-who (pour visualiser les utilisateurs connectes)
+	+ ajout d'un fichier de log (/var/log/sftp-server.log)
+	+ ajout des restrictions IgnoreHidden, DirFakeUser, DirFakeGroup, DirFakeMode,
+		Download, Upload, StayAtHome, VirtualChroot, LimitConnection,
+		ResolveIP Home, HideFiles, LimitConnectionByIP, IdleTimeOut
+	+ amelioration du sftp-who (beaucoup d'informations sont visibles)
+	+ amelioration du parsing
+	+ fichier de configuration le choix true ou false possede son equivalent 1 ou 0
+	= fixe un bug dans le fichier de log (de temps en temps, l'ip et le nom d'utilisateur etaient intervertis)
+	= fixe un bug sur la gestion de la memoire
+	~ base de OpenSSH v3.9p1

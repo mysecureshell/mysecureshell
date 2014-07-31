@@ -1,0 +1,21 @@
+.TH sftp-admin 8 "03/05/2006" mss-utils "sftp-admin Manual for MySecureShell"
+.SH NAME
+sftp-admin - MySecureShell Command
+.SH SYNOPSYS
+\fBsftp-admin\fP [ssh options] user@hostname
+.SH DESCRIPTION
+Allows to manage a MySecureShell waiter remotely
+.SS OPTIONS
+.TP
+ssh options : pass options to ssh
+.TP
+user@hostname : where user is your user and hostname is the address to the server
+.SH EXAMPLES
+.TP
+\fBsftp-admin [ssh options] MSS@hostname\fP
+MSS manage hostname.s server with port 22.
+.TP
+\fBsftp-admin [ssh options] MSS@hostname:2006\fP
+MSS manage hostname.s server with port 2006.
+.SH SEE ALSO
+MySecureShell(8), sftp-who(8), sftp-state(8), sftp-kill(8) sftp-verif(8)

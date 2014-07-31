@@ -1,0 +1,221 @@
+#                                               -*- Autoconf -*-
+# Process this file with autoconf to produce a configure script.
+
+AC_PREREQ(2.63)
+AC_INIT([MySecureShell],[1.30],[teka2nerdman@users.sourceforge.net])
+AC_CONFIG_HEADER(config.h)
+
+# Checks for programs.
+AC_PROG_CC
+AC_PATH_PROG(SED, sed)
+AC_PATH_PROG(SUDO, sudo)
+AC_REQUIRE_CPP
+AC_GNU_SOURCE
+AC_PROG_GCC_TRADITIONAL
+AC_PROG_LN_S
+
+
+# Checks for typedefs, structures, and compiler characteristics.
+AC_C_INLINE
+AC_C_CONST
+AC_TYPE_UID_T
+AC_TYPE_INT32_T
+AC_TYPE_MODE_T
+AC_TYPE_OFF_T
+AC_TYPE_SSIZE_T
+AC_STRUCT_TM
+AC_TYPE_SIGNAL
+AC_SYS_LARGEFILE
+AC_CHECK_TYPES(u_int8_t)
+AC_CHECK_TYPES(u_int16_t)
+AC_CHECK_TYPES(u_int32_t)
+AC_CHECK_TYPES(u_int64_t)
+
+# Checks for header files.
+AC_HEADER_DIRENT
+AC_HEADER_STDC
+AC_CHECK_HEADERS([arpa/inet.h fcntl.h netdb.h netinet/in.h stdlib.h string.h strings.h sys/param.h sys/socket.h])
+AC_CHECK_HEADERS([unistd.h sys/statfs.h sys/param.h sys/statvfs.h sys/socket netinet/in.h])
+AC_CHECK_HEADERS([sys/acl.h sys/ioctl.h sys/time.h])
+AC_CHECK_HEADERS(sys/mount.h, [], [],
+	[ AC_INCLUDES_DEFAULT
+		[#if HAVE_SYS_PARAM_H
+			#include <sys/param.h>
+		#endif]])
+
+# Checks for target-specific
+case "$host" in
+*-*-cygwin*)
+	AC_CHECK_HEADERS([cygwin/socket.h])
+	AC_CHECK_HEADERS(cygwin/acl.h, [AC_DEFINE(HAVE_CYGWIN, 1, HaveCygwin)])
+	AC_SUBST(LINKER_OPT, "-Xlinker --as-needed")
+	;;
+*-*-linux*)
+	test -e "/usr/include/linux/ext2_fs.h" && AC_DEFINE(HAVE_LINUX_EXT2_FS_H, 1, Etcdir)
+	AC_SUBST(LINKER_OPT, "-Xlinker --as-needed")
+	;;
+*)
+	AC_SUBST(LINKER_OPT, "")
+	;;
+esac
+
+#Help
+AC_ARG_WITH(conffile,
+	[  --with-conffile=xxx     Change config file (default: /etc/ssh/sftp_config)],
+	[
+		if test "x$withval" != "$no" ; then
+		   MSS_CONF=$withval
+		fi
+        ])
+AC_ARG_WITH(logfile,
+	[  --with-logfile=xxx      Change log file (default: /var/log/sftp-server.log)],
+	[
+		if test "x$withval" != "$no" ; then
+		   MSS_LOG=$withval
+		fi
+        ])
+MSS_COLOR=no
+AC_ARG_WITH(logcolor,
+        [  --with-logcolor=xxx     Active color in log file (default: no)],
+        [
+		
+		MSS_COLOR=$withval
+        ])
+AC_ARG_WITH(shutfile,
+	[  --with-shutfile=xxx     Change shut file (default: /etc/sftp.shut)],
+	[
+		if test "x$withval" != "$no" ; then
+		   MSS_SHUT=$withval
+		fi
+        ])
+MSS_ADMIN=yes
+AC_ARG_WITH(admin,
+	[  --with-admin=xxx        Disable remote admin (default: yes)],
+	[
+		if test "x$withval" != "$yes" ; then
+		   MSS_ADMIN=$withval
+		fi
+        ])
+AC_ARG_WITH(libiconv,
+	[  --with-libiconv=PATH    Use libiconv in PATH],
+	[
+		if test "x$withval" != "$no" ; then
+		   if test -d "$withval/lib"; then
+		      LDFLAGS="-L${withval}/lib ${LDFLAGS}"
+		   else
+		      LDFLAGS="-L${withval} ${LDFLAGS}"
+		   fi
+		   if test -d "$withval/include"; then
+		      CPPFLAGS="-I${withval}/include ${CPPFLAGS}"
+		   else
+		      CPPFLAGS="-I${withval} ${CPPFLAGS}"
+		   fi
+		fi
+	])
+MSS_DEBUG=no
+AC_ARG_WITH(debug,
+	[  --with-debug=1,2        Change debug level (default: no)],
+	[ MSS_DEBUG=$withval ])
+
+# Checks for library functions.
+AC_FUNC_CLOSEDIR_VOID
+AC_FUNC_FORK
+AC_FUNC_STAT
+AC_FUNC_LSTAT
+AC_FUNC_CHOWN
+AC_FUNC_GETGROUPS
+AC_FUNC_MALLOC
+AC_FUNC_REALLOC
+AC_FUNC_STRFTIME
+AC_FUNC_MKTIME
+AC_FUNC_SELECT_ARGTYPES
+AC_HEADER_STAT
+AC_HEADER_SYS_WAIT
+AC_HEADER_TIME
+AC_CHECK_FUNCS([endgrent strcasecmp strchr strdup strerror strrchr strstr statfs statvfs getgroups strlcpy strlcat])
+AC_CHECK_FUNCS([acl atexit dup2 endpwent gettimeofday memset mkdir realpath regcomp rmdir select setenv memmove])
+AC_CHECK_FUNCS([connect gethostbyaddr gethostbyname inet_ntoa], , AC_CHECK_LIB(nsl, gethostbyaddr))
+AC_CHECK_FUNCS([iconv_open iconv_close iconv], , AC_CHECK_LIB(iconv, libiconv_open))
+AC_CHECK_LIB(acl, acl_get_entry)
+AC_CHECK_LIB(crypto, OpenSSL_add_all_digests)
+
+#Own defines
+test "$prefix" = "NONE" && prefix=
+test "$exec_prefix" = "NONE" && exec_prefix=/usr
+test -z "$bindir" && bindir="/usr/bin"
+test -z "$MSS_LOG" && MSS_LOG="/var/log/sftp-server.log"
+test -z "$MSS_CONF" && MSS_CONF="/etc/ssh/sftp_config"
+test -z "$MSS_SHUT" && MSS_SHUT="/etc/sftp.shut"
+MSS_UTF=$ac_cv_func_iconv
+test "$MSS_UTF" = "no" && MSS_UTF=$ac_cv_lib_iconv_libiconv_open
+MSS_ACL=$ac_cv_lib_acl_acl_get_entry
+test "$ac_cv_header_cygwin_acl_h" = "yes" && MSS_ACL="yes"
+MSSEXT_DISK=$ac_cv_header_sys_statvfs_h
+MSSEXT_DISK_SSH=$ac_cv_header_sys_statvfs_h
+test "$MSSEXT_DISK" = "no" && MSSEXT_DISK=$ac_cv_header_sys_statfs_h
+test "$MSSEXT_DISK" = "no" && MSSEXT_DISK=$ac_cv_func_statfs
+MSSEXT_FILE_HASHING=$ac_cv_lib_crypto_OpenSSL_add_all_digests
+test "$MSS_DEBUG" = "1" && MSS_DEBUG="-DDODEBUG -g3"
+test "$MSS_DEBUG" = "2" && MSS_DEBUG="-g3"
+test "$MSS_DEBUG" = "no" && MSS_DEBUG=""
+
+A=`eval echo ${sysconfdir}`
+BINDIR=`eval echo ${bindir}` ; BINDIR=`eval echo ${BINDIR}`
+SBINDIR=`eval echo ${sbindir}` ; SBINDIR=`eval echo ${SBINDIR}`
+MANDIR=`eval echo ${mandir}` ; MANDIR=`eval echo ${MANDIR}`
+AC_SUBST(ETCDIR, "${A}")
+AC_SUBST(SBINDIR, "${SBINDIR}")
+AC_SUBST(BINDIR, "${BINDIR}")
+AC_SUBST(MANDIR, "${MANDIR}")
+AC_SUBST(MSS_CONF, "${MSS_CONF}")
+AC_SUBST(MSS_LOG, "${MSS_LOG}")
+AC_SUBST(MSS_DEBUG, "${MSS_DEBUG}")
+AC_DEFINE_UNQUOTED(MSS_LOG, "${MSS_LOG}", Logdir)
+AC_DEFINE_UNQUOTED(SHUTDOWN_FILE, "${MSS_SHUT}", Etcdir)
+AC_DEFINE_UNQUOTED(CONFIG_FILE, "${MSS_CONF}", Etcdir)
+AC_DEFINE(CONFIG_FILE2, "/etc/sshd/sftp_config", Etcdir)
+AC_DEFINE_UNQUOTED(MSS_SFTPWHO, "${BINDIR}/sftp-who", Sftpwhodir)
+AC_DEFINE_UNQUOTED(MSS_SFTPUSER, "${BINDIR}/sftp-user", Sftpuserdir)
+test "$MSS_COLOR" = "yes" && AC_DEFINE_UNQUOTED(HAVE_LOG_IN_COLOR, ${MSS_COLOR}, Colorlog)
+test "$MSS_ADMIN" = "yes" && AC_DEFINE(MSS_HAVE_ADMIN, 1, Admin)
+test "$MSSEXT_DISK" = "yes" && AC_DEFINE(MSSEXT_DISKUSAGE, 1, DiskUsage)
+test "$MSSEXT_DISK_SSH" = "yes" && AC_DEFINE(MSSEXT_DISKUSAGE_SSH, 1, DiskUsageSSH)
+test "$MSSEXT_FILE_HASHING" = "yes" && AC_DEFINE(MSSEXT_FILE_HASHING, 1, FileHashing)
+if test "$ac_cv_type_u_int8_t" = "no" ; then
+   AC_DEFINE_UNQUOTED(u_int8_t, uint8_t, uint8)
+fi
+if test "$ac_cv_type_u_int16_t" = "no" ; then
+   AC_DEFINE_UNQUOTED(u_int16_t, uint16_t, uint16)
+fi
+if test "$ac_cv_type_u_int32_t" = "no" ; then
+   AC_DEFINE_UNQUOTED(u_int32_t, uint32_t, uint32)
+fi
+if test "$ac_cv_type_u_int64_t" = "no" ; then
+   AC_DEFINE_UNQUOTED(u_int64_t, uint64_t, uint64)
+fi
+AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([install.sh], [chmod +x install.sh])
+AC_CONFIG_FILES([uninstaller.sh], [chmod +x uninstaller.sh])
+AC_CONFIG_FILES([utils/sftp-user], [chmod +x utils/sftp-verif])
+AC_CONFIG_FILES([utils/sftp-verif], [chmod +x utils/sftp-verif])
+AC_OUTPUT
+AC_PROG_INSTALL
+
+A=`eval echo ${sysconfdir}`
+echo ""
+echo "MySecureShell has been configured with the following options:"
+echo "          Log file: $MSS_LOG (color: $MSS_COLOR)"
+echo "     User binaries: $BINDIR"
+echo "     Shutdown file: $MSS_SHUT"
+echo "Configuration file: $MSS_CONF"
+echo " Compilation flags: $MSS_DEBUG"
+echo ""
+echo "Option supported:"
+echo "ACL               : $MSS_ACL"
+echo "Remote Admin      : $MSS_ADMIN"
+echo "UTF-8 Encoding    : $MSS_UTF"
+echo ""
+echo "Sftp extension supported:"
+echo "Disk Usage        : $MSSEXT_DISK"
+echo "Disk Usage OpenSSH: $MSSEXT_DISK_SSH"
+echo "File Hashing      : $MSSEXT_FILE_HASHING"

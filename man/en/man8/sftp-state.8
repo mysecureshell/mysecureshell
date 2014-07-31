@@ -1,0 +1,23 @@
+.TH sftp-state 8 "03/05/2006" mss-utils "sftp-state Manual for MySecureShell"
+.SH NAME
+sftp-state - MySecureShell Command
+.SH SYNOPSYS
+\fBsftp-state\fP [options]
+.SH DESCRIPTION
+Control activity of the server
+.SS Options
+.TP
+-yes : You answer Yes to all questions (must be the first argument)
+.TP
+active / start : Start server
+.TP
+shutdown / stop : Stop server (This ask you if you want to disconnect clients)
+.SH EXAMPLES
+.TP
+\fBsftp-state start\fP
+Start server.
+.TP
+\fBsftp-state -yes stop\fP
+Stop server and disconnect users
+.SH SEE ALSO
+MySecureShell(8), sftp-who(8), sftp-state(8), sftp-admin(8) sftp-verif(8)

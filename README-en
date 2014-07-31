@@ -1,0 +1,309 @@
+Installation:
+-------------
+Execute the shell script of installation as:
+sh install.sh en
+
+For Mac version, install package and follow the instructions.
+
+
+Compilation:
+------------
+Require : gnu-make (by default under linux)
+
+1/ Type:
+        make all
+
+2/ And type :
+        ./install.sh en
+
+
+Require:
+--------
+OpenSSH 3.8.1 (or superior)
+
+Optional:
+----------
+OpenSSL 0.9.7 (or superior) for extension : check data
+
+
+Configuration file:
+-------------------
+Take a look at sftp_config sample.
+
+
+Arguments of MySecureShell:
+---------------------------
+--configtest = test the actual configuration file and print information for the user
+
+
+Utilities:
+----------
+In the directory utils, we can found:
+- sftp-who : usefull to print informations of connected client
+- sftp-kill : we can deconnect client or all clients
+- sftp-state : turn on/off sftp server
+- sftp-verif : run tests on MySecureShell if you have some problems
+
+
+--
+
+
+INFO IMPORTANTES:
+-----------------
+1/ The rights:
+Configuration for an account works like that:
+(Goes to the upper propriety class):
+- groups / accounts restrictions
+- one of it's restricting groups
+- user restriction
+If a user has more than 1 group, the last class will be apply.
+
+2/ The chroot:
+The chroot make the user close in his home. The user see his home like "/".
+
+
+IMPOSSIBLE TO ADD:
+------------------
+- Deny users who "brute force" an account (already implemented in PAM and OpenSSH)
+
+
+CONTACTS AND INFORMATIONS:
+-------------------------
+Web Site:    http://mysecureshell.sourceforge.net
+E-Mail:      teka2nerdman@users.sourceforge.net
+Forum:       http://mysecureshell.free.fr
+
+
+CHANGE LOG:
+-----------
+1.30 (october 2012):
+	+ add new tag FileSpec et ApplyFileSpec
+	+ remove tag GMTTime because MySecureShell use local time
+	+ removes tags CanRemoveFile and CanRemoveDir => use DisableRemoveFile and DisableRemoveDir
+	+ removes tags HideFiles, PathAllowFilter and PathDenyFilter (replaced by FileSpec)
+	+ support new syntaxe for variables ${ENV}
+	+ improve sftp-verif (check user and group for files)
+	+ code rewrite (file system)
+	+ tag HideNoAccess check ACL rights
+	+ improve script "configure"
+	~ fix bug on ACLs
+	~ fix some crash
+	~ fix memory leaks
+	~ fix bug with tags DisableReadFile and DisableWriteFile
+	~ fix bug when changing rights (STICKY BIT was ignored)
+
+1.25 (january 2011):
+	+ support extension statvfs@openssh.com and fstatvfs@openssh.com
+	= rewrite script "sftp-verif" in perl
+	~ fix bug on tags: DefaultRights, MinimumRights, MaximumRights and ForceRights (thanks aretni and sebastien)
+	~ fix bug on tags: SftpProtocol and VirtualChroot
+	~ fix bug when handling files with protocol SFTP v4
+	~ fix bug when using tags ForceUser and FakeDirUser at same time (thanks krushio)
+	~ fix crash on incorrect configuratioN (thanks Zigobs)
+	~ fix bug when parsing configuration on 64bit (thanks renaud) 
+	~ fix small memory leak
+
+1.20 (january 2010):
+	+ add tags (thanks JoKnarf) :
+		* ForceUser, ForceGroup, DisableRemoveDir,
+		* DisableRemoveFile, DisableReadDir, DisableReadFile,
+		* DisableWriteFile, DisableSetAttribute,
+		* DisableMakeDir, DisableRename, DisableSymLink,
+		* DisableOverwrite, CreateHome,
+		* MaximumRights, ForceRights
+	+ add tag (thank for suggestion nik): PathAllowFilter
+	+ add environment variable SSH_IP: ip of client
+	+ improve sftp-verif with configuration problem
+	= reduce code
+	~ fix compilation on Solaris
+	~ fix bug on sftp-user and sftp-verif
+	~ fix bug with rights SGID when creating directory (thanks 8087)
+	~ fix bug with SSHFS and editor gEdit or OpenOffice (thanks 8087)
+	~ fix compilation under Solaris 10
+
+1.15 (february 2009):
+	= fix compilation problem under 64bit (thanks 8087)
+	= fix bug on tag VirtualHost under Solaris (thanks JoKnarf)
+	= fix bug on tag IpRange
+	= fix bug in sftp-who informations (thanks marckburgers)
+
+1.1 (october 2008):
+	+ support multi-level of tags (level 1)
+	+ add tags : CanChangeRights and CanChangeTime
+	+ more log on transfert : begin / end / interrupt
+	+ sftp-user: add support of MacOSX Leopard (10.5)
+	~ improve installation script and uninstaller script (default choice)
+	~ improve compilation (Makefile more standard)
+	~ sftp-user : improve under MacOSX
+	~ sftp-verif : check config file
+	~ add log when connection is refused (limit ip/user/server)
+	= fix bug on time in log
+	= fix bug on tag IdleTimeOut (only if you use units)
+	= fix bug if we activate MSS in sshd_config and by shell
+	= fix bug on statistics
+	= fix bug on restrictions
+	= fix bug in script sftp-verif under MacOSX 10.5
+	= fix bug in sftp-user
+	= fix compilation under Solaris (thanks JoKnarf)
+	= fix bug on default with tag DefaultRights
+	= fix bug on tag Include
+	= fix bug on script configure with option --with-logcolor
+	= fix bug on ascii transfert (SFTP v5 only) (thanks xajez)
+	= fix bug on parsing config file (thanks abompard)
+	= fix bug on caching users/groups (thanks 8087)
+
+1.0 (december 2007):
+        + add tags : ExpireDate and IsSimpleAdmin
+        + add statistics for remote admin
+        + add tag : MinimumRights (thanks Florent)
+        ~ improve sftp-verif (check dependencies problem)
+        ~ improve remote administration (better security)
+        ~ improve support of unix
+        ~ optimizations for system with many users/groups
+        ~ optimizations for fast network
+        = fix bug if you have more than 128 simultaneous clients
+        = fix memory leak with remote admin
+        = fix bug with signal
+        = clean source (program: splint)
+        = fix bug on admin management
+        = fix bug on sftp extension : check data
+        = fix bug on sftp-who (progession with a 'h')
+	= sftp-user : fix bug on user creation
+
+0.95 (february 2007):
+        + support ACLs
+        + support sftp extension : check data
+        + add tag LogFile
+        + full support of remote administration
+        + sftp-who: add global bandwidth used by MySecureShell
+        ~ reduct necessary ressources by MySecureShell
+        ~ improve transfer files and broswing directories
+        ~ improve load of configuration file
+        = fix bug with symlink
+        = fix bug on tags PathDenyFilter, HideFiles, StayAtHome and ShowLinksAsLinks (with HideNoAccess)
+        = fix bug with option --configtest
+        = fix bug on tags LimitConnection, LimitConnectionByUser and LimitConnectionByIP
+        = fix memory leaks while loading configuration file
+
+0.9 (august 2006) :
+        + add tag : CanRemoveDir, CanRemoveFile
+        + UTF-8 is enable for protocol SFTP v3 (improve support for  FileZilla)
+        + add current directory for user in the sftp-who
+        + add argument --version (to get current version of MySecureShell and to known if UTF-8 is enable at compilation)
+        + add new color for log file
+	+ add man pages (french and english)
+        ~ fusion of binaries sftp-server_MSS and MySecureShell (fix bug with update of OpenSSH)
+        ~ improve support of security for Unix
+        ~ improve remote administration
+        ~ improve sftp-kill
+        ~ add the possibility to not compile remote administration
+        ~ improve support of UTF-8 (works for all Linux / Unix)
+	= fix bug when read / write in text file
+        = fix bug when too many files / directories are open
+        = fix bugs on mode administrator
+        = fix bug when VirtualChroot is enable for an remote administrator
+        = fix bug on tag DefaultRights
+        = fix installation script for FreeBSD 6 and Solaris 9 (thanks Kyle)
+        = fix bug on creation for files
+        = fix bug on ghost clients
+
+0.8 (march 2006) :
+        + add tags : GMTTime, Charset
+        + support of utf-8 for files / directories
+        + support of logrotate
+        + support of protocol SFTP v5
+        + sftp-admin : add possibility to shutdown MySecureShell and clean persistent objects
+        + sftp extensions : support of free disk space
+        + add util sftp-verif for testing MySecureShell
+        ~ optimization on MySecureShell
+        ~ improve sftp-who : speed is showing with more precision
+        ~ increase support of compatibility with sftp clients (WebDrive works now)
+        ~ improve install (support of logrotate)
+	~ improve install for mac
+        = sftp-who: fix bug on max speed
+        = fix bug on memory
+        = fix bug on rights when creating files / directories
+        = fix bug for MySecureShell administrator
+
+0.7 (november 2005) :
+        + add tags : DisableAccount, IsAdmin
+        + new program :
+                - sftp-admin : remove administration
+        ~ improve memory
+        ~ improve log file :
+                - show more details to follow one connection
+                - more information on error
+        = fix bugs with old version of MySecureShell
+        = fix bug on shell
+        = fix bug if user was in too many groups
+        = fix bug in protocol
+        = fix bug in memory
+
+0.61 (august 2005) :
+        + add tag ConnectionMaxLife
+        = fix upload bug with gFtp
+
+0.6 (july 2005) :
+        + total rewrite of sftp-server_MSS
+        + new support protocol SFTP v4
+        + add tag VirtualHost (beware of restrictions)
+        + add uninstaller script for MySecureShell
+        + add keyword SftpProtocol
+        = fix problems on 64bit
+        = fix compilation under gcc 4.0
+        = fix bugs on path resolv
+
+0.5 (may 2005) :
+        + support Cygwin (Windows 2000/XP) [new special package will come]
+	+ add keywords ByPassGlobalDownload, ByPassGlobalUpload and ShowLinksAsLinks
+        + sftp-state :
+                - add -yes option to accept all questions
+	+ remove all of dependencies (lic6 is the last dependency)
+        ~ improvement of tag IpRange
+        = fix bug on bandwidth restrictions
+        = fix bugs on restrictions IgnoreHidden and VirtualChroot
+        = sftp-who :
+                - fix infinite loop
+                - fix memory leak
+        - delete java install because shell script is more powerfull
+
+0.4 (january 2005) :
+        + add tag:
+                - IpRange (you can define some restrictions for a range of ip)
+                - Default (to define default restrictions)
+        + add keywords GlobalDownload and GlobalUpload
+	+ now links aren't broken if you used StayAtHome
+        + MySecureShell :
+                - add verbose mode to see which rules are used
+        + sftp-kill :
+                - add question to deconnect all client when you stop the server
+        ~ sftp-who :
+                - see maximum of connections for the server
+		- more info in verbose mode
+		- draw speed download in real time
+		- see download percent
+        = fix bug on limitbandwith
+        = fix bugs
+
+0.3 (december 2004) :
+	+ add keywords HideNoAcess, MaxOpenFilesForUser, MaxWriteFilesForUser, MaxReadFilesForUser,
+                Include, Umask, PathDenyFilter
+        + sftp-who :
+                - add argument -v to print more information about restriction on a user
+	+ renome keyword Umask to DefaultRights to be more explicit
+        + add sftp-state (to shutdown the server sftp)
+	~ improve install on MacOSX (now only graphical)
+        ~ improve install script (can support multi-language)
+        ~ improve option --configtest (on MySecureShell)
+        = fix bugs restrictions on HideFiles and IgnoreHidden
+	= fix bug on sftp-kill
+
+0.2 (october 2004) :
+	+ first version of this file :)
+	+ support of OpenBSD, FreeBSD and NetBSD
+	+ add restrictions LimitConnectionByUser (old LimitConnection),
+		LimitConnection (limite of total connection on the server), Shell
+	+ file sftp-server has moved to sftp-server_MSS to keep original sftp of OpenSSH
+	+ restriction Home support environment variable
+	= fix bug of "ghost" client
+	= fix bug on restrictions LimitConnection and LimitConnectionByIP

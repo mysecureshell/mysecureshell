@@ -1,0 +1,292 @@
+#!/usr/bin/env perl
+
+## MySecureShell Verification Tool v0.5 - Made by MySecureShell Team
+## MySecureShell Team <teka2nerdman@users.sourceforge.net>
+
+use diagnostics;
+use strict;
+use Env qw(USER);
+use Term::ANSIColor;
+
+my $bindir='@BINDIR@';
+my $mss_conf='@MSS_CONF@';
+my $mss_log='@MSS_LOG@';
+my $sudo_bin='@SUDO@';
+
+# Vars
+
+## Root detection
+if ($ENV{'USER'} ne 'root')
+{
+    print "\n" . '#' x 80;
+    print "\n\tSorry $ENV{'USER'} but you must be root to fix problems\n";
+    print '#' x 80 . "\n";
+    exit 1;
+}
+
+## Function
+
+# Set OK color in green and FAILED in red
+# 1st arg is message line and 2nd is ok or failed
+sub print_color
+{
+    # Print message
+    printf "%-69s", "$_[0]";
+    # Print OK in green
+    if ($_[1] =~ /ok|reussi/i)
+    {
+        print color 'bold green';
+    }
+    else
+    {
+        # Print failed in red
+        print color 'bold red';
+    }
+    printf "%11s", "$_[1]\n";
+    # Resetting colors
+    print color 'reset';
+}
+
+# Checking rights files
+# 1 args needed (whished rights in decimal format 'xxxx')
+sub rightsver
+{
+    my $needed_owner = shift;
+    my $needed_group = shift;
+    my $needed_rights = shift;
+    my @file_rights = @_;
+
+    foreach my $current_file (@file_rights)
+    {
+        if (-f $current_file)
+        {
+            my @stat_file = stat($current_file);
+            my $current_owner = getpwuid($stat_file[4]);
+            my $current_group = getgrgid($stat_file[5]);
+            my $current_rights = sprintf("%04o", $stat_file[2] & 07777);
+
+            if ($current_rights == $needed_rights && $current_owner eq $needed_owner && $current_group eq $needed_group)
+            {
+                &print_color("Verifing file rights of $current_file",'[ OK ]');
+            }
+            else
+            {
+                &print_color("Verifing file rights of $current_file",'[ FAILED ]');
+                if ($current_rights != $needed_rights)
+                {
+                    print "Rights problems have been detected $current_rights and should be $needed_rights\nDo you want to repair $current_file file rights ? (Y/n)\n";
+                    if (<STDIN> =~ /y|o/i)
+                    {
+                        chmod(oct($needed_rights), $current_file);
+                        &print_color("Good rights ($needed_rights) reseted on $current_file file",'[ OK ]');
+                    }
+                    else
+                    {
+                        &print_color("Needed rights ($needed_rights) have unchanged to $current_file file",'[ OK ]');
+                    }
+                }
+                if ($current_owner ne $needed_owner || $current_group ne $needed_group)
+                {
+                    print "Owner problems have been detected $current_owner:$current_group and should be $needed_owner:$needed_group\nDo you want to repair $current_file file owner ? (Y/n)\n";
+                    if (<STDIN> =~ /y|o/i)
+                    {
+                        my $file_uid = getpwnam($needed_owner);
+                        my $file_gid = getgrnam($needed_group);
+
+                        chown($file_uid, $file_gid, $current_file);
+                        &print_color("Good owner ($needed_owner:$needed_group) reseted on $current_file file",'[ OK ]');
+                    }
+                    else
+                    {
+                        &print_color("Needed owner ($needed_owner:$needed_group) have unchanged to $current_file file",'[ OK ]');
+                    }
+                }
+            }
+        }
+        else
+        {
+            &print_color("File $current_file does not exist",'[ FAILED ]');
+        }
+    }
+}
+sub set_logrotate
+{
+    print "\n\n### Verifing rotation logs ###\n\n";
+    
+    if (-d '/etc/logrotate.d')
+    {
+        unless (-f '/etc/logrotate.d/mysecureshell')
+        {
+        	print "No rotations logs found ! Do you want to create it one now ? (y/n)\n";
+        	if (<STDIN> =~ /y|o/i)
+            {
+                my $logrotate_file = <<"ACEOF";
+$mss_log {
+    weekly
+    size=500k
+    rotate 10
+    compress
+    delaycompress
+    missingok
+    notifempty
+}
+ACEOF
+                open (LOGROTATE, ">/etc/logrotate.d/mysecureshell");
+                print LOGROTATE $logrotate_file;
+                close(LOGROTATE);
+                chmod 0644, "/etc/logrotate.d/mysecureshell";
+                &print_color('Rotation logs have been created','[ OK ]');
+            }
+        	else
+            {
+                &print_color('No rotation logs have been created','[ FAILED ]');
+            }
+        }
+        else
+        {
+            &print_color('Rotation logs have been found','[ OK ]');
+        }
+    }
+    elsif (-f '/etc/weekly')
+    {
+    	# Mac OS 10.4
+    	#logstat=1
+    	system "grep -e '^for' < /etc/weekly | grep -ve sftp-server.log > /dev/null";
+    	if ("$?" == 0)
+        {
+    	    system "sed -e 's/^\(for i in.*\)\(; do\)$/\1 $mss_log\2/' /etc/weekly > /tmp/weekly.tmp && mv /tmp/weekly.tmp /etc/weekly";
+        }
+    }
+    else
+    {
+    	# Mac OS 10.5
+    	#logstat=1
+        system "grep -c sftp-server < /etc/syslog.conf | grep -v grep";
+    	if ($? != 1)
+        {
+            open (SYSLOG, ">>/etc/syslog.conf") or warn("I don't have enough rights to make it");
+            print SYSLOG "sftp-server.*\t\t\t\t\t/var/log/sftp-server.log";
+            close (SYSLOG);
+        }
+    }
+}
+
+## Starting validation
+print "\n" . '#' x 80;
+print "\n\t\t\tMySecureShell Verification Tool";
+print "\n" . '#' x 80;
+
+# Finding MSS and utilities
+print "\n\n### Verifing file existance ###\n\n";
+
+# Checking if files exists
+my @check_bins = ("$bindir/MySecureShell", "$bindir/sftp-who", "$bindir/sftp-kill", "$bindir/sftp-state", "$bindir/sftp-admin", "$bindir/sftp-verif", "$bindir/sftp-user");
+foreach (@check_bins)
+{
+    if (-e $_)
+    {
+        &print_color($_,'[ OK ]');
+    }
+    else
+    {
+        &print_color($_,'[ FAILED ]');
+    }
+}
+
+# Deleting sftp-server_MSS if found
+my @check_fsm = ('/usr/lib/sftp-server_MSS', '/usr/libexec/sftp-server_MSS', '/usr/lib/ssh/sftp-server_MSS', '/usr/lib/openssh/sftp-server_MSS', '/usr/libexec/openssh/sftp-server_MSS');
+foreach (@check_fsm)
+{
+    if (-f $_)
+    {
+    	print "If you are running a MySecureShell version newer than 0.8, you have to delete sftp-server_MSS file !\nDo you want I delete it for you ? (y/n)\n";
+        unlink $_ if (<STDIN> =~ /y|o/i);
+    }
+}
+
+# Verify Rights
+print "\n\n### Verifing rights ###\n\n";
+
+# To check rights, add files in this array
+# Give rights you which
+&rightsver('root', 'root', '0644', $mss_conf);
+
+&rightsver('root', 'root', '0755', "$bindir/sftp-who", "$bindir/sftp-verif", "$bindir/sftp-user");
+
+&rightsver('root', 'root', '0700', "$bindir/sftp-kill", "$bindir/sftp-state", "$bindir/sftp-admin");
+
+&rightsver('root', 'root', '4755', "$bindir/MySecureShell");
+
+# Logrotate
+
+open (GET_OS, "uname |");
+while (<GET_OS>)
+{
+    chomp $_;
+    unless (/SunOS/i)
+    {
+        &set_logrotate;
+        last;
+    }
+}
+close(GET_OS);
+
+# Server status
+print "\n\n### Verifing server status ###\n\n";
+# Check sftp-server state
+open (SERVER_STATE, "$bindir/sftp-state |") or warn("Couldn't get sftp-state status : $!\n");
+while (<SERVER_STATE>)
+{
+    # If online, do not touch
+    if (/up|online/i)
+    {
+        &print_color('Verifing server status (ONLINE)','[ OK ]');
+    }
+    else
+    {
+        # Else ask to start it
+        &print_color('Verifing server status (ONLINE)','[ FAILED ]');
+        print "\nDo you want to start server ? (y/n)\n";
+        if (<STDIN> =~ /y|o/i)
+        {
+            system "$bindir/sftp-state start";
+            if ($? == 0)
+            {
+                &print_color('Server started','[ OK ]');
+            }
+            else
+            {
+                &print_color('Server started','[ FAILED ]');
+            }
+        }
+    }
+}
+close (SERVER_STATE);
+
+# Server dependencies
+print "\n\n### Verifing server dependencies ###\n\nShow only error(s) :\n";
+system "$bindir/MySecureShell --version > /dev/null";
+
+# Server configuration
+print "\n\n### Verifing server configuration ###\n\nShow only error(s) :\n";
+print "Trying user: $ENV{'USER'}\n";
+system "$bindir/MySecureShell --configtest > /dev/null";
+
+# Get all users list and check if there is a problem in config
+if ($ENV{'USER'} eq 'root')
+{
+    if (-x $sudo_bin)
+    {
+        open (USER_LIST, "$bindir/sftp-user list |") or warn("Can't get user list with sftp-user command : $!\n");
+        while (<USER_LIST>)
+        {
+            chomp $_;
+            print "Checking user : $_\n";
+            system "$sudo_bin -u $_ $bindir/MySecureShell --configtest > /dev/null\n";
+        }
+        close (USER_LIST);
+    }
+}
+
+#End
+print "\n\n### All tests dones ###\n\n";

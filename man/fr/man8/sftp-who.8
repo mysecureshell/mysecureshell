@@ -1,0 +1,27 @@
+.TH sftp-who 8 "16/10/2007" mss-utils "Manuel de sftp-who pour MySecureShell"
+.SH NOM
+sftp-who - Commande MySecureShell
+.SH SYNOPSYS
+\fBsftp-who\fP
+.SH DESCRIPTION
+Affiche des informations relatives aux connections des clients.
+.SH EXEMPLES
+.TP
+\fBsftp-who\fP
+--- 1 / 10 clients ---
+Global used bandwith : 1.125 mbytes/s / 56.90 kbytes/s
+PID: 26462   Name: pmavro   IP: 192.168.0.34
+        Home: /home/pmavro
+        Status: download    Path: /home/pmavro/linux-2.6.23.1.tar.bz2
+        File: /home/pmavro/linux-2.6.23.1.tar.bz2 [54%]
+        Connected: 2007/10/16 22:21:00 [since 21s]
+        Speed: Download: 1.125 mbytes/s [unlimited]  Upload: 56.90 kbytes/s [unlimited]
+        Total: Download: 9989968 bytes   Upload: 101003 bytes
+.TP
+\fBsftp-who --while x\fP
+x : Correspond au nombre de secondes que vous souhaitez rafraichir la commande sftp-who.
+.TP
+\fBsftp-who -v\fP
+-v : verbose mode
+.SH VOIR AUSSI
+MySecureShell(8), sftp-who(8), sftp-state(8), sftp-admin(8) sftp-verif(8)

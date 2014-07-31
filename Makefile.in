@@ -1,0 +1,134 @@
+VERSION = @PACKAGE_VERSION@
+DEST	= mysecureshell_$(VERSION)
+CPU	= "`uname -m`"
+ARCHIVE	= mysecureshell_$(VERSION)-$(OSTYPE)-$(CPU)
+ARCSRC	= mysecureshell_$(VERSION).tar.gz
+
+NAME	= MySecureShell$(EXT)
+SRC	= main.c string.c	\
+	  parsing.c hash.c	\
+	  conf.c convert.c	\
+	  user.c prog.c		\
+	  ip.c FileSpec.c	\
+	  SftpServer/Buffer.c SftpServer/Encode.c	\
+	  SftpServer/Handle.c SftpServer/Send.c		\
+	  SftpServer/Sftp.c SftpServer/Util.c		\
+	  SftpServer/Log.c SftpServer/Encoding.c	\
+	  SftpServer/Admin.c SftpServer/SftpWho.c	\
+	  SftpServer/SftpExt.c SftpServer/SftpServer.c	\
+	  SftpServer/GetUsersInfos.c SftpServer/Stats.c	\
+	  SftpServer/Access.c SftpServer/FileSystem.c \
+	  SftpServer/FileSystemAcl.c
+
+OBJ	= $(SRC:.c=.o)
+
+NAME1	= utils/sftp-who$(EXT)
+SRC1	= SftpWho/Main.c SftpServer/SftpWho.c		\
+	  conf.c convert.c hash.c user.c parsing.c	\
+	  string.c ip.c FileSpec.c SftpServer/Access.c
+OBJ1	= $(SRC1:.c=.o)
+
+NAME2	= utils/sftp-state$(EXT)
+SRC2	= SftpState/Main.c SftpServer/SftpWho.c
+OBJ2	= $(SRC2:.c=.o)
+
+NAME3	= utils/sftp-admin$(EXT)
+SRC3	= SftpAdmin/Main.c SftpServer/Buffer.c SftpServer/Log.c
+OBJ3	= $(SRC3:.c=.o)
+
+
+FILE	= utils/sftp-user utils/sftp-kill utils/sftp-verif	\
+	  README-fr README-en install.sh locales_en locales_fr	\
+	  uninstaller.sh sftp_config LICENSE man/*/man8/*.8
+FILESRC	= $(DEST)/sftp_config $(DEST)/utils/sftp-kill $(DEST)/LICENSE	\
+	  $(DEST)/README-fr $(DEST)/README-en $(DEST)/Makefile.in	\
+	  $(DEST)/config.h.in $(DEST)/configure $(DEST)/install.sh.in	\
+	  $(DEST)/uninstaller.sh.in $(DEST)/locales_en $(DEST)/locales_fr\
+	  $(DEST)/utils/sftp-verif.in $(DEST)/utils/sftp-user.in 		\
+	  $(DEST)/man/*/man8/*.8
+CFLAGS	= -Wall -Wunused -Wpointer-arith -Wno-uninitialized -O2 -ISftpServer @MSS_DEBUG@
+
+LDFLAGS	= @LDFLAGS@ @LIBS@ @LINKER_OPT@
+CC	= @CC@
+EXT	= @EXEEXT@
+
+RM	= rm -f
+CHMOD	= chmod
+TAR	= tar
+CP	= cp -pf
+STRIP	= strip
+FIND	= find
+LN	= ln
+LS	= ls
+SPLINT	= splint -Du_int16_t=uint16_t -Du_int32_t=uint32_t -Du_int64_t=uint64_t -Du_int8_t=uint8_t +posixlib
+
+all	: $(NAME) $(NAME1) $(NAME2) $(NAME3)
+
+$(NAME)	: $(OBJ)
+	@echo "Compile binary	[$(NAME)]"
+	@$(CC) -o $(NAME) $(OBJ) $(LDFLAGS)
+	@$(CHMOD) 755 $(NAME)
+
+$(NAME1) : $(OBJ1)
+	@echo "Compile binary	[$(NAME1)]"
+	@$(CC) -o $(NAME1) $(OBJ1) $(LDFLAGS)
+	@$(CHMOD) 711 $(NAME1)
+
+$(NAME2) : $(OBJ2)
+	@echo "Compile binary	[$(NAME2)]"
+	@$(CC) -o $(NAME2) $(OBJ2)
+	@$(CHMOD) 711 $(NAME2)
+
+$(NAME3) : $(OBJ3)
+	@echo "Compile binary	[$(NAME3)]"
+	@$(CC) -o $(NAME3) $(OBJ3)
+	@$(CHMOD) 711 $(NAME3)
+
+clean	:
+	@echo "Delete all objects"
+	@$(RM) $(OBJ) $(OBJ1) $(OBJ2) $(OBJ3)
+
+distclean: clean
+	@echo "Delete all unecessary files"
+	@$(RM) $(NAME) $(NAME1) $(NAME2) $(NAME3)
+	@$(RM) -i `$(FIND) . | grep -F '~'` *.tgz || true
+
+cleanautoconf:
+	@$(RM) config.h Makefile configure
+
+mrproper: distclean cleanautoconf
+
+
+install	: all
+	@./install.sh yesall $(DESTDIR)
+
+re	: distclean all
+
+
+package : re
+	@echo "Make package"
+	@$(STRIP) $(NAME) $(NAME1) $(NAME2) $(NAME3)
+	@echo "Tar package"
+	@$(TAR) cfz $(ARCHIVE).tgz $(NAME) $(NAME1) $(NAME2) $(NAME3) $(FILE)
+	@echo "Package done."
+
+source	:
+	@echo "Tar the world"
+	@test -e ../$(DEST) || $(LN) -fs MySecureShell ../$(DEST)
+	@cd .. && $(TAR) cfz $(DEST)/$(ARCSRC) $(FILESRC) $(DEST)/*.[ch] $(DEST)/*/*.[ch]
+	@echo "Source package done."
+
+files	:
+	@test -e ../$(DEST) || $(LN) -fs MySecureShell ../$(DEST)
+	@cd .. && $(LS) $(FILESRC) $(DEST)/*.[ch] $(DEST)/*/*.[ch]
+
+check	:
+	@echo "Check sources"
+	@$(SPLINT) -ISftpServer $(SRC) || true
+	@$(SPLINT) -ISftpServer $(SRC1) || true
+	@$(SPLINT) -ISftpServer $(SRC2) || true
+	@$(SPLINT) -ISftpServer $(SRC3) || true
+
+.c.o	:
+	@echo "Compile		[$<]"
+	@$(CC) $(CFLAGS) -c -o $@ $<

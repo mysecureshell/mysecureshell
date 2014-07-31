@@ -1,0 +1,19 @@
+#!/bin/sh
+
+[ $1 ] || { 
+    echo "
+Usage: $0 [username]
+
+username: specify the user name to kill or enter all to kill all"
+    exit 0
+}
+
+sftp-who --sftp-kill |
+while read pid who; do
+    shot=1
+    [ x$1 = xall ] || [ x$1 = x$who ] && {
+	echo Kill $who on PID $pid
+	kill -HUP $pid
+    }
+done
+[ $shot ] || echo 'No lamer to kill ?'

@@ -1,0 +1,404 @@
+#!/bin/sh
+
+## Installation Script v0.9 - Made by MySecureShell Team
+## MySecureShell Team <teka2nerdman@users.sourceforge.net>
+
+## Language local initialising
+
+BINDIR=@BINDIR@
+MANDIR=@MANDIR@
+USRBINDIR=@BINDIR@
+ETCDIR=@ETCDIR@
+MSS_CONF=@MSS_CONF@
+LANG=
+
+## Functions Looking for available languages
+
+MyGetLocale()
+{
+	if [ "$LANG" = "" ] ; then
+		echo $1
+	else
+		tmp=`grep -F "$1=" locales_$LANG | cut -d= -f2-`
+		if [ "$tmp" = "" ] ; then
+			echo $1
+		else
+			echo $tmp
+		fi
+	fi
+}
+
+MyListLocale()
+{
+	echo "The available languages are:"
+	grep -F 'DESCRIPTION=' locales_* | cut -d= -f2-
+	echo ""
+	echo "Usage:"
+	echo "./install.sh xx(language) | or yesall for yes to all questions"
+}
+
+if [ "$1" = "yesall" ] ; then
+	LANG="en"
+	fyesall="1"
+	break
+else
+	if [ "$1" = "" ] ; then
+		MyListLocale
+		exit 1
+	else
+		if [ -f "locales_$1" ] ; then
+			LANG=$1
+			fyesall="0"
+		fi
+	fi
+fi
+if [ "$2" != "" ] ; then
+	BINDIR="$2$BINDIR"
+	MANDIR="$2$MANDIR"
+	USRBINDIR="$2$USRBINDIR"
+	ETCDIR="$2$ETCDIR"
+	MSS_CONF="$2$MSS_CONF"
+	if [ ! -d "$BINDIR" ] ; then
+		mkdir -m 0755 -p $BINDIR
+	fi
+	if [ ! -d "$MANDIR" ] ; then
+		mkdir -m 0755 -p $MANDIR
+	fi
+	if [ ! -d "$USRBINDIR" ] ; then
+		mkdir -m 0755 -p $USRBINDIR
+	fi
+	if [ ! -d "$ETCDIR" ] ; then
+		mkdir -m 0755 -p $ETCDIR
+	fi
+	if [ ! -d $ETCDIR/logrotate.d ] ; then
+		mkdir -m 0755 -p $ETCDIR/logrotate.d
+	fi
+fi
+
+## Root detection
+
+if [ "$USER" != "root" ] ; then
+	echo ""
+	echo "###################################################################"
+	tmp=`MyGetLocale 'sorry'`
+	echo "			$tmp $USER"
+	MyGetLocale 'Warning root ask'
+	echo "###################################################################"
+	echo ""
+	exit 1
+fi
+
+## Functions
+detecfiles() {
+	fileufund=`MyGetLocale 'Existing file'`
+	failed=`MyGetLocale 'failed'`
+	echo "$fileufund $filedetec			$failed"
+	instend=`MyGetLocale 'installation'`
+	echo "$instend				$failed"
+        exit 1
+}
+
+filefound() {
+	filefund=`MyGetLocale 'Existing file'`
+	ok=`MyGetLocale 'ok'`
+	echo "$filefund $filedetec			$ok"
+}
+
+shellfunc() {
+grepshell=`grep /bin/MySecureShell $ETCDIR/shells`
+if [ "$?" = "0" ] ; then
+	echo "`MyGetLocale 'shellalreadyvd'`		`MyGetLocale 'ok'`"
+else
+	MyGetLocale 'validshellask'
+	if [ "$fyesall" = "1" ] ; then
+		rep3="y"
+	else
+		read rep3
+		test -z "$rep3" && rep3="y"
+	fi
+	case "$rep3" in
+		[yY])
+			echo "/bin/MySecureShell" >> $ETCDIR/shells
+			echo `MyGetLocale 'shellvalid'`"		"`MyGetLocale 'ok'`
+			;;
+		*)
+			echo `MyGetLocale 'novalidshell'`"	"`MyGetLocale 'ok'`
+			;;
+	esac
+	echo ""
+fi
+}
+
+## Starting script
+## Welcome and files detection
+
+clear
+echo "#########################################"
+echo "#		MySecureShell		#"
+echo "#########################################"
+echo ""
+MyGetLocale 'Welcome'
+echo ""
+
+MyGetLocale 'Needed installation files'
+filedetec="MySecureShell"
+if [ -f ./$filedetec ] ; then
+	filefound
+	filedetec="sftp_config"
+	if [ -f ./$filedetec ] ; then
+		filefound
+     	else
+		detecfiles
+   	fi
+else
+ 	detecfiles
+fi
+
+## Test system
+
+echo ""
+tmp=`MyGetLocale 'TestSystem?'`
+echo $tmp
+if [ $fyesall = "1" ] ; then
+	rep7="y"
+else
+	read rep7
+	test -z "$rep7" && rep7="y"
+fi
+
+case "$rep7" in
+	[yY])
+		MyGetLocale 'LaunchMSS'
+		./MySecureShell --version > /dev/null
+		MyGetLocale 'Testsuccess'
+		;;
+esac
+
+## Introduction text
+
+echo ""
+echo ""
+MyGetLocale 'text1'
+MyGetLocale 'text2'
+MyGetLocale 'text3'
+MyGetLocale 'text4'
+MyGetLocale 'text5'
+echo ""
+MyGetLocale 'statestopquest'
+MyGetLocale 'text6'
+
+## Starting or ending installation
+
+if [ "$fyesall" = "1" ] ; then
+	rep1="y"
+else
+	read rep1
+	test -z "$rep1" && rep1="y"
+fi
+
+case "$rep1" in
+	[yY])
+		MyGetLocale 'installation'
+		echo ""
+		;;
+	*)
+		clear
+		echo `MyGetLocale 'installation'`"				"`MyGetLocale 'failed'`
+		exit 1
+		;;
+esac
+
+## If MSS is present, stop server
+
+if [ -f $USRBINDIR/sftp-state ] ; then
+	if [ $fyesall = "1" ] ; then
+		$USRBINDIR/sftp-state -yes stop > /dev/null
+	else
+		$USRBINDIR/sftp-state stop
+	fi
+fi
+
+## Existing ssh or sshd folder
+
+if [ -d $ETCDIR/sshd ] ; then
+	sshfolder=$ETCDIR/sshd
+else
+	if [ -d $ETCDIR/ssh ] ; then
+		sshfolder=$ETCDIR/ssh
+	else
+		echo ""
+		MyGetLocale 'mksshfolder'
+		if [ $fyesall = "1" ] ; then
+			repssh="y"
+		else
+			read repssh
+			test -z "$repssh" && repssh="y"
+		fi
+		case "$repssh" in
+			[yY])
+				sshfolder=$ETCDIR/ssh
+				mkdir $sshfolder
+				echo `MyGetLocale 'lgsshfolder'`"				"`MyGetLocale 'ok'`
+				;;
+			*)
+				clear
+				MyGetLocale 'stopinstssh'
+				exit 1
+				;;
+		esac
+	fi
+fi
+
+## Config file
+
+if [ -f $MSS_CONF ] ; then
+	echo ""
+	MyGetLocale 'warnconf'
+	MyGetLocale 'warnerase'
+	if [ $fyesall = "1" ] ; then
+		rep2="n"
+	else
+		read rep2
+		test -z "$rep2" && rep2="n"
+	fi
+	case "$rep2" in
+		[yY])
+			cp -f ./sftp_config $MSS_CONF
+			chmod 644 $MSS_CONF
+			echo `MyGetLocale 'conffilerep1'`"		"`MyGetLocale 'ok'`
+			;;
+		*)
+			echo `MyGetLocale 'conffilerep2'`"	"`MyGetLocale 'ok'`
+			;;
+	esac
+else
+	cp -f ./sftp_config $MSS_CONF
+	chmod 644 $MSS_CONF
+	echo `MyGetLocale 'mkconffile'`"				"`MyGetLocale 'ok'`
+fi
+
+## Updating Detection
+
+echo ""
+if [ -f $BINDIR/MySecureShell ] ; then
+	echo `MyGetLocale 'upconffile'`"			"`MyGetLocale 'ok'`
+else
+	echo `MyGetLocale 'mkconffile'`"				"`MyGetLocale 'ok'`
+fi
+cp -f ./MySecureShell $BINDIR
+chmod 4755 $BINDIR/MySecureShell
+
+## /shells detection
+
+echo ""
+if [ -f $ETCDIR/shells ] ; then
+	shellfunc
+else
+	MyGetLocale 'mkshells'
+	if [ $fyesall = "1" ] ; then
+		repshells="n"
+	else
+		read repshells
+		test -z "$repshells" && repshells="n"
+	fi
+	case "$repshells" in
+		[yY])
+			touch $ETCDIR/shells
+			chmod 644 $ETCDIR/shells
+			shellfunc
+			;;
+	esac
+fi
+
+## Utilities installation
+
+echo ""
+if [ -d ./utils ] ; then
+	for tool in "sftp-who" "sftp-kill" "sftp-state" "sftp-admin" "sftp-verif" "sftp-user" ; do
+		cp -f ./utils/$tool $USRBINDIR
+		echo `MyGetLocale 'tool'`" $tool			"`MyGetLocale 'ok'`
+	done
+	chmod 700 $USRBINDIR/sftp-kill
+	chmod 700 $USRBINDIR/sftp-state
+	chmod 700 $USRBINDIR/sftp-admin
+	chmod 755 $USRBINDIR/sftp-who
+	chmod 755 $USRBINDIR/sftp-verif
+	chmod 755 $USRBINDIR/sftp-user
+else
+	echo `MyGetLocale 'noutilities'`"	"`MyGetLocale 'ok'`
+fi
+
+## Logrotate
+
+echo ""
+MyGetLocale 'logrot?'
+if [ $fyesall = "1" ] ; then
+	rep8="y"
+else
+	read rep8
+	test -z "$rep8" && rep8="y"
+fi
+
+case "$rep8" in
+	[yY])
+		# Using for Debian like systems
+		if [ -d $ETCDIR/logrotate.d ] ; then
+			cat > $ETCDIR/logrotate.d/mysecureshell <<\_ACEOF
+@MSS_LOG@ {
+	weekly
+	size=500k
+	rotate 10
+	compress
+	delaycompress
+	missingok
+	notifempty
+}
+_ACEOF
+			chmod 644 $ETCDIR/logrotate.d/mysecureshell
+			echo `MyGetLocale 'logrot'`"	"`MyGetLocale 'ok'`
+		else
+			# Others BSD systems
+			if [ -f $ETCDIR/weekly ] ; then
+			        logstat=1
+				grep -e '^for' < $ETCDIR/weekly | grep -ve sftp-server.log > /dev/null
+			        if [ "$?" = "0" ] ; then
+			                sed -e 's/^\(for i in.*\)\(; do\)$/\1 sftp-server.log\2/' $ETCDIR/weekly > /tmp/weekly.tmp && mv /tmp/weekly.tmp $ETCDIR/weekly
+			        fi
+			fi
+			if [ "$logstat" = "1" ] ; then
+				echo `MyGetLocale 'logrot'`"	"`MyGetLocale 'ok'`
+			else
+				echo `MyGetLocale 'logrot'`"	"`MyGetLocale 'failed'`
+			fi
+		fi
+		;;
+esac
+
+## Manuals
+
+if [ -d ./man ] ; then
+	if [ ! -d $MANDIR/man8 ] ; then
+		mkdir -m 0755 -p $MANDIR/man8
+	fi
+        cp ./man/en/man8/* $MANDIR/man8
+        if [ -d $MANDIR/fr ] ; then
+		mkdir -m 0755 -p $MANDIR/man8
+        fi
+        cp ./man/fr/man8/* $MANDIR/fr/man8
+	echo `MyGetLocale 'mans'`"				"`MyGetLocale 'ok'`
+else
+        echo `MyGetLocale 'mans'`"				"`MyGetLocale 'failed'`
+fi
+
+
+# End of Installation
+
+# Only needed for version < 0.6 --> 0.8 & +
+$USRBINDIR/sftp-state fullshutdown > /dev/null
+$USRBINDIR/sftp-state start > /dev/null
+
+echo ""
+MyGetLocale 'finishedinst'
+echo ""
+MyGetLocale 'osxreminder'
+echo ""
