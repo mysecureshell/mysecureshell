@@ -42,10 +42,6 @@
 tGlobal *gl_var = NULL;
 
 
-#ifdef MSSEXT_FILE_HASHING
-#include <openssl/evp.h>
-#endif
-
 static void end_sftp()
 {
 	if (gl_var != NULL)
@@ -75,9 +71,6 @@ static void end_sftp()
 		setCharset(NULL);
 		BufferDelete(bIn);
 		BufferDelete(bOut);
-#ifdef MSSEXT_FILE_HASHING
-		EVP_cleanup();
-#endif
 		free_usersinfos();
 		HandleCloseAll();
 		FreeAccess();
@@ -117,9 +110,6 @@ void DoInitUser()
 
 	mylog_printf(MYLOG_CONNECTION, "New client [%s] from [%s]", gl_var->user, gl_var->ip);
 	umask(000);
-#ifdef MSSEXT_FILE_HASHING
-	OpenSSL_add_all_digests();
-#endif
 	uid = getuid();
 	if (gl_var->force_user != NULL)
 	{
