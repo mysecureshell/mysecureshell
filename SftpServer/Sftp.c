@@ -60,8 +60,8 @@
 #include "SftpServer.h"
 #include "SftpWho.h"
 #include "Util.h"
-#include "../security.h"
-#include "../string.h"
+#include "../Core/security.h"
+#include "../Core/string.h"
 
 #define CONN_INIT	0
 #define CONN_SFTP	1

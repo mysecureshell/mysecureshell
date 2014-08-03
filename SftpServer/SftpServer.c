@@ -27,7 +27,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include "../FileSpec.h"
+#include "../Core/FileSpec.h"
 #include "Access.h"
 #include "Defines.h"
 #include "Encoding.h"

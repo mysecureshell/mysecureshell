@@ -17,7 +17,7 @@
  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#include "config.h"
+#include "../config.h"
 #include <dirent.h>
 #include <fcntl.h>
 #include <stdio.h>
@@ -26,7 +26,7 @@
 #include "hash.h"
 #include "ip.h"
 #include "prog.h"
-#include "SftpServer/SftpWho.h"
+#include "../SftpServer/SftpWho.h"
 
 int count_program_for_uid(/*@null@*/ const char *login)
 {

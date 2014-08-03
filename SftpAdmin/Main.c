@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <unistd.h>
 #include "../SftpServer/Sftp.h"
 #include "../SftpServer/Buffer.h"
-#include "../security.h"
+#include "../Core/security.h"
 
 static int	_sftpIn = 0;
 static int	_sftpOut = 0;

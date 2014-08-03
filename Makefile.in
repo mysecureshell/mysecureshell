@@ -5,11 +5,11 @@ ARCHIVE	= mysecureshell_$(VERSION)-$(OSTYPE)-$(CPU)
 ARCSRC	= mysecureshell_$(VERSION).tar.gz
 
 NAME	= MySecureShell$(EXT)
-SRC	= main.c string.c	\
-	  parsing.c hash.c	\
-	  conf.c convert.c	\
-	  user.c prog.c		\
-	  ip.c FileSpec.c	\
+SRC	= Core/main.c Core/string.c	\
+	  Core/parsing.c Core/hash.c	\
+	  Core/conf.c Core/convert.c	\
+	  Core/user.c Core/prog.c	\
+	  Core/ip.c Core/FileSpec.c	\
 	  SftpServer/Buffer.c SftpServer/Encode.c	\
 	  SftpServer/Handle.c SftpServer/Send.c		\
 	  SftpServer/Sftp.c SftpServer/Util.c		\
@@ -17,15 +17,16 @@ SRC	= main.c string.c	\
 	  SftpServer/Admin.c SftpServer/SftpWho.c	\
 	  SftpServer/SftpExt.c SftpServer/SftpServer.c	\
 	  SftpServer/GetUsersInfos.c SftpServer/Stats.c	\
-	  SftpServer/Access.c SftpServer/FileSystem.c \
+	  SftpServer/Access.c SftpServer/FileSystem.c	\
 	  SftpServer/FileSystemAcl.c
 
 OBJ	= $(SRC:.c=.o)
 
 NAME1	= utils/sftp-who$(EXT)
 SRC1	= SftpWho/Main.c SftpServer/SftpWho.c		\
-	  conf.c convert.c hash.c user.c parsing.c	\
-	  string.c ip.c FileSpec.c SftpServer/Access.c
+	  Core/conf.c Core/convert.c Core/hash.c	\
+	  Core/user.c Core/parsing.c Core/string.c	\
+	  Core/ip.c Core/FileSpec.c SftpServer/Access.c
 OBJ1	= $(SRC1:.c=.o)
 
 NAME2	= utils/sftp-state$(EXT)
@@ -92,6 +93,11 @@ distclean: clean
 	@echo "Delete all unecessary files"
 	@$(RM) $(NAME) $(NAME1) $(NAME2) $(NAME3)
 	@$(RM) -i `$(FIND) . | grep -F '~'` *.tgz || true
+
+updateautoconf:
+	/usr/bin/autoscan
+	/usr/bin/autoheader
+	/usr/bin/autoconf -f
 
 cleanautoconf:
 	@$(RM) config.h Makefile configure

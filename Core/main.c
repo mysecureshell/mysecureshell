@@ -17,7 +17,7 @@
  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#include "config.h"
+#include "../config.h"
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
@@ -30,9 +30,9 @@
 #include "hash.h"
 #include "ip.h"
 #include "prog.h"
-#include "SftpServer/Sftp.h"
-#include "SftpServer/Encoding.h"
-#include "SftpServer/Log.h"
+#include "../SftpServer/Sftp.h"
+#include "../SftpServer/Encoding.h"
+#include "../SftpServer/Log.h"
 #include "security.h"
 
 static void showVersion(int showAll)

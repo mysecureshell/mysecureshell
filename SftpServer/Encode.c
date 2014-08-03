@@ -68,7 +68,7 @@
 #include "FileSystem.h"
 #include "GetUsersInfos.h"
 #include "Log.h"
-#include "../security.h"
+#include "../Core/security.h"
 
 tAttributes *GetAttributes(tBuffer *bIn)
 {

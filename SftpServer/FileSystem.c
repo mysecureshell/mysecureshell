@@ -25,7 +25,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include "../FileSpec.h"
+#include "../Core/FileSpec.h"
 #include "Access.h"
 #include "FileSystem.h"
 #include "Global.h"

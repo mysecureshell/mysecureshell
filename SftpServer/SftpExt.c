@@ -35,7 +35,7 @@
 #include "SftpExt.h"
 #include "SftpServer.h"
 #include "Util.h"
-#include "../security.h"
+#include "../Core/security.h"
 
 #ifdef MSSEXT_DISKUSAGE
 void DoExtDiskSpace(tBuffer *bIn, tBuffer *bOut, u_int32_t id)

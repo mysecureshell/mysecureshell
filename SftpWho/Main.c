@@ -25,8 +25,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <string.h>
 #include <unistd.h>
 #include "../SftpServer/SftpWho.h"
-#include "../conf.h"
-#include "../hash.h"
+#include "../Core/conf.h"
+#include "../Core/hash.h"
 
 static unsigned int	do_loop = 0;
 static int		_verbose = 0;

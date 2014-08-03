@@ -31,7 +31,7 @@
 #include "Sftp.h"
 #include "Util.h"
 #include "GetUsersInfos.h"
-#include "../security.h"
+#include "../Core/security.h"
 
 #ifndef O_SYNC
 #define O_SYNC	O_FSYNC

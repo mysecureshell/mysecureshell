@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Log.h"
 #include "Send.h"
 #include "Util.h"
-#include "../security.h"
+#include "../Core/security.h"
 
 void	DoAdminListUsers()
 {
