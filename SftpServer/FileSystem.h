@@ -46,7 +46,7 @@ void FSChangeRights(struct stat *st);
 tFSPath *FSCheckPath(const char *file);
 tFSPath *FSRealPath(const char *file);
 int FSOpenFile(const char *file, int *fileHandle, int flags, mode_t mode, struct stat *st);
-int FSOpenDir(const char *dir, DIR **dirHandle);
+int FSOpenDir(char *dir, DIR **dirHandle);
 tFSPath *FSReadDir(const char *readDir, DIR *dirHandle, struct stat *st);
 int FSStat(const char *file, int doLStat, struct stat *st);
 int FSReadLink(const char *file, char *readLink, int sizeofReadLink);

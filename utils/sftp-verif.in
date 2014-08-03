@@ -16,10 +16,10 @@ my $sudo_bin='@SUDO@';
 # Vars
 
 ## Root detection
-if ($ENV{'USER'} ne 'root')
+if ($> != 0)
 {
     print "\n" . '#' x 80;
-    print "\n\tSorry $ENV{'USER'} but you must be root to fix problems\n";
+    print "\n\tSorry but you must be root to fix problems\n";
     print '#' x 80 . "\n";
     exit 1;
 }
@@ -190,6 +190,43 @@ foreach (@check_bins)
     else
     {
         &print_color($_,'[ FAILED ]');
+    }
+}
+
+# Verify shells list
+if (-e '/etc/shells')
+{
+	my	$retValue = 0;
+	my	$binMSS = "$bindir/MySecureShell";
+	
+	print "\n\n### Verifing /etc/shells ###\n\n";
+	$retValue = system('/bin/grep', '-q', $binMSS, '/etc/shells');
+	$retValue >>= 0;
+	if ($retValue == 0)
+	{
+		&print_color("/etc/shells contains $binMSS",'[ OK ]');
+	}
+	else
+    {
+        &print_color("/etc/shells contains $binMSS",'[ FAILED ]');
+        print "$binMSS is absent of '/etc/shells'\nDo you want to add it ? (Y/n)\n";
+		if (<STDIN> =~ /y|o/i)
+		{
+			if (open(FD, '>>', '/etc/shells'))
+			{
+				print FD "\n$binMSS\n";
+				close(FD);
+				&print_color('Update /etc/shells','[ OK ]');
+			}
+			else
+			{
+				&print_color('Update /etc/shells','[ FAILED ]');
+			}
+		}
+		else
+		{
+			&print_color("/etc/shells contains $binMSS",'[ FAILED ]');
+		}
     }
 }
 

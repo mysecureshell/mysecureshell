@@ -23,9 +23,9 @@
 #include "Log.h"
 #include "Sftp.h"
 
-#if(HAVE_LIBACL)
+#if(MSS_ACL)
 
-#ifndef HAVE_CYGWIN
+#ifdef HAVE_LIBACL
 #include <acl/libacl.h>
 #endif
 #include <sys/acl.h>
@@ -70,9 +70,15 @@ int FSEnumAcl(const char *file, int resolvePath, void (*callback)(void *data, in
 				{
 					if (tag == ACL_MASK)
 						continue;
+#ifdef HAVE_ACL_GET_PERM_NP
+					mode = (acl_get_perm_np(permset, ACL_READ) == 1 ? SSH5_ACE4_READ_DATA : 0) |
+							(acl_get_perm_np(permset, ACL_WRITE) == 1 ? SSH5_ACE4_WRITE_DATA : 0) |
+							(acl_get_perm_np(permset, ACL_EXECUTE) == 1 ? SSH5_ACE4_EXECUTE : 0);
+#else
 					mode = (acl_get_perm(permset, ACL_READ) == 1 ? SSH5_ACE4_READ_DATA : 0) |
 							(acl_get_perm(permset, ACL_WRITE) == 1 ? SSH5_ACE4_WRITE_DATA : 0) |
 							(acl_get_perm(permset, ACL_EXECUTE) == 1 ? SSH5_ACE4_EXECUTE : 0);
+#endif //HAVE_ACL_GET_PERM_NP
 					switch (tag)
 					{
 					case ACL_USER:
@@ -144,7 +150,7 @@ int FSEnumAcl(const char *file, int resolvePath, void (*callback)(void *data, in
 		{
 			int mode;
 
-			mode = (acls[i].a_perm & 2) ? SSH5_ACE4_READ_DATA : 0) |
+			mode = ((acls[i].a_perm & 2) ? SSH5_ACE4_READ_DATA : 0) |
 			 ((acls[i].a_perm & 4) ? SSH5_ACE4_WRITE_DATA : 0) |
 			 ((acls[i].a_perm & 1) ? SSH5_ACE4_EXECUTE : 0);
 			switch (acls[i].a_type)
@@ -169,4 +175,4 @@ int FSEnumAcl(const char *file, int resolvePath, void (*callback)(void *data, in
 
 #endif //HAVE_CYGWIN
 
-#endif //HAVE_LIBACL
+#endif //MSS_ACL

@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define	MYLOG_DEBUG		5
 #define	MYLOG_MAX		6
 
-void	mylog_open(char *file);
+void	mylog_open(char *file, int useSyslog);
 void	mylog_close_and_free();
 void	mylog_close();
 void	mylog_reopen();

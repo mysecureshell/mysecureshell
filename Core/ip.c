@@ -38,40 +38,61 @@
 {
 	struct hostent *h;
 	in_addr_t addr;
-	char *ip, *ptr;
+	char *env, *ip = NULL;
 
-	if ((ip = getenv("SSH_CONNECTION")) != NULL)
-		if ((ptr = strchr(ip, ' ')))
+	if ((env = getenv("SSH_CONNECTION")) != NULL)
+	{
+		char *ptr;
+
+		env = strdup(env);
+		if ((ptr = strchr(env, ' ')))
 			*ptr = '\0';
-	if (resolv == 1 && ip != NULL && (int) (addr = inet_addr(ip)) != -1)
-		if ((h = gethostbyaddr((char *) &addr, sizeof(addr), AF_INET)) != NULL)
-			if (h != NULL && h->h_name != NULL && strlen(h->h_name) > 0)//check if a name is defined
-				ip = (char *) h->h_name;
-	return (strdup(ip != NULL ? ip : ""));
+		if (resolv == 0)
+			ip = strdup(env);
+		else if ((int) (addr = inet_addr(env)) != -1)
+			if ((h = gethostbyaddr((char *) &addr, sizeof(addr), AF_INET)) != NULL)
+				if (h != NULL && h->h_name != NULL && strlen(h->h_name) > 0)//check if a name is defined
+					ip = strdup(h->h_name);
+		free(env);
+	}
+	if (ip == NULL)
+		ip = strdup("");
+	return (ip);
 }
 
 /*@null@*/ char *get_ip_server()
 {
+	char *env;
 	char *ip, *ptr;
 
-	if ((ip = getenv("SSH_CONNECTION")) != NULL)
+	if ((env = getenv("SSH_CONNECTION")) != NULL)
 	{
-		if ((ptr = strrchr(ip, ' ')) != NULL)
+		env = strdup(env);
+		ip = env;
+		if ((ptr = strrchr(env, ' ')) != NULL)
 			*ptr = '\0';
-		if ((ptr = strrchr(ip, ' ')) != NULL)
+		if ((ptr = strrchr(env, ' ')) != NULL)
 			ip = ptr + 1;
+		ip = strdup(ip);
+		free(env);
 	}
-	return (strdup(ip != NULL ? ip : ""));
+	else
+		ip = strdup("");
+	return (ip);
 }
 
 int get_port_server()
 {
 	char *ip, *ptr;
+	int port = -1;
 
 	if ((ip = getenv("SSH_CONNECTION")) != NULL)
 	{
 		if ((ptr = strrchr(ip, ' ')) != NULL)
+		{
 			ip = ptr + 1;
+			port = atoi(ip);
+		}
 	}
-	return (ip != NULL ? atoi(ip) : 0);
+	return (port);
 }

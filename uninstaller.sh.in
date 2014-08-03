@@ -46,12 +46,12 @@ fi
 clear
 
 ## Root detection
-
-if [ "$USER" != "root" ] ; then
+euid="`id -u`"
+if [ "$euid" != "0" ] ; then
 	echo ""
 	echo "###################################################################"
 	tmp=`MyGetLocale 'sorry'`
-	echo "	               $tmp $USER"
+	echo "	               $tmp"
 	MyGetLocale 'Warning root ask'
 	echo "###################################################################"
 	echo ""

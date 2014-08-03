@@ -81,6 +81,7 @@ static const tConf confParams[] =
 	{ "ShowLinksAsLinks", CONF_IS_BOOLEAN, CONF_SHOW },
 	{ "SftpProtocol", CONF_IS_INT, CONF_SHOW_ALWAYS },
 	{ "LogFile", CONF_IS_STRING, CONF_SHOW_ALWAYS },
+	{ "LogSyslog", CONF_IS_BOOLEAN, CONF_SHOW },
 	{ "ConnectionMaxLife", CONF_IS_TIME, CONF_SHOW },
 	{ "DisableAccount", CONF_IS_BOOLEAN, CONF_SHOW },
 #ifdef MSS_HAVE_ADMIN
@@ -97,6 +98,7 @@ static const tConf confParams[] =
 	{ "DisableRename", CONF_IS_BOOLEAN, CONF_SHOW },
 	{ "DisableSymLink", CONF_IS_BOOLEAN, CONF_SHOW },
 	{ "DisableOverwrite", CONF_IS_BOOLEAN, CONF_SHOW },
+	{ "DisableStatsFs", CONF_IS_BOOLEAN, CONF_SHOW },
 	{ "Charset", CONF_IS_STRING, CONF_SHOW },
 	{ "CanChangeRights", CONF_IS_BOOLEAN, CONF_SHOW },
 	{ "CanChangeTime", CONF_IS_BOOLEAN, CONF_SHOW },

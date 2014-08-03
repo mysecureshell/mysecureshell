@@ -58,6 +58,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define SFTP_DISABLE_RENAME			(1 << 8)
 #define SFTP_DISABLE_SYMLINK		(1 << 9)
 #define SFTP_DISABLE_OVERWRITE		(1 << 10)
+#define SFTP_DISABLE_STATSFS		(1 << 11)
 
 typedef struct	s_sftpglobal
 {
@@ -76,13 +77,12 @@ typedef struct	s_sftpwho
   char		file[200];
   char		home[196];
 
-//3 items = 10 octets
+//2 items = 8 octets
   u_int32_t	status;
   u_int32_t	pid;
-  u_int16_t	mode;
 
-//12 items = 46 octets
-  u_int16_t	download_pos;
+//13 items = 52 octets
+  u_int32_t	download_pos;
   u_int32_t	download_current;
   u_int32_t	download_total;
   u_int32_t	download_max;

@@ -16,6 +16,9 @@
 /* Define to 1 if you have the `acl' function. */
 #undef HAVE_ACL
 
+/* Define to 1 if you have the `acl_get_perm_np' function. */
+#undef HAVE_ACL_GET_PERM_NP
+
 /* Define to 1 if you have the `alarm' function. */
 #undef HAVE_ALARM
 
@@ -27,6 +30,9 @@
 
 /* Define to 1 if your system has a working `chown' function. */
 #undef HAVE_CHOWN
+
+/* Define to 1 if you have the `closelog' function. */
+#undef HAVE_CLOSELOG
 
 /* Define to 1 if you have the `connect' function. */
 #undef HAVE_CONNECT
@@ -133,6 +139,9 @@
 /* Define to 1 if you have the <netinet/in.h> header file. */
 #undef HAVE_NETINET_IN_H
 
+/* Define to 1 if you have the `openlog' function. */
+#undef HAVE_OPENLOG
+
 /* Define to 1 if your system has a GNU libc compatible `realloc' function,
    and to 0 otherwise. */
 #undef HAVE_REALLOC
@@ -200,6 +209,12 @@
 
 /* Define to 1 if you have the `strstr' function. */
 #undef HAVE_STRSTR
+
+/* Define to 1 if you have the `syslog' function. */
+#undef HAVE_SYSLOG
+
+/* Define to 1 if you have the <syslog.h> header file. */
+#undef HAVE_SYSLOG_H
 
 /* Define to 1 if you have the <sys/acl.h> header file. */
 #undef HAVE_SYS_ACL_H
@@ -269,6 +284,9 @@
 /* Define to 1 if you have the <vfork.h> header file. */
 #undef HAVE_VFORK_H
 
+/* Define to 1 if you have the `vsyslog' function. */
+#undef HAVE_VSYSLOG
+
 /* Define to 1 if `fork' works. */
 #undef HAVE_WORKING_FORK
 
@@ -287,6 +305,9 @@
 
 /* FileHashing */
 #undef MSSEXT_FILE_HASHING
+
+/* ACL */
+#undef MSS_ACL
 
 /* Admin */
 #undef MSS_HAVE_ADMIN
@@ -366,6 +387,11 @@
 # undef __EXTENSIONS__
 #endif
 
+
+/* Enable large inode numbers on Mac OS X 10.5.  */
+#ifndef _DARWIN_USE_64_BIT_INODE
+# define _DARWIN_USE_64_BIT_INODE 1
+#endif
 
 /* Number of bits in a file offset, on hosts where this is settable. */
 #undef _FILE_OFFSET_BITS

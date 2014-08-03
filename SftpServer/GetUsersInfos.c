@@ -79,7 +79,7 @@ t_info *mygetpwnam(const char *login)
 			return (&_users[i]);
 	if ((pwd = getpwnam(login)) != NULL)
 		return (add_element_in_table(&_users, &_usersSize, strdup(pwd->pw_name), pwd->pw_uid));
-	mylog_printf(MYLOG_WARNING, "[%s][%s]Couldn't resolve user name %i", gl_var->who->user, gl_var->who->ip, login);
+	mylog_printf(MYLOG_WARNING, "[%s][%s]Couldn't resolve user name %i", gl_var->user, gl_var->ip, login);
 	return (NULL);
 }
 
@@ -93,7 +93,7 @@ t_info *mygetpwuid(u_int32_t uid)
 			return (&_users[i]);
 	if ((pwd = getpwuid(uid)) != NULL)
 		return (add_element_in_table(&_users, &_usersSize, strdup(pwd->pw_name), pwd->pw_uid));
-	mylog_printf(MYLOG_WARNING, "[%s][%s]Couldn't resolve user id %i", gl_var->who->user, gl_var->who->ip, uid);
+	mylog_printf(MYLOG_WARNING, "[%s][%s]Couldn't resolve user id %i", gl_var->user, gl_var->ip, uid);
 	return (NULL);
 }
 
@@ -109,7 +109,7 @@ t_info *mygetgrnam(const char *group)
 			return (&_groups[i]);
 	if ((grp = getgrnam(group)) != NULL)
 		return (add_element_in_table(&_groups, &_groupsSize, strdup(grp->gr_name), grp->gr_gid));
-	mylog_printf(MYLOG_WARNING, "[%s][%s]Couldn't resolve group name %i", gl_var->who->user, gl_var->who->ip, group);
+	mylog_printf(MYLOG_WARNING, "[%s][%s]Couldn't resolve group name %i", gl_var->user, gl_var->ip, group);
 	return (NULL);
 }
 
@@ -123,6 +123,6 @@ t_info *mygetgrgid(u_int32_t gid)
 			return (&_groups[i]);
 	if ((grp = getgrgid(gid)) != NULL)
 		return (add_element_in_table(&_groups, &_groupsSize, strdup(grp->gr_name), grp->gr_gid));
-	mylog_printf(MYLOG_WARNING, "[%s][%s]Couldn't resolve group id %i", gl_var->who->user, gl_var->who->ip, gid);
+	mylog_printf(MYLOG_WARNING, "[%s][%s]Couldn't resolve group id %i", gl_var->user, gl_var->ip, gid);
 	return (NULL);
 }

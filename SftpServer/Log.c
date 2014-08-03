@@ -26,6 +26,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#ifdef HAVE_SYSLOG_H
+#include <syslog.h>
+#endif //HAVE_SYSLOG_H
 #include "Log.h"
 #include "../Core/security.h"
 
@@ -35,6 +38,7 @@ typedef struct s_log
 	int fd;
 	int pid;
 	int nextReopen;
+	int useSyslog;
 #ifdef HAVE_LOG_IN_COLOR
 unsigned char color[MYLOG_MAX][3];
 #endif
@@ -42,33 +46,41 @@ unsigned char color[MYLOG_MAX][3];
 
 /*@null@*/ static t_log *_log = NULL;
 
-void mylog_open(char *file)
+void mylog_open(char *file, int useSyslog)
 {
 	int fd;
 
-	if ((fd = open(file, O_CREAT | O_APPEND | O_WRONLY, 0644)) != -1)
+	if (_log == NULL)
 	{
+		_log = calloc(1, sizeof(*_log));
 		if (_log == NULL)
 		{
-			time_t t;
-
-			t = time(NULL);
-			(void) localtime(&t);
-			_log = calloc(1, sizeof(*_log));
-			if (_log != NULL)
-				_log->pid = getpid();
+			perror("unable to allocate log structure");
+			return;
 		}
+		_log->pid = getpid();
+		_log->fd = -1;
+	}
+#ifdef HAVE_OPENLOG
+	if (useSyslog == 1)
+	{
+		_log->useSyslog = 1;
+		openlog("MySecureShell", LOG_PID, LOG_FTP);
+	}
+#endif //HAVE_OPENLOG
+
+	if (file != NULL && (fd = open(file, O_CREAT | O_APPEND | O_WRONLY, 0644)) != -1)
+	{
+		time_t t;
+
+		t = time(NULL);
+		(void) localtime(&t);
 		if (_log != NULL)
 		{
 			_log->file = file;
 			_log->fd = fd;
 			if (fchown(fd, 0, 0) == -1)
 				mylog_printf(MYLOG_ERROR, "Unable to chown log '%s' : %s", file, strerror(errno));
-		}
-		else
-		{
-			perror("unable to allocate log structure");
-			xclose(fd);
 		}
 		/*
 		 Text color codes:
@@ -110,7 +122,7 @@ void mylog_open(char *file)
 
 void mylog_close()
 {
-	if (_log != NULL)
+	if (_log != NULL && _log->fd != -1)
 		xclose(_log->fd);
 }
 
@@ -122,10 +134,15 @@ void mylog_reopen()
 
 void mylog_close_and_free()
 {
+	mylog_close();
 	if (_log != NULL)
 	{
-		xclose(_log->fd);
-		free(_log->file);
+#ifdef HAVE_CLOSELOG
+		if (_log->useSyslog == 1)
+			closelog();
+#endif //HAVE_CLOSELOG
+		if (_log->file != NULL)
+			free(_log->file);
 		free(_log);
 		_log = NULL;
 	}
@@ -134,23 +151,39 @@ void mylog_close_and_free()
 void mylog_printf(int level, const char *str, ...)
 {
 	va_list ap;
-	struct tm *tm;
-	time_t t;
-	size_t size;
 	char buffer[1024];
-	char fmt[1024];
+	size_t size;
 
-	if (_log != NULL)
+	if (_log != NULL && _log->useSyslog == 1)
 	{
+		int logprio;
+
+		switch (level)
+		{
+		case MYLOG_DEBUG: logprio = LOG_DEBUG; break;
+		case MYLOG_WARNING: logprio = LOG_WARNING; break;
+		case MYLOG_ERROR: logprio = LOG_ERR; break;
+		case MYLOG_TRANSFERT: logprio = LOG_NOTICE; break;
+		default: logprio = LOG_INFO; break;
+		}
+		va_start(ap, str);
+		vsyslog(logprio, str, ap);
+		va_end(ap);
+	}
+	if (_log != NULL && _log->file != NULL)
+	{
+		struct tm *tm;
+		time_t t;
+		char fmt[1024];
+
 		if (level < 0 || level >= MYLOG_MAX)
 			level = MYLOG_ERROR;
 		if (_log->nextReopen == 1)
 		{
 			_log->nextReopen = 0;
 			mylog_close();
-			mylog_open(_log->file);
+			mylog_open(_log->file, _log->useSyslog);
 		}
-		va_start(ap, str);
 		t = time(NULL);
 		if ((tm = localtime(&t)) == NULL)
 		{
@@ -169,9 +202,15 @@ void mylog_printf(int level, const char *str, ...)
 #endif
 		{
 forceShowLog:
+			va_start(ap, str);
 			if ((size = vsnprintf(buffer, sizeof(buffer), fmt, ap)) > 0)
 				(void) write(_log->fd, buffer, size);
+			va_end(ap);
 		}
-		va_end(ap);
 	}
+}
+
+void mylog_syslog(int level, const char *str, ...)
+{
+	;
 }

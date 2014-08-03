@@ -76,6 +76,24 @@ Forum:       http://mysecureshell.free.fr
 
 CHANGE LOG:
 -----------
+1.33 (april 2014):
+	+ add new tag LogSyslog
+	+ add transfert file size
+	+ improve sftp-verif (check file /etc/shells)
+	~ fix bug with symlink (thanks briancanfixit)
+	~ fix bug with tag VirtualHost (thanks Torig)
+
+1.32 (november 2013):
+	~ fix bug when configuration has line "Shell /bin/MySecureShell"
+	~ fix bugs (thanks remi and voleg)
+	~ fix compilation under Cygwin (thanks sping)
+
+1.31 (march 2013):
+	~ ACLs support and UTF-8 encoding on FreeBSD
+	~ fix tag DefaultRights (thanks 8087)
+	~ fix memory corruption (thanks 8087)
+	~ fix "root" detection on scripts install.sh and uninstaller.sh (thanks muzso) 
+
 1.30 (october 2012):
 	+ add new tag FileSpec et ApplyFileSpec
 	+ remove tag GMTTime because MySecureShell use local time

@@ -48,7 +48,7 @@ static void showVersion(int showAll)
 	if (showAll == 1)
 	{
 		(void) printf("\n\nOptions:\n  ACL support: "
-#if(HAVE_LIBACL)
+#if(MSS_ACL)
 					"yes"
 #else
 				"no"
@@ -122,13 +122,15 @@ static void parse_args(int ac, char **av)
 int main(int ac, char **av, char **env)
 {
 	char *hostname;
+	int is_command = 0;
 	int is_sftp = 0;
 
 	create_hash();
 	if (ac == 3 && av[1] != NULL && av[2] != NULL && strcmp("-c", av[1]) == 0
-			&& (strstr(av[2], "sftp-server") != NULL || strstr(av[2],
-					"MySecureShell") != NULL))
+			&& (strstr(av[2], "sftp-server") != NULL || strstr(av[2], "MySecureShell") != NULL))
 		is_sftp = 1;
+	else if (ac >= 3 && av[1] != NULL && av[2] != NULL && strcmp("-c", av[1]) == 0)
+		is_command = 1;
 	else
 		parse_args(ac, av);
 	hostname = get_ip(0);
@@ -138,8 +140,9 @@ int main(int ac, char **av, char **env)
 	load_config(0);
 	if (is_sftp == 1)
 	{
-		tGlobal *params;
-		int max, fd, sftp_version;
+		tGlobal	*params;
+		char	*ptr;
+		int		max, fd, sftp_version;
 
 		hostname = get_ip(hash_get_int("ResolveIP"));
 		if (hostname == NULL)
@@ -153,27 +156,26 @@ int main(int ac, char **av, char **env)
 			perror("unable to alloc memory");
 			exit(15);
 		}
+		ptr = hash_get("Home");
+		params->home = strdup(ptr == NULL ? "{error home}" : ptr);
+		ptr = hash_get("User");
+		params->user = strdup(ptr == NULL ? "{error user}" : ptr);
+		params->ip = strdup(hostname == NULL ? "{error ip}" : hostname);
+
 		params->who = SftpWhoGetStruct(1);
 		if (params->who != NULL)
 		{
-			char *ptr;
-
 			params->who->time_begin = (u_int32_t) time(0);
 			params->who->pid = (u_int32_t) getpid();
-			ptr = hash_get("Home");
-			(void) strncat(params->who->home, (ptr == NULL ? "{error home}" : ptr ), sizeof(params->who->home) - 1);
-			ptr = hash_get("User");
-			(void) strncat(params->who->user, (ptr == NULL ? "{error user}" : ptr ), sizeof(params->who->user) - 1);
-			ptr = hostname;
-			(void) strncat(params->who->ip, (ptr == NULL ? "{error ip}" : ptr ), sizeof(params->who->ip) - 1);
+			(void) strncat(params->who->home, params->home, sizeof(params->who->home) - 1);
+			(void) strncat(params->who->user, params->user, sizeof(params->who->user) - 1);
+			(void) strncat(params->who->ip, params->ip, sizeof(params->who->ip) - 1);
 		}
-		//check if the server is up ans user is not admin
+		//check if the server is up and user is not admin
 		if ((fd = open(SHUTDOWN_FILE, O_RDONLY)) >= 0)
-		//server is down
 		{
 			xclose(fd);
-			if (hash_get_int("IsAdmin") == 0 && hash_get_int("IsSimpleAdmin")
-					== 0)
+			if (hash_get_int("IsAdmin") == 0 && hash_get_int("IsSimpleAdmin") == 0)
 			{
 				SftpWhoReleaseStruct(params->who);
 				delete_hash();
@@ -181,10 +183,11 @@ int main(int ac, char **av, char **env)
 				exit(0);
 			}
 		}
+		max = hash_get_int("LogSyslog");
 		if (hash_get("LogFile") != NULL)
-			mylog_open(strdup(hash_get("LogFile")));
+			mylog_open(strdup(hash_get("LogFile")), max);
 		else
-			mylog_open(strdup(MSS_LOG));
+			mylog_open(strdup(MSS_LOG), max);
 		if (params->who == NULL)
 		{
 			mylog_printf(MYLOG_ERROR,
@@ -192,8 +195,8 @@ int main(int ac, char **av, char **env)
 					hash_get("User"), hash_get("SERVER_IP"), SFTPWHO_MAXCLIENT);
 			SftpWhoReleaseStruct(NULL);
 			delete_hash();
-			mylog_close();
 			FileSpecDestroy();
+			mylog_close_and_free();
 			exit(14);
 		}
 		max = hash_get_int("LimitConnectionByUser");
@@ -265,7 +268,8 @@ int main(int ac, char **av, char **env)
 						+ (hash_get_int("DisableMakeDir") ? SFTP_DISABLE_MAKE_DIR : 0)
 						+ (hash_get_int("DisableRename") ? SFTP_DISABLE_RENAME : 0)
 						+ (hash_get_int("DisableSymLink") ? SFTP_DISABLE_SYMLINK : 0)
-						+ (hash_get_int("DisableOverwrite") ? SFTP_DISABLE_OVERWRITE : 0);
+						+ (hash_get_int("DisableOverwrite") ? SFTP_DISABLE_OVERWRITE : 0)
+						+ (hash_get_int("DisableStatsFs") ? SFTP_DISABLE_STATSFS : 0);
 		params->who->status |= params->flagsGlobals;
 		_sftpglobal->download_max = (u_int32_t) hash_get_int("GlobalDownload");
 		_sftpglobal->upload_max = (u_int32_t) hash_get_int("GlobalUpload");
@@ -282,7 +286,7 @@ int main(int ac, char **av, char **env)
 		if (hash_get_int("IdleTimeOut") > 0)
 			params->who->time_maxidle = (u_int32_t) hash_get_int("IdleTimeOut");
 		if (hash_get_int("DirFakeMode") > 0)
-			params->who->mode = (u_int16_t) hash_get_int("DirFakeMode");
+			params->dir_mode = (u_int32_t) hash_get_int("DirFakeMode");
 		sftp_version = hash_get_int("SftpProtocol");
 		if (hash_get_int("ConnectionMaxLife") > 0)
 			params->who->time_maxlife = (u_int32_t) hash_get_int("ConnectionMaxLife");
@@ -302,7 +306,7 @@ int main(int ac, char **av, char **env)
 							hash_get("User"), hash_get("ExpireDate"));
 					SftpWhoReleaseStruct(params->who);
 					delete_hash();
-					mylog_close();
+					mylog_close_and_free();
 					exit(15);
 				}
 				else
@@ -337,15 +341,13 @@ int main(int ac, char **av, char **env)
 		else
 			params->maximum_rights_file = 07777;
 		if (hash_get_int("DefaultRightsDirectory") > 0)
-		{
-			params->minimum_rights_directory = hash_get_int("DefaultRightsDirectory");
-			params->maximum_rights_directory = params->minimum_rights_directory;
-		}
+			params->default_rights_directory = hash_get_int("DefaultRightsDirectory");
+		else
+			params->default_rights_directory = 0755;
 		if (hash_get_int("DefaultRightsFile") > 0)
-		{
-			params->minimum_rights_file = hash_get_int("DefaultRightsFile");
-			params->maximum_rights_file = params->minimum_rights_file;
-		}
+			params->default_rights_file = hash_get_int("DefaultRightsFile");
+		else
+			params->default_rights_file = 0644;
 		if (hash_get_int("ForceRightsDirectory") > 0)
 		{
 			params->minimum_rights_directory = hash_get_int("ForceRightsDirectory");
@@ -387,11 +389,48 @@ int main(int ac, char **av, char **env)
 			}
 		}
 		ptr = hash_get("Shell");
-		av[0] = ptr;
 		if (ptr != NULL)
 		{
-			(void) execve(ptr, av, env);
-			perror("execute shell");
+			if (strcmp(ptr, av[0]) != 0)
+			{
+				av[0] = ptr;
+				if (is_command == 1)
+				{
+					size_t	len = 0;
+					char	**new_env;
+					char	*cmd, *envVar;
+					int		i;
+
+					for (i = 2; i < ac; i++)
+						len += strlen(av[i]);
+					cmd = malloc(len + ac + 1);
+					envVar = malloc(len + ac + 1 + 21);
+					cmd[0] = '\0';
+					for (i = 2; i < ac; i++)
+					{
+						if (i > 2)
+							strcat(cmd, " ");
+						strcat(cmd, av[i]);
+					}
+					av[2] = cmd;
+					av[3] = NULL;
+					strcpy(envVar, "SSH_ORIGINAL_COMMAND=");
+					strcat(envVar, cmd);
+					len = 0;
+					for (i = 0; env[i] != NULL; i++)
+						len++;
+					new_env = calloc(len + 2, sizeof(*new_env));
+					for (i = 0; i < len; i++)
+						new_env[i] = env[i];
+					new_env[len] = envVar;
+					(void) execve(av[0], av, new_env);
+				}
+				else
+					(void) execve(av[0], av, env);
+				perror("execute shell");
+			}
+			else
+				(void) fprintf(stderr, "You cannot specify MySecureShell has shell (in the MySecureShell configuration) !");
 		}
 		else
 			(void) fprintf(stderr, "Shell access is disabled !");

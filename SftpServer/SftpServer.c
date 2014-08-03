@@ -48,13 +48,12 @@ tGlobal *gl_var = NULL;
 
 static void end_sftp()
 {
-	if (gl_var)
+	if (gl_var != NULL)
 	{
 		if (cVersion != SSH2_ADMIN_VERSION)
 		{
 			CloseInfoForOpenFiles();
-			mylog_printf(MYLOG_CONNECTION, "[%s][%s]Quit.", gl_var->who->user,
-					gl_var->who->ip);
+			mylog_printf(MYLOG_CONNECTION, "[%s][%s]Quit.", gl_var->user, gl_var->ip);
 		}
 		mylog_close_and_free();
 		SftpWhoReleaseStruct(gl_var->who);
@@ -68,6 +67,9 @@ static void end_sftp()
 			free(gl_var->force_group);
 			gl_var->force_group = NULL;
 		}
+		free(gl_var->user);
+		free(gl_var->ip);
+		free(gl_var->home);
 		free(gl_var);
 		gl_var = NULL;
 		setCharset(NULL);
@@ -113,8 +115,7 @@ void DoInitUser()
 	t_info *pw;
 	int uid, gid;
 
-	mylog_printf(MYLOG_CONNECTION, "New client [%s] from [%s]",
-			gl_var->who->user, gl_var->who->ip);
+	mylog_printf(MYLOG_CONNECTION, "New client [%s] from [%s]", gl_var->user, gl_var->ip);
 	umask(000);
 #ifdef MSSEXT_FILE_HASHING
 	OpenSSL_add_all_digests();
@@ -127,7 +128,7 @@ void DoInitUser()
 		else
 			mylog_printf(MYLOG_WARNING,
 					"[%s][%s]Unable to force user: %s (user unknown)",
-					gl_var->who->user, gl_var->who->ip, gl_var->force_user);
+					gl_var->user, gl_var->ip, gl_var->force_user);
 	}
 	gid = getgid();
 	if (gl_var->force_group != NULL)
@@ -137,59 +138,58 @@ void DoInitUser()
 		else
 			mylog_printf(MYLOG_WARNING,
 					"[%s][%s]Unable to force group: %s (group unknown)",
-					gl_var->who->user, gl_var->who->ip, gl_var->force_group);
+					gl_var->user, gl_var->ip, gl_var->force_group);
 	}
 	if (HAS_BIT(gl_var->flagsGlobals, SFTPWHO_CREATE_HOME)
-			&& chdir(gl_var->who->home) == -1 && errno == ENOENT)
+			&& chdir(gl_var->home) == -1 && errno == ENOENT)
 	{
 		int mode = 0755;
 
 		mode |= gl_var->minimum_rights_directory;
 		mode &= gl_var->maximum_rights_directory;
-		if (mkdir(gl_var->who->home, mode) == -1)
+		if (mkdir(gl_var->home, mode) == -1)
 		{
 			mylog_printf(MYLOG_ERROR,
 					"[%s][%s]Couldn't create to home '%s' : %s",
-					gl_var->who->user, gl_var->who->ip, gl_var->who->home,
+					gl_var->user, gl_var->ip, gl_var->home,
 					strerror(errno));
 		}
-		else if (chown(gl_var->who->home, uid, gid) == -1)
+		else if (chown(gl_var->home, uid, gid) == -1)
 			mylog_printf(MYLOG_ERROR,
 					"[%s][%s]Couldn't chown the home '%s' : %s",
-					gl_var->who->user, gl_var->who->ip, gl_var->who->home,
+					gl_var->user, gl_var->ip, gl_var->home,
 					strerror(errno));
 	}
-	if (chdir(gl_var->who->home) == -1)
+	if (chdir(gl_var->home) == -1)
 		mylog_printf(MYLOG_ERROR, "[%s][%s]Couldn't go to home '%s' : %s",
-				gl_var->who->user, gl_var->who->ip, gl_var->who->home,
+				gl_var->user, gl_var->ip, gl_var->home,
 				strerror(errno));
 	if (HAS_BIT(gl_var->flagsGlobals, SFTPWHO_VIRTUAL_CHROOT))
 	{
 		gl_var->flagsGlobals &= ~SFTPWHO_STAY_AT_HOME;
-		FSInit(gl_var->who->home, "/");
+		FSInit(gl_var->home, "/");
 	}
 	else if (HAS_BIT(gl_var->flagsGlobals, SFTPWHO_STAY_AT_HOME))
-		FSInit(gl_var->who->home, NULL);
+		FSInit(gl_var->home, NULL);
 	else
-		FSInit(gl_var->who->home, NULL);
+		FSInit(gl_var->home, NULL);
 	if (gl_var->force_group != NULL)
 	{
-		mylog_printf(MYLOG_WARNING, "[%s][%s]Using force group: %s",
-				gl_var->who->user, gl_var->who->ip, gl_var->force_group);
+		mylog_printf(MYLOG_WARNING, "[%s][%s]Using force group: %s", gl_var->user, gl_var->ip, gl_var->force_group);
 		if (setgid(gid) == -1)
 			mylog_printf(MYLOG_WARNING,
 					"[%s][%s]Unable to force group: %s (%s)",
-					gl_var->who->user, gl_var->who->ip, gl_var->force_group,
+					gl_var->user, gl_var->ip, gl_var->force_group,
 					strerror(errno));
 	}
 	if (gl_var->force_user != NULL)
 	{
 		mylog_printf(MYLOG_WARNING, "[%s][%s]Using force user: %s",
-				gl_var->who->user, gl_var->who->ip, gl_var->force_user);
+				gl_var->user, gl_var->ip, gl_var->force_user);
 		if (setuid(uid) == -1)
 			mylog_printf(MYLOG_WARNING,
-					"[%s][%s]Unable to force user: %s (%s)", gl_var->who->user,
-					gl_var->who->ip, gl_var->force_user, strerror(errno));
+					"[%s][%s]Unable to force user: %s (%s)", gl_var->user,
+					gl_var->ip, gl_var->force_user, strerror(errno));
 	}
 	if (getuid() != geteuid()) //revoke root rights in user mode !
 	{
@@ -197,7 +197,7 @@ void DoInitUser()
 		{
 			mylog_printf(MYLOG_ERROR,
 					"[%s][%s]Couldn't revoke root rights : %s",
-					gl_var->who->user, gl_var->who->ip, strerror(errno));
+					gl_var->user, gl_var->ip, strerror(errno));
 			exit(255);
 		}
 	}
@@ -214,7 +214,7 @@ int CheckRulesAboutMaxFiles()
 		filewrite = 0;
 		fileall = 0;
 		for (i = 0; i < SFTPWHO_MAXCLIENT; i++)
-			if (strcmp(who[i].user, gl_var->who->user) == 0)
+			if (strcmp(who[i].user, gl_var->user) == 0)
 			{
 				switch (who[i].status & SFTPWHO_STATUS_MASK)
 				{
@@ -244,29 +244,20 @@ void UpdateInfoForOpenFiles()
 	lastFile = HandleGetLastOpen(HANDLE_FILE);
 	if (lastFile != NULL)
 	{
-		(void) snprintf(gl_var->who->file, sizeof(gl_var->who->file), "%s",
-				lastFile->path);
+		(void) snprintf(gl_var->who->file, sizeof(gl_var->who->file), "%s", lastFile->path);
 		if (lastFile->flags & O_WRONLY)
-		{
-			gl_var->who->status = (gl_var->who->status & SFTPWHO_ARGS_MASK)
-					| SFTPWHO_PUT;
-		}
+			gl_var->who->status = (gl_var->who->status & SFTPWHO_ARGS_MASK) | SFTPWHO_PUT;
 		else
-		{
-			gl_var->who->status = (gl_var->who->status & SFTPWHO_ARGS_MASK)
-					| SFTPWHO_GET;
-		}
+			gl_var->who->status = (gl_var->who->status & SFTPWHO_ARGS_MASK) | SFTPWHO_GET;
 		if (lastFile->fileSize > 0)
-			gl_var->who->download_pos = lastFile->filePos * 100
-					/ lastFile->fileSize;
+			gl_var->who->download_pos = lastFile->filePos * 100 / lastFile->fileSize;
 		else
 			gl_var->who->download_pos = 0;
 	}
 	else
 	{
 		gl_var->who->file[0] = '\0';
-		gl_var->who->status = (gl_var->who->status & SFTPWHO_ARGS_MASK)
-				| SFTPWHO_IDLE;
+		gl_var->who->status = (gl_var->who->status & SFTPWHO_ARGS_MASK) | SFTPWHO_IDLE;
 	}
 }
 
@@ -285,13 +276,13 @@ void CloseInfoForOpenFiles()
 		{
 			mylog_printf(MYLOG_TRANSFERT,
 					"[%s][%s]Interrupt upload into file '%s'",
-					gl_var->who->user, gl_var->who->ip, hdl->path);
+					gl_var->user, gl_var->ip, hdl->path);
 		}
 		else
 		{
 			mylog_printf(MYLOG_TRANSFERT,
 					"[%s][%s]Interrupt download file '%s' : %i%%",
-					gl_var->who->user, gl_var->who->ip, hdl->path, pourcentage);
+					gl_var->user, gl_var->ip, hdl->path, pourcentage);
 		}
 		HandleClose(hdl->id);
 	}

@@ -25,7 +25,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include "../Core/FileSpec.h"
+#include "../FileSpec.h"
 #include "Access.h"
 #include "FileSystem.h"
 #include "Global.h"
@@ -64,7 +64,7 @@ tFSPath *FSResolvePath(const char *path1, const char *path2, int permitDotDirect
 			newPath->exposedPath = strdup(path1);
 		else
 			newPath->exposedPath = FSBuildPath(_home->realPath, path1);
-		newPath->realPath = newPath->exposedPath;
+		newPath->realPath = strdup(newPath->exposedPath);
 		FSResolvRelativePath(newPath->exposedPath, permitDotDirectory);
 	}
 	else
@@ -73,6 +73,7 @@ tFSPath *FSResolvePath(const char *path1, const char *path2, int permitDotDirect
 			newPath->exposedPath = strdup(path1);
 		else
 			newPath->exposedPath = FSBuildPath(_home->exposedPath, path1);
+		FSResolvRelativePath(newPath->exposedPath, permitDotDirectory);
 		newPath->realPath = FSBuildPath(_home->realPath, newPath->exposedPath);
 	}
 	if (path2 != NULL)
@@ -89,11 +90,13 @@ tFSPath *FSResolvePath(const char *path1, const char *path2, int permitDotDirect
 			free(oldPath);
 		}
 		else
-			newPath->realPath = newPath->exposedPath;
+		{
+			free(newPath->realPath);
+			newPath->realPath = strdup(newPath->exposedPath);
+		}
 	}
 	FSResolvRelativePath(newPath->exposedPath, permitDotDirectory);
-	if (_home->exposedPath != NULL)
-		FSResolvRelativePath(newPath->realPath, permitDotDirectory);
+	FSResolvRelativePath(newPath->realPath, permitDotDirectory);
 
 	//Strip directory and suffix from exposedPath
 	len = strlen(newPath->exposedPath);
@@ -124,7 +127,7 @@ void FSResolvRelativePath(char *path, int permitDotDirectory)
 	{
 		beg = len - strlen(ptr);
 		end = beg + 2;
-		if ((path[beg - 1] == '/' || beg == 0) &&
+		if ((beg == 0 || path[beg - 1] == '/') &&
 				(path[end] == '\0' || path[end] == '/'))
 		{
 			if (path[end] == '\0' && permitDotDirectory == 1)
@@ -197,8 +200,7 @@ char *FSBuildPath(const char *path1, const char *path2)
 void FSDestroyPath(tFSPath *path)
 {
 	free(path->realPath);
-	if (path->realPath != path->exposedPath)
-		free(path->exposedPath);
+	free(path->exposedPath);
 	free(path->path);
 	free(path);
 }
@@ -265,14 +267,14 @@ void FSChangeRights(struct stat *st)
 		st->st_gid = gl_var->current_group;
 	if (HAS_BIT(gl_var->flagsGlobals, SFTPWHO_FAKE_MODE))
 	{
-		st->st_mode = (st->st_mode & ~0x1fff) | gl_var->who->mode;
+		st->st_mode = (st->st_mode & ~0x1fff) | gl_var->dir_mode;
 		if (HAS_BIT(st->st_mode, S_IFDIR))
 		{
-			if (HAS_BIT(gl_var->who->mode, S_IRUSR))
+			if (HAS_BIT(gl_var->dir_mode, S_IRUSR))
 				st->st_mode |= S_IXUSR;
-			if (HAS_BIT(gl_var->who->mode, S_IRGRP))
+			if (HAS_BIT(gl_var->dir_mode, S_IRGRP))
 				st->st_mode |= S_IXGRP;
-			if (HAS_BIT(gl_var->who->mode, S_IROTH))
+			if (HAS_BIT(gl_var->dir_mode, S_IROTH))
 				st->st_mode |= S_IXOTH;
 		}
 	}
@@ -337,11 +339,13 @@ int FSOpenFile(const char *file, int *fileHandle, int flags, mode_t mode, struct
 	return returnValue;
 }
 
-int FSOpenDir(const char *dir, DIR **dirHandle)
+int FSOpenDir(char *dir, DIR **dirHandle)
 {
 	tFSPath *path;
 	int returnValue;
 
+	if (_home->exposedPath != NULL)
+		FSResolvRelativePath(dir, 0);
 	path = FSResolvePath(dir, NULL, 0);
 	DEBUG((MYLOG_DEBUG, "[FSOpenDir]dir:'%s' realPath:'%s' exposedPath:'%s' path:'%s'", dir, path->realPath, path->exposedPath, path->path));
 	if (FSCheckSecurity(path->realPath, path->path) != SSH2_FX_OK)
@@ -375,8 +379,8 @@ tFSPath *FSReadDir(const char *readDir, DIR *dirHandle, struct stat *st)
 			{
 				if (lstat(path->realPath, st) < 0)
 				{
-					FSDestroyPath(path);
 					DEBUG((MYLOG_DEBUG, "[FSReadDir]ERROR lstat(%s): %s", path->realPath, strerror(errno)));
+					FSDestroyPath(path);
 					continue;
 				}
 			}
@@ -384,15 +388,16 @@ tFSPath *FSReadDir(const char *readDir, DIR *dirHandle, struct stat *st)
 			{
 				if (stat(path->realPath, st) < 0)
 				{
-					FSDestroyPath(path);
 					DEBUG((MYLOG_DEBUG, "[FSReadDir]ERROR stat(%s): %s", path->realPath, strerror(errno)));
+					FSDestroyPath(path);
 					continue;
 				}
 			}
 			FSChangeRights(st);
 			DEBUG((MYLOG_DEBUG, "[FSReadDir] ACCEPTE '%s' (%s) => '%s' (%s)", path->exposedPath, dp->d_name, path->realPath, path->path));
 			return path;
-		} DEBUG((MYLOG_DEBUG, "[FSReadDir] REFUSED '%s' (%s) => '%s' (%s)", path->exposedPath, dp->d_name, path->realPath, path->path));
+		}
+		DEBUG((MYLOG_DEBUG, "[FSReadDir] REFUSED '%s' (%s) => '%s' (%s)", path->exposedPath, dp->d_name, path->realPath, path->path));
 		FSDestroyPath(path);
 	}
 	return NULL;
@@ -420,31 +425,6 @@ int FSStat(const char *file, int doLStat, struct stat *st)
 	else
 		FSChangeRights(st);
 	return SSH2_FX_OK;
-}
-
-int FSReadLink(const char *file, char *readLink, int sizeofReadLink)
-{
-	tFSPath *path;
-	int	len, returnValue;
-
-	path = FSResolvePath(file, NULL, 0);
-	DEBUG((MYLOG_DEBUG, "[FSReadLink]realPath:'%s' exposedPath:'%s' path:'%s'", path->realPath, path->exposedPath, path->path));
-	if (FSCheckSecurity(path->realPath, path->path) != SSH2_FX_OK)
-	{
-		FSDestroyPath(path);
-		return SSH2_FX_PERMISSION_DENIED;
-	}
-	len = readlink(path->realPath, readLink, sizeofReadLink);
-	DEBUG((MYLOG_DEBUG, "[FSReadLink]realPath:'%s' sizeofReadLink:%i => %i", path->realPath, sizeofReadLink, len));
-	if (len == -1)
-		returnValue = errnoToPortable(errno);
-	else
-	{
-		readLink[len] = '\0';
-		returnValue = SSH2_FX_OK;
-	}
-	FSDestroyPath(path);
-	return returnValue;
 }
 
 int FSUnlink(const char *file)
@@ -550,12 +530,49 @@ int FSSymlink(const char *oldFile, const char *newFile)
 		FSDestroyPath(newPath);
 		return SSH2_FX_PERMISSION_DENIED;
 	}
-	DEBUG((MYLOG_DEBUG, "[FSSymlink]'%s' -> '%s'", oldFile, newPath->realPath));
-	if (symlink(oldFile, newPath->realPath) == -1)
+	DEBUG((MYLOG_DEBUG, "[FSSymlink]'%s' -> '%s'", oldPath->realPath, newPath->realPath));
+	if (symlink(oldPath->realPath, newPath->realPath) == -1)
 		returnValue = errnoToPortable(errno);
 	else
 		returnValue = SSH2_FX_OK;
 	FSDestroyPath(oldPath);
 	FSDestroyPath(newPath);
+	return returnValue;
+}
+
+int FSReadLink(const char *file, char *readLink, int sizeofReadLink)
+{
+	tFSPath *path;
+	int	len, returnValue;
+
+	path = FSResolvePath(file, NULL, 0);
+	DEBUG((MYLOG_DEBUG, "[FSReadLink]realPath:'%s' exposedPath:'%s' path:'%s'", path->realPath, path->exposedPath, path->path));
+	if (FSCheckSecurity(path->realPath, path->path) != SSH2_FX_OK)
+	{
+		FSDestroyPath(path);
+		return SSH2_FX_PERMISSION_DENIED;
+	}
+	len = readlink(path->realPath, readLink, sizeofReadLink);
+	DEBUG((MYLOG_DEBUG, "[FSReadLink]realPath:'%s' sizeofReadLink:%i => %i", path->realPath, sizeofReadLink, len));
+
+	if (len == -1)
+		returnValue = errnoToPortable(errno);
+	else
+	{
+		readLink[len] = '\0';
+		returnValue = SSH2_FX_OK;
+		if (_home->exposedPath != NULL)
+		{
+			size_t	lenRP = strlen(_home->realPath);
+
+			if (lenRP < len)
+				len -= lenRP;
+			else
+				len = 0;
+			memmove(readLink, readLink + lenRP, len);
+			readLink[len] = '\0';
+		}
+	}
+	FSDestroyPath(path);
 	return returnValue;
 }

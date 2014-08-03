@@ -217,8 +217,7 @@ void DoOpenDir()
 		}
 		else
 		{
-			(void) snprintf(gl_var->who->path, sizeof(gl_var->who->path), "%s",
-					path);
+			(void) snprintf(gl_var->who->path, sizeof(gl_var->who->path), "%s", path);
 			SendHandle(bOut, id, hdl->id);
 			status = SSH2_FX_OK;
 		}
@@ -305,14 +304,16 @@ void DoClose()
 			pourcentage = 0;
 		if (FILE_IS_UPLOAD(hdl->flags))
 		{
-			mylog_printf(MYLOG_TRANSFERT, "[%s][%s]End upload into file '%s'",
-					gl_var->who->user, gl_var->who->ip, hdl->path);
+			off_t	fileSize = lseek(hdl->fd, 0, SEEK_END);
+
+			mylog_printf(MYLOG_TRANSFERT, "[%s][%s]End upload into file '%s' (%li bytes)",
+					gl_var->user, gl_var->ip, hdl->path, fileSize);
 		}
 		else
 		{
 			mylog_printf(MYLOG_TRANSFERT,
-					"[%s][%s]End download file '%s' : %i%%", gl_var->who->user,
-					gl_var->who->ip, hdl->path, pourcentage);
+					"[%s][%s]End download file '%s' (%li bytes) : %i%%", gl_var->user,
+					gl_var->ip, hdl->path, hdl->filePos, pourcentage);
 			BufferSetFastClean(bIn, 0);
 			BufferSetFastClean(bOut, 0);
 		}
@@ -342,7 +343,7 @@ void DoOpen()
 	pflags = BufferGetInt32(bIn);
 	a = GetAttributes(bIn);
 	flags |= FlagsFromPortable(pflags, &textMode);
-	mode = (a->flags & SSH2_FILEXFER_ATTR_PERMISSIONS) ? a->perm : 0644;
+	mode = (a->flags & SSH2_FILEXFER_ATTR_PERMISSIONS) ? a->perm : gl_var->default_rights_file;
 	mode |= gl_var->minimum_rights_file;
 	mode &= gl_var->maximum_rights_file;
 	if ((HAS_BIT(gl_var->flagsDisable, SFTP_DISABLE_OVERWRITE) && HAS_BIT(flags, O_APPEND))
@@ -364,15 +365,11 @@ void DoOpen()
 		{
 			if (FILE_IS_UPLOAD(flags))
 			{
-				mylog_printf(MYLOG_TRANSFERT,
-						"[%s][%s]Start upload into file '%s'",
-						gl_var->who->user, gl_var->who->ip, path);
+				mylog_printf(MYLOG_TRANSFERT, "[%s][%s]Start upload into file '%s'", gl_var->user, gl_var->ip, path);
 			}
 			else
 			{
-				mylog_printf(MYLOG_TRANSFERT,
-						"[%s][%s]Start download file '%s'", gl_var->who->user,
-						gl_var->who->ip, path);
+				mylog_printf(MYLOG_TRANSFERT, "[%s][%s]Start download file '%s'", gl_var->user, gl_var->ip, path);
 				BufferSetFastClean(bIn, 1);
 				BufferSetFastClean(bOut, 1);
 			}
@@ -617,12 +614,12 @@ void DoSetStat(int usePath)
 	}
 	else if (resolvedPath != NULL)
 	{
-		if (a->flags & SSH2_FILEXFER_ATTR_SIZE)
+		if (HAS_BIT(a->flags, SSH2_FILEXFER_ATTR_SIZE))
 		{
 			if (truncate(resolvedPath->realPath, a->size) == -1)
 				status = errnoToPortable(errno);
 		}
-		if (a->flags & SSH2_FILEXFER_ATTR_PERMISSIONS
+		if (HAS_BIT(a->flags, SSH2_FILEXFER_ATTR_PERMISSIONS)
 				&& HAS_BIT(gl_var->flagsGlobals, SFTPWHO_CAN_CHG_RIGHTS))
 		{
 			if (stat(resolvedPath->realPath, &stats) == 0
@@ -639,7 +636,7 @@ void DoSetStat(int usePath)
 			if (chmod(resolvedPath->realPath, a->perm) == -1)
 				status = errnoToPortable(errno);
 		}
-		if (a->flags & SSH2_FILEXFER_ATTR_ACMODTIME
+		if (HAS_BIT(a->flags, SSH2_FILEXFER_ATTR_ACMODTIME)
 				&& HAS_BIT(gl_var->flagsGlobals, SFTPWHO_CAN_CHG_TIME))
 		{
 			if (utimes(resolvedPath->realPath, AttributesToTimeval(a)) == -1)
@@ -676,7 +673,7 @@ void DoRemove()
 	{
 		status = FSUnlink(path);
 		mylog_printf(MYLOG_WARNING, "[%s][%s]Try to remove file '%s' : %s",
-				gl_var->who->user, gl_var->who->ip, path,
+				gl_var->user, gl_var->ip, path,
 				(status != SSH2_FX_OK ? strerror(errno) : "success"));
 	}
 	DEBUG((MYLOG_DEBUG, "[DoRemove]path:'%s' -> '%i'", path, status));
@@ -694,7 +691,7 @@ void DoMkDir()
 	id = BufferGetInt32(bIn);
 	path = convertFromUtf8(BufferGetString(bIn), 1);
 	a = GetAttributes(bIn);
-	mode = (a->flags & SSH2_FILEXFER_ATTR_PERMISSIONS) ? a->perm : 0755;
+	mode = (a->flags & SSH2_FILEXFER_ATTR_PERMISSIONS) ? a->perm : gl_var->default_rights_directory;
 	mode |= gl_var->minimum_rights_directory;
 	mode &= gl_var->maximum_rights_directory;
 	if (HAS_BIT(gl_var->flagsDisable, SFTP_DISABLE_MAKE_DIR))
@@ -706,8 +703,8 @@ void DoMkDir()
 	{
 		status = FSMkdir(path, mode);
 		mylog_printf(MYLOG_WARNING,
-				"[%s][%s]Try to create directory '%s' : %s", gl_var->who->user,
-				gl_var->who->ip, path, (status != SSH2_FX_OK ? strerror(errno)
+				"[%s][%s]Try to create directory '%s' : %s", gl_var->user,
+				gl_var->ip, path, (status != SSH2_FX_OK ? strerror(errno)
 						: "success"));
 	}
 	SendStatus(bOut, id, status);
@@ -733,7 +730,7 @@ void DoRmDir()
 		status = FSRmdir(path);
 		mylog_printf(MYLOG_WARNING,
 					"[%s][%s]Try to remove directory '%s' : %s",
-					gl_var->who->user, gl_var->who->ip, path, (status
+					gl_var->user, gl_var->ip, path, (status
 							!= SSH2_FX_OK ? strerror(errno) : "success"));
 	}
 	SendStatus(bOut, id, status);
@@ -763,8 +760,8 @@ void DoRename()
 
 		status = FSRename(oldPath, newPath, overwriteDestination);
 		mylog_printf(MYLOG_WARNING,
-				"[%s][%s]Try to rename '%s' -> '%s' : %s", gl_var->who->user,
-				gl_var->who->ip, oldPath, newPath,
+				"[%s][%s]Try to rename '%s' -> '%s' : %s", gl_var->user,
+				gl_var->ip, oldPath, newPath,
 				(status != SSH2_FX_OK ? strerror(errno) : "success"));
 	}
 	DEBUG((MYLOG_DEBUG, "[DoRename]oldPath:'%s' newPath:'%s' -> '%i'", oldPath, newPath, status));
@@ -850,8 +847,7 @@ void DoSFTPProtocol()
 	msgLen = BufferGetInt32(bIn);
 	if (msgLen > (256 * 1024)) //message too long
 	{
-		mylog_printf(MYLOG_ERROR, "[%s][%s]Error: message is too long (%i)",
-				gl_var->who->user, gl_var->who->ip, msgLen);
+		mylog_printf(MYLOG_ERROR, "[%s][%s]Error: message is too long (%i)", gl_var->user, gl_var->ip, msgLen);
 		exit(1);
 	}
 	if ((bIn->length - bIn->read) < msgLen) //message not complete
@@ -1086,8 +1082,7 @@ int SftpMain(tGlobal *params, int sftpProtocol)
 			gl_var->who->time_total = time(0) - gl_var->who->time_begin;
 			if (gl_var->who->time_maxidle > 0 && gl_var->who->time_idle >= gl_var->who->time_maxidle)
 			{
-				mylog_printf(MYLOG_CONNECTION, "[%s][%s]Connection time out",
-						gl_var->who->user, gl_var->who->ip);
+				mylog_printf(MYLOG_CONNECTION, "[%s][%s]Connection time out", gl_var->user, gl_var->ip);
 				exit(0);
 			}
 			if (gl_var->who->time_idle > 2)
@@ -1117,9 +1112,7 @@ int SftpMain(tGlobal *params, int sftpProtocol)
 				gl_var->who->time_maxlife--;
 				if (gl_var->who->time_maxlife == 0)
 				{
-					mylog_printf(MYLOG_CONNECTION,
-							"[%s][%s]Connection max life !", gl_var->who->user,
-							gl_var->who->ip);
+					mylog_printf(MYLOG_CONNECTION, "[%s][%s]Connection max life !", gl_var->user, gl_var->ip);
 					exit(0);
 				}
 			}

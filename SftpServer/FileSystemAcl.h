@@ -28,15 +28,15 @@
 #define FS_ENUM_GROUP_OBJ	4
 #define FS_ENUM_OTHER		5
 
-#if(HAVE_LIBACL)
+#if(MSS_ACL)
 
 int FSEnumAcl(const char *file, int resolvePath, void (*callback)(void *data, int type, u_int32_t id, u_int32_t mode), void *data, u_int32_t *nbEntries);
 
 #else
 
-#define FSEnumAcl(_X, _Y, _Z)	SSH2_FX_OK
+#define FSEnumAcl(_A, _B, _C, _D, _E)	SSH2_FX_OK
 
-#endif //HAVE_LIBACL
+#endif //MSS_ACL
 
 
 #endif /* _FILESYSTEMACL_H_ */

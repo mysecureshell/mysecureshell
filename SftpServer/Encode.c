@@ -362,11 +362,11 @@ void EncodeAttributes(tBuffer *b, const tAttributes *a, /*@null@*/ const char *f
 	}
 	if (HAS_BIT(a->flags, SSH2_FILEXFER_ATTR_ACL))
 	{
-#if(HAVE_LIBACL)
+#if(MSS_ACL)
 		if (file == NULL)
 #endif
 			BufferPutString(b, ""); //unsupported feature
-#if(HAVE_LIBACL)
+#if(MSS_ACL)
 		else
 			EncodeACL(b, file);
 #endif
