@@ -45,7 +45,8 @@ templates_path = ['_templates']
 source_suffix = '.rst'
 
 # The encoding of source files.
-source_encoding = 'utf-8-sig'
+#source_encoding = 'utf-8-sig'
+source_encoding = 'utf-8'
 
 # The master toctree document.
 master_doc = 'index'
@@ -208,12 +209,12 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
   ('index', 'MySecureShell.tex', 'MySecureShell Documentation',
-   'Pierre Mavro \\& Sébastien Tardif', 'manual'),
+   'Pierre Mavro \\& Sebastien Tardif', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
 # the title page.
-#latex_logo = None
+latex_logo = "images/logo_large.png"
 
 # For "manual" documents, if this is true, then toplevel headings are parts,
 # not chapters.
@@ -238,7 +239,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'mysecureshell', 'MySecureShell Documentation',
-     ['Pierre Mavro & Sébastien Tardif'], 1)
+     ['Pierre Mavro & Sebastien Tardif'], 1)
 ]
 
 # If true, show URL addresses after external links.
