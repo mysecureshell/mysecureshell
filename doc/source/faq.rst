@@ -1,6 +1,8 @@
 FAQ
 ===
 
+.. contents:: Topics
+
 What can I do if I have a problem?
 ----------------------------------
 

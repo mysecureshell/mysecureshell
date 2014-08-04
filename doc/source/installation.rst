@@ -7,7 +7,7 @@ Choose your operating system or select from sources if not listed:
 
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 1
     :glob:
     :numbered:
 

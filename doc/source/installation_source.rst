@@ -1,8 +1,6 @@
 From sources installation
 =========================
 
-.. contents:: Topics
-
 .. highlight:: bash
 
 This method is generally used because you need need to build the latest version from VCS repository, need to make pull request for patching purpose or because it is not packaged on your Operating System.

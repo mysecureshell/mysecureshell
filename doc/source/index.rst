@@ -6,6 +6,8 @@
 Welcome to MySecureShell's documentation!
 =========================================
 
+.. contents:: Topics
+
 .. toctree::
     :maxdepth: 1
     :glob:
