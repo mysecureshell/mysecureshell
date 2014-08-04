@@ -3,6 +3,8 @@ From sources installation
 
 .. highlight:: bash
 
+.. _installation_source:
+
 This method is generally used because you need need to build the latest version from VCS repository, need to make pull request for patching purpose or because it is not packaged on your Operating System.
 
 The first thing to do is to get the sources and you will need git for that::

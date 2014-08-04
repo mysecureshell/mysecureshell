@@ -32,6 +32,7 @@ Is MySecureShell really add enhanced features to OpenSSH sftp? Yes! Here is a sa
 * Advanced logging information
 * ACL can be made with IP/Usernam/Groups/VirtualHost/...
 * Confined environments (chroot, which is also available in the latests version of OpenSSH)
+* Restrict users to have sftp only (shell access is disabled by default)
 * And more...
 
 Which Operating Systems are compatible with MySeucreShell?

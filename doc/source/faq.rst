@@ -100,3 +100,9 @@ If you only want to allow this user using SSH key, you can disable it's password
 .. note::
     
     Note that it will also disable local password account
+
+How to disable MySecureShell logs?
+----------------------------------
+
+MySecureShell doesn't disable logs by default. However, you can do it with ``--with-logfile`` option when you're :ref:`compiling the from sources <installation_source>`:
+
