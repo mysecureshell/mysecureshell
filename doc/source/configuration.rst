@@ -26,7 +26,7 @@ Child tags
 ----------
 
 ====================== ================= ===============
-Tags                   Different values  Summary
+Tags                   Values            Summary
 ====================== ================= ===============
 ByPassGlobalDownload   false/true        Bypassing GlobalDownload value
 ByPassGlobalUpload     false/true        Bypassing GlobalUpload value
@@ -87,10 +87,10 @@ VirtualChroot          false/true        Chroot users in their Home directory
 
 Deprecated tags
 ---------------
-*Tags doesn't work anymore.*
+*Those tags are deprecated and don't work anymore!*
 
 ====================== ================= ===============
-Tags                   Different values  Summary
+Tags                   Values            Summary
 ====================== ================= ===============
 GMTTime                <+/-><number>     Adjusts the clock of the log
 HideFiles              <regex>           Hide files / directories that you want using a regular expression (regex)
