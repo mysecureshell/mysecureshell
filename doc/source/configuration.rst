@@ -83,9 +83,17 @@ ShowLinksAsLinks       false/true        See symbolic links as true files or fol
 StayAtHome             false/true        Restrict user to stay in its home directory and subdirectories
 Upload                 x(units)          Upload bandwidth by connected user
 VirtualChroot          false/true        Chroot users in their Home directory
-GMTTime                <+/-><number>     Adjusts the clock of the log *(deprecated)*
-HideFiles              <regex>           Hide files / directories that you want using a regular expression (regex) *(deprecated)*
-PathAllowFilter        <regex>           Restricted access to files / directories using regular expression (regex) *(deprecated)*
-PathDenyFilter         <path>            Do not authorize files/directories which match with the regular expression *(deprecated)*
 ====================== ================= ===============
 
+Deprecated tags
+---------------
+*Tags doesn't work anymore.*
+
+====================== ================= ===============
+Tags                   Different values  Summary
+====================== ================= ===============
+GMTTime                <+/-><number>     Adjusts the clock of the log
+HideFiles              <regex>           Hide files / directories that you want using a regular expression (regex)
+PathAllowFilter        <regex>           Restricted access to files / directories using regular expression (regex)
+PathDenyFilter         <path>            Do not authorize files/directories which match with the regular expression
+====================== ================= ===============
