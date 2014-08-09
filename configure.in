@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.63)
-AC_INIT([MySecureShell],[1.34a1],[teka2nerdman@users.sourceforge.net])
+AC_INIT([MySecureShell],[1.34a2],[teka2nerdman@users.sourceforge.net])
 AC_CONFIG_HEADER(config.h)
 
 # Checks for programs.
@@ -138,7 +138,7 @@ AC_CHECK_FUNCS([openlog syslog closelog vsyslog])
 AC_CHECK_FUNCS([connect gethostbyaddr gethostbyname inet_ntoa], , AC_CHECK_LIB(nsl, gethostbyaddr))
 AC_CHECK_FUNCS([iconv_open iconv_close iconv], , AC_CHECK_LIB(iconv, libiconv_open))
 AC_CHECK_LIB(acl, acl_get_entry)
-AC_CHECK_LIB(crypto, OpenSSL_add_all_digests)
+AC_CHECK_LIB(gnutls, gnutls_hash_init)
 
 #Own defines
 test "$prefix" = "NONE" && prefix=
@@ -156,7 +156,7 @@ MSSEXT_DISK=$ac_cv_header_sys_statvfs_h
 MSSEXT_DISK_SSH=$ac_cv_header_sys_statvfs_h
 test "$MSSEXT_DISK" = "no" && MSSEXT_DISK=$ac_cv_header_sys_statfs_h
 test "$MSSEXT_DISK" = "no" && MSSEXT_DISK=$ac_cv_func_statfs
-MSSEXT_FILE_HASHING=$ac_cv_lib_crypto_OpenSSL_add_all_digests
+MSSEXT_FILE_HASHING=$ac_cv_lib_gnutls_gnutls_hash_init
 test "$MSS_DEBUG" = "1" && MSS_DEBUG="-DDODEBUG -g3"
 test "$MSS_DEBUG" = "2" && MSS_DEBUG="-g3"
 test "$MSS_DEBUG" = "no" && MSS_DEBUG=""

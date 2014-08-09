@@ -135,15 +135,15 @@ void DoExtDiskSpaceOpenSSH_Name(tBuffer *bIn, tBuffer *bOut, u_int32_t id)
 }
 #endif //MSSEXT_DISKUSAGE_SSH
 #ifdef MSSEXT_FILE_HASHING
-#include <openssl/evp.h>
+#include <gnutls/gnutls.h>
+#include <gnutls/crypto.h>
 
 static void DoExtFileHashing_FD(tBuffer *bIn, tBuffer *bOut, u_int32_t id, int fd)
 {
-	const EVP_MD *md;
+	gnutls_digest_algorithm_t gnuTlsAlgo = GNUTLS_DIG_UNKNOWN;
 	u_int64_t offset, length;
 	u_int32_t blockSize;
 	char *algo;
-
 	algo = BufferGetString(bIn);
 	offset = BufferGetInt64(bIn);
 	length = BufferGetInt64(bIn);
@@ -176,37 +176,53 @@ static void DoExtFileHashing_FD(tBuffer *bIn, tBuffer *bOut, u_int32_t id, int f
 		blockSize = length;
 	DEBUG((MYLOG_DEBUG, "[DoExtFileHashing_FD]Algo:%s Fd:%i Offset:%llu Length:%llu BlockSize:%i",
 					algo, fd, offset, length, blockSize));
-	if ((md = EVP_get_digestbyname(algo)) != NULL)
+	if (strcasecmp("md2", algo) == 0)
+		gnuTlsAlgo = GNUTLS_DIG_MD2;
+	else if (strcasecmp("md5", algo) == 0)
+		gnuTlsAlgo = GNUTLS_DIG_MD5;
+	else if (strcasecmp("sha1", algo) == 0)
+		gnuTlsAlgo = GNUTLS_DIG_SHA1;
+	else if (strcasecmp("sha224", algo) == 0)
+		gnuTlsAlgo = GNUTLS_DIG_SHA224;
+	else if (strcasecmp("sha256", algo) == 0)
+		gnuTlsAlgo = GNUTLS_DIG_SHA256;
+	else if (strcasecmp("sha384", algo) == 0)
+		gnuTlsAlgo = GNUTLS_DIG_SHA384;
+	else if (strcasecmp("sha512", algo) == 0)
+		gnuTlsAlgo = GNUTLS_DIG_SHA512;
+	if (gnuTlsAlgo != GNUTLS_DIG_UNKNOWN)
 	{
-		unsigned char md_value[EVP_MAX_MD_SIZE];
-		EVP_MD_CTX mdctx;
-		u_int32_t md_len;
+		gnutls_hash_hd_t dig;
 		tBuffer *b;
+		size_t keySize = gnutls_hash_get_len(gnuTlsAlgo);
+		char *gnuKey;
 		char data[SSH2_READ_HASH];
 		int inError = 0;
+		int gnulTlsError;
 
 		b = BufferNew();
 		BufferPutInt8FAST(b, SSH2_FXP_EXTENDED_REPLY);
 		BufferPutInt32(b, id);
 		BufferPutString(b, algo);
-		EVP_MD_CTX_init(&mdctx);
-		while (length > 0)
+		gnuKey = calloc(1, keySize);
+		if (gnuKey == NULL)
+			goto endOfFileHashing;
+		if ((gnulTlsError = gnutls_hash_init(&dig, gnuTlsAlgo)) == 0)
 		{
-			length = (length > (u_int64_t) blockSize) ? length
-					- (u_int64_t) blockSize : 0;
-			if (EVP_DigestInit_ex(&mdctx, md, NULL) == 1)
+			while (length > 0)
 			{
 				u_int32_t r, off, len;
 
+				length = (length > (u_int64_t) blockSize) ? length - (u_int64_t) blockSize : 0;
 				off = blockSize;
 				len = sizeof(data);
 				DEBUG((MYLOG_DEBUG, "[DoExtFileHashing_FD]Read:%i Rest:%llu", len, length));
 				while ((r = read(fd, data, len)) > 0)
 				{
 					DEBUG((MYLOG_DEBUG, "[DoExtFileHashing_FD]Compute block (%u/%u %u)", len, r, off));
-					if (EVP_DigestUpdate(&mdctx, data, r) == 0)
+					if ((gnulTlsError = gnutls_hash(dig, data, r)) != 0)
 					{
-						DEBUG((MYLOG_DEBUG, "[DoExtFileHashing_FD]Error EVP_DigestUpdate"));
+						DEBUG((MYLOG_DEBUG, "[DoExtFileHashing_FD]Error gnutls_hmac [error: %i]", gnulTlsError));
 						inError = 1;
 						break;
 					}
@@ -216,33 +232,25 @@ static void DoExtFileHashing_FD(tBuffer *bIn, tBuffer *bOut, u_int32_t id, int f
 					if (off == 0)
 						break;
 				}
-				if (EVP_DigestFinal_ex(&mdctx, md_value, &md_len) == 0)
-				{
-					DEBUG((MYLOG_DEBUG, "[DoExtFileHashing_FD]Error EVP_DigestFinal_ex"));
-					inError = 1;
-				}
-				if (inError == 1)
-				{
-					SendStatus(bOut, id, SSH2_FX_FAILURE);
-					break;
-				}
-				else
-				{
-					BufferPutRawData(b, md_value, md_len);
-					DEBUG((MYLOG_DEBUG, "[Hash: %X%X%X ...", md_value[0], md_value[1], md_value[2]));
-				}
-			}
-			else
-			{
-				SendStatus(bOut, id, SSH2_FX_FAILURE);
-				DEBUG((MYLOG_DEBUG, "[DoExtFileHashing_FD]Error EVP_DigestInit_ex"));
-				break;
 			}
 		}
+		else
+		{
+			DEBUG((MYLOG_DEBUG, "[DoExtFileHashing_FD]Error gnutls_hash_init [keySize: %li] [error: %i]", keySize, gnulTlsError));
+			inError = 1;
+		}
 		if (inError == 0)
+		{
+			DEBUG((MYLOG_DEBUG, "[DoExtFileHashing_FD]Compute key... [keySize: %li][keyPointer: %p]", keySize, gnuKey));
+			gnutls_hash_deinit(dig, gnuKey);
+			DEBUG((MYLOG_DEBUG, "[DoExtFileHashing_FD]Hash: %X%X%X ...", gnuKey[0], gnuKey[1], gnuKey[2]));
+			BufferPutRawData(b, gnuKey, keySize);
 			BufferPutPacket(bOut, b);
+		}
+		else
+			SendStatus(bOut, id, SSH2_FX_FAILURE);
 		BufferDelete(b);
-		(void) EVP_MD_CTX_cleanup(&mdctx);
+		free(gnuKey);
 	}
 	else
 	{
