@@ -101,8 +101,16 @@ If you only want to allow this user using SSH key, you can disable it's password
     
     Note that it will also disable local password account
 
-How to disable MySecureShell logs?
-----------------------------------
+How to use another authentication system?
+-----------------------------------------
 
-MySecureShell doesn't disable logs by default. However, you can do it with ``--with-logfile`` option when you're :ref:`compiling the from sources <installation_source>`:
+Of course you can use another authentication system like:
+* OpenLDAP
+* Kerberos
+* ...
+You have to configure PAM (Pluggable Authentication Module) to be able to authenticate trought another backend. You can check that your backend connexion is working fine like this::
 
+    $ getent passwd username
+    username:x:1000:1000:username,,,:/home/username:/usr/bin/zsh
+
+We can see here a user called username, with id 1000. You now have to change his shell to make it work properly.
