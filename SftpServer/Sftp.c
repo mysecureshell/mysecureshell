@@ -294,34 +294,36 @@ void DoClose()
 	id = BufferGetInt32(bIn);
 	h = BufferGetHandle(bIn);
 	if ((hdl = HandleGet(h)) != NULL)
-		status = SSH2_FX_OK;
-	SendStatus(bOut, id, status);
-	if (hdl->state == HANDLE_FILE)
 	{
-		if (hdl->fileSize > 0)
-			pourcentage = hdl->filePos * 100 / hdl->fileSize;
-		else
-			pourcentage = 0;
-		if (FILE_IS_UPLOAD(hdl->flags))
+		status = SSH2_FX_OK;
+		if (hdl->state == HANDLE_FILE)
 		{
-			off_t	fileSize = lseek(hdl->fd, 0, SEEK_END);
+			if (hdl->fileSize > 0)
+				pourcentage = hdl->filePos * 100 / hdl->fileSize;
+			else
+				pourcentage = 0;
+			if (FILE_IS_UPLOAD(hdl->flags))
+			{
+				off_t	fileSize = lseek(hdl->fd, 0, SEEK_END);
 
-			mylog_printf(MYLOG_TRANSFERT, "[%s][%s]End upload into file '%s' (%li bytes)",
-					gl_var->user, gl_var->ip, hdl->path, fileSize);
+				mylog_printf(MYLOG_TRANSFERT, "[%s][%s]End upload into file '%s' (%li bytes)",
+						gl_var->user, gl_var->ip, hdl->path, fileSize);
+			}
+			else
+			{
+				mylog_printf(MYLOG_TRANSFERT,
+						"[%s][%s]End download file '%s' (%li bytes) : %i%%", gl_var->user,
+						gl_var->ip, hdl->path, hdl->filePos, pourcentage);
+				BufferSetFastClean(bIn, 0);
+				BufferSetFastClean(bOut, 0);
+			}
+			HandleClose(h);
+			UpdateInfoForOpenFiles();
 		}
 		else
-		{
-			mylog_printf(MYLOG_TRANSFERT,
-					"[%s][%s]End download file '%s' (%li bytes) : %i%%", gl_var->user,
-					gl_var->ip, hdl->path, hdl->filePos, pourcentage);
-			BufferSetFastClean(bIn, 0);
-			BufferSetFastClean(bOut, 0);
-		}
-		HandleClose(h);
-		UpdateInfoForOpenFiles();
+			HandleClose(h);
 	}
-	else
-		HandleClose(h);
+	SendStatus(bOut, id, status);
 	DEBUG((MYLOG_DEBUG, "[DoClose] -> handle:%i status:%i", h, status));
 }
 
@@ -381,7 +383,7 @@ void DoOpen()
 			status = SSH2_FX_OK;
 		}
 	}
-	DEBUG((MYLOG_DEBUG, "[DoOpen]file:'%s' pflags:%x[%o] perm:%o fd:%i status:%i", path, pflags, flags, mode, fd, status));
+	DEBUG((MYLOG_DEBUG, "[DoOpen]file:'%s' pflags:%x[%o] perm:%o status:%i", path, pflags, flags, mode, status));
 	if (status != SSH2_FX_OK)
 	{
 		SendStatus(bOut, id, status);
@@ -392,7 +394,7 @@ void DoOpen()
 void DoRead()
 {
 	u_int32_t id, len;
-	u_int64_t off, pos;
+	u_int64_t off;
 	tHandle *hdl;
 	int h, status;
 
@@ -405,8 +407,7 @@ void DoRead()
 		status = SSH2_FX_FAILURE;
 	else if ((hdl = HandleGetFile(h)) != NULL)
 	{
-		pos = 0;
-		if (hdl->fileIsText == 0 && (pos = lseek(hdl->fd, off, SEEK_SET)) < 0)
+		if (hdl->fileIsText == 0 && lseek(hdl->fd, off, SEEK_SET) < 0)
 			status = errnoToPortable(errno);
 		else
 		{
@@ -541,15 +542,18 @@ void DoStat(int doLStat)
 		flags = BufferGetInt32(bIn);
 	status = FSStat(path, doLStat, &st);
 	if (status != SSH2_FX_OK)
+	{
 		SendStatus(bOut, id, status);
+		DEBUG((MYLOG_DEBUG, "[Do%sStat]path:'%s' -> '%i'", doLStat == 0 ? "" : "L", path, status));
+	}
 	else
 	{
 		StatToAttributes(&st, &a, path);
 		if (cVersion >= 4)
 			a.flags = flags;
 		SendAttributes(bOut, id, &a, path);
+		DEBUG((MYLOG_DEBUG, "[Do%sStat]path:'%s' -> '%i' [%x]", doLStat == 0 ? "" : "L", path, status, a.flags));
 	}
-	DEBUG((MYLOG_DEBUG, "[Do%sStat]path:'%s' -> '%i' [%x]", doLStat == 0 ? "" : "L", path, status, a.flags));
 	free(path);
 }
 

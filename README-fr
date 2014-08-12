@@ -89,6 +89,7 @@ HISTORIQUE:
 	+ ajoute d'un nouveau tag DisableStatsFs
 	+ remplacement d'OpenSSL par GnuTLS
 	~ correction d'un bug lors de l'appel au Shell (manque les arguments)
+	~ amélioration de la qualité de code
 
 1.33 (avril 2014):
 	+ ajout d'un nouveau tag LogSyslog

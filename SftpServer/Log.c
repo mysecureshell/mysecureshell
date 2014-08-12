@@ -176,8 +176,6 @@ void mylog_printf(int level, const char *str, ...)
 		time_t t;
 		char fmt[1024];
 
-		if (level < 0 || level >= MYLOG_MAX)
-			level = MYLOG_ERROR;
 		if (_log->nextReopen == 1)
 		{
 			_log->nextReopen = 0;
@@ -196,6 +194,8 @@ void mylog_printf(int level, const char *str, ...)
 				1900 + tm->tm_year, 1 + tm->tm_mon, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec,
 				_log->pid, str) > 0)
 #else
+		if (level < 0 || level >= MYLOG_MAX)
+			level = MYLOG_ERROR;
 		if (snprintf(fmt, sizeof(buffer), "%i-%02i-%02i %02i:%02i:%02i \33[%i:%i:%im[%i]%s\33[37:40:0m\n",
 				1900 + tm->tm_year, 1 + tm->tm_mon, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec,
 				_log->color[level][0], _log->color[level][1], _log->color[level][2], _log->pid, str) > 0)

@@ -131,35 +131,34 @@ void	DoAdminServerGetStatus()
 
 void	DoAdminGetLogContent()
 {
-  u_int32_t	r, status = SSH2_FX_FAILURE;
-  off_t		size;
-  char		*buffer;
-  
-  size = BufferGetInt32(bIn);
-  if ((buffer = malloc(size)) != NULL)
-    {
-      int	fd;
+	u_int32_t r = 0, status = SSH2_FX_FAILURE;
+	off_t size;
+	char *buffer;
 
-      if ((fd = open(MSS_LOG, O_RDONLY)) >= 0)
+	size = BufferGetInt32(bIn);
+	if ((buffer = malloc(size)) != NULL)
 	{
-	  if (lseek(fd, -size, SEEK_END) == (off_t )-1
-	      && errno != EINVAL)
-	    status = errnoToPortable(errno);
-	  else
-	    {
-	      r = read(fd, buffer, size);
-	      SendData(bOut, 0, buffer, r);
-	      status = SSH2_FX_OK;
-	    }
-	  xclose(fd);
+		int fd;
+
+		if ((fd = open(MSS_LOG, O_RDONLY)) >= 0)
+		{
+			if (lseek(fd, -size, SEEK_END) == (off_t) -1 && errno != EINVAL)
+				status = errnoToPortable(errno);
+			else
+			{
+				r = read(fd, buffer, size);
+				SendData(bOut, 0, buffer, r);
+				status = SSH2_FX_OK;
+			}
+			xclose(fd);
+		}
+		else
+			status = errnoToPortable(errno);
+		free(buffer);
 	}
-      else
-	status = errnoToPortable(errno);
-      free(buffer);
-    }
-  DEBUG((MYLOG_DEBUG, "[DoAdminGetLogContent]wanted:%i / read:%i", size, r));
-  if (status != SSH2_FX_OK)
-    SendStatus(bOut, 0, status);
+	DEBUG((MYLOG_DEBUG, "[DoAdminGetLogContent]wanted:%i / read:%i", size, r));
+	if (status != SSH2_FX_OK)
+		SendStatus(bOut, 0, status);
 }
 
 void	DoAdminConfigSet()
@@ -229,49 +228,47 @@ void	DoAdminConfigSet()
 
 void	DoAdminConfigGet()
 {
-  struct stat	st;
-  u_int32_t	r, status = SSH2_FX_FAILURE;
-  char		*buffer;
-      
-  if (stat(CONFIG_FILE, &st) == -1)
-    status = errnoToPortable(errno);
-  else if ((buffer = malloc(st.st_size)) != NULL)
-    {
-      tBuffer	*b = BufferNew();
-      int	fd;
+	struct stat	st;
+	u_int32_t	status = SSH2_FX_FAILURE;
+	int			fd;
 
-      BufferPutInt8FAST(b, SSH2_FXP_DATA);
-      BufferPutInt32(b, 0);
-      if ((fd = open(CONFIG_FILE, O_RDONLY)) >= 0)
+	if (stat(CONFIG_FILE, &st) != -1 && (fd = open(CONFIG_FILE, O_RDONLY)) >= 0)
 	{
-	  r = read(fd, buffer, st.st_size);
-	  xclose(fd);
-	  BufferPutData(b, buffer, r);
-	  status = SSH2_FX_OK;
-	  if (stat("/etc/shells", &st) != -1
-	      && (fd = open("/etc/shells", O_RDONLY)) >= 0)
-	    {
-	      if ((buffer = realloc(buffer, st.st_size)) != NULL)
-		{
-		  r = read(fd, buffer, st.st_size);
-		  BufferPutData(b, buffer, r);
-		}
-	      else
+		u_int32_t	r;
+		tBuffer		*b = BufferNew();
+		char		*buffer;
+
+		BufferPutInt8FAST(b, SSH2_FXP_DATA);
 		BufferPutInt32(b, 0);
-	      xclose(fd);
-	      BufferPutPacket(bOut, b);
-	    }
-	  else
-	    BufferPutInt32(b, 0);
+		if ((buffer = malloc(st.st_size)) != NULL)
+		{
+			r = read(fd, buffer, st.st_size);
+			BufferPutData(b, buffer, r);
+			free(buffer);
+			status = SSH2_FX_OK;
+		}
+		xclose(fd);
+		if (stat("/etc/shells", &st) != -1 && (fd = open("/etc/shells", O_RDONLY)) >= 0)
+		{
+			if ((buffer = malloc(st.st_size)) != NULL)
+			{
+				r = read(fd, buffer, st.st_size);
+				BufferPutData(b, buffer, r);
+				free(buffer);
+			}
+			else
+				BufferPutInt32(b, 0);
+			xclose(fd);
+		}
+		if (status == SSH2_FX_OK)
+			BufferPutPacket(bOut, b);
+		BufferDelete(b);
 	}
-      else
-	status = errnoToPortable(errno);
-      BufferDelete(b);
-      free(buffer);
-    }
-  DEBUG((MYLOG_DEBUG, "[DoAdminGetLogContent]status: %i", status));
-  if (status != SSH2_FX_OK)
-    SendStatus(bOut, 0, status);
+	else
+		status = errnoToPortable(errno);
+	DEBUG((MYLOG_DEBUG, "[DoAdminConfigGet]status: %i", status));
+	if (status != SSH2_FX_OK)
+		SendStatus(bOut, 0, status);
 }
 
 void	DoAdminUserCreate()

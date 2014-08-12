@@ -119,12 +119,13 @@ void FSResolvRelativePath(char *path, int permitDotDirectory)
 {
 	char *s = path;
 	char *ptr;
-	int i, beg, end, len;
+	int len;
 
-	beg = 0;
 	len = strlen(path);
 	while ((ptr = strstr(s, "..")) != NULL)
 	{
+		int	i, beg, end;
+
 		beg = len - strlen(ptr);
 		end = beg + 2;
 		if ((beg == 0 || path[beg - 1] == '/') &&
@@ -162,13 +163,13 @@ void FSResolvRelativePath(char *path, int permitDotDirectory)
 char *FSBuildPath(const char *path1, const char *path2)
 {
 	char *path;
-	char lastChar;
+	char lastChar = '\0';
 	int i, len, len1, len2;
 
 	len1 = strlen(path1);
 	len2 = strlen(path2);
 	path = malloc(len1 + 1 + len2 + 1);
-	for (lastChar = '\0', len = 0, i = 0; i < len1; i++)
+	for (len = 0, i = 0; i < len1; i++)
 	{
 		char currentChar = path1[i];
 
