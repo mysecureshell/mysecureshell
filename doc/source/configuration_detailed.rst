@@ -20,3 +20,13 @@ Child tags
     :glob:
 
     tags/childs/*
+
+Deprecated tags
+---------------
+
+.. toctree::
+    :maxdepth: 1
+    :numbered:
+    :glob:
+
+    tags/deprecated/*
