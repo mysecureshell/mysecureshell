@@ -14,6 +14,9 @@ Name          Default                Values    Since version Context
 DefaultRights file and folder rights XXXX YYYY 0.3           Default,Group,IpRange,User,VirtualHost
 ============= ====================== ========= ============= =======
 
+* XXXX: numeric files rights
+* YYYY: numeric folders rights
+
 Examples
 --------
 In this example, default options are set to give full rights to any new files and folders (0777). But we want to be sure that secret groups keeps their files and folders owned by themselfs::
