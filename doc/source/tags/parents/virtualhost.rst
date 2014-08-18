@@ -31,4 +31,3 @@ In this example you will see how to change a home directory depending on the use
     </VirtualHost>
 
 If you try to connect on fr.mysite.com, you will be redirected to ``/home/fr.mysite.com`` folder.
-If you try to connect on en.mysite.com, you will be redirected to ``/home/en.mysite.com`` folder.
