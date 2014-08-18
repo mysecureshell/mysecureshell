@@ -28,10 +28,10 @@ If the problem still persist, you can use ``--bind`` option to ``mount`` command
 
 Then you'll be able to access to the external folder inside the Home folder.
 
-Connexion refused after connection
+Connection refused after connection
 -----------------------------------
 
-When you have *connexion refused* message when you're trying to login, this is generally a problem of firewalling.
+When you have *connection refused* message when you're trying to login, this is generally a problem of firewalling.
 
 Check that you're not behind a firewall or your SSH port (default is 22) is correctly open::
 
@@ -61,10 +61,10 @@ Check if the ``HideNoAccess`` child tag is enabled. This tag hides folders and f
 
 If you want your users to be able to see (but do not have access) to any files or folders without having rights, you should consider disabling ``HideNoAccess`` value.
 
-Only allow MySecureShell users for SFTP connexions
---------------------------------------------------
+Only allow MySecureShell users for SFTP connections
+---------------------------------------------------
 
-If you want to only allow MySecureShell users to use sftp connexions on your server, you need to change/adapt this line (OpenSSH version > 4.5) in */etc/ssh/sshd_config*::
+If you want to only allow MySecureShell users to use sftp connections on your server, you need to change/adapt this line (OpenSSH version > 4.5) in */etc/ssh/sshd_config*::
 
     Subsystem sftp /bin/MySecureShell -c sftp-server
 
@@ -77,19 +77,19 @@ How can I enforce security like blocking bruteforce attacks?
 
 You can use a solution called `Fail2ban <http://www.fail2ban.org>`_ which will check at the authentication logs in real time. If it detects a certain amount of failed login in a given time, it will block an IP address using iptables rules.
 
-How coud I limit the number of simultaneous unauthenticated connexions?
+How coud I limit the number of simultaneous unauthenticated connections?
 ------------------------------------------------------------------------
 
-If you want to limit the number of simultaneous unauthenticated connexions by changing the ``MaxStartups`` value in */etc/ssh/sshd_config* file::
+If you want to limit the number of simultaneous unauthenticated connections by changing the ``MaxStartups`` value in */etc/ssh/sshd_config* file::
 
     MaxStartups 5
 
-In this example, we do not allow more than 5 unauthenticated connexions at the same time.
+In this example, we do not allow more than 5 unauthenticated connections at the same time.
 
-How can I make a passwordless connexion?
-----------------------------------------
+How can I make a passwordless connection?
+-----------------------------------------
 
-To get a secure connexion without credentials, you can use SSH key exchange. One of the advantage of that solution is the security enforcement. To make it work, be sure that your server allow it in its configuration file */etc/ssh/sshd_config*::
+To get a secure connection without credentials, you can use SSH key exchange. One of the advantage of that solution is the security enforcement. To make it work, be sure that your server allow it in its configuration file */etc/ssh/sshd_config*::
 
     PubkeyAuthentication yes
 
@@ -108,7 +108,7 @@ Of course you can use another authentication system like:
 * OpenLDAP
 * Kerberos
 * ...
-You have to configure PAM (Pluggable Authentication Module) to be able to authenticate trought another backend. You can check that your backend connexion is working fine like this::
+You have to configure PAM (Pluggable Authentication Module) to be able to authenticate trought another backend. You can check that your backend connection is working fine like this::
 
     $ getent passwd username
     username:x:1000:1000:username,,,:/home/username:/usr/bin/zsh

@@ -14,7 +14,7 @@ IdleTimeOut 0 (unlimited) integer  0.1           Default,Group,IpRange,User,Virt
 
 Examples
 --------
-If you want to free connexions for idle users after a certain amount of time, you can set an idle timeout value like this::
+If you want to free connections for idle users after a certain amount of time, you can set an idle timeout value like this::
 
     <Default>
         Home /home

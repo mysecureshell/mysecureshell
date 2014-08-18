@@ -14,8 +14,6 @@ MySecureShell was created because of the lack of file transfer features in OpenS
 
 MySecureShell is not a patch for OpenSSH, it's a shell for users. Easy to install, secure and easy to configure.
 
-If you want to start installing and using MySecureShell, please follow those links:
-
 .. toctree::
     :maxdepth: 1
     :glob:

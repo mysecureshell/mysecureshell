@@ -3,7 +3,7 @@ ConnectionMaxLife
 
 Synopsis
 --------
-Limit the sessions' connection time. By default the value is 0 which means unlimited, there is no deconnexion at all, but you can force users to be disconnected. The default unit value is second, but you can change it by adding a suffix to the value (s: seconds, m: minutes, etc...).
+Limit the sessions' connection time. By default the value is 0 which means unlimited, there is no deconnection at all, but you can force users to be disconnected. The default unit value is second, but you can change it by adding a suffix to the value (s: seconds, m: minutes, etc...).
 
 Options
 -------
