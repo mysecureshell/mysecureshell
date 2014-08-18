@@ -3,7 +3,7 @@ Download
 
 Synopsis
 --------
-Download tag allows to limit the maximum bandwidth download per connected users.
+Download tag allows to limit the maximum download bandwidth per connected users.
 
 Options
 -------
