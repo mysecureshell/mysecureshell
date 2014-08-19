@@ -11,10 +11,6 @@ Choose your operating system or select from sources if not listed:
     :glob:
     :numbered:
 
-    installation_debian
-    installation_ubuntu
-    installation_centos_redhat
-    installation_fedora
-    installation_macosx
+    installation_os_*
     installation_source
 
