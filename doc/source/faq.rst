@@ -35,12 +35,12 @@ When you have *connection refused* message when you're trying to login, this is 
 
 Check that you're not behind a firewall or your SSH port (default is 22) is correctly open::
 
-    $ nc -v your_sftp_server 22
+    # nc -v your_sftp_server 22
     Connection to localhost 22 port [tcp/ssh] succeeded!
 
 If it's still not ok, please check that your SSH service is properly running::
 
-    $ service ssh status
+    # service ssh status
 
 Why do I got random errors on download or file access?
 ------------------------------------------------------

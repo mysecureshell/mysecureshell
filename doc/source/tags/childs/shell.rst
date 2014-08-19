@@ -1,4 +1,4 @@
-SHell
+Shell
 =====
 
 Synopsis

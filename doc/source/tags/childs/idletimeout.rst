@@ -8,9 +8,11 @@ This tag disconnects users when the maximum idle time has been reached. The defa
 Options
 -------
 
+=========== ============= ======== ============= =======
 Name        Default       Values   Since version Context
 =========== ============= ======== ============= =======
 IdleTimeOut 0 (unlimited) integer  0.1           Default,Group,IpRange,User,VirtualHost
+=========== ============= ======== ============= =======
 
 Examples
 --------

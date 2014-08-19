@@ -10,9 +10,11 @@ With this tag, you can restrict files and folders by using a regular expression.
 Options
 -------
 
+=============== ========= ======== ============= =======
 Name            Default   Values   Since version Context
 =============== ========= ======== ============= =======
 PathAllowFilter null      regex    1.20 -> 1.25  Default,Group,IpRange,User,VirtualHost
+=============== ========= ======== ============= =======
 
 Examples
 --------
