@@ -3,7 +3,7 @@ Docker
 
 .. image:: images/logo_docker.png
     :align: center
-    :width: 300px
+    :width: 250px
 
 .. contents:: Topics
 

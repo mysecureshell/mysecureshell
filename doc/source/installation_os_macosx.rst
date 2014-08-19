@@ -1,6 +1,10 @@
 Mac OS X installation
 =====================
 
+.. image:: images/logo_mac.png
+    :align: center
+    :width: 150px
+
 .. contents:: Topics
 
 .. highlight:: bash

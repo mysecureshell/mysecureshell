@@ -1,6 +1,10 @@
 CentOS/RedHat installation
 ==========================
 
+.. image:: images/logo_redhat.png
+    :align: center
+    :width: 300px
+
 .. contents:: Topics
 
 .. highlight:: bash

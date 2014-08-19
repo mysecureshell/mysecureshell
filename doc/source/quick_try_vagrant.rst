@@ -3,7 +3,7 @@ Vagrant
 
 .. image:: images/logo_vagrant.png
     :align: center
-    :width: 400px
+    :width: 350px
 
 .. contents:: Topics
 

@@ -1,6 +1,10 @@
 Ubuntu installation
 ===================
 
+.. image:: images/logo_ubuntu.png
+    :align: center
+    :width: 300px
+
 .. contents:: Topics
 
 .. highlight:: bash

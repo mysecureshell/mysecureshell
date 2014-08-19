@@ -1,6 +1,10 @@
 Debian installation
 ===================
 
+.. image:: images/logo_debian.png
+    :align: center
+    :width: 300px
+
 .. contents:: Topics
 
 .. highlight:: bash

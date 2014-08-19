@@ -1,6 +1,10 @@
 Fedora installation
 ===================
 
+.. image:: images/logo_fedora.png
+    :align: center
+    :width: 300px
+
 .. contents:: Topics
 
 .. highlight:: bash
