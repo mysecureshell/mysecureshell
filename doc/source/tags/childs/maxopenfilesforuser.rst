@@ -1,6 +1,8 @@
 MaxOpenFilesForUser
 ===================
 
+.. highlight:: apache
+
 Synopsis
 --------
 You can limit the number of simultaneous opened files with that tag.

@@ -1,6 +1,8 @@
 SftpProtocol
 ============
 
+.. highlight:: apache
+
 Synopsis
 --------
 You can force a specific version of the SFTP protocol to enable or disable some features. To know more about them you can consult those websites:

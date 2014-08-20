@@ -1,6 +1,8 @@
 GlobalUpload
 ============
 
+.. highlight:: apache
+
 Synopsis
 --------
 Global Upload tag allows to limit the maximum upload bandwidth for the overall server.

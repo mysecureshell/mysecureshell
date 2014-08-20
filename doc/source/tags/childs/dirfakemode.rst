@@ -1,6 +1,8 @@
 DirFakeMode
 ===========
 
+.. highlight:: apache
+
 Synopsis
 --------
 This tag fakes the global permissions by visually changing the real rights of files and folders by the defined ones. This can be used for security reasons when you don't want connected users to see real permissions.

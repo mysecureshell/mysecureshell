@@ -1,6 +1,8 @@
 CanChangeTime
 =============
 
+.. highlight:: apache
+
 Synopsis
 --------
 If enabled, a user or set of users, won't be able to change timestamps on files and directories.

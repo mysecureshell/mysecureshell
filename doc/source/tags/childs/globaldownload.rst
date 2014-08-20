@@ -1,6 +1,8 @@
 GlobalDownload
 ==============
 
+.. highlight:: apache
+
 Synopsis
 --------
 Global Download tag allows to limit the maximum download bandwidth for the overall server.

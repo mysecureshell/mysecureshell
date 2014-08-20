@@ -1,6 +1,8 @@
 DisableAccount
 ==============
 
+.. highlight:: apache
+
 Synopsis
 --------
 Here is an easy way to disable accounts for a user or a set of users. This can be useful if you need to disable accounts quickly. **Only new connections will be deny, current open ones won't be automatically closed**.

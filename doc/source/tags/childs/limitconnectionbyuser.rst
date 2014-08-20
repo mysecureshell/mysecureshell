@@ -1,6 +1,8 @@
 LimitConnectionByUser
 =====================
 
+.. highlight:: apache
+
 Synopsis
 --------
 You can limit the number of maximum simultaneous connections per username.

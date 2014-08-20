@@ -1,6 +1,8 @@
 ForceUser
 ==========
 
+.. highlight:: apache
+
 Synopsis
 --------
 You can force the usage of a username for the connected user. That mean when a user will connect, even if his username is not the desired one, it will force this group to be used when a file or folder are created. This allows multiple accounts to access the same account but each one with its own password.

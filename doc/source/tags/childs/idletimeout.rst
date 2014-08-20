@@ -1,6 +1,8 @@
 IdleTimeOut
 ===========
 
+.. highlight:: apache
+
 Synopsis
 --------
 This tag disconnects users when the maximum idle time has been reached. The default unit value is second, but you can change it by adding a suffix to the value (s: seconds, m: minutes, etc...).

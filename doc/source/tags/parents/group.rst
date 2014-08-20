@@ -1,6 +1,8 @@
 Group
 =====
 
+.. highlight:: apache
+
 Synopsis
 --------
 Group tag is made to add restrictions to a complet set of users defined by a UNIX group. This group has (like users) to be available from your server (PAM, LDAP...).
@@ -25,8 +27,8 @@ For example, you can have limited the download speed for all of your users. Howe
         # max download speed for all parent tags
         Download        5M
     </Default>
-
-    <Group admins
+    
+    <Group admins>
         Download        10M
     </Group>
 

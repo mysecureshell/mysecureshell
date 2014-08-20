@@ -1,6 +1,8 @@
 Shell
 =====
 
+.. highlight:: apache
+
 Synopsis
 --------
 By default MySecureShell doesn't allow Shell access on SSH connections. But you may want to give to some users Shell access.

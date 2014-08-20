@@ -1,6 +1,8 @@
 Default
 =======
 
+.. highlight:: apache
+
 Synopsis
 --------
 Default tag is mandatory to apply a default configuration to all others parents' tags and. It is also used if you want to apply a configuration for all of your users, even if you do not declare other parent tags.

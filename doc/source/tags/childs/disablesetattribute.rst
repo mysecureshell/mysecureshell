@@ -1,6 +1,8 @@
 DisableSetAttribute
 ===================
 
+.. highlight:: apache
+
 Synopsis
 --------
 This tag, deny to the connected user to change the current files or folders attributes.

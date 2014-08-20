@@ -1,6 +1,8 @@
 DisableRename
 =============
 
+.. highlight:: apache
+
 Synopsis
 --------
 This tag, deny to the connected user to rename files or folders.

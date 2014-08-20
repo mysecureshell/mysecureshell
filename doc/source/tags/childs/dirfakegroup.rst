@@ -1,6 +1,8 @@
 DirFakeGroup
 ============
 
+.. highlight:: apache
+
 Synopsis
 --------
 This tag fakes the group owner by visually changing the real group name of files and folders by the group of the connected user. This can be used for security reasons when you don't want connected users to see real permissions.

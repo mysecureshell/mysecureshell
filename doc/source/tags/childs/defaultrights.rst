@@ -1,6 +1,8 @@
 DefaultRights
 =============
 
+.. highlight:: apache
+
 Synopsis
 --------
 Set default rights on new created (or uploaded) files and folders. You have to set `UNIX numeric notation <http://en.wikipedia.org/wiki/Filesystem_permissions>`_ permissions for files and folders.

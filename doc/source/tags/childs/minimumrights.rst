@@ -1,6 +1,8 @@
 MaximumRights
 =============
 
+.. highlight:: apache
+
 Synopsis
 --------
 Give the maximum allowed rights for new files and folders.

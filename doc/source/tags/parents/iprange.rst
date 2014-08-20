@@ -1,6 +1,8 @@
 IpRange
 =======
 
+.. highlight:: apache
+
 Synopsis
 --------
 With IpRange, you can define limitations to an IP address or a range of IP adresses.

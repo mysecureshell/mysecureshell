@@ -1,6 +1,8 @@
 Download
 ========
 
+.. highlight:: apache
+
 Synopsis
 --------
 Download tag allows to limit the maximum download bandwidth per connected users.

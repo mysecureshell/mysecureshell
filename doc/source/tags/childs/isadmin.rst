@@ -1,6 +1,8 @@
 IsAdmin
 =======
 
+.. highlight:: apache
+
 Synopsis
 --------
 IsAdmin tag grants to a user or a set of users, admins permissions. That means they can administrate MySecureShell throught ``sftp-admin`` CLI or with MySecureShell GUI.

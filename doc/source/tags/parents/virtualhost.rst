@@ -1,6 +1,8 @@
 VirtualHost
 ===========
 
+.. highlight:: apache
+
 Synopsis
 --------
 Like web servers, you can define limitations depending on the virtualhost name you're targetting.

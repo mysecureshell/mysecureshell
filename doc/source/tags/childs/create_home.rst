@@ -1,6 +1,8 @@
 CreateHome
 ==========
 
+.. highlight:: apache
+
 Synopsis
 --------
 Create user's home directory if it doesn't exists.

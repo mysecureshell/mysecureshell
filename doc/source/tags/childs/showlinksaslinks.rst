@@ -1,6 +1,8 @@
 ShowLinksAsLinks
 ================
 
+.. highlight:: apache
+
 Synopsis
 --------
 With ShowLinksAsLinks tag, users symbolic links are not seen as symlink but folders or files. If enabled, connected users simply doesn't know if a file or folders are in fact symbolic links or not.

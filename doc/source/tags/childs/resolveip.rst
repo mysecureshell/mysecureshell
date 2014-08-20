@@ -1,6 +1,8 @@
 ResolveIP
 =========
 
+.. highlight:: apache
+
 Synopsis
 --------
 You can have DNS name in your logs instead of IP addresses if you enable ResolveIP tag.

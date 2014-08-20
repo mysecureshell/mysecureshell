@@ -1,6 +1,8 @@
 LogSyslog
 =========
 
+.. highlight:: apache
+
 Synopsis
 --------
 Write logs to Syslog. If you want to know more on Syslog, you can follow the `link <http://en.wikipedia.org/wiki/Syslog>`_.

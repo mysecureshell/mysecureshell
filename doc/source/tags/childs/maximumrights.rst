@@ -1,6 +1,8 @@
 MinimumRights
 =============
 
+.. highlight:: apache
+
 Synopsis
 --------
 Give the minimum allowed rights for new files and folders.

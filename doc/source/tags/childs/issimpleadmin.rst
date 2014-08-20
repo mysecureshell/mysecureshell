@@ -1,6 +1,8 @@
 IsSimpleAdmin
 =============
 
+.. highlight:: apache
+
 Synopsis
 --------
 IsSimpleAdmin tag grants to a user or a set of users, restricted admins permissions. That means they can administrate MySecureShell throught ``sftp-admin`` CLI or with MySecureShell GUI. This tag is less permissive than :doc:`IsAdmin tag<isadmin>`. IsSimpleAdmin permissions are limited to:

@@ -1,6 +1,8 @@
 ForceGroup
 ==========
 
+.. highlight:: apache
+
 Synopsis
 --------
 You can force the group of the connected user. That mean when a user will connect, even if his group is not the desired one, it will force this group to be used when a file or folder are created.

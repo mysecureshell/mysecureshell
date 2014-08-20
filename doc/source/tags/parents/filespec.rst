@@ -1,6 +1,8 @@
 FileSpec
 ========
 
+.. highlight:: apache
+
 Synopsis
 --------
 FileSpec is made to create filters on files and directories. You need to create a parent rule with a dedicated and unique name and apply it as a child tag in any other parent tag.

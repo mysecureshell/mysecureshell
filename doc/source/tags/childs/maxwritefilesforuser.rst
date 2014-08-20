@@ -1,6 +1,8 @@
 MaxWriteFilesForUser
 ====================
 
+.. highlight:: apache
+
 Synopsis
 --------
 You can limit the number of simultaneous write files with that tag.

@@ -1,6 +1,8 @@
 StayAtHome
 ==========
 
+.. highlight:: apache
+
 Synopsis
 --------
 The StayAtHome tag force the user to stay in his home directory. He won't be able to move to a higher hierarchy level. For example, a user getting his home directory in `/home/user` won't be able to got to `/home` or `/` for example.

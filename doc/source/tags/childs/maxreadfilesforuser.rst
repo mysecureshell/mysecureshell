@@ -1,6 +1,8 @@
 MaxReadFilesForUser
 ===================
 
+.. highlight:: apache
+
 Synopsis
 --------
 You can limit the number of simultaneous read files with that tag.

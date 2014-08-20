@@ -1,6 +1,8 @@
 LogFile
 =======
 
+.. highlight:: apache
+
 Synopsis
 --------
 This tag allows you can separate log files per parent tags.

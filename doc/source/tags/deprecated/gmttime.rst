@@ -3,6 +3,8 @@ GMTTime
 
 .. note:: This tag is no more valid since 1.25 version
 
+.. highlight:: apache
+
 Synopsis
 --------
 Adjust the clock time in the log file

@@ -1,6 +1,8 @@
 DisableMakeDir
 ==============
 
+.. highlight:: apache
+
 Synopsis
 --------
 This tag, deny to the connected user to create folders.

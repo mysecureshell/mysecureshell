@@ -3,6 +3,8 @@ FAQ
 
 .. contents:: Topics
 
+.. highlight:: bash
+
 What can I do if I have a problem?
 ----------------------------------
 

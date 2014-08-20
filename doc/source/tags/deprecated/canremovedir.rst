@@ -3,6 +3,8 @@ CanRemoveDir
 
 .. note:: This tag is no more valid since 1.25 version
 
+.. highlight:: apache
+
 Synopsis
 --------
 To allow users to delete directories, you need to enable this tag. This tag doesn't bypass the default permissions. If you do not have write permissions, you won't be able to remove a directory even is this tag is enable.

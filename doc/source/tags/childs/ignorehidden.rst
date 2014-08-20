@@ -1,6 +1,8 @@
 IgnoreHidden
 ============
 
+.. highlight:: apache
+
 Synopsis
 --------
 Hide or not hidden files or folders (starting with a dot).

@@ -1,6 +1,8 @@
 Upload
 ======
 
+.. highlight:: apache
+
 Synopsis
 --------
 Upload tag allows to limit the maximum upload bandwidth per connected users.

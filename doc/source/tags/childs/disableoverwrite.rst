@@ -1,6 +1,8 @@
 DisableOverwrite
 ================
 
+.. highlight:: apache
+
 Synopsis
 --------
 This tag, deny to the connected user to overwrite onto an existing file.

@@ -2,6 +2,8 @@ Include
 =======
 
 
+.. highlight:: apache
+
 Synopsis
 --------
 With Include tag, you can have additional MySecureShell configuration files to help you to reorganize it if it's becomes to big.

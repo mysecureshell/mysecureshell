@@ -1,6 +1,8 @@
 ByPassGlobalDownload
 ====================
 
+.. highlight:: apache
+
 Synopsis
 --------
 This tag is made to override the GlobalDownload tag.
@@ -24,7 +26,7 @@ In this example, the user admin won't be limited by the GlobalDownload limitatio
         GlobalDownload 100k
     </Default>
 
-    <User admin
+    <User admin>
         ByPassGlobalDownload true
     </User>
 

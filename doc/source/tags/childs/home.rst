@@ -1,6 +1,8 @@
 Home
 ====
 
+.. highlight:: apache
+
 Synopsis
 --------
 This directive force the home directory of a connected user. 

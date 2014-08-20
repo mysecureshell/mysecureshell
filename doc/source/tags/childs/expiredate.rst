@@ -1,6 +1,8 @@
 ExpireDate
 ==========
 
+.. highlight:: apache
+
 Synopsis
 --------
 This tag permit to set an expiration date time on a parent tag, which means users won't be allowed to connecte after the defined date and time. The date and time should be in strftime format (man 3 strftime). You can test date format using date command:

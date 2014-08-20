@@ -1,6 +1,8 @@
 ByPassGlobalUpload
 ====================
 
+.. highlight:: apache
+
 Synopsis
 --------
 This tag is made to override the GlobalUpload tag.
@@ -24,7 +26,7 @@ In this example, the user admin won't be limited by the GlobalUpload limitation 
         GlobalUpload 100k
     </Default>
 
-    <User admin
+    <User admin>
         ByPassGlobalUpload true
     </User>
 

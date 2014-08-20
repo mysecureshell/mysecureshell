@@ -1,6 +1,8 @@
 User
 ====
 
+.. highlight:: apache
+
 Synopsis
 --------
 User's tag can only affects one user.
@@ -22,7 +24,7 @@ In this example, you will see how to give to a user specific rights::
         Home /home/$USER
     </Default>
 
-    <User admin
+    <User admin>
         Home /home/
     </User>
 

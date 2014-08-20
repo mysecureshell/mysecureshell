@@ -1,6 +1,8 @@
 ForceRights
 ===========
 
+.. highlight:: apache
+
 Synopsis
 --------
 You can force the default permissions when a connected user create files and folders. That mean when a user will connect, when files or folders are created, the default specified rights will be applyed.

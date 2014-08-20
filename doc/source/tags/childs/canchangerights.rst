@@ -1,6 +1,8 @@
 CanChangeRights
 ===============
 
+.. highlight:: apache
+
 Synopsis
 --------
 If enabled, a user or set of users, won't be able to change permissions on files and directories.

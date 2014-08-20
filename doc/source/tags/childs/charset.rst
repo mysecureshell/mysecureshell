@@ -1,6 +1,8 @@
 Charset
 =======
 
+.. highlight:: apache
+
 Synopsis
 --------
 To enable special characters with accents or non latin characters, you have to define this tag.

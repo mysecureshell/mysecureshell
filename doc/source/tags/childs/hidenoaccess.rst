@@ -1,6 +1,8 @@
 HideNoAccess
 ============
 
+.. highlight:: apache
+
 Synopsis
 --------
 This tags hides files and folders denied from the connected user.
