@@ -11,4 +11,5 @@ Here are documentations to help you to quickly have an overview of the configura
 
     configuration_overview
     configuration_detailed
+    configuration_usecases
 
