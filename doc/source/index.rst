@@ -29,5 +29,6 @@ Regarding MySecureShell projects, here are usefull links you need to know:
     quick_try
     installation
     configuration
+    usages
     faq
 
