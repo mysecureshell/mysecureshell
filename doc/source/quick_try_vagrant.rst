@@ -77,3 +77,12 @@ In parallel, connect from your host machine to the Virtual Machine and see the c
         Total: Download: 1398 bytes   Upload: 141 bytes
 
 You can see the connected user :-). You can try to upload files to see the result. Of course you can use graphical clients. And if you want to play with the server configuration, look at ``/etc/ssh/sftp_config``.
+
+Update configuration file
+-------------------------
+
+First we recommend you to read the :doc:`configuration <configuration>` part of the documentation. When you're ready, you can connect on the Virtual Machine::
+
+    $ vagrant ssh
+
+Then you're able to edit the configuration file (*/etc/ssh/sftp_config*).
