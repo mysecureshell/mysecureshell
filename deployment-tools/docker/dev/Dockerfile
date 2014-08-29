@@ -18,6 +18,18 @@ RUN mkdir /var/run/sshd
 RUN pass=$(mkpasswd -m sha-512 -s mssuser) && useradd -m -s /bin/MySecureShell -p $pass mssuser
 RUN usermod --password root root
 
+#######
+# DEV #
+#######
+
+RUN apt-get update
+RUN apt-get -y install git
+RUN git clone https://github.com/deimosfr/mysecureshell.git
+RUN apt-get -y install libacl1-dev libgnutls-dev gcc make
+RUN apt-get -y install sphinx-doc sphinx-common python3-sphinx libjs-sphinxdoc \
+ python-pip texlive-latex-base texlive-latex-recommended texlive-latex-extra texlive-fonts-recommended
+RUN pip install sphinx_rtd_theme
+
 # Start SSHd
 EXPOSE 22
 CMD ["/usr/sbin/sshd", "-D"]

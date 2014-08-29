@@ -7,7 +7,8 @@ VAGRANTFILE_API_VERSION = "2"
 
 $install_mss = <<INSTALL
 echo "deb http://mysecureshell.free.fr/repository/index.php/debian/7.1 testing main
-deb-src http://mysecureshell.free.fr/repository/index.php/debian/7.1 testing main" > /etc/apt/sources.list.d/mysecureshell.list
+deb-src http://mysecureshell.free.fr/repository/index.php/debian/7.1 testing main
+" > /etc/apt/sources.list.d/mysecureshell.list
 gpg --keyserver hkp://pool.sks-keyservers.net --recv-keys E328F22B
 gpg --export E328F22B | apt-key add -
 apt-get update
@@ -30,7 +31,8 @@ chown -Rf vagrant. mysecureshell
 #install C dependencies
 apt-get -y install libacl1-dev libgnutls-dev gcc make
 #install Sphinxdoc dependencies
-apt-get -y install sphinx-doc sphinx-common python3-sphinx libjs-sphinxdoc python-pip texlive-latex-base texlive-latex-recommended texlive-latex-extra texlive-fonts-recommended
+apt-get -y install sphinx-doc sphinx-common python3-sphinx libjs-sphinxdoc python-pip \
+texlive-latex-base texlive-latex-recommended texlive-latex-extra texlive-fonts-recommended
 #install sphinxdoc theme
 pip install sphinx_rtd_theme
 INSTALL

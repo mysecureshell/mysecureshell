@@ -23,10 +23,27 @@ As you can see, we're open to any kind of contribution and hope you'll enjoy con
 
 .. _code_contribute:
 
-What is the easiest solution to contribute code?
-------------------------------------------------
+What is the easiest solution to contribute code or doc?
+-------------------------------------------------------
 
 We are providing Docker and Vagrant files that will install everything you need to have (packages, sources, dependancies, documentation sources and so on...) to help you to contribute.
+
+Docker
+^^^^^^
+
+With Docker, here is the content file for development:
+
+.. literalinclude:: ../../deployment-tools/docker/dev/Dockerfile
+   :language: bash
+
+To install this ocntainer, simply run docker with the Dockerfile::
+
+    $ docker build -t mysecureshell github.com/mysecureshell/mysecureshell/deployment-tools/docker/dev
+
+If you need more explaination on how to use it, please look at the :doc:`Quick Try <quick_try_docker>` section.
+
+Vagrant
+^^^^^^^
 
 With Vagrant and the Vagrantfile:
 
@@ -38,6 +55,12 @@ you just need to uncomment this line to install all development dependencies:
 .. code-block:: ruby
     
     #config.vm.provision "shell", inline: $install_mss_dev
+
+Then launch it::
+
+    $ vagrant up
+
+If you need more explaination on how to use it, please look at the :doc:`Quick Try <quick_try_vagrant>` section.
 
 How can I contribute to the documentation?
 ------------------------------------------

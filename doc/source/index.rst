@@ -19,7 +19,11 @@ Regarding MySecureShell projects, here are usefull links you need to know:
 
 * `The online documentation <https://mysecureshell.readthedocs.org>`_ can be found on `ReadTheDoc <https://readthedocs.org/>`_. You can **download the PDF,HTML or Epub** version directly from it.
 * `The source code <https://github.com/deimosfr/mysecureshell>`_ is hosted on `GitHub <https://github.com>`_.
-* If you encounter a bug or have any kind of issue related to MySecureShell, fell free to `open an issue <https://github.com/deimosfr/mysecureshell/issues>`_ on GitHub.
+* If you encounter a bug or have any kind of issue related to MySecureShell:
+
+   * first read the :doc:`faq`
+   * If you do not have the answer, fell free to `look at GitHub issues <https://github.com/mysecureshell/mysecureshell/issues?q=is%3Aissue+is%3Aclosed>`_
+   * Finally `open an issue <https://github.com/mysecureshell/mysecureshell/issues>` if you still do not have answers.
 
 .. toctree::
     :maxdepth: 1
