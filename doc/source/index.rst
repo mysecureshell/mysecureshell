@@ -31,4 +31,5 @@ Regarding MySecureShell projects, here are usefull links you need to know:
     configuration
     usages
     faq
+    contribute
 

@@ -16,10 +16,35 @@ pass=$(mkpasswd -m sha-512 -s mssuser)
 useradd -m -s /bin/MySecureShell -p $pass mssuser
 INSTALL
 
+$install_mss_dev = <<INSTALL
+apt-get update
+#install git
+apt-get -y install git
+#get the sources
+if [ -f /vagrant/id_rsa ] ; then
+    git clone git@github.com:deimosfr/mysecureshell.git
+else
+    git clone https://github.com/deimosfr/mysecureshell.git
+fi
+chown -Rf vagrant. mysecureshell
+#install C dependencies
+apt-get -y install libacl1-dev libgnutls-dev gcc make
+#install Sphinxdoc dependencies
+apt-get -y install sphinx-doc sphinx-common python3-sphinx libjs-sphinxdoc python-pip texlive-latex-base texlive-latex-recommended texlive-latex-extra texlive-fonts-recommended
+#install sphinxdoc theme
+pip install sphinx_rtd_theme
+INSTALL
+
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.box = "deimosfr/debian-wheezy"
   config.vm.network "forwarded_port", guest: 22, host: 22222
   config.vm.network "private_network", ip: "192.168.33.10"
   config.vm.network "public_network"
+  config.vm.provider "virtualbox" do |v|
+        v.memory = 768
+        v.cpus = 2
+  end
   config.vm.provision "shell", inline: $install_mss
+  # Uncomment if you want to install all dev dependancies (to contribute for example)
+  #config.vm.provision "shell", inline: $install_mss_dev
 end
