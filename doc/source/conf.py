@@ -60,9 +60,9 @@ copyright = '2014, Pierre Mavro and Sebastien Tardif'
 # built documents.
 #
 # The short X.Y version.
-version = '1.30'
+version = '1.33'
 # The full version, including alpha/beta/rc tags.
-release = '1.30'
+release = '1.33'
 
 locale_dirs = ['locale/']   # path is example but recommended.
 gettext_compact = False     # optional.
