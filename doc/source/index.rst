@@ -23,7 +23,9 @@ Regarding MySecureShell projects, here are usefull links you need to know:
 
    * first read the :doc:`faq`
    * If you do not have the answer, fell free to `look at GitHub issues <https://github.com/mysecureshell/mysecureshell/issues?q=is%3Aissue+is%3Aclosed>`_
-   * Finally `open an issue <https://github.com/mysecureshell/mysecureshell/issues>` if you still do not have answers.
+   * Finally `open an issue <https://github.com/mysecureshell/mysecureshell/issues>`_ if you still do not have answers.
+
+* For documentation translation, we're using `Transifex <https://www.transifex.com/organization/mysecureshell/dashboard>`_, which is easilly usable if you want to produce a version in your language. When fully completed, it will be embedded in the documentation.
 
 .. toctree::
     :maxdepth: 1
