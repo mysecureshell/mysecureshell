@@ -1,0 +1,55 @@
+#!/usr/bin/perl -w
+#
+# Munin-plugin to monitor MySecureShell v0.1 for users
+# Made by MySecureShell Team
+#
+# Magic markers:
+#%# family=auto
+#%# capabilities=autoconf
+
+use strict;
+
+# Variables
+my $logfile = "/var/log/sftp-server.log";
+my $users = 0;
+
+# Munin start
+if($ARGV[0] and $ARGV[0] eq "autoconf" ) { 
+	if(-f $logfile) {
+		if(-r $logfile) {
+			print "yes\n";
+			exit 0;
+		} else {
+			print "no (logfile not readable)\n";
+		}
+	} else {
+		print "no (logfile not found)\n";
+	}   
+	exit 1;
+}
+
+# Munin Graph informations
+if ($ARGV[0] and $ARGV[0] eq "config" ){
+	print "graph_title MySecureShell Connected Users\n";
+	print "graph_args --base 1000 -l 0\n";
+	print "graph_vlabel connected users/s\n";
+	print "graph_scale yes\n";
+	print "graph_category MySecureShell\n";
+	print "graph_info This graph shows the numbers of users connected to MySecureShell server.\n";
+	print "users.label connected users\n";
+	print "users.info This is the number of users connected to MySecureShell server\n";
+	exit 0;
+}
+
+# Getting informations for graphing
+open(FD, '/bin/sftp-who | ') or die("ERROR while invoking sftp-who: $?\n");
+while (my $line = <FD>) {
+	# Number of users
+        if ($line =~ /^--- (\S+)/) {
+                $users = $1;
+		last;
+        }
+}
+close(FD);
+
+print "users.value $users\n";

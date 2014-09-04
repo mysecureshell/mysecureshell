@@ -1,14 +1,12 @@
 Introduction
 ============
 
+.. _my-reference-label:
+
 What is MySecureShell?
 ----------------------
 
-MySecureShell is a solution made to brings **more features to sftp/scp protocol** given by `OpenSSH <http://www.openssh.com/>`_. As by default, OpenSSH brings a lot of liberty to connected users which imply to thrust in your users. The goal of MySecureShell is to **offer the power and security of OpenSSH, with enhanced features** (like `ACL <http://en.wikipedia.org/wiki/Access_control_list>`_) to restrict connected users.
-
-MySecureShell was created because of the lack of file transfer features in OpenSSH. OpenSSH was not designed as a file transfer tool at first.
-
-**MySecureShell is not a patch for OpenSSH, it's a shell for users**. This to avoid including security holes in OpenSSH, not to be depedent of a version of OpenSSH and to avoid to recompile OpenSSH with a patch on each new versions. So **MySecureShell remains easy to install, secure and easy to configure**.
+.. include:: mysecureshell_description.rst
 
 Why SFTP and not FTP?
 ---------------------

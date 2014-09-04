@@ -1,0 +1,93 @@
+#!/usr/bin/perl -w
+#
+# Nagios script to check MySecureShell users
+# Made by Pierre Mavro / MySecureShell Team
+# Version: 2.0
+# License: GPL 2
+
+use strict;
+use Getopt::Long;
+
+#### Vars can be touched ####
+my $sftp_who = '/bin/sftp-who'; # sftp-who binary
+my $mss_bin = '/bin/MySecureShell';
+
+#### Do not edit now ####
+my $max_mss_users;
+my $curr_mss_users;
+
+sub check_mss {
+    unless (-x $mss_bin) {
+        print "MySecureShell binary $mss_bin is absent\n";
+        exit(2);
+    }
+}
+
+sub get_total_connected_users {
+    # Check config file and read config file to check LimitConnection value
+    open (SFTP_WHO, "$sftp_who |") or die "Couldn't execute $sftp_who binary : $!\n";
+    while (<SFTP_WHO>) {
+        # Find the currently and maximum connected users
+        if ($_ =~ /^---.(\d+).\/.(\d+).clients/) {
+            $curr_mss_users = $1; 
+            $max_mss_users = $2; 
+        }
+    }
+    close SFTP_WHO;
+}
+
+sub check_connected_users {
+    my $warn_mss_users = shift;
+    my $crit_mss_users = shift;
+    my $percent_mss_users = shift;
+
+    if ($percent_mss_users == 1) {
+        if ($curr_mss_users != 0) {
+            $curr_mss_users = ($max_mss_users / $curr_mss_users) * 100;
+        } else {
+            $curr_mss_users = 0;
+        }
+        $max_mss_users = 100;
+    }
+
+    if ($curr_mss_users < $warn_mss_users) {
+        print "USERS OK - currently connected $curr_mss_users / $max_mss_users |users=$curr_mss_users;$warn_mss_users;$crit_mss_users\n";
+        exit(0);
+    } elsif ($curr_mss_users < $crit_mss_users) {
+        print "USERS WARNING - currently connected $curr_mss_users / $max_mss_users\n";
+        exit(1);
+    } else {
+        print "USERS CRITICAL - currently connected $curr_mss_users / $max_mss_users\n";
+        exit(2);
+    }
+}
+
+sub help {
+    print "Usage: check_mysecureshell -w [warning] -c [critical] -p [1|0]\n";
+    print "\t-h: show help (this message)\n";
+    print "\t-w: set maximum connected users before warning\n";
+    print "\t-c: set maximum connected users before critical\n";
+    print "\t-p: set maximum connected in percentage instead\n";
+    exit(1);
+}
+
+sub check_opts
+{
+    # Vars
+    my $warn_mss_users = 75; # warning MySecureShell users or using 75% by default
+    my $crit_mss_users = 90; # critical MySecureShell users or using 90% by default
+    my $percent_mss_users=0;
+
+    # Set options
+    GetOptions( "help|h" => \&help,
+                "p=i"  => \$percent_mss_users,
+                "w=i"  => \$warn_mss_users,
+                "c=i"  => \$crit_mss_users);
+
+    &check_mss;
+    &get_total_connected_users;
+    &check_connected_users($warn_mss_users,$crit_mss_users,$percent_mss_users);
+}
+
+&check_opts;
+

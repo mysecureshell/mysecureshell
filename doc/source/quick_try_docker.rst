@@ -49,10 +49,13 @@ MySecureShell is now ready to serve! From your host machine, you can connect wit
     sftp> pwd
     Remote working directory: /
 
-In parallel, connect from your host machine to the Virtual Machine and see the current connected user with `sftp-who` command::
+In parallel, connect from your host machine to the Virtual Machine (root password is *root*)::
 
-    $ vagrant ssh
-    $ sudo sftp-who
+    $ ssh -p 22222 root@127.0.0.1
+
+and see the current connected user with `sftp-who` command::
+
+    $ sftp-who
     --- 1 / 10 clients ---
     Global used bandwith : 0 bytes/s / 0 bytes/s
     PID: 3389   Name: mssuser   IP: 

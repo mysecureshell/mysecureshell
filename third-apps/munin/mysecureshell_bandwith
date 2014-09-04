@@ -1,0 +1,75 @@
+#!/usr/bin/perl -w
+#
+# Munin-plugin to monitor MySecureShell v0.1 for bandwith
+# Made by MySecureShell Team
+#
+# Magic markers:
+#%# family=auto
+#%# capabilities=autoconf
+
+use strict;
+
+# Variables
+my $logfile = "/var/log/sftp-server.log";
+my $gdownload = 0;
+my $gupload = 0;
+
+# Munin start
+if($ARGV[0] and $ARGV[0] eq "autoconf" ) { 
+	if(-f $logfile) {
+		if(-r $logfile) {
+			print "yes\n";
+			exit 0;
+		} else {
+			print "no (logfile not readable)\n";
+		}
+	} else {
+		print "no (logfile not found)\n";
+	}   
+	exit 1;
+}
+
+# Munin Graph informations
+if ($ARGV[0] and $ARGV[0] eq "config" ){
+	print "graph_title MySecureShell Bandwith\n";
+	print "graph_args --base 1000 -l 0\n";
+	print "kbytes_in.cdef kbytes_in,8096,*\n";
+	print "graph_scale yes\n";
+	print "graph_vlabel bandwith in Kbytes/s\n";
+	print "graph_category MySecureShell\n";
+	print "graph_info This graph shows the Global Download and Upload.\n";
+	print "gdownload.label download (global)\n";
+	print "gupload.label upload (global)\n";
+	print "gdownload.info This is the global download bandwith used from MySecureShell server\n";
+	print "gupload.info This is the global upload bandwith used from MySecureShell server\n";
+	exit 0;
+}
+
+# Getting informations for graphing
+open(FD, '/bin/sftp-who | ') or die("ERROR while invoking sftp-who: $?\n");
+while (my $line = <FD>) {
+	# Bandwith
+	chomp($line);
+	if ($line =~ /^Global used bandwith : ([0-9\.]+) (.).*\/ ([0-9\.]+) (.)/) {
+		if ($2 eq 'b') {
+			$gdownload = $1 / 1024;
+			} elsif ($2 eq 'm') {
+				$gdownload = $1 * 1024;
+			} else {
+				$gdownload = $1
+			}
+		if ($4 eq 'b') {
+			$gupload = $3 / 1024;
+			} elsif ($4 eq 'm') {
+				$gupload = $3 * 1024;
+			} else {
+				$gupload = $3
+			}
+		# Unities : b (bytes) / k (kbytes) / m (mbytes)
+		last;
+	}
+}
+close(FD);
+
+print "gdownload.value $gdownload\n";
+print "gupload.value $gupload\n";

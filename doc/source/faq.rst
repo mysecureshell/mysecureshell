@@ -103,13 +103,15 @@ If you only want to allow this user using SSH key, you can disable it's password
     
     Note that it will also disable local password account
 
-How to use another authentication system?
+Can I use another authentication system?
 -----------------------------------------
 
 Of course you can use another authentication system like:
+
 * OpenLDAP
 * Kerberos
 * ...
+
 You have to configure PAM (Pluggable Authentication Module) to be able to authenticate trought another backend. You can check that your backend connection is working fine like this::
 
     $ getent passwd username

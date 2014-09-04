@@ -79,7 +79,7 @@ gettext_compact = False     # optional.
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = []
+exclude_patterns = ['mysecureshell_description.rst']
 
 # The reST default role (used for this markup: `text`) to use for all
 # documents.
@@ -214,7 +214,7 @@ latex_documents = [
 
 # The name of an image file (relative to this directory) to place at the top of
 # the title page.
-latex_logo = "images/logo_large.png"
+latex_logo = "images/logo_mss_large.png"
 
 # For "manual" documents, if this is true, then toplevel headings are parts,
 # not chapters.

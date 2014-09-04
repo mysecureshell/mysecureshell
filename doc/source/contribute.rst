@@ -36,9 +36,13 @@ With Docker, here is the content file for development:
 .. literalinclude:: ../../deployment-tools/docker/dev/Dockerfile
    :language: bash
 
-To install this ocntainer, simply run docker with the Dockerfile::
+To install this container, simply build docker with the Dockerfile::
 
-    $ docker build -t mysecureshell github.com/mysecureshell/mysecureshell/deployment-tools/docker/dev
+    $ docker build -t mysecureshelldev github.com/mysecureshell/mysecureshell/deployment-tools/docker/dev
+
+Now you can run one::
+
+    $ docker run -d -p 22222:22 mysecureshelldev
 
 If you need more explaination on how to use it, please look at the :doc:`Quick Try <quick_try_docker>` section.
 
@@ -101,5 +105,7 @@ Share your MySecureShell usage and knowledge
 --------------------------------------------
 
 If you like MySecureShell, do not hesitate to make blog posts, social sharing (Twitter, Google+, Facebook...) or participate with us to help users on GitHub issues.
+
+.. note:: MySecureShell is available on Twitter with `@MySecureShell <https://twitter.com/mysecureshell>`_ username.
 
 You can also help us on testing futures releases by participating to beta tests.
