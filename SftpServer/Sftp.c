@@ -1050,6 +1050,7 @@ int SftpMain(tGlobal *params, int sftpProtocol)
 		if (tmCur > tmNeeded)
 		{
 			SET_TIMEOUT(tm, 0, 0);
+			goto selectTimeout;
 		}
 		else if (tmCur == 0)
 		{
@@ -1068,6 +1069,7 @@ int SftpMain(tGlobal *params, int sftpProtocol)
 		}
 		else if (ret == 0)
 		{
+selectTimeout:
 			tmNeeded = 1000000;
 			if (gl_var->who == NULL) //dont check anything for administrator
 			{
