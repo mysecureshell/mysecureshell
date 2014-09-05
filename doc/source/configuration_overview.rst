@@ -5,7 +5,7 @@ Overview
 
 .. highlight:: apache
 
-To configure MySecureShell, you need to edit the */etc/ssh/sftp_config* file. By default MySecureSHell comes with a commented example configuration. This may not match all your needs and you will need to modify it to get it working as expected.
+To configure MySecureShell, you need to edit the */etc/ssh/sftp_config* file. By default MySecureShell comes with a commented example configuration. This may not match all your needs and you will need to modify it to get it working as expected.
 
 The configuration is made with 2 importants kinds of tags:
 
@@ -50,9 +50,9 @@ ByPassGlobalUpload_    false/true        Bypassing GlobalUpload value
 CanChangeRights_       false/true        Allow to change rights on files and directories
 CanChangeTime_         false/true        Allow to change access and creation time on files and directories
 Charset_               <charset>         Enable special charset compatibility
-ConnectionMaxLife_     <integer>          Limit maximum connection time in seconds
+ConnectionMaxLife_     <unix rights>     Limit maximum connection time in seconds
 CreateHome_            false/true        Create home user's directory if it doesn't exist
-DefaultRights_         <umask>           Set default rights on new files and folders created (`umask format <http://en.wikipedia.org/wiki/Umask>`_
+DefaultRights_         <unix rights>     Set default rights on new files and folders created
 DirFakeGroup_          false/true        Substitute shown group owner name of files and directories, by the name of the connected user
 DirFakeMode_           xxxx              Substitute shown rights of files and directories, by those ones
 DirFakeUser_           false/true        Substitute shown user owner name of files and directories, by the name of the connected user
@@ -67,32 +67,32 @@ DisableRename_         false/true        Disable renaming files and directories
 DisableSetAttribute_   false/true        Disable changing attributes on files and directories
 DisableSymLink_        false/true        Disable creating symbolic link
 DisableWriteFile_      false/true        Disable writing files
-Download_              <integer><units>   Download bandwidth by connected user
+Download_              <integer><units>  Download bandwidth by connected user
 ExpireDate_            <date>            Expiration date
-ForceGroup_            <groupname>       
-ForceRights_           Umask             
-ForceUser_             user              
-GlobalDownload_        <integer><units>   Maximum allowed bandwidth in download for the server
-GlobalUpload_          <integer><units>   Maximum allowed bandwidth in upload for the server
+ForceGroup_            <groupname>       Force group assignment for connected user
+ForceRights_           <unix rights>     Force rights assignment for connected user
+ForceUser_             user              Force user assignment for connected user
+GlobalDownload_        <integer><units>  Maximum allowed bandwidth in download for the server
+GlobalUpload_          <integer><units>  Maximum allowed bandwidth in upload for the server
 HideNoAccess_          false/true        Hide not allowed permissions files and directories
 Home_                  <path>            Change home of users.
-IdleTimeOut_           <integer>          Inactivity timeout before deconnection in seconds
+IdleTimeOut_           <integer>         Inactivity timeout before deconnection in seconds
 IgnoreHidden_          false/true        Show hidden files and directories (starting with a dot)
 Include_               <path>            Include another configuration file
 IsAdmin_               false/true        Allow to be administrator
 IsSimpleAdmin_         false/true        Allow to be administrator (less righs than IsAdmin tag)
-LimitConnection_       <integer>          Limit the number of simultaneous connections
-LimitConnectionByIp_   <integer>          Limit the number of simultaneous connections by IP
-LimitConnectionByUser_ <integer>          Limit the number of simultaneous connections by user
+LimitConnection_       <integer>         Limit the number of simultaneous connections
+LimitConnectionByIp_   <integer>         Limit the number of simultaneous connections by IP
+LimitConnectionByUser_ <integer>         Limit the number of simultaneous connections by user
 LogFile_               <path>            Allows to change the file of log
 LogSyslog_             false/true        Write log to syslog
-MaxOpenFilesForUser_   <integer>          Limit maximum opening files simultaneously
-MaxReadFilesForUser_   <integer>          Limit maximum reading files simultaneously
-MaxWriteFilesForUser_  <integer>          Limit maximum writing files simultaneously
-MaximumRights_         <umask>           Set a maximum rights on new files and folders created (`umask format <http://en.wikipedia.org/wiki/Umask>`_
-MinimumRights_         <umask>           Force minimum rights for new files and new directories (`umask format <http://en.wikipedia.org/wiki/Umask>`_
+MaxOpenFilesForUser_   <integer>         Limit maximum opening files simultaneously
+MaxReadFilesForUser_   <integer>         Limit maximum reading files simultaneously
+MaxWriteFilesForUser_  <integer>         Limit maximum writing files simultaneously
+MaximumRights_         <unix rights>     Set a maximum rights on new files and folders created (`unix rights format <http://en.wikipedia.org/wiki/unix rights>`_)
+MinimumRights_         <unix rights>     Force minimum rights for new files and new directories (`unix rights format <http://en.wikipedia.org/wiki/unix rights>`_)
 ResolveIP_             false/true        Resolve IP address from DNS
-SftpProtocol_          <integer>          Force the SFTP protocol version
+SftpProtocol_          <integer>         Force the SFTP protocol version
 Shell_                 <path>            Specify a Shell path to allow users to have a real shell
 ShowLinksAsLinks_      false/true        See symbolic links as true files or folders
 StayAtHome_            false/true        Restrict user to stay in its home directory and subdirectories

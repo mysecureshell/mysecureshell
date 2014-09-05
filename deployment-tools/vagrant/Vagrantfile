@@ -1,6 +1,6 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
-# MySecureShell Team <https://github.com/deimosfr/mysecureshell>
+# MySecureShell Team <https://github.com/mysecureshell/mysecureshell>
 
 # Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
 VAGRANTFILE_API_VERSION = "2" 
@@ -23,9 +23,9 @@ apt-get update
 apt-get -y install git
 #get the sources
 if [ -f /vagrant/id_rsa ] ; then
-    git clone git@github.com:deimosfr/mysecureshell.git
+    git clone git@github.com:mysecureshell/mysecureshell.git
 else
-    git clone https://github.com/deimosfr/mysecureshell.git
+    git clone https://github.com/mysecureshell/mysecureshell.git
 fi
 chown -Rf vagrant. mysecureshell
 #install C dependencies

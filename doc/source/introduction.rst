@@ -33,7 +33,7 @@ Is MySecureShell really add enhanced features to OpenSSH sftp? Yes! Here is a sa
 * Restrict users to have sftp only (shell access is disabled by default)
 * And more...
 
-Which Operating Systems are compatible with MySeucreShell?
+Which Operating Systems are compatible with MySecureShell?
 ----------------------------------------------------------
 
 MySecureShell has been developed to work on several types of Operating Systems like Linux, Mac OS X, Solaris, BSD and Windows (with `Cygwin <https://www.cygwin.com/>`_).
