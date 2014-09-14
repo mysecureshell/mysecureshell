@@ -77,12 +77,12 @@ $(NAME1) : $(OBJ1)
 
 $(NAME2) : $(OBJ2)
 	@echo "Compile binary	[$(NAME2)]"
-	@$(CC) -o $(NAME2) $(OBJ2)
+	@$(CC) -o $(NAME2) $(OBJ2) $(LDFLAGS)
 	@$(CHMOD) 711 $(NAME2)
 
 $(NAME3) : $(OBJ3)
 	@echo "Compile binary	[$(NAME3)]"
-	@$(CC) -o $(NAME3) $(OBJ3)
+	@$(CC) -o $(NAME3) $(OBJ3) $(LDFLAGS)
 	@$(CHMOD) 711 $(NAME3)
 
 clean	:
