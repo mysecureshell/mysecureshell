@@ -1,4 +1,7 @@
 ## MySecureShell Configuration File ##
+# To get more informations on all possible options, please look at the doc:
+# http://mysecureshell.readthedocs.org
+
 #Default rules for everybody
 <Default>
 	GlobalDownload		50k	#total speed download for all clients
