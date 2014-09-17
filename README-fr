@@ -88,6 +88,7 @@ HISTORIQUE:
 1.34 (???):
 	+ ajoute d'un nouveau tag DisableStatsFs
 	+ remplacement d'OpenSSL par GnuTLS
+	+ amélioration des traces de connexion (ajout du port source)
 	~ correction d'un bug lors de l'appel au Shell (manque les arguments)
 	~ amélioration de la qualité de code
 

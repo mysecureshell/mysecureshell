@@ -108,7 +108,7 @@ void DoInitUser()
 	t_info *pw;
 	int uid, gid;
 
-	mylog_printf(MYLOG_CONNECTION, "New client [%s] from [%s]", gl_var->user, gl_var->ip);
+	mylog_printf(MYLOG_CONNECTION, "New client [%s] from [%s][%i]", gl_var->user, gl_var->ip, gl_var->portSource);
 	umask(000);
 	uid = getuid();
 	if (gl_var->force_user != NULL)

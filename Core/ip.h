@@ -19,4 +19,5 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /*@null@*/ char	*get_ip(int resolve);
 /*@null@*/ char	*get_ip_server();
+int		get_port_client();
 int		get_port_server();

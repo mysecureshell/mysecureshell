@@ -81,6 +81,30 @@
 	return (ip);
 }
 
+int get_port_client()
+{
+	char *ip, *ptr;
+	int port = -1;
+
+	if ((ip = getenv("SSH_CONNECTION")) != NULL)
+	{
+		if ((ptr = strchr(ip, ' ')) != NULL)
+		{
+			char	*portClient;
+
+			ip = ptr + 1;
+			portClient = strdup(ip);
+			if ((ptr = strchr(portClient, ' ')) != NULL)
+			{
+				*ptr = '\0';
+				port = atoi(portClient);
+			}
+			free(portClient);
+		}
+	}
+	return (port);
+}
+
 int get_port_server()
 {
 	char *ip, *ptr;

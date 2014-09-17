@@ -247,6 +247,7 @@ typedef struct	sGlobal
 	t_sftpwho	*who;
 	char		*user;
 	char		*ip;
+	int			portSource;
 	char		*home;
 	uid_t		current_user;
 	gid_t		current_group;

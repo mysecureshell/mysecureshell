@@ -161,6 +161,7 @@ int main(int ac, char **av, char **env)
 		ptr = hash_get("User");
 		params->user = strdup(ptr == NULL ? "{error user}" : ptr);
 		params->ip = strdup(hostname == NULL ? "{error ip}" : hostname);
+		params->portSource = get_port_client();
 
 		params->who = SftpWhoGetStruct(1);
 		if (params->who != NULL)
