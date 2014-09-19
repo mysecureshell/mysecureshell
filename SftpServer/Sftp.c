@@ -306,14 +306,13 @@ void DoClose()
 			{
 				off_t	fileSize = lseek(hdl->fd, 0, SEEK_END);
 
-				mylog_printf(MYLOG_TRANSFERT, "[%s][%s]End upload into file '%s' (%li bytes)",
-						gl_var->user, gl_var->ip, hdl->path, fileSize);
+				mylog_printf(MYLOG_TRANSFERT, "[%s][%s][%i]End upload into file '%s' (%li bytes)",
+						gl_var->user, gl_var->ip, gl_var->portSource, hdl->path, fileSize);
 			}
 			else
 			{
-				mylog_printf(MYLOG_TRANSFERT,
-						"[%s][%s]End download file '%s' (%li bytes) : %i%%", gl_var->user,
-						gl_var->ip, hdl->path, hdl->filePos, pourcentage);
+				mylog_printf(MYLOG_TRANSFERT, "[%s][%s][%i]End download file '%s' (%li bytes) : %i%%",
+						gl_var->user, gl_var->ip, gl_var->portSource, hdl->path, hdl->filePos, pourcentage);
 				BufferSetFastClean(bIn, 0);
 				BufferSetFastClean(bOut, 0);
 			}
@@ -367,11 +366,11 @@ void DoOpen()
 		{
 			if (FILE_IS_UPLOAD(flags))
 			{
-				mylog_printf(MYLOG_TRANSFERT, "[%s][%s]Start upload into file '%s'", gl_var->user, gl_var->ip, path);
+				mylog_printf(MYLOG_TRANSFERT, "[%s][%s][%i]Start upload into file '%s'", gl_var->user, gl_var->ip, gl_var->portSource, path);
 			}
 			else
 			{
-				mylog_printf(MYLOG_TRANSFERT, "[%s][%s]Start download file '%s'", gl_var->user, gl_var->ip, path);
+				mylog_printf(MYLOG_TRANSFERT, "[%s][%s][%i]Start download file '%s'", gl_var->user, gl_var->ip, gl_var->portSource, path);
 				BufferSetFastClean(bIn, 1);
 				BufferSetFastClean(bOut, 1);
 			}
@@ -676,8 +675,8 @@ void DoRemove()
 	else
 	{
 		status = FSUnlink(path);
-		mylog_printf(MYLOG_WARNING, "[%s][%s]Try to remove file '%s' : %s",
-				gl_var->user, gl_var->ip, path,
+		mylog_printf(MYLOG_WARNING, "[%s][%s][%i]Try to remove file '%s' : %s",
+				gl_var->user, gl_var->ip, gl_var->portSource, path,
 				(status != SSH2_FX_OK ? strerror(errno) : "success"));
 	}
 	DEBUG((MYLOG_DEBUG, "[DoRemove]path:'%s' -> '%i'", path, status));
@@ -706,10 +705,9 @@ void DoMkDir()
 	else
 	{
 		status = FSMkdir(path, mode);
-		mylog_printf(MYLOG_WARNING,
-				"[%s][%s]Try to create directory '%s' : %s", gl_var->user,
-				gl_var->ip, path, (status != SSH2_FX_OK ? strerror(errno)
-						: "success"));
+		mylog_printf(MYLOG_WARNING, "[%s][%s][%i]Try to create directory '%s' : %s",
+				gl_var->user, gl_var->ip, gl_var->portSource,
+				path, (status != SSH2_FX_OK ? strerror(errno) : "success"));
 	}
 	SendStatus(bOut, id, status);
 	DEBUG((MYLOG_DEBUG, "[DoMkDir]path:'%s', mode:%o -> '%i'", path, mode, status));
@@ -732,10 +730,9 @@ void DoRmDir()
 	else
 	{
 		status = FSRmdir(path);
-		mylog_printf(MYLOG_WARNING,
-					"[%s][%s]Try to remove directory '%s' : %s",
-					gl_var->user, gl_var->ip, path, (status
-							!= SSH2_FX_OK ? strerror(errno) : "success"));
+		mylog_printf(MYLOG_WARNING, "[%s][%s][%i]Try to remove directory '%s' : %s",
+					gl_var->user, gl_var->ip, gl_var->portSource,
+					path, (status != SSH2_FX_OK ? strerror(errno) : "success"));
 	}
 	SendStatus(bOut, id, status);
 	DEBUG((MYLOG_DEBUG, "[DoRmDir]path:'%s' -> '%i'", path, status));
@@ -763,9 +760,8 @@ void DoRename()
 		int	overwriteDestination = HAS_BIT(flags, SSH5_FXP_RENAME_OVERWRITE) ? 1 : 0;
 
 		status = FSRename(oldPath, newPath, overwriteDestination);
-		mylog_printf(MYLOG_WARNING,
-				"[%s][%s]Try to rename '%s' -> '%s' : %s", gl_var->user,
-				gl_var->ip, oldPath, newPath,
+		mylog_printf(MYLOG_WARNING, "[%s][%s][%i]Try to rename '%s' -> '%s' : %s",
+				gl_var->user, gl_var->ip, gl_var->portSource, oldPath, newPath,
 				(status != SSH2_FX_OK ? strerror(errno) : "success"));
 	}
 	DEBUG((MYLOG_DEBUG, "[DoRename]oldPath:'%s' newPath:'%s' -> '%i'", oldPath, newPath, status));
@@ -851,7 +847,8 @@ void DoSFTPProtocol()
 	msgLen = BufferGetInt32(bIn);
 	if (msgLen > (256 * 1024)) //message too long
 	{
-		mylog_printf(MYLOG_ERROR, "[%s][%s]Error: message is too long (%i)", gl_var->user, gl_var->ip, msgLen);
+		mylog_printf(MYLOG_ERROR, "[%s][%s][%i]Error: message is too long (%i)",
+				gl_var->user, gl_var->ip, gl_var->portSource, msgLen);
 		exit(1);
 	}
 	if ((bIn->length - bIn->read) < msgLen) //message not complete
@@ -1086,7 +1083,8 @@ int SftpMain(tGlobal *params, int sftpProtocol)
 			gl_var->who->time_total = time(0) - gl_var->who->time_begin;
 			if (gl_var->who->time_maxidle > 0 && gl_var->who->time_idle >= gl_var->who->time_maxidle)
 			{
-				mylog_printf(MYLOG_CONNECTION, "[%s][%s]Connection time out", gl_var->user, gl_var->ip);
+				mylog_printf(MYLOG_CONNECTION, "[%s][%s][%i]Connection time out",
+						gl_var->user, gl_var->ip, gl_var->portSource);
 				exit(0);
 			}
 			if (gl_var->who->time_idle > 2)
@@ -1116,7 +1114,8 @@ int SftpMain(tGlobal *params, int sftpProtocol)
 				gl_var->who->time_maxlife--;
 				if (gl_var->who->time_maxlife == 0)
 				{
-					mylog_printf(MYLOG_CONNECTION, "[%s][%s]Connection max life !", gl_var->user, gl_var->ip);
+					mylog_printf(MYLOG_CONNECTION, "[%s][%s][%i]Connection max life !",
+							gl_var->user, gl_var->ip, gl_var->portSource);
 					exit(0);
 				}
 			}

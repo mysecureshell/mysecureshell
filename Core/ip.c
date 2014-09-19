@@ -50,7 +50,7 @@
 		if (resolv == 0)
 			ip = strdup(env);
 		else if ((int) (addr = inet_addr(env)) != -1)
-			if ((h = gethostbyaddr((char *) &addr, sizeof(addr), AF_INET)) != NULL)
+			if ((h = gethostbyaddr((char *) &addr, sizeof(addr), AF_INET)) != NULL)//FIXME inet_ntop ???
 				if (h != NULL && h->h_name != NULL && strlen(h->h_name) > 0)//check if a name is defined
 					ip = strdup(h->h_name);
 		free(env);

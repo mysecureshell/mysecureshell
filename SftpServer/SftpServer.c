@@ -49,7 +49,7 @@ static void end_sftp()
 		if (cVersion != SSH2_ADMIN_VERSION)
 		{
 			CloseInfoForOpenFiles();
-			mylog_printf(MYLOG_CONNECTION, "[%s][%s]Quit.", gl_var->user, gl_var->ip);
+			mylog_printf(MYLOG_CONNECTION, "[%s][%s][%i]Quit.", gl_var->user, gl_var->ip, gl_var->portSource);
 		}
 		mylog_close_and_free();
 		SftpWhoReleaseStruct(gl_var->who);
@@ -116,9 +116,8 @@ void DoInitUser()
 		if ((pw = mygetpwnam(gl_var->force_user)) != NULL)
 			uid = pw->id;
 		else
-			mylog_printf(MYLOG_WARNING,
-					"[%s][%s]Unable to force user: %s (user unknown)",
-					gl_var->user, gl_var->ip, gl_var->force_user);
+			mylog_printf(MYLOG_WARNING, "[%s][%s][%i]Unable to force user: %s (user unknown)",
+					gl_var->user, gl_var->ip, gl_var->portSource, gl_var->force_user);
 	}
 	gid = getgid();
 	if (gl_var->force_group != NULL)
@@ -126,9 +125,8 @@ void DoInitUser()
 		if ((pw = mygetgrnam(gl_var->force_group)) != NULL)
 			gid = pw->id;
 		else
-			mylog_printf(MYLOG_WARNING,
-					"[%s][%s]Unable to force group: %s (group unknown)",
-					gl_var->user, gl_var->ip, gl_var->force_group);
+			mylog_printf(MYLOG_WARNING, "[%s][%s][%i]Unable to force group: %s (group unknown)",
+					gl_var->user, gl_var->ip, gl_var->portSource, gl_var->force_group);
 	}
 	if (HAS_BIT(gl_var->flagsGlobals, SFTPWHO_CREATE_HOME)
 			&& chdir(gl_var->home) == -1 && errno == ENOENT)
@@ -139,20 +137,18 @@ void DoInitUser()
 		mode &= gl_var->maximum_rights_directory;
 		if (mkdir(gl_var->home, mode) == -1)
 		{
-			mylog_printf(MYLOG_ERROR,
-					"[%s][%s]Couldn't create to home '%s' : %s",
-					gl_var->user, gl_var->ip, gl_var->home,
+			mylog_printf(MYLOG_ERROR, "[%s][%s][%i]Couldn't create to home '%s' : %s",
+					gl_var->user, gl_var->ip, gl_var->portSource, gl_var->home,
 					strerror(errno));
 		}
 		else if (chown(gl_var->home, uid, gid) == -1)
-			mylog_printf(MYLOG_ERROR,
-					"[%s][%s]Couldn't chown the home '%s' : %s",
-					gl_var->user, gl_var->ip, gl_var->home,
+			mylog_printf(MYLOG_ERROR, "[%s][%s][%i]Couldn't chown the home '%s' : %s",
+					gl_var->user, gl_var->ip, gl_var->portSource, gl_var->home,
 					strerror(errno));
 	}
 	if (chdir(gl_var->home) == -1)
-		mylog_printf(MYLOG_ERROR, "[%s][%s]Couldn't go to home '%s' : %s",
-				gl_var->user, gl_var->ip, gl_var->home,
+		mylog_printf(MYLOG_ERROR, "[%s][%s][%i]Couldn't go to home '%s' : %s",
+				gl_var->user, gl_var->ip, gl_var->portSource, gl_var->home,
 				strerror(errno));
 	if (HAS_BIT(gl_var->flagsGlobals, SFTPWHO_VIRTUAL_CHROOT))
 	{
@@ -165,29 +161,27 @@ void DoInitUser()
 		FSInit(gl_var->home, NULL);
 	if (gl_var->force_group != NULL)
 	{
-		mylog_printf(MYLOG_WARNING, "[%s][%s]Using force group: %s", gl_var->user, gl_var->ip, gl_var->force_group);
+		mylog_printf(MYLOG_WARNING, "[%s][%s][%i]Using force group: %s",
+				gl_var->user, gl_var->ip, gl_var->portSource, gl_var->force_group);
 		if (setgid(gid) == -1)
-			mylog_printf(MYLOG_WARNING,
-					"[%s][%s]Unable to force group: %s (%s)",
-					gl_var->user, gl_var->ip, gl_var->force_group,
-					strerror(errno));
+			mylog_printf(MYLOG_WARNING, "[%s][%s][%i]Unable to force group: %s (%s)",
+					gl_var->user, gl_var->ip, gl_var->portSource,
+					gl_var->force_group, strerror(errno));
 	}
 	if (gl_var->force_user != NULL)
 	{
-		mylog_printf(MYLOG_WARNING, "[%s][%s]Using force user: %s",
-				gl_var->user, gl_var->ip, gl_var->force_user);
+		mylog_printf(MYLOG_WARNING, "[%s][%s][%i]Using force user: %s",
+				gl_var->user, gl_var->ip, gl_var->portSource, gl_var->force_user);
 		if (setuid(uid) == -1)
-			mylog_printf(MYLOG_WARNING,
-					"[%s][%s]Unable to force user: %s (%s)", gl_var->user,
-					gl_var->ip, gl_var->force_user, strerror(errno));
+			mylog_printf(MYLOG_WARNING, "[%s][%s][%i]Unable to force user: %s (%s)",
+					gl_var->user, gl_var->ip, gl_var->portSource, gl_var->force_user, strerror(errno));
 	}
 	if (getuid() != geteuid()) //revoke root rights in user mode !
 	{
 		if (seteuid(uid) == -1 || setegid(gid) == -1)
 		{
-			mylog_printf(MYLOG_ERROR,
-					"[%s][%s]Couldn't revoke root rights : %s",
-					gl_var->user, gl_var->ip, strerror(errno));
+			mylog_printf(MYLOG_ERROR, "[%s][%s][%i]Couldn't revoke root rights : %s",
+					gl_var->user, gl_var->ip, gl_var->portSource, strerror(errno));
 			exit(255);
 		}
 	}
@@ -264,15 +258,13 @@ void CloseInfoForOpenFiles()
 			pourcentage = 0;
 		if (FILE_IS_UPLOAD(hdl->flags))
 		{
-			mylog_printf(MYLOG_TRANSFERT,
-					"[%s][%s]Interrupt upload into file '%s'",
-					gl_var->user, gl_var->ip, hdl->path);
+			mylog_printf(MYLOG_TRANSFERT, "[%s][%s][%i]Interrupt upload into file '%s'",
+					gl_var->user, gl_var->ip, gl_var->portSource, hdl->path);
 		}
 		else
 		{
-			mylog_printf(MYLOG_TRANSFERT,
-					"[%s][%s]Interrupt download file '%s' : %i%%",
-					gl_var->user, gl_var->ip, hdl->path, pourcentage);
+			mylog_printf(MYLOG_TRANSFERT, "[%s][%s][%i]Interrupt download file '%s' : %i%%",
+					gl_var->user, gl_var->ip, gl_var->portSource, hdl->path, pourcentage);
 		}
 		HandleClose(hdl->id);
 	}

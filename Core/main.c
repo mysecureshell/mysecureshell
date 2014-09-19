@@ -191,8 +191,7 @@ int main(int ac, char **av, char **env)
 			mylog_open(strdup(MSS_LOG), max);
 		if (params->who == NULL)
 		{
-			mylog_printf(MYLOG_ERROR,
-					"[%s]Server '%s' reached maximum connexion (%i clients)",
+			mylog_printf(MYLOG_ERROR, "[%s]Server '%s' reached maximum connexion (%i clients)",
 					hash_get("User"), hash_get("SERVER_IP"), SFTPWHO_MAXCLIENT);
 			SftpWhoReleaseStruct(NULL);
 			delete_hash();
@@ -203,8 +202,7 @@ int main(int ac, char **av, char **env)
 		max = hash_get_int("LimitConnectionByUser");
 		if (max > 0 && count_program_for_uid(hash_get("User")) > max)
 		{
-			mylog_printf(MYLOG_ERROR,
-					"[%s]Too many connection for this account",
+			mylog_printf(MYLOG_ERROR, "[%s]Too many connection for this account",
 					hash_get("User"));
 			SftpWhoReleaseStruct(params->who);
 			delete_hash();
@@ -214,8 +212,7 @@ int main(int ac, char **av, char **env)
 		max = hash_get_int("LimitConnectionByIP");
 		if (max > 0 && count_program_for_ip(hostname) > max)
 		{
-			mylog_printf(MYLOG_ERROR,
-					"[%s]Too many connection for this IP : %s",
+			mylog_printf(MYLOG_ERROR, "[%s]Too many connection for this IP : %s",
 					hash_get("User"), hostname);
 			SftpWhoReleaseStruct(params->who);
 			delete_hash();
@@ -225,9 +222,8 @@ int main(int ac, char **av, char **env)
 		max = hash_get_int("LimitConnection");
 		if (max > 0 && count_program_for_uid(NULL) > max)
 		{
-			mylog_printf(MYLOG_ERROR,
-					"[%s]Too many connection for the server : %s", hash_get(
-							"User"), hash_get("SERVER_IP"));
+			mylog_printf(MYLOG_ERROR, "[%s]Too many connection for the server : %s",
+					hash_get("User"), hash_get("SERVER_IP"));
 			SftpWhoReleaseStruct(params->who);
 			delete_hash();
 			FileSpecDestroy();
