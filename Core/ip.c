@@ -54,8 +54,10 @@
 				if (h != NULL && h->h_name != NULL && strlen(h->h_name) > 0)//check if a name is defined
 					ip = strdup(h->h_name);
 		free(env);
+		if (ip == NULL)
+			ip = strdup("");
 	}
-	if (ip == NULL)
+	else
 		ip = strdup("");
 	return (ip);
 }
