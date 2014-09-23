@@ -76,6 +76,13 @@ Forum:       http://mysecureshell.free.fr
 
 CHANGE LOG:
 -----------
+2.0 (september 2014):
+	+ add new tag DisableStatsFs
+	+ replace OpenSSL by GnuTLS
+	+ improve connection log (add source port)
+	~ fix bug when calling Shell (missing arguments)
+	~ improve code quality
+	
 1.33 (april 2014):
 	+ add new tag LogSyslog
 	+ add transfert file size

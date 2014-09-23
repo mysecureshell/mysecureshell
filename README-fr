@@ -85,7 +85,7 @@ Forum:       http://mysecureshell.free.fr
 
 HISTORIQUE:
 -----------
-1.34 (???):
+2.0 (septembre 2014):
 	+ ajoute d'un nouveau tag DisableStatsFs
 	+ remplacement d'OpenSSL par GnuTLS
 	+ amélioration des traces de connexion (ajout du port source)
