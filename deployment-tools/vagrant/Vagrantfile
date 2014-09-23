@@ -30,6 +30,8 @@ fi
 chown -Rf vagrant. mysecureshell
 #install C dependencies
 apt-get -y install libacl1-dev libgnutls-dev gcc make
+#install packaging dependencies
+apt-get -i install build-essential fakeroot lintian devscripts debhelper
 #install Sphinxdoc dependencies
 apt-get -y install sphinx-doc sphinx-common python3-sphinx libjs-sphinxdoc python-pip \
 texlive-latex-base texlive-latex-recommended texlive-latex-extra texlive-fonts-recommended
