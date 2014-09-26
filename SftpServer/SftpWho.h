@@ -70,9 +70,9 @@ typedef struct	s_sftpglobal
 
 typedef struct	s_sftpwho
 {
-//4 items = 656 octets
+//5 items = 882 octets
   char		user[30];
-  char		ip[30];
+  char		ip[256];
   char		path[200];
   char		file[200];
   char		home[196];
@@ -97,9 +97,7 @@ typedef struct	s_sftpwho
   u_int32_t	time_begin;
   u_int32_t	time_transf;
 }		t_sftpwho;
-//total : 716 octets
-
-//#define	SHM_SFTP_SIZE	(SFTPWHO_MAXCLIENT * sizeof(t_sftpwho) + sizeof(t_sftpglobal))
+//total : 942 octets
 
 extern t_sftpglobal     *_sftpglobal;
 

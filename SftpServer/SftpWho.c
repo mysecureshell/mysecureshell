@@ -28,7 +28,7 @@
 #include <unistd.h>
 
 static char	*_shmfile = "/dev/null";
-static int		_shmkey = 0x421107;
+static int	_shmkey = 0x421108;
 
 typedef struct		s_shm
 {
