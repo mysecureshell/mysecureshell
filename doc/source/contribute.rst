@@ -38,7 +38,8 @@ With Docker, here is the content file for development:
 
 To install this container, simply build docker with the Dockerfile::
 
-    $ docker build -t mysecureshelldev github.com/mysecureshell/mysecureshell/deployment-tools/docker/dev
+    $ docker build -t mysecureshelldev \
+    https://raw.githubusercontent.com/mysecureshell/mysecureshell/master/deployment-tools/docker/dev/Dockerfile
 
 Now you can run one::
 

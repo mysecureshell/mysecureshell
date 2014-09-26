@@ -23,7 +23,8 @@ Run Dockerfile
 
 Once done, on your machine install the MySecureShell Dockerfile::
 
-    $ docker build -t mysecureshell github.com/mysecureshell/mysecureshell/deployment-tools/docker
+    $ docker build -t mysecureshell \
+    https://raw.githubusercontent.com/mysecureshell/mysecureshell/master/deployment-tools/docker/Dockerfile
 
 Here is the content of the Dockerfile:
 
