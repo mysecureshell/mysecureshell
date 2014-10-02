@@ -1,0 +1,72 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          mysecureshell
+# Required-Start:    $local_fs $network $remote_fs $syslog
+# Required-Stop:     $local_fs $network $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: MySecureShell SFTP Server
+# Description:       MySecureShell SFTP Server
+### END INIT INFO
+
+# Author: MySecureShell Team <teka2nerdman@users.sourceforge.net>
+
+# Do NOT "set -e"
+
+# PATH should only include /usr/* if it runs after the mountnfs.sh script
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+DESC="MySecureShell SFTP Server"
+NAME=mysecureshell
+DAEMON=/bin/MySecureShell
+DAEMON_ARGS=""
+PIDFILE=/var/run/$NAME.pid
+SCRIPTNAME=/etc/init.d/$NAME
+
+# Exit if the package is not installed
+[ -x "$DAEMON" ] || exit 0
+
+# Read configuration variable file if it is present
+[ -r /etc/default/$NAME ] && . /etc/default/$NAME
+
+# Load the VERBOSE setting and other rcS variables
+. /lib/init/vars.sh
+
+# Define LSB log_* functions.
+# Depend on lsb-base (>= 3.2-14) to ensure that this file is present
+# and status_of_proc is working.
+. /lib/lsb/init-functions
+
+#
+# Function that starts the daemon/service
+#
+case "$1" in
+  start)
+    echo -n "Starting $DESC: "
+    sftp-state start > /dev/null
+    echo "$NAME is now online"
+    ;;
+  stop)
+    echo -n "Stopping $DESC: "
+    sftp-state fullstop -yes > /dev/null
+    echo "$NAME is now offline"
+    ;;
+  restart|force-reload)
+    echo -n "Restarting $DESC: "
+    sftp-state fullstop -yes > /dev/null
+    echo "$NAME is now offline --> please wait while restarting..."
+    sleep 1
+    sftp-state start > /dev/null
+    echo "$NAME is now online"
+    ;;
+  status)
+    sftp-state
+    ;;
+  *)
+    N=/etc/init.d/$NAME
+    echo "Usage: $N {start|stop|restart|status|force-reload}" >&2
+    exit 1
+    ;;
+esac
+
+exit 0
+

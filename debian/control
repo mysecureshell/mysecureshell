@@ -1,0 +1,29 @@
+Source: mysecureshell
+Section: net
+Priority: optional
+Maintainer: MySecureShell Team <teka2nerdman@users.sourceforge.net>
+Build-Depends: debhelper (>= 9), autotools-dev, libacl1-dev, libgnutls-dev
+Standards-Version: 3.9.5
+Homepage: http://mysecureshell.readthedocs.org
+Vcs-Git: git://github.com/mysecureshell/mysecureshell
+Vcs-Browser: https://github.com/mysecureshell/mysecureshell
+
+Package: mysecureshell
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, openssh-server
+Description: <insert up to 60 chars description>
+ MySecureShell is a solution which has been made to bring more features to
+ sftp/scp protocol given by OpenSSH. By default, OpenSSH brings a lot of
+ liberty to connected users which imply to thrust in your users.
+ .
+ The goal of MySecureShell is to offer the power and security of OpenSSH, with
+ enhanced features (like ACL) to restrict connected users.
+ .
+ MySecureShell was created because of the lack of file transfer features in
+ OpenSSH. OpenSSH was not designed as a file transfer solution, that's why we
+ made MySecureShell.
+ .
+ MySecureShell is not a patch for OpenSSH, it's a shell for users. It has the advantage to:
+  * Avoid including security holes in OpenSSH
+  * No dependence on against an OpenSSH version
+  * No OpenSSH recompilation is required
