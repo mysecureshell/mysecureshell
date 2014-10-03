@@ -69,7 +69,7 @@ static void	parse_args(int ac, char **av)
       {
 	(void )printf("Usage:\n------\n%s [options]\n\nOptions:\n", av[0]);
 	(void )printf("\t-v : verbose mode\n");
-	(void )printf("\t--while [time in seconde] : sftp-who refresh informations (use ^C to quit)\n");
+	(void )printf("\t--while [time in seconde] : sftp-who refresh information (use ^C to quit)\n");
 	(void )printf("\n");
 	exit (0);
       }
@@ -168,7 +168,7 @@ int		main(int ac, char **av)
 		    global_upload += who[i].upload_current;
 		  }
 	      (void )printf("--- %i / %i clients ---\n", nb_clients, hash_get_int("LimitConnection"));
-	      (void )printf("Global used bandwith : %s / %s\n",
+	      (void )printf("Global used bandwidth : %s / %s\n",
 			    make_speed(b1, sizeof(b1), global_download, 0),
 			    make_speed(b2, sizeof(b2), global_upload, 0)
 			    );

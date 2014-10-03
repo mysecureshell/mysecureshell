@@ -125,7 +125,7 @@ void load_config(int verbose)
 {
 	if (init_user_info() == 0)
 	{
-		(void) fprintf(stderr, "[ERROR]Error when fetching user informations\n");
+		(void) fprintf(stderr, "[ERROR]Error when fetching user information\n");
 		exit(2);
 	}
 	hash_set_int("SERVER_PORT", get_port_server());
