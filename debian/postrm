@@ -26,6 +26,7 @@ case "$1" in
     purge)
         remove-shell /bin/MySecureShell
         rm -f /etc/ssh/sftp-config
+        rm -f /var/log/mysecureshell.log*
     ;;
 
     *)

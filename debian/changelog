@@ -1,9 +1,5 @@
 mysecureshell (2.0-1) testing; urgency=low
 
-    * add new tag DisableStatsFs
-    * replace OpenSSL by GnuTLS
-    * improve connection log (add source port)
-    * fix bug when calling Shell (missing arguments)
-    * improve code quality
+    * Initial release (Closes: #763930)
 
- -- MySecureShell Team <teka2nerdman@users.sourceforge.net>  Tue, 30 Sep 2014 07:18:01 +0000
+ -- Pierre Mavro <pierre@mavro.fr>  Tue, 30 Sep 2014 07:18:01 +0000
