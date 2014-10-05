@@ -1,12 +1,18 @@
 #!/usr/bin/make -f
 
-CFLAGS = -Wall -g -fPIC
+CFLAGS = -Wall -g
+CFLAGS += -fPIC
 
 # see FEATURE AREAS in dpkg-buildflags(1)
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 
 override_dh_auto_configure:
-	dh_auto_configure -- --bindir=/bin --mandir=/usr/share/man
+	dh_auto_configure -- --bindir=/usr/bin --mandir=/usr/share/man
+
+override_dh_clean:
+	dh_clean
+	make clean
+	rm -f config.status config.log install.sh uninstaller.sh config.h utils/sftp-user utils/sftp-verif
 
 # main packaging script based on dh7 syntax
 %:
