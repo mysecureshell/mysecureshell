@@ -5,7 +5,7 @@ MySecureShell was created because of the lack of file transfer features in OpenS
 **MySecureShell is not a patch for OpenSSH, it's a shell for users**. It has the advantage to:
 
 * Avoid including security holes in OpenSSH
-* No dependence on against an OpenSSH version
+* No dependency on against an OpenSSH version
 * No OpenSSH recompilation is required
 
 So **MySecureShell remains easy to install, secure and easy to configure**.
