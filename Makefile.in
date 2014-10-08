@@ -4,7 +4,7 @@ CPU	= "`uname -m`"
 ARCHIVE	= mysecureshell_$(VERSION)-$(OSTYPE)-$(CPU)
 ARCSRC	= mysecureshell_$(VERSION).tar.gz
 
-NAME	= MySecureShell$(EXT)
+NAME	= mysecureshell$(EXT)
 SRC	= Core/main.c Core/string.c	\
 	  Core/parsing.c Core/hash.c	\
 	  Core/conf.c Core/convert.c	\
@@ -88,6 +88,7 @@ $(NAME3) : $(OBJ3)
 clean	:
 	@echo "Delete all objects"
 	@$(RM) $(OBJ) $(OBJ1) $(OBJ2) $(OBJ3)
+	@$(RM) config.status config.log install.sh uninstaller.sh config.h utils/sftp-user utils/sftp-verif Makefile
 
 distclean: clean
 	@echo "Delete all unecessary files"
@@ -120,12 +121,12 @@ package : re
 
 source	:
 	@echo "Tar the world"
-	@test -e ../$(DEST) || $(LN) -fs MySecureShell ../$(DEST)
+	@test -e ../$(DEST) || $(LN) -fs mysecureshell ../$(DEST)
 	@cd .. && $(TAR) cfz $(DEST)/$(ARCSRC) $(FILESRC) $(DEST)/*.[ch] $(DEST)/*/*.[ch]
 	@echo "Source package done."
 
 files	:
-	@test -e ../$(DEST) || $(LN) -fs MySecureShell ../$(DEST)
+	@test -e ../$(DEST) || $(LN) -fs mysecureshell ../$(DEST)
 	@cd .. && $(LS) $(FILESRC) $(DEST)/*.[ch] $(DEST)/*/*.[ch]
 
 check	:

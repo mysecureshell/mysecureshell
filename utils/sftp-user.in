@@ -90,7 +90,7 @@ dar_add() {
 		niutil -createprop -R / /users/$nameuser gid $newid
 		niutil -createprop -R / /users/$nameuser uid $newid
 		niutil -createprop -R / /users/$nameuser realname "$nameuser"
-		niutil -createprop -R / /users/$nameuser shell "$bindir/MySecureShell"
+		niutil -createprop -R / /users/$nameuser shell "$bindir/mysecureshell"
 		niutil -createprop -R / /users/$nameuser picture "/Library/Caches/com.sourceforge.mysecureshell.picture.tiff"
 		#niutil -createprop -R / /users/$nameuser home "/Users/invite"
 		# Home create future versions
@@ -100,7 +100,7 @@ dar_add() {
 
 	if [ -x /usr/bin/dscl ] ; then
 		dscl . -create /Users/$nameuser
-		dscl . -create /Users/$nameuser UserShell "$bindir/MySecureShell"
+		dscl . -create /Users/$nameuser UserShell "$bindir/mysecureshell"
 		dscl . -create /Users/$nameuser RealName "$nameuser"
 		dscl . -passwd /Users/$nameuser "$encPass"
 		dscl . -append /Groups/staff GroupMembership $nameuser
@@ -112,11 +112,11 @@ dar_add() {
 # List users with MySecureShell Shell
 dar_list() {
 	if [ -x /usr/bin/nireport ] ; then
-		nireport / /users name shell | grep /MySecureShell | awk '{ print $1 }'
+		nireport / /users name shell | grep /mysecureshell | awk '{ print $1 }'
 	fi
 
 	if [ -x /usr/bin/dscl ] ; then
-		dscl . -list /Users shell | grep MySecureShell | awk '{ print $1 }'
+		dscl . -list /Users shell | grep mysecureshell | awk '{ print $1 }'
 	fi
 	exit $?
 }
@@ -152,13 +152,13 @@ dar_hid() {
 
 # Creation
 nux_add() {
-	useradd -p $encPass -s $bindir/MySecureShell $nameuser
+	useradd -p $encPass -s $bindir/mysecureshell $nameuser
 	exit $?
 }
 
 # Deletion
 nux_list() {
-	grep -F /MySecureShell /etc/passwd | cut -d: -f1
+	grep -F /mysecureshell /etc/passwd | cut -d: -f1
 }
 
 # Deletion

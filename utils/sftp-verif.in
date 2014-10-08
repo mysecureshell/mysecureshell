@@ -180,7 +180,7 @@ print "\n" . '#' x 80;
 print "\n\n### Verifing file existance ###\n\n";
 
 # Checking if files exists
-my @check_bins = ("$bindir/MySecureShell", "$bindir/sftp-who", "$bindir/sftp-kill", "$bindir/sftp-state", "$bindir/sftp-admin", "$bindir/sftp-verif", "$bindir/sftp-user");
+my @check_bins = ("$bindir/mysecureshell", "$bindir/sftp-who", "$bindir/sftp-kill", "$bindir/sftp-state", "$bindir/sftp-admin", "$bindir/sftp-verif", "$bindir/sftp-user");
 foreach (@check_bins)
 {
     if (-e $_)
@@ -197,7 +197,7 @@ foreach (@check_bins)
 if (-e '/etc/shells')
 {
 	my	$retValue = 0;
-	my	$binMSS = "$bindir/MySecureShell";
+	my	$binMSS = "$bindir/mysecureshell";
 	
 	print "\n\n### Verifing /etc/shells ###\n\n";
 	$retValue = system('/bin/grep', '-q', $binMSS, '/etc/shells');
@@ -252,7 +252,7 @@ print "\n\n### Verifing rights ###\n\n";
 
 &rightsver('root', 'root', '0700', "$bindir/sftp-kill", "$bindir/sftp-state", "$bindir/sftp-admin");
 
-&rightsver('root', 'root', '4755', "$bindir/MySecureShell");
+&rightsver('root', 'root', '4755', "$bindir/mysecureshell");
 
 # Logrotate
 
@@ -302,12 +302,12 @@ close (SERVER_STATE);
 
 # Server dependencies
 print "\n\n### Verifing server dependencies ###\n\nShow only error(s) :\n";
-system "$bindir/MySecureShell --version > /dev/null";
+system "$bindir/mysecureshell --version > /dev/null";
 
 # Server configuration
 print "\n\n### Verifing server configuration ###\n\nShow only error(s) :\n";
 print "Trying user: $ENV{'USER'}\n";
-system "$bindir/MySecureShell --configtest > /dev/null";
+system "$bindir/mysecureshell --configtest > /dev/null";
 
 # Get all users list and check if there is a problem in config
 if ($ENV{'USER'} eq 'root')
@@ -319,7 +319,7 @@ if ($ENV{'USER'} eq 'root')
         {
             chomp $_;
             print "Checking user : $_\n";
-            system "$sudo_bin -u $_ $bindir/MySecureShell --configtest > /dev/null\n";
+            system "$sudo_bin -u $_ $bindir/mysecureshell --configtest > /dev/null\n";
         }
         close (USER_LIST);
     }

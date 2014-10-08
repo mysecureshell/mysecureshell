@@ -17,7 +17,7 @@
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 DESC="MySecureShell SFTP Server"
 NAME=mysecureshell
-DAEMON=/bin/MySecureShell
+DAEMON=/usr/bin/mysecureshell
 DAEMON_ARGS=""
 PIDFILE=/var/run/$NAME.pid
 SCRIPTNAME=/etc/init.d/$NAME
@@ -43,7 +43,12 @@ case "$1" in
   start)
     echo -n "Starting $DESC: "
     sftp-state start > /dev/null
-    echo "$NAME is now online"
+    if [ $(stat --format='%a' $DAEMON) -eq 755 ] ; then
+        echo "$NAME is now online with restricted features"
+        echo "Note: To enable all features you have to change mysecureshell binary rights to 4755"
+    else
+        echo "$NAME is now online with full features"
+    fi
     ;;
   stop)
     echo -n "Stopping $DESC: "

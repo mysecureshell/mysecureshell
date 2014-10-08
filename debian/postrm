@@ -21,10 +21,10 @@ set -e
 
 case "$1" in
     remove|upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
-        remove-shell /bin/MySecureShell
+        remove-shell /usr/bin/mysecureshell
     ;;
     purge)
-        remove-shell /bin/MySecureShell
+        remove-shell /usr/bin/mysecureshell
         rm -f /etc/ssh/sftp-config
         rm -f /var/log/mysecureshell.log*
     ;;

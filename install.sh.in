@@ -105,7 +105,7 @@ filefound() {
 }
 
 shellfunc() {
-grepshell=`grep /bin/MySecureShell $ETCDIR/shells`
+grepshell=`grep /usr/bin/mysecureshell $ETCDIR/shells`
 if [ "$?" = "0" ] ; then
 	echo "`MyGetLocale 'shellalreadyvd'`		`MyGetLocale 'ok'`"
 else
@@ -118,7 +118,7 @@ else
 	fi
 	case "$rep3" in
 		[yY])
-			echo "/bin/MySecureShell" >> $ETCDIR/shells
+			echo "/usr/bin/mysecureshell" >> $ETCDIR/shells
 			echo `MyGetLocale 'shellvalid'`"		"`MyGetLocale 'ok'`
 			;;
 		*)
@@ -141,7 +141,7 @@ MyGetLocale 'Welcome'
 echo ""
 
 MyGetLocale 'Needed installation files'
-filedetec="MySecureShell"
+filedetec="mysecureshell"
 if [ -f ./$filedetec ] ; then
 	filefound
 	filedetec="sftp_config"
@@ -169,7 +169,7 @@ fi
 case "$rep7" in
 	[yY])
 		MyGetLocale 'LaunchMSS'
-		./MySecureShell --version > /dev/null
+		./mysecureshell --version > /dev/null
 		MyGetLocale 'Testsuccess'
 		;;
 esac
@@ -280,13 +280,13 @@ fi
 ## Updating Detection
 
 echo ""
-if [ -f $BINDIR/MySecureShell ] ; then
+if [ -f $BINDIR/mysecureshell ] ; then
 	echo `MyGetLocale 'upconffile'`"			"`MyGetLocale 'ok'`
 else
 	echo `MyGetLocale 'mkconffile'`"				"`MyGetLocale 'ok'`
 fi
-cp -f ./MySecureShell $BINDIR
-chmod 4755 $BINDIR/MySecureShell
+cp -f ./mysecureshell $BINDIR
+chmod 755 $BINDIR/mysecureshell
 
 ## /shells detection
 
@@ -381,10 +381,6 @@ if [ -d ./man ] ; then
 		mkdir -m 0755 -p $MANDIR/man8
 	fi
         cp ./man/en/man8/* $MANDIR/man8
-        if [ -d $MANDIR/fr ] ; then
-		mkdir -m 0755 -p $MANDIR/man8
-        fi
-        cp ./man/fr/man8/* $MANDIR/fr/man8
 	echo `MyGetLocale 'mans'`"				"`MyGetLocale 'ok'`
 else
         echo `MyGetLocale 'mans'`"				"`MyGetLocale 'failed'`
