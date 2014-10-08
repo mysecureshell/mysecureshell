@@ -15,7 +15,7 @@ RUN apt-get update
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" \
  -o Dpkg::Options::="--force-confold" install mysecureshell whois procps openssh-server
 RUN mkdir /var/run/sshd
-RUN pass=$(mkpasswd -m sha-512 -s mssuser) && useradd -m -s /bin/MySecureShell -p $pass mssuser
+RUN pass=$(mkpasswd -m sha-512 -s mssuser) && useradd -m -s /usr/bin/mysecureshell -p $pass mssuser
 RUN echo 'root:root' | chpasswd
 
 #######

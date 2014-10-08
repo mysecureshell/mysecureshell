@@ -10,7 +10,7 @@ use Getopt::Long;
 
 #### Vars can be touched ####
 my $sftp_who = '/bin/sftp-who'; # sftp-who binary
-my $mss_bin = '/bin/MySecureShell';
+my $mss_bin = '/usr/bin/mysecureshell';
 
 #### Do not edit now ####
 my $max_mss_users;

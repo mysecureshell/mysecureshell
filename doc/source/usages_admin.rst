@@ -125,7 +125,7 @@ You can check MySecureShell installation easily with ``sftp-verif`` tool. It wil
 
     ### Verifing file existance ###
 
-    /bin/MySecureShell                                                       [ OK ]
+    /usr/bin/mysecureshell                                                       [ OK ]
     /bin/sftp-who                                                            [ OK ]
     /bin/sftp-kill                                                           [ OK ]
     /bin/sftp-state                                                          [ OK ]
@@ -136,7 +136,7 @@ You can check MySecureShell installation easily with ``sftp-verif`` tool. It wil
 
     ### Verifing /etc/shells ###
 
-    /etc/shells contains /bin/MySecureShell                                  [ OK ]
+    /etc/shells contains /usr/bin/mysecureshell                                  [ OK ]
 
 
     ### Verifing rights ###
@@ -148,7 +148,7 @@ You can check MySecureShell installation easily with ``sftp-verif`` tool. It wil
     Verifing file rights of /bin/sftp-kill                                   [ OK ]
     Verifing file rights of /bin/sftp-state                                  [ OK ]
     Verifing file rights of /bin/sftp-admin                                  [ OK ]
-    Verifing file rights of /bin/MySecureShell                               [ OK ]
+    Verifing file rights of /usr/bin/mysecureshell                               [ OK ]
 
 
     ### Verifing rotation logs ###

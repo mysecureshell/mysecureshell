@@ -15,6 +15,15 @@ What can I do if I have a problem?
 
 On issues, we'll do our best to reply as soon as possible.
 
+Some features seams not working correctly
+-----------------------------------------
+
+For some security reasons and for official packaging approval in several Linux distributions, the setuid right on the */usr/bin/mysecureshell* binary has been dropped by default.
+
+Please check that you have the setuid with ``sftp-verif`` tool or directly set rights::
+
+    # chmod 4755 /usr/bin/mysecureshell
+
 I can't open symbolic link folders
 ----------------------------------
 
@@ -23,7 +32,7 @@ There are several reasons why it may not work. Check those bullet points:
 * If VirtualChroot is enabled and the symbolic link is outside the chroot, it is not accessible and is this normal
 * If StayAtHome is enabled, it may be the same reason.
 
-If the problem still persist, you can use ``--bind`` option to ``mount`` command. For example if you need to access to an external folder (here /mnt/external) from the Home value (here /var/sftp)::
+If the problem still persist, you can use ``--bind`` option to ``mount`` command. For example if you need to access to an external folder (here */mnt/external*) from the Home value (here */var/sftp*)::
 
     # mkdir /var/sftp/external
     # mount --bind /mnt/external /var/sftp/external
@@ -68,7 +77,7 @@ Only allow MySecureShell users for SFTP connections
 
 If you want to only allow MySecureShell users to use sftp connections on your server, you need to change/adapt this line (OpenSSH version > 4.5) in */etc/ssh/sshd_config*::
 
-    Subsystem sftp /bin/MySecureShell -c sftp-server
+    Subsystem sftp /usr/bin/mysecureshell -c sftp-server
 
 .. warning::
 

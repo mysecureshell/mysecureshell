@@ -4,7 +4,7 @@
 ## MySecureShell Team <teka2nerdman@users.sourceforge.net>
 
 ## Vars
-mssbin=/bin/MySecureShell
+mssbin=/usr/bin/mysecureshell
 
 ### NO NEED TO MODIFY NOW ###
 
