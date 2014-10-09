@@ -22,7 +22,7 @@ For some security reasons and for official packaging approval in several Linux d
 
 Please check that you have the setuid with ``sftp-verif`` tool or directly set rights::
 
-    # chmod 4755 /usr/bin/mysecureshell
+    > chmod 4755 /usr/bin/mysecureshell
 
 I can't open symbolic link folders
 ----------------------------------
@@ -34,8 +34,8 @@ There are several reasons why it may not work. Check those bullet points:
 
 If the problem still persist, you can use ``--bind`` option to ``mount`` command. For example if you need to access to an external folder (here */mnt/external*) from the Home value (here */var/sftp*)::
 
-    # mkdir /var/sftp/external
-    # mount --bind /mnt/external /var/sftp/external
+    > mkdir /var/sftp/external
+    > mount --bind /mnt/external /var/sftp/external
 
 Then you'll be able to access to the external folder inside the Home folder.
 
@@ -46,12 +46,12 @@ When you have *connection refused* message when you're trying to login, this is 
 
 Check that you're not behind a firewall or your SSH port (default is 22) is correctly open::
 
-    # nc -v your_sftp_server 22
+    > nc -v your_sftp_server 22
     Connection to localhost 22 port [tcp/ssh] succeeded!
 
 If it's still not ok, please check that your SSH service is properly running::
 
-    # service ssh status
+    > service ssh status
 
 Why do I got random errors on download or file access?
 ------------------------------------------------------
@@ -106,7 +106,7 @@ To get a secure connection without credentials, you can use SSH key exchange. On
 
 If you only want to allow this user using SSH key, you can disable it's password account::
 
-    # passwd -d useraccount
+    > passwd -d useraccount
 
 .. note::
     

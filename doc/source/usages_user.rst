@@ -50,7 +50,7 @@ Command line
 
 With command line, you can easily do it as whell with ``sftp`` command::
 
-    # sftp user@host
+    > sftp user@host
     Connected to user@host.
     sftp> 
 

@@ -19,7 +19,7 @@ Fedora 19
 
 First, add the repository lines in */etc/yum.repos.d/mysecureshell.repo*::
 
-    # echo "[mysecureshell]
+    > echo "[mysecureshell]
     name=MySecureShell
     baseurl=http://mysecureshell.free.fr/repository/index.php/fedora/19/
     enabled=1
@@ -27,14 +27,14 @@ First, add the repository lines in */etc/yum.repos.d/mysecureshell.repo*::
 
 You're now ready to install MySecureShell::
 
-    # yum install mysecureshell
+    > yum install mysecureshell
 
 Fedora 17
 ^^^^^^^^^^^^^^^^^
 
 First, add the repository lines in */etc/yum.repos.d/mysecureshell.repo*::
 
-    # echo "[mysecureshell]
+    > echo "[mysecureshell]
     name=MySecureShell
     baseurl=http://mysecureshell.free.fr/repository/index.php/fedora/17/
     enabled=1
@@ -42,5 +42,5 @@ First, add the repository lines in */etc/yum.repos.d/mysecureshell.repo*::
 
 You're now ready to install MySecureShell::
 
-    # yum install mysecureshell
+    > yum install mysecureshell
 

@@ -34,5 +34,5 @@ You can now launch the compilation::
 
 And finally install it (with root user)::
 
-    # make install
+    > make install
 

@@ -57,7 +57,7 @@ Service status
 
 By default, MySecureShell doesn't require a daemon as the configuration is reread each time a user connects to the server. But you may want to temporary stop the service, start it or getting the status::
 
-    # service mysecureshell stop
+    service mysecureshell stop
 
 It will in fact add a lock file to the filesystem to inform MySecureShell to deny any new connections. This lock file is released once the service is started.
 
@@ -80,7 +80,7 @@ Who is connected
 
 You can know how many users are connect, who, the used global bandwidth, per user bandwidth usage, the status and other usefull information with the ``sftp-who`` command::
 
-    # sftp-who
+    > sftp-who
     --- 1 / 10 clients ---
     Global used bandwith : 0 bytes/s / 0 bytes/s
     PID: 3389   Name: mssuser   IP: 
@@ -93,7 +93,7 @@ You can know how many users are connect, who, the used global bandwidth, per use
 
 You also have ``--while`` option to automatically refresh the information with a desired time in seconds::
 
-    # sftp-who --while 2
+    > sftp-who --while 2
 
 This will force ``sftp-who`` to refresh every 2 seconds.
 
@@ -102,7 +102,7 @@ MySecureShell control remotely
 
 You can remotely control MySecureShell and make actions on users, server state and more. Simply connect on SSH with an admin account and you will have those features::
 
-    # sftp-admin admin@sftp.example.com
+    > sftp-admin admin@sftp.example.com
     admin@sftp.example.com's password: 
     > help
     Usage:
@@ -117,7 +117,7 @@ Check MySecureShell installation
 
 You can check MySecureShell installation easily with ``sftp-verif`` tool. It will check if every needed binaries are present with correct rights and will check the configuration. You simply have to run it::
 
-    # sftp-verif 
+    > sftp-verif 
 
     ################################################################################
                 MySecureShell Verification Tool
@@ -125,7 +125,7 @@ You can check MySecureShell installation easily with ``sftp-verif`` tool. It wil
 
     ### Verifing file existance ###
 
-    /usr/bin/mysecureshell                                                       [ OK ]
+    /usr/bin/mysecureshell                                                   [ OK ]
     /bin/sftp-who                                                            [ OK ]
     /bin/sftp-kill                                                           [ OK ]
     /bin/sftp-state                                                          [ OK ]
@@ -136,7 +136,7 @@ You can check MySecureShell installation easily with ``sftp-verif`` tool. It wil
 
     ### Verifing /etc/shells ###
 
-    /etc/shells contains /usr/bin/mysecureshell                                  [ OK ]
+    /etc/shells contains /usr/bin/mysecureshell                              [ OK ]
 
 
     ### Verifing rights ###
@@ -148,7 +148,7 @@ You can check MySecureShell installation easily with ``sftp-verif`` tool. It wil
     Verifing file rights of /bin/sftp-kill                                   [ OK ]
     Verifing file rights of /bin/sftp-state                                  [ OK ]
     Verifing file rights of /bin/sftp-admin                                  [ OK ]
-    Verifing file rights of /usr/bin/mysecureshell                               [ OK ]
+    Verifing file rights of /usr/bin/mysecureshell                           [ OK ]
 
 
     ### Verifing rotation logs ###
@@ -180,7 +180,7 @@ Manager users for MySecureShell
 
 You can easily add a new user to MySecureShell by using the ``sftp-user`` command::
 
-    # sftp-user create mssuser /home/mssuser
+    > sftp-user create mssuser /home/mssuser
     Enter password:
 
 This will create the user and password, then add MySecureShell shell to this user.
@@ -189,12 +189,12 @@ This will create the user and password, then add MySecureShell shell to this use
 
 You can also delete a user or getting the list of avaialable users::
 
-    # sftp-user list
+    > sftp-user list
     mssuser
 
 Here is the list of available options::
 
-    # sftp-user --help
+    > sftp-user --help
     Usage 1: sftp-user create [user] [hide user]
     Usage 2: sftp-user delete [user]
     Usage 3: sftp-user list
