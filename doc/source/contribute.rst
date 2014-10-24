@@ -33,7 +33,7 @@ Docker
 
 With Docker, here is the content file for development:
 
-.. literalinclude:: ../../deployment-tools/docker/dev/Dockerfile
+.. literalinclude:: ../../deployment-tools/docker/debian/unstable/Dockerfile
    :language: bash
 
 To install this container, simply build docker with the Dockerfile::

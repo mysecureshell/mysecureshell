@@ -28,7 +28,7 @@ Once done, on your machine install the MySecureShell Dockerfile::
 
 Here is the content of the Dockerfile:
 
-.. literalinclude:: ../../deployment-tools/docker/Dockerfile
+.. literalinclude:: ../../Dockerfile
    :language: bash
 
 Boot the container
