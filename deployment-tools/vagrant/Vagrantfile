@@ -15,6 +15,7 @@ apt-get update
 apt-get -y install mysecureshell
 pass=$(mkpasswd -m sha-512 -s mssuser)
 useradd -m -s /usr/bin/mysecureshell -p $pass mssuser
+chmod 4755 /usr/bin/mysecureshell
 INSTALL
 
 $install_mss_dev = <<INSTALL
