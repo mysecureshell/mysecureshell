@@ -14,6 +14,7 @@
 import sys
 import os
 import dialog
+import time
 
 # Global vars
 docker_folder = '../deployment-tools/docker'
@@ -41,12 +42,7 @@ def handle_exit_code(d, code):
     """
     # d is supposed to be a Dialog instance
     if code in (d.DIALOG_CANCEL, d.DIALOG_ESC):
-        if code == d.DIALOG_CANCEL:
-            msg = "You chose cancel Do you want to go back to previous menu?"
-        else:
-            msg = "You chose cancel Do you want to go back to previous menu?"
-        if d.yesno(msg) == d.DIALOG_OK:
-            main_menu(d)
+        main_menu(d)
         return 0
     else:
         return 1
@@ -82,7 +78,7 @@ def update_docker_containers(d):
 
     # Update desired tag
     if tag[0] == 'All':
-        tag = ['debian', 'ubuntu', 'centos', 'fedora']
+        tag = distro_list
     for cur_tag in tag:
         docker_pull(d, cur_tag.lower())
 
@@ -97,7 +93,7 @@ def build_docker_containers(d):
     """
     make_choices = [("All", "", 0)]
     distro_list, versions_list = get_distro_list()
-    for distro in distro_list:
+    for distro in versions_list:
         make_choices.append([distro, '', 0])
     mk_len = len(make_choices)
 
@@ -118,11 +114,29 @@ def build_docker_containers(d):
 
     # Update desired tag
     if tag[0] == 'All':
-        tag = ['debian', 'ubuntu', 'centos', 'fedora']
+        tag = distro_list
     for cur_tag in tag:
-        docker_pull(d, cur_tag.lower())
+        docker_build(d, cur_tag.lower())
 
     main_menu(d)
+
+
+def docker_build(d, cur_tag):
+    """
+    Build with prefixed 'mss_', Docker containers from Dockerfiles
+
+    :d: dialog backtitle
+    :cur_tag: current tag containing distro and version (space separated)
+
+    """
+    try:
+        os.system('docker build -t mss_' + cur_tag.replace(' ', '_') + ' ' +
+                  docker_folder + '/' + cur_tag.replace(' ', '/'))
+        d.infobox('Successful build for ' + cur_tag, height=4, width=50)
+        time.sleep(1.5)
+    except:
+        print "Can't use docker"
+        sys.exit(1)
 
 
 def docker_pull(d, cur_tag):
@@ -224,8 +238,26 @@ def run_docker(env):
     :returns: @todo
 
     """
-    container = ' '.split(env)
-    os.system('docker run -t -i' + container)
+    try:
+        container = ' '.split(env)
+        os.system('docker run -t -i' + container)
+    except:
+        print "Can't use docker"
+        sys.exit(1)
+
+
+def show_mss_containers(d):
+    """
+    Show MySecureShell Docker containers available on the current machine
+
+    :d: dialog backtitle
+    :returns: @todo
+
+    """
+    current_mss_images = os.system("docker images | awk '/mss_/{print $1}'")
+    print current_mss_images
+    d.msgbox(current_mss_images, height=10, width=10)
+    sys.exit(0)
 
 
 def main_menu(d):
@@ -239,11 +271,13 @@ def main_menu(d):
     while 1:
         (code, tag) = d.menu(
             "Make your choice",
-            width=60,
-            choices=[("Update Docker containers", "Get or update containers"),
-                     ("Build Docker containers", "Build from Dockerfiles"),
-                     ("Create packages", "For Debian/Ubuntu/Centos..."),
-                     ("Make documentations", "In PDF/HTML..."),
+            height=15, width=60, menu_height=9,
+            choices=[("1 Update Docker containers", "Get/Update containers"),
+                     ("2 Build Docker containers", "Build from Dockerfiles"),
+                     ("3 Create packages", "For Debian/Ubuntu/Centos..."),
+                     ("4 Make documentations", "In PDF/HTML..."),
+                     ("", ""),
+                     ("Show installed images", "Only MySecureShell ones"),
                      ("Show vars", "Show current vars"),
                      ("Exit", "")])
         if handle_exit_code(d, code):
@@ -251,10 +285,12 @@ def main_menu(d):
 
     if tag == 'Exit':
         sys.exit(0)
-    elif tag == 'Update Docker containers':
+    elif tag == '1 Update Docker containers':
         update_docker_containers(d)
-    elif tag == 'Build Docker containers':
+    elif tag == '2 Build Docker containers':
         build_docker_containers(d)
+    elif tag == 'Show installed images':
+        show_mss_containers(d)
     elif tag == 'Show vars':
         show_vars(d)
     elif tag == 'Create packages':
