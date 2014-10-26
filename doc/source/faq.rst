@@ -15,7 +15,7 @@ What can I do if I have a problem?
 
 On issues, we'll do our best to reply as soon as possible.
 
-Some features seams not working correctly
+Some features seem not working correctly
 -----------------------------------------
 
 For some security reasons and for official packaging approval in several Linux distributions, the setuid right on the */usr/bin/mysecureshell* binary has been dropped by default.
