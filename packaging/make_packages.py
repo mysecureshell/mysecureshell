@@ -82,8 +82,6 @@ def update_docker_containers(d):
     for cur_tag in tag:
         docker_pull(d, cur_tag.lower())
 
-    main_menu(d)
-
 
 def build_docker_containers(d):
     """
@@ -117,8 +115,6 @@ def build_docker_containers(d):
         tag = distro_list
     for cur_tag in tag:
         docker_build(d, cur_tag.lower())
-
-    main_menu(d)
 
 
 def docker_build(d, cur_tag):
@@ -163,7 +159,6 @@ def show_vars(d):
 
     """
     d.textbox("vars", width=76)
-    main_menu(d)
 
 
 def get_distro_list():
@@ -224,9 +219,6 @@ def make_pkg(d):
     for cur_tag in tag:
         print 'Running container ' + cur_tag[0]
 
-    sys.exit(1)
-    main_menu(d)
-
 
 def run_docker(env):
     """
@@ -254,10 +246,12 @@ def show_mss_containers(d):
     :returns: @todo
 
     """
-    current_mss_images = os.system("docker images | awk '/mss_/{print $1}'")
-    print current_mss_images
-    d.msgbox(current_mss_images, height=10, width=10)
-    sys.exit(0)
+    try:
+        out = os.popen("docker images | awk '/mss_/{print $1}'").read()
+        d.msgbox(out, height=15, width=50)
+    except:
+        print "Can't use docker"
+        sys.exit(1)
 
 
 def main_menu(d):
@@ -269,34 +263,35 @@ def main_menu(d):
     :returns: exit code
     """
     while 1:
-        (code, tag) = d.menu(
-            "Make your choice",
-            height=15, width=60, menu_height=9,
-            choices=[("1 Update Docker containers", "Get/Update containers"),
-                     ("2 Build Docker containers", "Build from Dockerfiles"),
-                     ("3 Create packages", "For Debian/Ubuntu/Centos..."),
-                     ("4 Make documentations", "In PDF/HTML..."),
-                     ("", ""),
-                     ("Show installed images", "Only MySecureShell ones"),
-                     ("Show vars", "Show current vars"),
-                     ("Exit", "")])
-        if handle_exit_code(d, code):
-            break
+        while 1:
+            (code, tag) = d.menu(
+                "Make your choice",
+                height=15, width=60, menu_height=9,
+                choices=[("1 Update Docker containers",
+                         "Get/Update containers"),
+                         ("2 Build Docker containers",
+                          "Build from Dockerfiles"),
+                         ("3 Create packages", "For Debian/Ubuntu/Centos..."),
+                         ("4 Make documentations", "In PDF/HTML..."),
+                         ("", ""),
+                         ("Show installed images", "Only MySecureShell ones"),
+                         ("Show vars", "Show current vars"),
+                         ("Exit", "")])
+            if handle_exit_code(d, code):
+                break
 
-    if tag == 'Exit':
-        sys.exit(0)
-    elif tag == '1 Update Docker containers':
-        update_docker_containers(d)
-    elif tag == '2 Build Docker containers':
-        build_docker_containers(d)
-    elif tag == 'Show installed images':
-        show_mss_containers(d)
-    elif tag == 'Show vars':
-        show_vars(d)
-    elif tag == 'Create packages':
-        make_pkg(d)
-
-    sys.exit(0)
+        if tag == 'Exit':
+            sys.exit(0)
+        elif tag == '1 Update Docker containers':
+            update_docker_containers(d)
+        elif tag == '2 Build Docker containers':
+            build_docker_containers(d)
+        elif tag == 'Show installed images':
+            show_mss_containers(d)
+        elif tag == 'Show vars':
+            show_vars(d)
+        elif tag == 'Create packages':
+            make_pkg(d)
 
 
 def main():
