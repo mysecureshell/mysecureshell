@@ -5,6 +5,7 @@
 
 # Requirements:
 # - Python Dialog library (apt-get install python-dialog)
+# - Docker >= 1.3
 
 # Todo
 # - Build images
@@ -15,6 +16,8 @@ import sys
 import os
 import dialog
 import time
+import subprocess
+import re
 
 # Global vars
 docker_folder = '../deployment-tools/docker'
@@ -128,7 +131,7 @@ def docker_build(d, cur_tag):
     try:
         os.system('docker build -t mss_' + cur_tag.replace(' ', '_') + ' ' +
                   docker_folder + '/' + cur_tag.replace(' ', '/'))
-        d.infobox('Successful build for ' + cur_tag, height=4, width=50)
+        d.infobox('Successful built ' + cur_tag, height=4, width=50)
         time.sleep(1.5)
     except:
         print "Can't use docker"
@@ -184,8 +187,9 @@ def get_distro_list():
     return(sorted(distro_list), sorted(versions_list))
 
 
-def make_pkg(d):
-    """@todo: Docstring for make_pkg.
+def create_packages(d):
+    """
+    Create packages
 
     :d: dialog backtitle
 
@@ -199,6 +203,9 @@ def make_pkg(d):
         for current_archs in archs:
             make_choices.append((' '.join([distro, current_archs]), "", 0))
     mk_len = len(make_choices)
+
+    # Choose the desired tag/branch to build
+    version = select_version_to_build(d)
 
     # Show menu to select wished packages
     tag = []
@@ -216,26 +223,74 @@ def make_pkg(d):
     if tag[0] == 'All':
         tag = make_choices
         del tag[0]
+    # Get timestamp to create uniq containers
+    timest = int(time.time())
     for cur_tag in tag:
-        print 'Running container ' + cur_tag[0]
+        run_docker(d, cur_tag, timest)
 
 
-def run_docker(env):
+def run_docker(d, cur_tag, timest):
     """
     Run a docker container to prepare compilation. Get docker from
     deployment-tools folder if does not exist and launch MySecureShell
     compilation and package creation.
 
-    :env: docker environment to run
+    :d: dialog backtitle
+    :cur_tag: current distro, version and arch (space separated)
+    :timest: timestamp
     :returns: @todo
 
     """
+    (distro, version, arch) = cur_tag.split(' ')
+    docker_run = 'docker run -d --name=mss_' + str(distro) + '_' + str(version) +\
+                 '_' + str(timest) + ' ' + str(distro) + ':' + str(version)
     try:
-        container = ' '.split(env)
-        os.system('docker run -t -i' + container)
-    except:
-        print "Can't use docker"
+        os.system(docker_run)
         sys.exit(1)
+    except:
+        print "Can't use docker: " + docker_run
+        sys.exit(1)
+
+
+def select_version_to_build(d):
+    """
+    Use Git to select version to build from tag and branches
+
+    :d: dialog backtitle
+    :returns: @todo
+
+    """
+
+    # Get git tag and git branch result
+    versions = []
+    tags = subprocess.Popen(['git', 'tag'],
+                            stdout=subprocess.PIPE)
+    branches = subprocess.Popen(['git', 'branch', '--no-color'],
+                                stdout=subprocess.PIPE)
+
+    # Add git tags to versions and sort them
+    for line in iter(tags.stdout.readline, ''):
+        versions.append([line.rstrip(), '', 0])
+    versions = sorted(versions, reverse=True)
+
+    # Add git branches to versions
+    for line in iter(branches.stdout.readline, ''):
+        m = re.search(r"^\*?\s+(.+)", line.rstrip())
+        if m is not None:
+            versions.append([m.group(1), '', 0])
+    versions_len = len(versions)
+
+    # Show menu to select wished packages
+    while 1:
+        (code, tag) = d.radiolist(text="Select the version you want to build",
+                                       height=versions_len+8, width=60,
+                                       list_height=versions_len,
+                                       choices=versions,
+                                       title='Select the version from Git ' +
+                                             'tag or branch')
+        if handle_exit_code(d, code):
+            break
+    return(tag)
 
 
 def show_mss_containers(d):
@@ -280,18 +335,18 @@ def main_menu(d):
             if handle_exit_code(d, code):
                 break
 
-        if tag == 'Exit':
-            sys.exit(0)
-        elif tag == '1 Update Docker containers':
+        if tag == '1 Update Docker containers':
             update_docker_containers(d)
         elif tag == '2 Build Docker containers':
             build_docker_containers(d)
+        elif tag == '3 Create packages':
+            create_packages(d)
         elif tag == 'Show installed images':
             show_mss_containers(d)
         elif tag == 'Show vars':
             show_vars(d)
-        elif tag == 'Create packages':
-            make_pkg(d)
+        elif tag == 'Exit':
+            sys.exit(0)
 
 
 def main():
