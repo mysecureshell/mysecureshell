@@ -9,8 +9,8 @@
 
 # Todo
 # - Build images
-# - Use API instead of system command to call docker
-# - Finish to add all listed features in dialog
+# - Use API instead of system command to call docker -> no
+#   http://blog.bordage.pro/avoid-docker-py/
 
 import sys
 import os
@@ -21,6 +21,7 @@ import re
 
 # Global vars
 docker_folder = '../deployment-tools/docker'
+packaging_path = os.getcwd()
 
 
 def handle_exit_code(d, code):
@@ -183,7 +184,7 @@ def get_distro_list():
             versions_list.append(' '.join([releases[1], releases[2]]))
         elif cur_len_release == 2:
             distro_list.append(releases[1])
-    os.chdir('../../packaging')
+    os.chdir(packaging_path)
     return(sorted(distro_list), sorted(versions_list))
 
 
@@ -227,6 +228,19 @@ def create_packages(d):
     timest = int(time.time())
     for cur_tag in tag:
         run_docker(d, cur_tag, timest)
+        copy_mss_to_container(d, version)
+
+
+def copy_mss_to_container(d, version):
+    """
+    Copy local version to container and git checkout on the desired branch/tag
+
+    :d: @todo
+    :version: choosed tag or branch
+    :returns: @todo
+
+    """
+    pass
 
 
 def run_docker(d, cur_tag, timest):
@@ -241,14 +255,19 @@ def run_docker(d, cur_tag, timest):
     :returns: @todo
 
     """
+    os.chdir('..')
     (distro, version, arch) = cur_tag.split(' ')
-    docker_run = 'docker run -d --name=mss_' + str(distro) + '_' + str(version) +\
-                 '_' + str(timest) + ' ' + str(distro) + ':' + str(version)
+    docker_run = 'docker run -d -t -v ' + packaging_path +\
+                 ':/mnt --name=mss_' + str(distro) + '_' + str(version) +\
+                 '_' + str(timest) + ' ' + str(distro) + ':' + str(version) +\
+                 ' 1>/dev/null'
     try:
+        d.infobox('Building container ' + str(cur_tag), height=4, width=50)
         os.system(docker_run)
-        sys.exit(1)
+        time.sleep(1.5)
+        os.chdir(packaging_path)
     except:
-        print "Can't use docker: " + docker_run
+        print "Can't run docker: " + docker_run
         sys.exit(1)
 
 

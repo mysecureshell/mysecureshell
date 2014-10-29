@@ -6,16 +6,16 @@ if [ ! -d ../debian ] ; then
     exit 1
 fi
 
-echo "[+] Please choose a tag to build"
-cd ..
-git tag | sort -r
-read tag
-git checkout $tag
-if [ $? -ne 0 ] ; then
-    echo "[FAIL] can't switch to this tag/branch"
-    exit 1
-fi
-version=$(echo $tag | sed 's/^v//g')
+#echo "[+] Please choose a tag to build"
+#cd ..
+#git tag | sort -r
+#read tag
+#git checkout $tag
+#if [ $? -ne 0 ] ; then
+#    echo "[FAIL] can't switch to this tag/branch"
+#    exit 1
+#fi
+#version=$(echo $tag | sed 's/^v//g')
 
 echo "[+] Loading vars"
 . ./package/vars
