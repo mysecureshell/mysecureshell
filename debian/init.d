@@ -36,11 +36,7 @@ SCRIPTNAME=/etc/init.d/$NAME
 # and status_of_proc is working.
 . /lib/lsb/init-functions
 
-#
-# Function that starts the daemon/service
-#
-case "$1" in
-  start)
+do_start () {
     echo -n "Starting $DESC: "
     sftp-state start > /dev/null
     if [ $(stat --format='%a' $DAEMON) -eq 755 ] ; then
@@ -49,19 +45,29 @@ case "$1" in
     else
         echo "$NAME is now online with full features"
     fi
-    ;;
-  stop)
+}
+
+do_stop () {
     echo -n "Stopping $DESC: "
     sftp-state fullstop -yes > /dev/null
     echo "$NAME is now offline"
+}
+
+#
+# Function that starts the daemon/service
+#
+case "$1" in
+  start)
+    do_start
+    ;;
+  stop)
+    do_stop
     ;;
   restart|force-reload)
-    echo -n "Restarting $DESC: "
-    sftp-state fullstop -yes > /dev/null
+    do_stop
     echo "$NAME is now offline --> please wait while restarting..."
     sleep 1
-    sftp-state start > /dev/null
-    echo "$NAME is now online"
+    do_start
     ;;
   status)
     sftp-state
