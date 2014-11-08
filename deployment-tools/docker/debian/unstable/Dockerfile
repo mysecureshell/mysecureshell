@@ -20,7 +20,7 @@ RUN apt-get -y install git
 RUN git clone https://github.com/mysecureshell/mysecureshell.git
 RUN apt-get -y install libacl1-dev libgnutls28-dev gcc make
 RUN apt-get -y install build-essential fakeroot lintian devscripts debhelper ubuntu-dev-tools \
- cowbuilder autotools-dev
+ cowbuilder autotools-dev reportbug
 RUN apt-get -y install sphinx-doc sphinx-common python3-sphinx libjs-sphinxdoc \
  python-pip texlive-latex-base texlive-latex-recommended texlive-latex-extra texlive-fonts-recommended
 RUN apt-get clean
