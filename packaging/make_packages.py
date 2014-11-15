@@ -227,20 +227,35 @@ def create_packages(d):
     # Get timestamp to create uniq containers
     timest = int(time.time())
     for cur_tag in tag:
-        run_docker(d, cur_tag, timest)
-        copy_mss_to_container(d, version)
+        docker_name = run_docker(d, cur_tag, timest)
+        docker_exec(d, docker_name, 'cp -Rf /mnt /root/mysecureshell',
+                    'Copying source folder to ' + str(docker_name))
+        docker_exec(d, docker_name,
+                    'cd /root/mysecureshell && ' +
+                    'git checkout ' + version,
+                    'Switching to ' + str(version) + ' branch/tag')
 
 
-def copy_mss_to_container(d, version):
+def docker_exec(d, docker_name, cmd, comment):
     """
-    Copy local version to container and git checkout on the desired branch/tag
+    Docker execution command with 'docker exec' command
 
-    :d: @todo
-    :version: choosed tag or branch
+    :d: dialog backtitle
+    :docker_name: container name
+    :cmd: command to execute in the container
+    :comment: display comment
     :returns: @todo
 
     """
-    pass
+    docker_exec = 'docker exec -t ' + docker_name + ' ' + cmd
+
+    try:
+        d.infobox(comment, height=4, width=78)
+        os.system(docker_exec)
+        time.sleep(1.5)
+    except:
+        print "Can't run docker: " + docker_exec
+        sys.exit(1)
 
 
 def run_docker(d, cur_tag, timest):
@@ -256,11 +271,15 @@ def run_docker(d, cur_tag, timest):
 
     """
     os.chdir('..')
+    current_path = os.getcwd()
+
     (distro, version, arch) = cur_tag.split(' ')
-    docker_run = 'docker run -d -t -v ' + packaging_path +\
-                 ':/mnt --name=mss_' + str(distro) + '_' + str(version) +\
-                 '_' + str(timest) + ' ' + str(distro) + ':' + str(version) +\
+    docker_name = 'mss_' + str(distro) + '_' + str(version) + '_' + str(timest)
+    docker_run = 'docker run -d -t -v ' + current_path +\
+                 ':/mnt --name=' + docker_name +\
+                 ' ' + str(distro) + ':' + str(version) +\
                  ' 1>/dev/null'
+
     try:
         d.infobox('Building container ' + str(cur_tag), height=4, width=50)
         os.system(docker_run)
@@ -269,6 +288,8 @@ def run_docker(d, cur_tag, timest):
     except:
         print "Can't run docker: " + docker_run
         sys.exit(1)
+
+    return docker_name
 
 
 def select_version_to_build(d):
