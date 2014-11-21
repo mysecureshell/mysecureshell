@@ -14,6 +14,18 @@ Dedicated MySecureShell repository
 
 If you want to use the latest version of MySecureShell, the simplest way is to use the official dedicated repository.
 
+Debian 8 (Jessie)
+^^^^^^^^^^^^^^^^^
+
+MySecureShell is available by default in Debian Jessie. To install it::
+
+    > apt-get update
+    > apt-get install mysecureshell
+
+To enable all features, you'll have to set a setuid on the ``mysecureshell`` binary::
+
+    > chmod 4755 /usr/bin/mysecureshell
+
 Debian 7 (Wheezy)
 ^^^^^^^^^^^^^^^^^
 
