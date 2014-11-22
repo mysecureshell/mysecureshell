@@ -22,6 +22,7 @@ import re
 # Global vars
 docker_folder = '../deployment-tools/docker'
 packaging_path = os.getcwd()
+dest_folder = '/root/mysecureshell'
 
 
 def handle_exit_code(d, code):
@@ -95,8 +96,8 @@ def build_docker_containers(d):
     """
     make_choices = [("All", "", 0)]
     distro_list, versions_list = get_distro_list()
-    for distro in versions_list:
-        make_choices.append([distro, '', 0])
+    for version in versions_list:
+        make_choices.append([version, '', 0])
     mk_len = len(make_choices)
 
     tag = []
@@ -231,9 +232,9 @@ def create_packages(d):
         docker_exec(d, docker_name, 'cp -Rf /mnt /root/mysecureshell',
                     'Copying source folder to ' + str(docker_name))
         docker_exec(d, docker_name,
-                    'cd /root/mysecureshell && ' +
-                    'git checkout ' + version,
-                    'Switching to ' + str(version) + ' branch/tag')
+                    'git --git-dir=' + dest_folder + '/.git --work-tree=' +
+                    dest_folder + ' checkout ' + version,
+                    'Switching to "' + str(version) + '" branch/tag')
 
 
 def docker_exec(d, docker_name, cmd, comment):
@@ -277,7 +278,7 @@ def run_docker(d, cur_tag, timest):
     docker_name = 'mss_' + str(distro) + '_' + str(version) + '_' + str(timest)
     docker_run = 'docker run -d -t -v ' + current_path +\
                  ':/mnt --name=' + docker_name +\
-                 ' ' + str(distro) + ':' + str(version) +\
+                 ' mss_' + str(distro) + '_' + str(version) +\
                  ' 1>/dev/null'
 
     try:
