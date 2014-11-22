@@ -4,6 +4,7 @@
 AC_PREREQ(2.63)
 AC_INIT([MySecureShell],[2.0],[teka2nerdman@users.sourceforge.net])
 AC_CONFIG_HEADER(config.h)
+AC_CANONICAL_HOST
 
 # Checks for programs.
 AC_PROG_MAKE_SET
