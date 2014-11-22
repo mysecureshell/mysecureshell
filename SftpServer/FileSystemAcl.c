@@ -126,7 +126,7 @@ int FSEnumAcl(const char *file, int resolvePath, void (*callback)(void *data, in
 
 #else //ifdef HAVE_CYGWIN
 
-int FSEnumAcl(const char *file, int resolvePath, void (*callback)(void *data, int type, u_int32_t id, u_int32_t mode), void *data, int *nbEntries)
+int FSEnumAcl(const char *file, int resolvePath, void (*callback)(void *data, int type, u_int32_t id, u_int32_t mode), void *data, u_int32_t *nbEntries)
 {
 	aclent_t acls[MAX_ACL_ENTRIES];
 	tFSPath	*path;
