@@ -4514,27 +4514,17 @@ done
 # Checks for target-specific
 case "$host" in
 *-*-cygwin*)
-	for ac_header in cygwin/socket.h
-do :
-  ac_fn_c_check_header_mongrel "$LINENO" "cygwin/socket.h" "ac_cv_header_cygwin_socket_h" "$ac_includes_default"
-if test "x$ac_cv_header_cygwin_socket_h" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_CYGWIN_SOCKET_H 1
-_ACEOF
-
-fi
-
-done
-
-	for ac_header in cygwin/acl.h
-do :
-  ac_fn_c_check_header_mongrel "$LINENO" "cygwin/acl.h" "ac_cv_header_cygwin_acl_h" "$ac_includes_default"
-if test "x$ac_cv_header_cygwin_acl_h" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_CYGWIN_ACL_H 1
-_ACEOF
 
 $as_echo "#define HAVE_CYGWIN 1" >>confdefs.h
+
+	for ac_header in cygwin/acl.h cygwin/socket.h
+do :
+  as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
+ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
+if eval test \"x\$"$as_ac_Header"\" = x"yes"; then :
+  cat >>confdefs.h <<_ACEOF
+#define `$as_echo "HAVE_$ac_header" | $as_tr_cpp` 1
+_ACEOF
 
 fi
 

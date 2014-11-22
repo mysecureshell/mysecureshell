@@ -47,8 +47,8 @@ AC_CHECK_HEADERS(sys/mount.h, [], [],
 # Checks for target-specific
 case "$host" in
 *-*-cygwin*)
-	AC_CHECK_HEADERS([cygwin/socket.h])
-	AC_CHECK_HEADERS(cygwin/acl.h, [AC_DEFINE(HAVE_CYGWIN, 1, HaveCygwin)])
+	AC_DEFINE(HAVE_CYGWIN, 1, HaveCygwin)
+	AC_CHECK_HEADERS([cygwin/acl.h cygwin/socket.h])
 	AC_SUBST(LINKER_OPT, "-Xlinker --as-needed")
 	;;
 *-*-linux*)
