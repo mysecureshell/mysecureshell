@@ -3220,6 +3220,7 @@ done
   done
 IFS=$as_save_IFS
 
+  test -z "$ac_cv_path_SED" && ac_cv_path_SED="no"
   ;;
 esac
 fi
@@ -3260,6 +3261,7 @@ done
   done
 IFS=$as_save_IFS
 
+  test -z "$ac_cv_path_SUDO" && ac_cv_path_SUDO="no"
   ;;
 esac
 fi
