@@ -1,34 +1,37 @@
 #!/bin/sh
-current_dir=$(basename "$PWD")
 
-if [ ! -d ../debian ] ; then
+# Args:
+# * version to build
+# * packaging folder path
+
+version=$1
+pkg_folder=$2
+
+# cd in the correct folder if requested in arg
+if [ $pkg_folder ] ; then
+    if [ -d $pkg_folder ] ; then
+        cd $pkg_folder
+    fi
+elif [ ! -d ../debian ] ; then
     echo "Please be in the package folder"
     exit 1
 fi
 
-#echo "[+] Please choose a tag to build"
-#cd ..
-#git tag | sort -r
-#read tag
-#git checkout $tag
-#if [ $? -ne 0 ] ; then
-#    echo "[FAIL] can't switch to this tag/branch"
-#    exit 1
-#fi
-#version=$(echo $tag | sed 's/^v//g')
+current_dir=$(basename "$PWD")
 
 echo "[+] Loading vars"
-. ./package/vars
+. ./vars
 
 echo "[+] Copying sources"
-rm -Rf package/debian/mysecureshell_$version
+test -d package/debian/mysecureshell_$version && rm -Rf package/debian/mysecureshell_$version
 mkdir -p package/debian/mysecureshell_$version || exit 1
-cp -Rf config* Core install.sh.in LICENSE locales_* Makefile* man README* SftpAdmin sftp_config SftpServer SftpState SftpWho utils uninstaller.sh.in debian package/debian/mysecureshell_$version || exit 1
-cd package/debian/mysecureshell_$version || exit 1
+cd ..
+cp -Rf config* Core install.sh.in LICENSE locales_* Makefile* man README* SftpAdmin sftp_config SftpServer SftpState SftpWho utils uninstaller.sh.in debian packaging/package/debian/mysecureshell_$version || exit 1
+cd $pkg_folder/package/debian/mysecureshell_$version || exit 1
 
 echo "[+] Flushing unwanted files"
 debuild clean || exit 1
-rm -Rf *.git doc debian/mysecureshell deployment-tools third-apps
+rm -Rf *.git doc debian/mysecureshell deployment-tools third-apps packaging
 find . -name *.o -exec rm -f {} \;
 
 echo "[+] Creating orig archive"

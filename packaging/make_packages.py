@@ -11,6 +11,7 @@
 # - Build images
 # - Use API instead of system command to call docker -> no
 #   http://blog.bordage.pro/avoid-docker-py/
+# - Review the code to make it cleaner
 
 import sys
 import os
@@ -131,7 +132,8 @@ def docker_build(d, cur_tag):
 
     """
     try:
-        os.system('docker build -t mss_' + cur_tag.replace(' ', '_') + ' ' +
+        os.system('docker build --no-cache -t mss_' +
+                  cur_tag.replace(' ', '_') + ' ' +
                   docker_folder + '/' + cur_tag.replace(' ', '/'))
         d.infobox('Successful built ' + cur_tag, height=4, width=50)
         time.sleep(1.5)
@@ -207,7 +209,7 @@ def create_packages(d):
     mk_len = len(make_choices)
 
     # Choose the desired tag/branch to build
-    version = select_version_to_build(d)
+    git_version = select_version_to_build(d)
 
     # Show menu to select wished packages
     tag = []
@@ -228,13 +230,24 @@ def create_packages(d):
     # Get timestamp to create uniq containers
     timest = int(time.time())
     for cur_tag in tag:
-        docker_name = run_docker(d, cur_tag, timest)
+        # Set os vars
+        (distro, distro_version, arch) = cur_tag.split(' ')
+        # Create a container
+        docker_name = run_docker(d, distro, distro_version, timest)
+        # Copy sources to container
         docker_exec(d, docker_name, 'cp -Rf /mnt /root/mysecureshell',
                     'Copying source folder to ' + str(docker_name))
+        # Switch to the correct branch/tag
         docker_exec(d, docker_name,
                     'git --git-dir=' + dest_folder + '/.git --work-tree=' +
-                    dest_folder + ' checkout ' + version,
-                    'Switching to "' + str(version) + '" branch/tag')
+                    dest_folder + ' checkout ' + git_version,
+                    'Switching to "' + str(git_version) + '" branch/tag')
+        # Launch builder script
+        pkg_folder = dest_folder + '/packaging/'
+        docker_exec(d, docker_name,
+                    pkg_folder + distro + '/' + distro_version + '/build.sh ' +
+                    git_version + ' ' + pkg_folder,
+                    'Building package')
 
 
 def docker_exec(d, docker_name, cmd, comment):
@@ -248,10 +261,11 @@ def docker_exec(d, docker_name, cmd, comment):
     :returns: @todo
 
     """
-    docker_exec = 'docker exec -t ' + docker_name + ' ' + cmd
+    docker_exec = 'docker exec -t -i ' + docker_name + ' ' + cmd
 
     try:
         d.infobox(comment, height=4, width=78)
+        print docker_exec
         os.system(docker_exec)
         time.sleep(1.5)
     except:
@@ -259,14 +273,15 @@ def docker_exec(d, docker_name, cmd, comment):
         sys.exit(1)
 
 
-def run_docker(d, cur_tag, timest):
+def run_docker(d, distro, version, timest):
     """
     Run a docker container to prepare compilation. Get docker from
     deployment-tools folder if does not exist and launch MySecureShell
     compilation and package creation.
 
     :d: dialog backtitle
-    :cur_tag: current distro, version and arch (space separated)
+    :distro: current distro
+    :version: current version of the distro
     :timest: timestamp
     :returns: @todo
 
@@ -274,7 +289,6 @@ def run_docker(d, cur_tag, timest):
     os.chdir('..')
     current_path = os.getcwd()
 
-    (distro, version, arch) = cur_tag.split(' ')
     docker_name = 'mss_' + str(distro) + '_' + str(version) + '_' + str(timest)
     docker_run = 'docker run -d -t -v ' + current_path +\
                  ':/mnt --name=' + docker_name +\
@@ -282,7 +296,8 @@ def run_docker(d, cur_tag, timest):
                  ' 1>/dev/null'
 
     try:
-        d.infobox('Building container ' + str(cur_tag), height=4, width=50)
+        d.infobox('Building container ' + str(distro) + ' ' + str(version),
+                  height=4, width=50)
         os.system(docker_run)
         time.sleep(1.5)
         os.chdir(packaging_path)
@@ -350,6 +365,47 @@ def show_mss_containers(d):
         sys.exit(1)
 
 
+def delete_mss_containers(d):
+    """
+    Delete MySecureShell Docker containers available on the current machine
+
+    :d: dialog backtitle
+    :returns: @todo
+
+    """
+    try:
+        make_choices = [("All", "", 0)]
+        docker_images = subprocess.Popen(['docker', 'ps', '-a'],
+                                         stdout=subprocess.PIPE)
+        all_containers = []
+        for container in iter(docker_images.stdout.readline, ''):
+            m = re.search(r"(mss_\w+)$", container.rstrip())
+            if m is not None:
+                make_choices.append([m.group(1), '', 0])
+                all_containers.append(m.group(1))
+        mk_len = len(make_choices)
+
+        # Show menu to select wished packages
+        while 1:
+            (code, containers) = d.checklist(
+                text="Select containers to delete",
+                height=mk_len+8, width=60,
+                list_height=mk_len,
+                choices=make_choices,
+                title="Make packages")
+            if handle_exit_code(d, code):
+                break
+    except:
+        print "Can't use docker"
+        sys.exit(1)
+
+    # Update desired tag
+    if containers[0] == 'All':
+        containers = all_containers
+    for container in containers:
+        os.system('docker rm -f ' + container)
+
+
 def main_menu(d):
     """
     Main menu
@@ -362,15 +418,16 @@ def main_menu(d):
         while 1:
             (code, tag) = d.menu(
                 "Make your choice",
-                height=15, width=60, menu_height=9,
+                height=16, width=60, menu_height=10,
                 choices=[("1 Update Docker containers",
                          "Get/Update containers"),
                          ("2 Build Docker containers",
-                          "Build from Dockerfiles"),
+                         "Build from Dockerfiles"),
                          ("3 Create packages", "For Debian/Ubuntu/Centos..."),
                          ("4 Make documentations", "In PDF/HTML..."),
                          ("", ""),
                          ("Show installed images", "Only MySecureShell ones"),
+                         ("Delete containers", "Only MySecureShell ones"),
                          ("Show vars", "Show current vars"),
                          ("Exit", "")])
             if handle_exit_code(d, code):
@@ -382,6 +439,8 @@ def main_menu(d):
             build_docker_containers(d)
         elif tag == '3 Create packages':
             create_packages(d)
+        elif tag == 'Delete containers':
+            delete_mss_containers(d)
         elif tag == 'Show installed images':
             show_mss_containers(d)
         elif tag == 'Show vars':

@@ -1,11 +1,14 @@
 # COMMON
-SIGN_PACKAGES='no'
-PUSH_UPSTREAM='no'
+SIGN_PACKAGES='no'  # Sign with MySecureShell key
+PUSH_UPSTREAM='no'  # Push the version to upstream distribution ftp
+VERSION_BUILD='2.0' # This to avoid errors when packaging
 
 # DEBIAN
 DEBEMAIL="teka2nerdman@users.sourceforge.net"
 DEBFULLNAME="MySecureShell Team"
 LOGNAME="mssteam"
 USER="mssteam"
-DEBSIGN_KEYID=DF742C47
+DEBSIGN_KEYID=DF742C47                          # GPG public signing key
+
+# Export all vars
 export DEBEMAIL DEBFULLNAME LOGNAME USER DEBSIGN_KEYID SIGN_PACKAGES
