@@ -10,5 +10,3 @@ LOGNAME="mssteam"
 USER="mssteam"
 DEBSIGN_KEYID=DF742C47                          # GPG public signing key
 
-# Export all vars
-export DEBEMAIL DEBFULLNAME LOGNAME USER DEBSIGN_KEYID SIGN_PACKAGES

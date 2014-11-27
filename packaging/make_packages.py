@@ -8,10 +8,13 @@
 # - Docker >= 1.3
 
 # Todo
-# - Build images
+# - Review the code to make it cleaner
+# - use popen instead of system
+# - catch all returns
+# - log everything in a log file
+# - remove all
 # - Use API instead of system command to call docker -> no
 #   http://blog.bordage.pro/avoid-docker-py/
-# - Review the code to make it cleaner
 
 import sys
 import os
@@ -24,6 +27,7 @@ import re
 docker_folder = '../deployment-tools/docker'
 packaging_path = os.getcwd()
 dest_folder = '/root/mysecureshell'
+pkg_folder = dest_folder + '/packaging/'
 
 
 def handle_exit_code(d, code):
@@ -242,12 +246,18 @@ def create_packages(d):
                     'git --git-dir=' + dest_folder + '/.git --work-tree=' +
                     dest_folder + ' checkout ' + git_version,
                     'Switching to "' + str(git_version) + '" branch/tag')
+        # Copy latest version of the packaging folder
+        docker_exec(d, docker_name, 'cp -Rf /mnt/packaging ' + dest_folder,
+                    'Replacing packaging folder with the one on your host')
         # Launch builder script
-        pkg_folder = dest_folder + '/packaging/'
-        docker_exec(d, docker_name,
-                    pkg_folder + distro + '/' + distro_version + '/build.sh ' +
-                    git_version + ' ' + pkg_folder,
-                    'Building package')
+        de_return = docker_exec(d, docker_name,
+                                pkg_folder + distro + '/' + distro_version +
+                                '/build.sh ' + git_version + ' ' + pkg_folder,
+                                'Building package')
+        # Copy packages to host
+        os.makedirs('package/' + distro + '_' + distro_version)
+        os.system('docker cp ' + docker_name + ':' + pkg_folder + '/package ' +
+                  'package/' + distro + '_' + distro_version)
 
 
 def docker_exec(d, docker_name, cmd, comment):
@@ -268,6 +278,7 @@ def docker_exec(d, docker_name, cmd, comment):
         print docker_exec
         os.system(docker_exec)
         time.sleep(1.5)
+        return 0
     except:
         print "Can't run docker: " + docker_exec
         sys.exit(1)
@@ -402,8 +413,10 @@ def delete_mss_containers(d):
     # Update desired tag
     if containers[0] == 'All':
         containers = all_containers
-    for container in containers:
-        os.system('docker rm -f ' + container)
+    containers_to_remove = ' '.join(containers)
+    os.system('docker rm -f ' + containers_to_remove)
+    #for container in containers:
+    #    os.system('docker rm -f ' + container)
 
 
 def main_menu(d):

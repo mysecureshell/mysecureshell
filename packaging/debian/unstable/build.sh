@@ -13,7 +13,7 @@ if [ $pkg_folder ] ; then
         cd $pkg_folder
     fi
 elif [ ! -d ../debian ] ; then
-    echo "Please be in the package folder"
+    echo "Please be in the packaging folder"
     exit 1
 fi
 
