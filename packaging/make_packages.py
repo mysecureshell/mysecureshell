@@ -22,6 +22,7 @@ import dialog
 import time
 import subprocess
 import re
+import shutil
 
 # Global vars
 docker_folder = '../deployment-tools/docker'
@@ -203,6 +204,29 @@ def create_packages(d):
 
     """
 
+    def copy_gpg(d, docker_name):
+        # Copy GPG folder if exist
+        gnupg_path = os.path.expanduser('~') + '/.gnupg'
+        if os.path.isdir(gnupg_path):
+            errors = []
+            try:
+                current_path = os.getcwd()
+                dest_gnupg = current_path + '/.gnupg'
+                for src_dir, dirs, files in os.walk(gnupg_path):
+                    if not os.path.exists(dest_gnupg):
+                        os.mkdir(dest_gnupg)
+                    for file_ in files:
+                        src_file = os.path.join(gnupg_path, file_)
+                        shutil.copy2(src_file, dest_gnupg)
+#                shutil.copy(gnupg_path, current_path)
+            except (IOError, os.error) as why:
+                errors.append((gnupg_path, '.', str(why)))
+        else:
+            print gnupg_path + ' folder does not exist'
+            return
+        docker_exec(d, docker_name, 'cp -Rf /mnt/packaging/.gnupg ' +
+                    '/root/', 'Copying GPG keys ' + str(docker_name))
+
     # Create the list with docker folders
     archs = ('x64', 'x86')
     make_choices = [("All", "", 0)]
@@ -241,6 +265,8 @@ def create_packages(d):
         # Copy sources to container
         docker_exec(d, docker_name, 'cp -Rf /mnt /root/mysecureshell',
                     'Copying source folder to ' + str(docker_name))
+        # Copy gpg key
+        copy_gpg(d, docker_name)
         # Switch to the correct branch/tag
         docker_exec(d, docker_name,
                     'git --git-dir=' + dest_folder + '/.git --work-tree=' +
@@ -255,7 +281,9 @@ def create_packages(d):
                                 '/build.sh ' + git_version + ' ' + pkg_folder,
                                 'Building package')
         # Copy packages to host
-        os.makedirs('package/' + distro + '_' + distro_version)
+        dest_dir = 'package/' + distro + '_' + distro_version
+        if not os.path.exists(dest_dir):
+            os.makedirs('package/' + distro + '_' + distro_version)
         os.system('docker cp ' + docker_name + ':' + pkg_folder + '/package ' +
                   'package/' + distro + '_' + distro_version)
 
