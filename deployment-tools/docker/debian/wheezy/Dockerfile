@@ -18,7 +18,7 @@ RUN echo 'root:root' | chpasswd
 RUN apt-get update
 RUN apt-get -y install git
 RUN git clone https://github.com/mysecureshell/mysecureshell.git
-RUN apt-get -y install libacl1-dev libgnutls-dev gcc make
+RUN apt-get -y install libacl1-dev libgnutls-dev gcc make splint
 RUN apt-get -y install build-essential fakeroot lintian devscripts debhelper ubuntu-dev-tools \
  cowbuilder autotools-dev reportbug
 RUN apt-get -y install sphinx-doc sphinx-common python3-sphinx libjs-sphinxdoc \
