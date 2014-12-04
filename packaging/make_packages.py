@@ -216,7 +216,7 @@ def copy_gpg(d, docker_name):
     if os.path.isdir(current_path + '/.gnupg'):
         print 'A .gnupg folder already exist in the current dir'
     # Copy GPG folder from home directory if exist
-    if os.path.isdir(gnupg_path):
+    elif os.path.isdir(gnupg_path):
         try:
             dest_gnupg = current_path + '/.gnupg'
             for src_dir, dirs, files in os.walk(gnupg_path):
@@ -392,15 +392,17 @@ def select_version_to_build(d):
     versions_len = len(versions)
 
     # Show menu to select wished packages
-    while 1:
-        (code, tag) = d.radiolist(text="Select the version you want to build",
-                                       height=versions_len+8, width=60,
-                                       list_height=versions_len,
-                                       choices=versions,
-                                       title='Select the version from Git ' +
-                                             'tag or branch')
-        if handle_exit_code(d, code):
-            break
+    tag = []
+    while len(tag) == 0:
+        while 1:
+            (code, tag) = d.radiolist(text="Select the version to build",
+                                      height=versions_len+8, width=60,
+                                      list_height=versions_len,
+                                      choices=versions,
+                                      title='Select the version from Git ' +
+                                            'Git tag or branch')
+            if handle_exit_code(d, code):
+                break
     return(tag)
 
 
