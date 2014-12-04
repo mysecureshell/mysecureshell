@@ -196,6 +196,45 @@ def get_distro_list():
     return(sorted(distro_list), sorted(versions_list))
 
 
+def copy_gpg(d, docker_name):
+    """
+    Copy GPG keys
+    If a current .gnupg is available inside the current directory, it will pass.
+    If nothing's found, it will try to copy .gnupg folder inside your home
+    directory to the current directory.
+    Then it will copy this to the container ~root directory
+
+    :d: dialog backtitle
+    :docker_name: name of the container
+
+    """
+    errors = []
+    gnupg_path = os.path.expanduser('~') + '/.gnupg'
+    current_path = os.getcwd()
+
+    # Check if the directory already exist or not
+    if os.path.isdir(current_path + '/.gnupg'):
+        print 'A .gnupg folder already exist in the current dir'
+    # Copy GPG folder from home directory if exist
+    if os.path.isdir(gnupg_path):
+        try:
+            dest_gnupg = current_path + '/.gnupg'
+            for src_dir, dirs, files in os.walk(gnupg_path):
+                if not os.path.exists(dest_gnupg):
+                    os.mkdir(dest_gnupg)
+                for file_ in files:
+                    src_file = os.path.join(gnupg_path, file_)
+                    shutil.copy2(src_file, dest_gnupg)
+        except (IOError, os.error) as why:
+            errors.append((gnupg_path, '.', str(why)))
+    else:
+        print gnupg_path + ' folder does not exist'
+        return
+
+    docker_exec(d, docker_name, 'cp -Rf /mnt/packaging/.gnupg ' +
+                '/root/', 'Copying GPG keys ' + str(docker_name))
+
+
 def create_packages(d):
     """
     Create packages
@@ -203,29 +242,6 @@ def create_packages(d):
     :d: dialog backtitle
 
     """
-
-    def copy_gpg(d, docker_name):
-        # Copy GPG folder if exist
-        gnupg_path = os.path.expanduser('~') + '/.gnupg'
-        if os.path.isdir(gnupg_path):
-            errors = []
-            try:
-                current_path = os.getcwd()
-                dest_gnupg = current_path + '/.gnupg'
-                for src_dir, dirs, files in os.walk(gnupg_path):
-                    if not os.path.exists(dest_gnupg):
-                        os.mkdir(dest_gnupg)
-                    for file_ in files:
-                        src_file = os.path.join(gnupg_path, file_)
-                        shutil.copy2(src_file, dest_gnupg)
-#                shutil.copy(gnupg_path, current_path)
-            except (IOError, os.error) as why:
-                errors.append((gnupg_path, '.', str(why)))
-        else:
-            print gnupg_path + ' folder does not exist'
-            return
-        docker_exec(d, docker_name, 'cp -Rf /mnt/packaging/.gnupg ' +
-                    '/root/', 'Copying GPG keys ' + str(docker_name))
 
     # Create the list with docker folders
     archs = ('x64', 'x86')
@@ -443,8 +459,6 @@ def delete_mss_containers(d):
         containers = all_containers
     containers_to_remove = ' '.join(containers)
     os.system('docker rm -f ' + containers_to_remove)
-    #for container in containers:
-    #    os.system('docker rm -f ' + container)
 
 
 def main_menu(d):
