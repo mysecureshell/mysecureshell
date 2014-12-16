@@ -176,7 +176,7 @@ void DoInitUser()
 			mylog_printf(MYLOG_WARNING, "[%s][%s][%i]Unable to force user: %s (%s)",
 					gl_var->user, gl_var->ip, gl_var->portSource, gl_var->force_user, strerror(errno));
 	}
-	if (getuid() != geteuid()) //revoke root rights in user mode !
+/*	if (getuid() != geteuid()) //revoke root rights in user mode !
 	{
 		if (seteuid(uid) == -1 || setegid(gid) == -1)
 		{
@@ -184,7 +184,21 @@ void DoInitUser()
 					gl_var->user, gl_var->ip, gl_var->portSource, strerror(errno));
 			exit(255);
 		}
-	}
+	}*/
+	if (getuid() != 0 && geteuid() == 0) //keep root rights ready but set euid to user
+	{
+		if (setuid(0) == -1 || seteuid(uid) == -1)
+		{
+			mylog_printf(MYLOG_ERROR,
+					"[%s][%s]Couldn't keep root rights and set euid: %s",
+					gl_var->user, gl_var->ip, strerror(errno));
+			exit(255);
+		}
+ 	}
+}
+ 
+ int CheckRulesAboutMaxFiles()
+
 }
 
 int CheckRulesAboutMaxFiles()
