@@ -37,7 +37,7 @@
 /*@null@*/ char *get_ip(int resolv)
 {
 	struct hostent *h;
-	in_addr_t addr;
+	unsigned char addr[sizeof(struct in6_addr)];
 	char *env, *ip = NULL;
 
 	if ((env = getenv("SSH_CONNECTION")) != NULL)
@@ -49,8 +49,8 @@
 			*ptr = '\0';
 		if (resolv == 0)
 			ip = strdup(env);
-		else if ((int) (addr = inet_addr(env)) != -1)
-			if ((h = gethostbyaddr((char *) &addr, sizeof(addr), AF_INET)) != NULL)//FIXME inet_ntop ???
+		else if (inet_pton(AF_INET6, ip, addr) == 1)
+			if ((h = gethostbyaddr((char *) &addr, sizeof(addr), AF_INET6)) != NULL)//FIXME inet_ntop ???
 				if (h != NULL && h->h_name != NULL && strlen(h->h_name) > 0)//check if a name is defined
 					ip = strdup(h->h_name);
 		free(env);
