@@ -773,12 +773,12 @@ void DoRename()
 void DoSymLink()
 {
 	u_int32_t id;
-	char *oldPath, *newPath;
+	char *link, *target;
 	int status = SSH2_FX_OK;
 
 	id = BufferGetInt32(bIn);
-	newPath = convertFromUtf8(BufferGetString(bIn), 1);
-	oldPath = convertFromUtf8(BufferGetString(bIn), 1);
+	link = convertFromUtf8(BufferGetString(bIn), 1);
+	target = convertFromUtf8(BufferGetString(bIn), 1);
 	if (HAS_BIT(gl_var->flagsDisable, SFTP_DISABLE_SYMLINK))
 	{
 		DEBUG((MYLOG_DEBUG, "[DoSymLink]Disabled by conf."));
@@ -786,12 +786,12 @@ void DoSymLink()
 	}
 	else
 	{
-		status = FSSymlink(oldPath, newPath);
-		DEBUG((MYLOG_DEBUG, "[DoSymLink]oldPath:'%s' newPath:'%s' -> %i", oldPath, newPath, status));
+		status = FSSymlink(target, link);
+		DEBUG((MYLOG_DEBUG, "[DoSymLink]link:'%s' target:'%s' -> %i", link, target, status));
 	}
 	SendStatus(bOut, id, status);
-	free(oldPath);
-	free(newPath);
+	free(target);
+	free(link);
 }
 
 void DoUnsupported(int msgType, int msgLen)
