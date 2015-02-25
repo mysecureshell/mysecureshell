@@ -126,7 +126,7 @@ int FSEnumAcl(const char *file, int resolvePath, void (*callback)(void *data, in
 
 #else //ifdef HAVE_CYGWIN
 
-int FSEnumAcl(const char *file, int resolvePath, void (*callback)(void *data, int type, u_int32_t id, u_int32_t mode), void *data, int *nbEntries)
+int FSEnumAcl(const char *file, int resolvePath, void (*callback)(void *data, int type, u_int32_t id, u_int32_t mode), void *data, u_int32_t *nbEntries)
 {
 	aclent_t acls[MAX_ACL_ENTRIES];
 	tFSPath	*path;
@@ -155,11 +155,11 @@ int FSEnumAcl(const char *file, int resolvePath, void (*callback)(void *data, in
 			 ((acls[i].a_perm & 1) ? SSH5_ACE4_EXECUTE : 0);
 			switch (acls[i].a_type)
 			{
-				case ACL_USER: (*callback)(data, FS_ENUM_USER, acls[i].a_id, mode); break;
-				case ACL_GROUP: (*callback)(data, FS_ENUM_GROUP, acls[i].a_id, mode); break;
-				case ACL_USER_OBJ: (*callback)(data, FS_ENUM_USER_OBJ, -1, mode); break;
-				case ACL_GROUP_OBJ: (*callback)(data, FS_ENUM_GROUP_OBJ, -1, mode); break;
-				case ACL_OTHER: (*callback)(data, FS_ENUM_OTHER, -1, mode); break;
+				case USER: (*callback)(data, FS_ENUM_USER, acls[i].a_id, mode); break;
+				case GROUP: (*callback)(data, FS_ENUM_GROUP, acls[i].a_id, mode); break;
+				case USER_OBJ: (*callback)(data, FS_ENUM_USER_OBJ, -1, mode); break;
+				case GROUP_OBJ: (*callback)(data, FS_ENUM_GROUP_OBJ, -1, mode); break;
+				case OTHER: (*callback)(data, FS_ENUM_OTHER, -1, mode); break;
 			}
 			DEBUG((MYLOG_DEBUG, "[FSEnumAcl]enum tag=%i id=%i mode=%i", acls[i].a_type, acls[i].a_id, mode));
 		}
