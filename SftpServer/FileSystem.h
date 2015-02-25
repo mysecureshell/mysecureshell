@@ -54,6 +54,6 @@ int FSUnlink(const char *file);
 int FSMkdir(const char *dir, mode_t mode);
 int FSRmdir(const char *dir);
 int FSRename(const char *oldFile, const char *newFile, int overwriteDestination);
-int FSSymlink(const char *oldFile, const char *newFile);
+int FSSymlink(const char *target, const char *linkPath);
 
 #endif /* _FILESYSTEM_H_ */

@@ -523,15 +523,15 @@ int FSRename(const char *oldFile, const char *newFile, int overwriteDestination)
 	return returnValue;
 }
 
-int FSSymlink(const char *oldFile, const char *newFile)
+int FSSymlink(const char *target, const char *linkPath)
 {
 	tFSPath *oldPath;
 	tFSPath *newPath;
 	int	returnValue;
 
-	oldPath = FSResolvePath(oldFile, NULL, 0);
-	newPath = FSResolvePath(newFile, NULL, 0);
-	DEBUG((MYLOG_DEBUG, "[FSSymlink]exposedPath:'%s' -> '%s'", oldPath->exposedPath, newPath->exposedPath));
+	oldPath = FSResolvePath(target, NULL, 0);
+	newPath = FSResolvePath(linkPath, NULL, 0);
+	DEBUG((MYLOG_DEBUG, "[FSSymlink]exposedPath:'%s' -> '%s'", linkPath->exposedPath, target->exposedPath));
 	if (FSCheckSecurity(oldPath->realPath, oldPath->path) != SSH2_FX_OK
 			|| FSCheckSecurity(newPath->realPath, newPath->path) != SSH2_FX_OK)
 	{
@@ -539,7 +539,7 @@ int FSSymlink(const char *oldFile, const char *newFile)
 		FSDestroyPath(newPath);
 		return SSH2_FX_PERMISSION_DENIED;
 	}
-	DEBUG((MYLOG_DEBUG, "[FSSymlink]'%s' -> '%s'", oldPath->realPath, newPath->realPath));
+	DEBUG((MYLOG_DEBUG, "[FSSymlink]'%s' -> '%s'", linkPath->realPath, target->realPath));
 	if (symlink(oldPath->realPath, newPath->realPath) == -1)
 		returnValue = errnoToPortable(errno);
 	else
