@@ -98,6 +98,7 @@ distclean: clean
 updateautoconf:
 	/usr/bin/autoscan
 	/usr/bin/autoheader
+	/usr/bin/automake --force-missing --add-missing
 	/usr/bin/autoconf -f
 
 cleanautoconf:
