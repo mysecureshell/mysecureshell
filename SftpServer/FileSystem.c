@@ -247,9 +247,17 @@ int FSCheckSecurity(const char *fullPath, const char *path)
 		FSEnumAcl(fullPath, 0, FSCheckSecurityACL, &result, &nbEntries);
 		if (stat(fullPath, &st) == 0)
 		{
-			if ((st.st_uid == getuid() && HAS_BIT(st.st_mode, S_IRUSR))
-					|| (UserIsInThisGroup(st.st_gid) == 1 && HAS_BIT(st.st_mode, S_IRGRP))
-					|| HAS_BIT(st.st_mode, S_IROTH))
+			if (st.st_uid == getuid())
+			{
+				if ((st.st_mode & (S_IRUSR | S_IWUSR | S_IXUSR)) != 0)
+					result = SSH2_FX_OK;
+			}
+			else if (UserIsInThisGroup(st.st_gid) == 1)
+			{
+				if ((st.st_mode & (S_IRGRP | S_IWGRP | S_IXGRP)) != 0)
+					result = SSH2_FX_OK;
+			}
+			else if ((st.st_mode & (S_IROTH | S_IWOTH | S_IXOTH)) != 0)
 				result = SSH2_FX_OK;
 		}
 		if (errno == ENOENT)
