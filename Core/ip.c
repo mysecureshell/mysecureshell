@@ -37,6 +37,7 @@
 /*@null@*/ char *get_ip(int resolv)
 {
 	struct hostent *h;
+	unsigned char addr6[sizeof(struct in6_addr)];
 	in_addr_t addr;
 	char *env, *ip = NULL;
 
@@ -50,9 +51,17 @@
 		if (resolv == 0)
 			ip = strdup(env);
 		else if ((int) (addr = inet_addr(env)) != -1)
-			if ((h = gethostbyaddr((char *) &addr, sizeof(addr), AF_INET)) != NULL)//FIXME inet_ntop ???
+		{
+			if ((h = gethostbyaddr((char *) &addr, sizeof(addr), AF_INET)) != NULL)
 				if (h != NULL && h->h_name != NULL && strlen(h->h_name) > 0)//check if a name is defined
 					ip = strdup(h->h_name);
+		}
+		else if (inet_pton(AF_INET6, env, addr6) == 1)
+		{
+			if ((h = gethostbyaddr((char *) &addr6, sizeof(addr6), AF_INET6)) != NULL)
+				if (h != NULL && h->h_name != NULL && strlen(h->h_name) > 0)//check if a name is defined
+					ip = strdup(h->h_name);
+		}
 		free(env);
 		if (ip == NULL)
 			ip = strdup("");
