@@ -46,9 +46,11 @@ void DoExtDiskSpace(tBuffer *bIn, tBuffer *bOut, u_int32_t id)
 
 	path = convertFromUtf8(BufferGetString(bIn), 1);
 	realPath = FSCheckPath(path);
+	DEBUG((MYLOG_DEBUG, "[DoExtDiskSpaceOpenSSH]Path: %s", path));
 	if (realPath != NULL && !HAS_BIT(gl_var->flagsDisable, SFTP_DISABLE_STATSFS))
 	{
-		if (STATFS(path, &stfs) == 0)
+		DEBUG((MYLOG_DEBUG, "[DoExtDiskSpaceOpenSSH]Realpath: %s", realPath->realPath));
+		if (STATFS(realPath->realPath, &stfs) == 0)
 		{
 			tBuffer *b;
 
@@ -81,7 +83,8 @@ static void DoExtDiskSpaceOpenSSH_Path(tBuffer *bOut, u_int32_t id, const char *
 	realPath = FSCheckPath(path);
 	if (realPath != NULL && !HAS_BIT(gl_var->flagsDisable, SFTP_DISABLE_STATSFS))
 	{
-		if (STATFS(path, &stfs) == 0)
+		DEBUG((MYLOG_DEBUG, "[DoExtDiskSpaceOpenSSH_Path]Realpath: %s", realPath->realPath));
+		if (STATFS(realPath->realPath, &stfs) == 0)
 		{
 			tBuffer *b;
 
