@@ -531,7 +531,7 @@ int FSSymlink(const char *target, const char *linkPath)
 
 	oldPath = FSResolvePath(target, NULL, 0);
 	newPath = FSResolvePath(linkPath, NULL, 0);
-	DEBUG((MYLOG_DEBUG, "[FSSymlink]exposedPath:'%s' -> '%s'", linkPath->exposedPath, target->exposedPath));
+	DEBUG((MYLOG_DEBUG, "[FSSymlink]exposedPath:'%s' -> '%s'", oldPath->exposedPath, newPath->exposedPath));
 	if (FSCheckSecurity(oldPath->realPath, oldPath->path) != SSH2_FX_OK
 			|| FSCheckSecurity(newPath->realPath, newPath->path) != SSH2_FX_OK)
 	{
@@ -539,7 +539,7 @@ int FSSymlink(const char *target, const char *linkPath)
 		FSDestroyPath(newPath);
 		return SSH2_FX_PERMISSION_DENIED;
 	}
-	DEBUG((MYLOG_DEBUG, "[FSSymlink]'%s' -> '%s'", linkPath->realPath, target->realPath));
+	DEBUG((MYLOG_DEBUG, "[FSSymlink]'%s' -> '%s'", oldPath->realPath, newPath->realPath));
 	if (symlink(oldPath->realPath, newPath->realPath) == -1)
 		returnValue = errnoToPortable(errno);
 	else
