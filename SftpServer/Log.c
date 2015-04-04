@@ -32,6 +32,12 @@
 #include "Log.h"
 #include "../Core/security.h"
 
+#ifdef LOG_FTP
+#define MSS_OPENLOG LOG_FTP
+#else //!LOG_FTP
+#define MSS_OPENLOG LOG_DAEMON
+#endif //LOG_FTP
+
 typedef struct s_log
 {
 	char *file;
@@ -65,7 +71,7 @@ void mylog_open(char *file, int useSyslog)
 	if (useSyslog == 1)
 	{
 		_log->useSyslog = 1;
-		openlog("MySecureShell", LOG_PID, LOG_FTP);
+		openlog("MySecureShell", LOG_PID, MSS_OPENLOG);
 	}
 #endif //HAVE_OPENLOG
 
