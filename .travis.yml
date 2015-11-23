@@ -35,4 +35,4 @@ env:
 
 os:
   - linux
-  - osx
+#  - osx
