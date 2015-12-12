@@ -1,4 +1,5 @@
 language: cpp
+sudo: true
 
 compiler:
   - gcc
@@ -7,6 +8,15 @@ compiler:
 before_install:
   - echo $LANG
   - echo $LC_ALL
+  - sudo addgroup --gid 1003 test
+  - sudo addgroup --gid 1004 group1
+  - sudo addgroup --gid 1005 group2
+  - sudo addgroup --gid 1006 group3
+  - sudo addgroup --gid 1007 group4
+  - sudo addgroup --gid 1008 group5
+  - sudo adduser --home /home/test --shell /bin/MySecureShell --uid 1002 --gid 1003 test
+  - sudo adduser --home /home/test2 --shell /bin/MySecureShell --uid 1003 --gid 1003 test2
+  - echo 'test:test' | sudo chpasswd
   - if [ $TRAVIS_OS_NAME == linux ]; then sudo apt-get update && sudo apt-get install -y libacl1-dev libgnutls28-dev; fi
 #  - if [ $TRAVIS_OS_NAME == osx ]; then brew update && brew install llvm35 && brew link --force llvm35; fi
 
@@ -16,8 +26,9 @@ before_script:
 #  - if [ $TRAVIS_OS_NAME == osx ]; then travis_retry ./configure; fi
 
 script:
-  - make all
-  - cd tests && mvn package
+  - make install
+  - cd tests
+  - sudo mvn clean package
 
 #after_success:
 #  - if [ $TRAVIS_BRANCH == $TRAVIS_TAG ]; then rake deploy; fi
