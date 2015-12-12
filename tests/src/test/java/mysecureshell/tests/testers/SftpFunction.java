@@ -13,8 +13,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import junit.framework.TestCase;
+import mysecureshell.tests.testers.utils.XMLWriter;
 import mysecureshell.tests.utils.SftpConnection;
-import mysecureshell.tests.utils.XMLWriter;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.junit.Assert;

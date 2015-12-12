@@ -1,4 +1,4 @@
-package mysecureshell.tests.utils;
+package mysecureshell.tests.testers.utils;
 
 import java.io.BufferedWriter;
 import java.io.IOException;

@@ -9,8 +9,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import junit.framework.TestCase;
+import mysecureshell.tests.testers.utils.XMLWriter;
 import mysecureshell.tests.utils.SftpConnection;
-import mysecureshell.tests.utils.XMLWriter;
 
 import org.junit.Assert;
 

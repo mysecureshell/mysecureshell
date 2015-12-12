@@ -6,8 +6,8 @@ import java.util.logging.Logger;
 
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import mysecureshell.tests.testers.utils.XMLReader;
 import mysecureshell.tests.utils.FilesUtil;
-import mysecureshell.tests.utils.XMLReader;
 
 
 public class TestFiles
