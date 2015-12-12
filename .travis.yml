@@ -14,8 +14,8 @@ before_install:
   - sudo addgroup --gid 1006 group3
   - sudo addgroup --gid 1007 group4
   - sudo addgroup --gid 1008 group5
-  - sudo adduser --home /home/test --shell /bin/MySecureShell --uid 2002 --gid 1003 test
-  - sudo adduser --home /home/test2 --shell /bin/MySecureShell --uid 2003 --gid 1003 test2
+  - sudo adduser --home /home/test --shell /bin/MySecureShell --uid 2002 --gid 1003 --disabled-password --gecos "" test
+  - sudo adduser --home /home/test2 --shell /bin/MySecureShell --uid 2003 --gid 1003 --disabled-password --gecos "" test2
   - echo 'test:test' | sudo chpasswd
   - if [ $TRAVIS_OS_NAME == linux ]; then sudo apt-get update && sudo apt-get install -y libacl1-dev libgnutls28-dev; fi
 #  - if [ $TRAVIS_OS_NAME == osx ]; then brew update && brew install llvm35 && brew link --force llvm35; fi
