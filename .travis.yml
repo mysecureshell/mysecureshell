@@ -26,9 +26,9 @@ before_script:
 #  - if [ $TRAVIS_OS_NAME == osx ]; then travis_retry ./configure; fi
 
 script:
-  - make install
+  - sudo make install
   - cd tests
-  - sudo mvn clean package
+  - sudo `which mvn` clean package
 
 #after_success:
 #  - if [ $TRAVIS_BRANCH == $TRAVIS_TAG ]; then rake deploy; fi
