@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testers.SftpCreateAndRemoveDir>
+ <path>tests/test_mkdir</path>
+ <attributes type="protocol.objects.SftpFileAttributes">
+   <attrib>0</attrib>
+   <flags>132</flags><!-- SSH_FILEXFER_ATTR_PERMISSIONS | SSH_FILEXFER_ATTR_OWNERGROUP -->
+   <type>2</type>
+   <size>0</size>
+   <owner>test</owner>
+   <group>test</group>
+   <permissions>16384</permissions><!-- 0711 | S_IFDIR -->
+ </attributes>
+ <afterMkDirAttributes type="protocol.objects.SftpFileAttributes">
+   <attrib>0</attrib>
+   <flags>132</flags><!-- SSH_FILEXFER_ATTR_PERMISSIONS | SSH_FILEXFER_ATTR_OWNERGROUP -->
+   <type>2</type>
+   <size>0</size>
+   <owner>test</owner>
+   <group>test</group>
+   <permissions>16888</permissions><!-- 0770 | S_IFDIR -->
+ </afterMkDirAttributes>
+</testers.SftpCreateAndRemoveDir>

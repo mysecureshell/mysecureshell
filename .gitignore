@@ -1,4 +1,6 @@
+/.settings
 /install.sh
 /config.h
 /Makefile
 /uninstaller.sh
+/mysecureshell

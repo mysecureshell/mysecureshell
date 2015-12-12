@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testers.SftpCreateAndRemoveSymLink>
+ <linkPath>tests/security.symlink</linkPath>
+ <targetPath>/etc</targetPath>
+ <remove>false</remove>
+</testers.SftpCreateAndRemoveSymLink>

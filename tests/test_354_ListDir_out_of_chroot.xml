@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testers.SftpListDir>
+ <path>/..</path>
+ <wantedFiles type="protocol.objects.SftpFile[]">
+  <protocol.objects.SftpFile>
+   <file>.</file>
+   <attributes type="protocol.objects.SftpFileAttributes">
+     <attrib>0</attrib>
+     <flags>7</flags><!-- SSH_FILEXFER_ATTR_PERMISSIONS(4) | SSH_FILEXFER_ATTR_V3_UIDGID(2) | SSH_FILEXFER_ATTR_SIZE(1) -->
+     <type>0</type>
+     <size>4096</size>
+     <owner>1002</owner>
+     <group>1003</group>
+     <permissions>16877</permissions>
+   </attributes>
+  </protocol.objects.SftpFile>
+  <protocol.objects.SftpFile>
+   <file>..</file>
+   <attributes type="protocol.objects.SftpFileAttributes">
+     <attrib>0</attrib>
+     <flags>7</flags>
+     <type>0</type>
+     <size>4096</size>
+     <owner>0</owner>
+     <group>0</group>
+     <permissions>16877</permissions>
+   </attributes>
+  </protocol.objects.SftpFile>
+  <protocol.objects.SftpFile>
+   <file>.bash_history</file>
+   <attributes type="protocol.objects.SftpFileAttributes">
+     <attrib>0</attrib>
+     <flags>7</flags>
+     <type>0</type>
+     <size>54</size>
+     <owner>1002</owner>
+     <group>1003</group>
+     <permissions>33152</permissions>
+   </attributes>
+  </protocol.objects.SftpFile>
+  <protocol.objects.SftpFile>
+   <file>.bash_logout</file>
+   <attributes type="protocol.objects.SftpFileAttributes">
+     <attrib>0</attrib>
+     <flags>7</flags>
+     <type>0</type>
+     <size>220</size>
+     <owner>1002</owner>
+     <group>1003</group>
+     <permissions>33188</permissions>
+   </attributes>
+  </protocol.objects.SftpFile>
+  <protocol.objects.SftpFile>
+   <file>.bashrc</file>
+   <attributes type="protocol.objects.SftpFileAttributes">
+     <attrib>0</attrib>
+     <flags>7</flags>
+     <type>0</type>
+     <size>3353</size>
+     <owner>1002</owner>
+     <group>1003</group>
+     <permissions>33188</permissions>
+   </attributes>
+  </protocol.objects.SftpFile>
+  <protocol.objects.SftpFile>
+   <file>.cache</file>
+   <attributes type="protocol.objects.SftpFileAttributes">
+     <attrib>0</attrib>
+     <flags>7</flags>
+     <type>0</type>
+     <size>4096</size>
+     <owner>1002</owner>
+     <group>1003</group>
+     <permissions>16832</permissions>
+   </attributes>
+  </protocol.objects.SftpFile>
+  <protocol.objects.SftpFile>
+   <file>.config</file>
+   <attributes type="protocol.objects.SftpFileAttributes">
+     <attrib>0</attrib>
+     <flags>7</flags>
+     <type>0</type>
+     <size>4096</size>
+     <owner>0</owner>
+     <group>0</group>
+     <permissions>16877</permissions>
+   </attributes>
+  </protocol.objects.SftpFile>
+  <protocol.objects.SftpFile>
+   <file>.profile</file>
+   <attributes type="protocol.objects.SftpFileAttributes">
+     <attrib>0</attrib>
+     <flags>7</flags>
+     <type>0</type>
+     <size>794</size>
+     <owner>1002</owner>
+     <group>1003</group>
+     <permissions>33188</permissions>
+   </attributes>
+  </protocol.objects.SftpFile>
+  <protocol.objects.SftpFile>
+   <file>.ssh</file>
+   <attributes type="protocol.objects.SftpFileAttributes">
+     <attrib>0</attrib>
+     <flags>7</flags>
+     <type>0</type>
+     <size>4096</size>
+     <owner>1002</owner>
+     <group>1003</group>
+     <permissions>16832</permissions>
+   </attributes>
+  </protocol.objects.SftpFile>
+  <protocol.objects.SftpFile>
+   <file>BUG mss.txt</file>
+   <attributes type="protocol.objects.SftpFileAttributes">
+     <attrib>0</attrib>
+     <flags>7</flags>
+     <type>0</type>
+     <size>462</size>
+     <owner>1002</owner>
+     <group>1003</group>
+     <permissions>33184</permissions>
+   </attributes>
+  </protocol.objects.SftpFile>
+  <protocol.objects.SftpFile>
+   <file>FlashFXP4_1525_Setup.exe</file>
+   <attributes type="protocol.objects.SftpFileAttributes">
+     <attrib>0</attrib>
+     <flags>7</flags>
+     <type>0</type>
+     <size>3471552</size>
+     <owner>1002</owner>
+     <group>1003</group>
+     <permissions>33200</permissions>
+   </attributes>
+  </protocol.objects.SftpFile>
+  <protocol.objects.SftpFile>
+   <file>Profil.jpg</file>
+   <attributes type="protocol.objects.SftpFileAttributes">
+     <attrib>0</attrib>
+     <flags>7</flags>
+     <type>0</type>
+     <size>2241565</size>
+     <owner>1002</owner>
+     <group>1003</group>
+     <permissions>33184</permissions>
+   </attributes>
+  </protocol.objects.SftpFile>
+  <protocol.objects.SftpFile>
+   <file>desktop.ini</file>
+   <attributes type="protocol.objects.SftpFileAttributes">
+     <attrib>0</attrib>
+     <flags>7</flags>
+     <type>0</type>
+     <size>76</size>
+     <owner>1002</owner>
+     <group>1003</group>
+     <permissions>33200</permissions>
+   </attributes>
+  </protocol.objects.SftpFile>
+  <protocol.objects.SftpFile>
+   <file>tests</file>
+   <attributes type="protocol.objects.SftpFileAttributes">
+     <attrib>0</attrib>
+     <flags>7</flags>
+     <type>0</type>
+     <size>4096</size>
+     <owner>1002</owner>
+     <group>1003</group>
+     <permissions>16877</permissions>
+   </attributes>
+  </protocol.objects.SftpFile>
+ </wantedFiles>
+ <mustFail>false</mustFail>
+</testers.SftpListDir>

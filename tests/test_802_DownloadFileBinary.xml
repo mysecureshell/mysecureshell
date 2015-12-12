@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testers.SftpDownloadFile>
+ <file>tests/data_binary.txt</file>
+ <isTextFile>false</isTextFile>
+ <originalPath>/home/test/tests/data_binary.txt</originalPath>
+ <mustFail>true</mustFail>
+</testers.SftpDownloadFile>

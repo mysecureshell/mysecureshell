@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testers.SftpExtFileHashing>
+	<algorithm>md5</algorithm>
+	<file>/tests/data_binary.txt</file>
+	<originalPath>/home/test/tests/data_binary.txt</originalPath>
+</testers.SftpExtFileHashing>

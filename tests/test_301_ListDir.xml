@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testers.SftpListDir>
+ <path>tests</path>
+ <wantedFiles type="protocol.objects.SftpFile[]">
+  <protocol.objects.SftpFile>
+   <file>.</file>
+   <attributes type="protocol.objects.SftpFileAttributes">
+     <attrib>0</attrib>
+     <flags>7</flags><!-- SSH_FILEXFER_ATTR_PERMISSIONS(4) | SSH_FILEXFER_ATTR_V3_UIDGID(2) | SSH_FILEXFER_ATTR_SIZE(1) -->
+     <type>0</type>
+     <size>4096</size>
+     <owner>1002</owner>
+     <group>1003</group>
+     <permissions>16877</permissions>
+   </attributes>
+  </protocol.objects.SftpFile>
+  <protocol.objects.SftpFile>
+   <file>..</file>
+   <attributes type="protocol.objects.SftpFileAttributes">
+     <attrib>0</attrib>
+     <flags>7</flags>
+     <type>0</type>
+     <size>4096</size>
+     <owner>1002</owner>
+     <group>1003</group>
+     <permissions>16877</permissions>
+   </attributes>
+  </protocol.objects.SftpFile>
+  <protocol.objects.SftpFile>
+   <file>.test_hidden</file>
+   <attributes type="protocol.objects.SftpFileAttributes">
+     <attrib>0</attrib>
+     <flags>7</flags>
+     <type>0</type>
+     <size>4096</size>
+     <owner>1002</owner>
+     <group>1003</group>
+     <permissions>16877</permissions>
+   </attributes>
+  </protocol.objects.SftpFile>
+  <protocol.objects.SftpFile>
+   <file>.test_hidden.txt</file>
+   <attributes type="protocol.objects.SftpFileAttributes">
+     <attrib>0</attrib>
+     <flags>7</flags>
+     <type>0</type>
+     <size>256</size>
+     <owner>1002</owner>
+     <group>1003</group>
+     <permissions>33188</permissions>
+   </attributes>
+  </protocol.objects.SftpFile>
+  <protocol.objects.SftpFile>
+   <file>d1</file>
+   <attributes type="protocol.objects.SftpFileAttributes">
+     <attrib>0</attrib>
+     <flags>7</flags>
+     <type>0</type>
+     <size>4096</size>
+     <owner>0</owner>
+     <group>1004</group>
+     <permissions>16877</permissions>
+   </attributes>
+  </protocol.objects.SftpFile>
+  <protocol.objects.SftpFile>
+   <file>d2</file>
+   <attributes type="protocol.objects.SftpFileAttributes">
+     <attrib>0</attrib>
+     <flags>7</flags>
+     <type>0</type>
+     <size>4096</size>
+     <owner>0</owner>
+     <group>1005</group>
+     <permissions>16877</permissions>
+   </attributes>
+  </protocol.objects.SftpFile>
+  <protocol.objects.SftpFile>
+   <file>d3</file>
+   <attributes type="protocol.objects.SftpFileAttributes">
+     <attrib>0</attrib>
+     <flags>7</flags>
+     <type>0</type>
+     <size>4096</size>
+     <owner>0</owner>
+     <group>1006</group>
+     <permissions>16877</permissions>
+   </attributes>
+  </protocol.objects.SftpFile>
+  <protocol.objects.SftpFile>
+   <file>d4</file>
+   <attributes type="protocol.objects.SftpFileAttributes">
+     <attrib>0</attrib>
+     <flags>7</flags>
+     <type>0</type>
+     <size>4096</size>
+     <owner>0</owner>
+     <group>1007</group>
+     <permissions>16877</permissions>
+   </attributes>
+  </protocol.objects.SftpFile>
+  <protocol.objects.SftpFile>
+   <file>d5</file>
+   <attributes type="protocol.objects.SftpFileAttributes">
+     <attrib>0</attrib>
+     <flags>7</flags>
+     <type>0</type>
+     <size>4096</size>
+     <owner>0</owner>
+     <group>1008</group>
+     <permissions>16877</permissions>
+   </attributes>
+  </protocol.objects.SftpFile>
+  <protocol.objects.SftpFile>
+   <file>data_binary.txt</file>
+   <attributes type="protocol.objects.SftpFileAttributes">
+     <attrib>0</attrib>
+     <flags>7</flags>
+     <type>0</type>
+     <size>10240</size>
+     <owner>0</owner>
+     <group>0</group>
+     <permissions>33188</permissions>
+   </attributes>
+  </protocol.objects.SftpFile>
+  <protocol.objects.SftpFile>
+   <file>data_string.txt</file>
+   <attributes type="protocol.objects.SftpFileAttributes">
+     <attrib>0</attrib>
+     <flags>7</flags>
+     <type>0</type>
+     <size>1024</size>
+     <owner>0</owner>
+     <group>0</group>
+     <permissions>33188</permissions>
+   </attributes>
+  </protocol.objects.SftpFile>
+  <protocol.objects.SftpFile>
+   <file>test_rename.txt</file>
+   <attributes type="protocol.objects.SftpFileAttributes">
+     <attrib>0</attrib>
+     <flags>7</flags>
+     <type>0</type>
+     <size>256</size>
+     <owner>1002</owner>
+     <group>1003</group>
+     <permissions>33188</permissions>
+   </attributes>
+  </protocol.objects.SftpFile>
+ </wantedFiles>
+</testers.SftpListDir>

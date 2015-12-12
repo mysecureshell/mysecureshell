@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testers.SftpUploadFile>
+ <sourceFile>/home/test/tests/data_binary.txt</sourceFile>
+ <destinationFile>tests/data_binary_uploaded.txt</destinationFile>
+ <destinationPath>/home/test/tests/data_binary_uploaded.txt</destinationPath>
+ <isTextFile>false</isTextFile>
+ <doTimes>3</doTimes>
+</testers.SftpUploadFile>

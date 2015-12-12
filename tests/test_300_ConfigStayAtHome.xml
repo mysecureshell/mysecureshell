@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testers.SftpConfiguration>
+ <protocolVersion>3</protocolVersion>
+ <configFile>/etc/ssh/sftp_config</configFile>
+ <newConfig><![CDATA[
+<Default>
+	StayAtHome	true
+	LogFile			/tmp/sftp-server-300.log
+	GlobalDownload	1k
+</Default>
+]]></newConfig>
+</testers.SftpConfiguration>

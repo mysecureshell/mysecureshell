@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testers.SftpCreateAndRemoveDir>
+ <path>tests/test_mkdir</path>
+ <attributes type="protocol.objects.SftpFileAttributes">
+   <flags>4</flags><!-- SSH_FILEXFER_ATTR_PERMISSIONS -->
+   <permissions>16841</permissions><!-- 0711 | S_IFDIR -->
+ </attributes>
+</testers.SftpCreateAndRemoveDir>

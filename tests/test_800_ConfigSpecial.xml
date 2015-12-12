@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testers.SftpConfiguration>
+ <protocolVersion>5</protocolVersion>
+ <configFile>/etc/ssh/sftp_config</configFile>
+ <newConfig><![CDATA[
+<Default>
+	StayAtHome		true
+	LogFile			/tmp/sftp-server-800.log
+	ForceRights		0660 0770
+	DefaultRights	0660 0770
+	MinimumRights	0660 0770
+	Home	/home/$USER
+	Home	/home/$SHLVL
+	Home	/home/${USER}
+	DisableReadFile	true
+</Default>
+
+<User test>
+	Home	/home/test
+</User>
+
+<FileSpec AllowAll>
+    Order	AllowDeny
+</FileSpec>
+
+<FileSpec DenyAll>
+    Order	DenyAllow
+    Deny	all
+</FileSpec>
+
+<FileSpec OnlyDataAndHome>
+    UseFullPath	true
+    Order		AllowDeny
+    Allow		"^\/(data|home)"
+</FileSpec>
+
+<FileSpec AllowedExtensions>
+    UseFullPath	false
+    Order		DenyAllow
+    Allow		all
+    Deny		".*\.exe$"
+    Deny		".*\.sh$"
+</FileSpec>
+]]></newConfig>
+</testers.SftpConfiguration>

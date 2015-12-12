@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testers.SftpConfigurationBackup>
+ <oldConfig>/tmp/sftp_config.backup</oldConfig>
+ <newConfig>/etc/ssh/sftp_config</newConfig>
+ <deleteOldConfig>true</deleteOldConfig>
+</testers.SftpConfigurationBackup>

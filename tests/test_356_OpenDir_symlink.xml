@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testers.SftpSession> 
+ <steps type="testers.SftpFunction[]">
+  <testers.SftpFunction> 
+   <className type="java.lang.String">SshFxpInit</className> 
+   <params type="java.lang.Object[]">
+   </params>
+   <resultExcepted type="protocol.responses.ResponseInit">
+    <version type="java.lang.Integer">3</version>
+    <ignoreExtensions type="java.lang.Boolean">true</ignoreExtensions>
+   </resultExcepted>
+  </testers.SftpFunction>
+  <testers.SftpFunction> 
+   <className type="java.lang.String">SshFxpOpenDir</className> 
+   <params type="java.lang.Object[]">
+    <java.lang.String>tests/security.symlink</java.lang.String>
+   </params>
+   <resultExcepted type="protocol.responses.ResponseStatus">
+    <status>2</status>
+    <error>No such file</error>
+    <language>en</language>
+   </resultExcepted>
+  </testers.SftpFunction>
+ </steps>
+</testers.SftpSession>

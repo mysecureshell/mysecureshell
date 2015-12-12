@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testers.LocalFileSystem>
+ <deleteBefore>/home/test/tests</deleteBefore>
+ <content type="testers.fs.FSFile[]">
+  <testers.fs.FSFile>d:/home/test/tests:0755:test:test</testers.fs.FSFile>
+  <testers.fs.FSFile>f:/home/test/tests/data_binary.txt:0644:::random_binary,1024</testers.fs.FSFile>
+  <testers.fs.FSFile>f:/home/test/tests/data_string.txt:0644:::random_string,1024</testers.fs.FSFile>
+  <testers.fs.FSFile>f:/home/test/tests/test_rename.txt:0644:test:test:random_string,256</testers.fs.FSFile>
+  <testers.fs.FSFile>f:/home/test/tests/.test_hidden.txt:0644:test:test:random_string,256</testers.fs.FSFile>
+  <testers.fs.FSFile>d:/home/test/tests/.test_hidden:0755:test:test</testers.fs.FSFile>
+  <testers.fs.FSFile>d:/home/test/tests/d1:0755:root:group1</testers.fs.FSFile>
+  <testers.fs.FSFile>f:/home/test/tests/d1/f1.txt:0200:::random_binary,256</testers.fs.FSFile>
+  <testers.fs.FSFile>d:/home/test/tests/d2:0755:root:group2</testers.fs.FSFile>
+  <testers.fs.FSFile>d:/home/test/tests/d3:0755:root:group3</testers.fs.FSFile>
+  <testers.fs.FSFile>d:/home/test/tests/d4:0755:root:group4</testers.fs.FSFile>
+  <testers.fs.FSFile>d:/home/test/tests/d5:0755:root:group5</testers.fs.FSFile>
+ </content>
+</testers.LocalFileSystem>

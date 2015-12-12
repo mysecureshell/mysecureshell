@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testers.SftpUploadFile>
+ <sourceFile>/home/test/tests/data_string.txt</sourceFile>
+ <destinationFile>tests/data_string_uploaded.txt</destinationFile>
+ <destinationPath>/home/test/tests/data_string_uploaded.txt</destinationPath>
+ <isTextFile>false</isTextFile>
+</testers.SftpUploadFile>

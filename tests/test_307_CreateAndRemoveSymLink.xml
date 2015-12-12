@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testers.SftpCreateAndRemoveSymLink>
+ <linkPath>tests/data_string.txt.symlink</linkPath>
+ <targetPath>/home/test/tests/data_string.txt</targetPath>
+</testers.SftpCreateAndRemoveSymLink>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testers.SftpStatFile>
+ <file>tests/you_can_see_me.acl_version</file>
+ <flags>193</flags> <!-- SSH2_FILEXFER_ATTR_SIZE(0x01) | SSH2_FILEXFER_ATTR_ACL(0x40) | SSH4_FILEXFER_ATTR_OWNERGROUP(0x80)-->
+ <expected type="protocol.objects.SftpFileAttributes">
+   <attrib>0</attrib>
+   <flags>193</flags>
+   <type>2</type>
+   <size>4096</size>
+   <owner>root</owner>
+   <group>root</group>
+   <acl type="protocol.objects.SftpFileAcl[]">
+    <protocol.objects.SftpFileAcl>
+     <ace_type>0</ace_type><!-- SSH5_ACE4_ACCESS_ALLOWED_ACE_TYPE (0x00) -->
+     <ace_flag>0</ace_flag><!-- ??? -->
+     <ace_mask>35</ace_mask><!-- SSH5_ACE4_READ_DATA (0x01) | SSH5_ACE4_WRITE_DATA(0x02) | SSH5_ACE4_EXECUTE (0x20) -->
+     <who>USER</who>
+    </protocol.objects.SftpFileAcl>
+    <protocol.objects.SftpFileAcl>
+     <ace_type>0</ace_type><!-- SSH5_ACE4_ACCESS_ALLOWED_ACE_TYPE (0x00) -->
+     <ace_flag>0</ace_flag><!-- ??? -->
+     <ace_mask>1</ace_mask><!-- SSH5_ACE4_READ_DATA (0x01) -->
+     <who>test</who>
+    </protocol.objects.SftpFileAcl>
+    <protocol.objects.SftpFileAcl>
+     <ace_type>0</ace_type><!-- SSH5_ACE4_ACCESS_ALLOWED_ACE_TYPE (0x00) -->
+     <ace_flag>0</ace_flag><!-- ??? -->
+     <ace_mask>33</ace_mask><!-- SSH5_ACE4_READ_DATA (0x01) | SSH5_ACE4_EXECUTE (0x20) -->
+     <who>GROUP</who>
+    </protocol.objects.SftpFileAcl>
+    <protocol.objects.SftpFileAcl>
+     <ace_type>0</ace_type>
+     <ace_flag>0</ace_flag>
+     <ace_mask>0</ace_mask>
+     <who>OTHER</who>
+    </protocol.objects.SftpFileAcl>
+   </acl>
+   <extended type="protocol.objects.SftpFileExtend[]"/>
+ </expected>
+</testers.SftpStatFile>
