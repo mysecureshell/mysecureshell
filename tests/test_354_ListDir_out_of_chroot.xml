@@ -9,7 +9,7 @@
      <flags>7</flags><!-- SSH_FILEXFER_ATTR_PERMISSIONS(4) | SSH_FILEXFER_ATTR_V3_UIDGID(2) | SSH_FILEXFER_ATTR_SIZE(1) -->
      <type>0</type>
      <size>4096</size>
-     <owner>1002</owner>
+     <owner>2002</owner>
      <group>1003</group>
      <permissions>16877</permissions>
    </attributes>
@@ -33,7 +33,7 @@
      <flags>7</flags>
      <type>0</type>
      <size>54</size>
-     <owner>1002</owner>
+     <owner>2002</owner>
      <group>1003</group>
      <permissions>33152</permissions>
    </attributes>
@@ -45,7 +45,7 @@
      <flags>7</flags>
      <type>0</type>
      <size>220</size>
-     <owner>1002</owner>
+     <owner>2002</owner>
      <group>1003</group>
      <permissions>33188</permissions>
    </attributes>
@@ -57,7 +57,7 @@
      <flags>7</flags>
      <type>0</type>
      <size>3353</size>
-     <owner>1002</owner>
+     <owner>2002</owner>
      <group>1003</group>
      <permissions>33188</permissions>
    </attributes>
@@ -69,7 +69,7 @@
      <flags>7</flags>
      <type>0</type>
      <size>4096</size>
-     <owner>1002</owner>
+     <owner>2002</owner>
      <group>1003</group>
      <permissions>16832</permissions>
    </attributes>
@@ -93,7 +93,7 @@
      <flags>7</flags>
      <type>0</type>
      <size>794</size>
-     <owner>1002</owner>
+     <owner>2002</owner>
      <group>1003</group>
      <permissions>33188</permissions>
    </attributes>
@@ -105,7 +105,7 @@
      <flags>7</flags>
      <type>0</type>
      <size>4096</size>
-     <owner>1002</owner>
+     <owner>2002</owner>
      <group>1003</group>
      <permissions>16832</permissions>
    </attributes>
@@ -117,7 +117,7 @@
      <flags>7</flags>
      <type>0</type>
      <size>462</size>
-     <owner>1002</owner>
+     <owner>2002</owner>
      <group>1003</group>
      <permissions>33184</permissions>
    </attributes>
@@ -129,7 +129,7 @@
      <flags>7</flags>
      <type>0</type>
      <size>3471552</size>
-     <owner>1002</owner>
+     <owner>2002</owner>
      <group>1003</group>
      <permissions>33200</permissions>
    </attributes>
@@ -141,7 +141,7 @@
      <flags>7</flags>
      <type>0</type>
      <size>2241565</size>
-     <owner>1002</owner>
+     <owner>2002</owner>
      <group>1003</group>
      <permissions>33184</permissions>
    </attributes>
@@ -153,7 +153,7 @@
      <flags>7</flags>
      <type>0</type>
      <size>76</size>
-     <owner>1002</owner>
+     <owner>2002</owner>
      <group>1003</group>
      <permissions>33200</permissions>
    </attributes>
@@ -165,7 +165,7 @@
      <flags>7</flags>
      <type>0</type>
      <size>4096</size>
-     <owner>1002</owner>
+     <owner>2002</owner>
      <group>1003</group>
      <permissions>16877</permissions>
    </attributes>
