@@ -28,7 +28,7 @@ before_script:
 script:
   - sudo make install
   - cd tests
-  - sudo --preserve-env `which mvn` clean package
+  - sudo -E `which mvn` clean package
 
 #after_success:
 #  - if [ $TRAVIS_BRANCH == $TRAVIS_TAG ]; then rake deploy; fi
