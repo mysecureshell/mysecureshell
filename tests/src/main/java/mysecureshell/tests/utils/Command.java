@@ -2,9 +2,12 @@ package mysecureshell.tests.utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.logging.Logger;
 
 public final class Command
 {
+	private static Logger	log = Logger.getLogger("Command");
+	
 	private Command()
 	{
 	}
@@ -24,8 +27,18 @@ public final class Command
 			
 			try
 			{
+				String	stdOut, stdErr;
+				byte[]	data;
+				
 				if (p.waitFor() == 0)
 					returnValue = true;
+				data = new byte[p.getInputStream().available()];
+				p.getInputStream().read(data);
+				stdOut = new String(data);
+				data = new byte[p.getErrorStream().available()];
+				p.getErrorStream().read(data);
+				stdErr = new String(data);
+				log.info("Call of '" + cmd[0] + "':\nSTDOUT=" + stdOut + "\nSTDERR=" + stdErr);
 			}
 			catch (InterruptedException e)
 			{
