@@ -46,7 +46,7 @@ public class SftpFunction extends TestCase
 		try
 		{
 			Object[]	paramsPrepared = new Object[params.length + 3];
-			Class<?>	classObj = Class.forName("protocol." + className);
+			Class<?>	classObj = Class.forName("mysecureshell.tests.protocol." + className);
 			
 			paramsPrepared[0] = sftp.is;
 			paramsPrepared[1] = sftp.os;
