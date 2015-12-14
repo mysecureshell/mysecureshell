@@ -1,8 +1,5 @@
 package mysecureshell.tests.testers;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import mysecureshell.tests.protocol.SshFxpInit;
 import mysecureshell.tests.protocol.SshFxpRename;
 import mysecureshell.tests.protocol.responses.ResponseStatus;
@@ -13,16 +10,10 @@ import org.junit.Assert;
 
 import ch.ethz.ssh2.sftp.ErrorCodes;
 
-@XmlRootElement(name="testers.SftpRename")
 public class SftpRename extends SftpOperation
 {
-	@XmlElement
 	public String			oldpath = null;
-	
-	@XmlElement
 	public String			newPath = null;
-	
-	@XmlElement
 	public Integer			flags = null;
 	
 	@Override

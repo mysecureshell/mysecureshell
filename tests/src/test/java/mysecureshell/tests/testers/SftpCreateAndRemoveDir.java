@@ -1,8 +1,5 @@
 package mysecureshell.tests.testers;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import mysecureshell.tests.protocol.SshFxpInit;
 import mysecureshell.tests.protocol.SshFxpMakeDir;
 import mysecureshell.tests.protocol.SshFxpRemoveDir;
@@ -17,18 +14,11 @@ import org.junit.Assert;
 
 import ch.ethz.ssh2.sftp.ErrorCodes;
 
-@XmlRootElement(name="testers.SftpCreateAndRemoveDir")
 public class SftpCreateAndRemoveDir extends SftpOperation
 {
-	@XmlElement
 	public String						path = null;
-	
-	@XmlElement
 	public SftpFileAttributes			attributes = null;
-	
-	@XmlElement
 	public SftpFileAttributes			afterMkDirAttributes = null;
-	
 	transient public SftpFileAttributes	resultAttributes = null;
 	
 	@Override

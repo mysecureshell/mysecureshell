@@ -3,9 +3,6 @@ package mysecureshell.tests.testers;
 import java.io.ByteArrayOutputStream;
 import java.util.logging.Logger;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import mysecureshell.tests.protocol.SshFxpClose;
 import mysecureshell.tests.protocol.SshFxpInit;
 import mysecureshell.tests.protocol.SshFxpOpenFile;
@@ -24,18 +21,11 @@ import org.junit.Assert;
 
 import ch.ethz.ssh2.sftp.ErrorCodes;
 
-@XmlRootElement(name="testers.SftpDownloadFile")
 public class SftpDownloadFile extends SftpOperation
 {
 	private static Logger	log = Logger.getLogger("SftpDownloadFile");
-	
-	@XmlElement
 	public String			file = null;
-	
-	@XmlElement
 	public Boolean			isTextFile = false;
-	
-	@XmlElement
 	public String			originalPath = null;
 	
 	@Override

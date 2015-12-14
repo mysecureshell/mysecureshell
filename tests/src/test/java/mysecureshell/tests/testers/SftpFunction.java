@@ -9,9 +9,6 @@ import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import junit.framework.TestCase;
 import mysecureshell.tests.testers.utils.XMLWriter;
 import mysecureshell.tests.utils.SftpConnection;
@@ -20,22 +17,13 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.junit.Assert;
 import org.junit.Assume;
 
-@XmlRootElement(name="testers.SftpFunction")
 public class SftpFunction extends TestCase
 {
 	private transient static Logger	log = Logger.getLogger("SftpFunction");
 	public transient SftpConnection	sftp = null;
-	
-	@XmlElement
 	public Object[]	params = null;
-	
-	@XmlElement
 	public String	className = null;
-	
-	@XmlElement
 	public String	methodName = "send";
-	
-	@XmlElement
 	public Object	resultExcepted = null;
 	
 	public void runTest() throws Exception

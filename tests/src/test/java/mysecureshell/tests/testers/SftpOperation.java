@@ -5,23 +5,17 @@ import java.io.File;
 import java.io.FileWriter;
 import java.util.logging.Logger;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import junit.framework.TestCase;
 import mysecureshell.tests.testers.utils.XMLWriter;
 import mysecureshell.tests.utils.SftpConnection;
 
 import org.junit.Assert;
 
-@XmlRootElement(name="testers.SftpOperation")
 public class SftpOperation extends TestCase
 {
 	private static Logger	log = Logger.getLogger("SftpOperation");
 	transient protected SftpConnection	sftp = null;
 	transient protected boolean			doDumpResult = false;
-	
-	@XmlElement
 	public Boolean						mustFail = Boolean.FALSE;
 	
 	@Override

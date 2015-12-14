@@ -10,9 +10,6 @@ import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.logging.Logger;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import junit.framework.Assert;
 import junit.framework.TestCase;
 import mysecureshell.tests.testers.fs.FSFile;
@@ -21,15 +18,11 @@ import mysecureshell.tests.utils.Command;
 import org.apache.commons.lang3.SystemUtils;
 import org.junit.Assume;
 
-@XmlRootElement(name="testers.LocalFileSystem")
 public class LocalFileSystem extends TestCase
 {
 	private transient static Logger	log = Logger.getLogger("LocalFileSystem");
 	
-	@XmlElement
-	public String	deleteBefore;
-	
-	@XmlElement
+	public String	deleteBefore;	
 	public FSFile[]	content;
 	
 	@Override

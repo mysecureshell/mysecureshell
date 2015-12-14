@@ -6,24 +6,15 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import junit.framework.TestCase;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.junit.Assert;
 
-@XmlRootElement(name="testers.SftpConfigurationBackup")
 public class SftpConfigurationBackup extends TestCase
 {
-	@XmlElement
 	public String					oldConfig = null;
-	
-	@XmlElement
 	public String					newConfig = null;
-	
-	@XmlElement
 	public Boolean					deleteOldConfig = false;
 	
 	@Override

@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import mysecureshell.tests.protocol.SshFxpClose;
 import mysecureshell.tests.protocol.SshFxpInit;
 import mysecureshell.tests.protocol.SshFxpOpenDir;
@@ -23,15 +20,10 @@ import org.junit.Assert;
 
 import ch.ethz.ssh2.sftp.ErrorCodes;
 
-@XmlRootElement(name="testers.SftpListDir")
 public class SftpListDir extends SftpOperation
 {
-	@XmlElement
 	public String					path = null;
-	
-	@XmlElement
 	public SftpFile[]				wantedFiles = null;
-	
 	private transient SftpFile[]	resultFiles = null;
 	
 	@Override

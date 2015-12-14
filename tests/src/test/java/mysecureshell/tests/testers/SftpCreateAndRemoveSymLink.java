@@ -1,8 +1,5 @@
 package mysecureshell.tests.testers;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import mysecureshell.tests.protocol.SshFxpInit;
 import mysecureshell.tests.protocol.SshFxpReadLink;
 import mysecureshell.tests.protocol.SshFxpRemoveFile;
@@ -16,16 +13,10 @@ import org.junit.Assert;
 
 import ch.ethz.ssh2.sftp.ErrorCodes;
 
-@XmlRootElement(name="testers.SftpCreateAndRemoveSymLink")
 public class SftpCreateAndRemoveSymLink extends SftpOperation
 {
-	@XmlElement
 	public String				linkPath = null;
-	
-	@XmlElement
 	public String				targetPath = null;
-	
-	@XmlElement
 	public Boolean				remove = Boolean.TRUE;
 	
 	@Override

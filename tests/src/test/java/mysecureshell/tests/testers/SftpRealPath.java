@@ -1,8 +1,5 @@
 package mysecureshell.tests.testers;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import mysecureshell.tests.protocol.SshFxpInit;
 import mysecureshell.tests.protocol.SshFxpRealPath;
 import mysecureshell.tests.protocol.responses.Response;
@@ -12,13 +9,9 @@ import mysecureshell.tests.protocol.responses.ResponseStatus;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.junit.Assert;
 
-@XmlRootElement(name="testers.SftpRealPath")
 public class SftpRealPath extends SftpOperation
 {
-	@XmlElement
 	public String			path = null;
-	
-	@XmlElement
 	public String			expectedPath = null;
 	
 	@Override

@@ -6,25 +6,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import junit.framework.TestCase;
 import mysecureshell.tests.utils.SftpConnection;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.junit.Assert;
 
-@XmlRootElement(name="testers.SftpConfiguration")
 public class SftpConfiguration extends TestCase
 {
-	@XmlElement
 	public Integer					protocolVersion = 3;
-	
-	@XmlElement
 	public String					configFile = null;
-	
-	@XmlElement
 	public String					newConfig = null;
 	
 	@Override

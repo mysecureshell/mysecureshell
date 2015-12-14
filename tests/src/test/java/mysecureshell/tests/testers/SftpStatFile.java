@@ -1,8 +1,5 @@
 package mysecureshell.tests.testers;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import mysecureshell.tests.protocol.SshFxpInit;
 import mysecureshell.tests.protocol.SshFxpStatFile;
 import mysecureshell.tests.protocol.objects.SftpFileAttributes;
@@ -13,18 +10,11 @@ import mysecureshell.tests.protocol.responses.ResponseStatus;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.junit.Assert;
 
-@XmlRootElement(name="testers.SftpStatFile")
 public class SftpStatFile extends SftpOperation
 {
-	@XmlElement
 	public String						file = null;
-	
-	@XmlElement
 	public Integer						flags = null;
-	
-	@XmlElement
 	public SftpFileAttributes			expected;
-	
 	public transient SftpFileAttributes	result;
 	
 	@Override

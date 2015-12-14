@@ -1,20 +1,14 @@
 package mysecureshell.tests.testers;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import junit.framework.TestCase;
 import mysecureshell.tests.utils.SftpConnection;
 
 import org.junit.Assert;
 import org.junit.Assume;
 
-@XmlRootElement(name="testers.SftpSession")
 public class SftpSession extends TestCase
 {
-	@XmlElement
 	public SftpFunction[]				steps;
-	
 	transient private SftpConnection	sftp;
 	
 	@Override

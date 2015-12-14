@@ -3,9 +3,6 @@ package mysecureshell.tests.testers;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import mysecureshell.tests.protocol.SshFxpClose;
 import mysecureshell.tests.protocol.SshFxpInit;
 import mysecureshell.tests.protocol.SshFxpOpenFile;
@@ -23,22 +20,12 @@ import org.junit.Assert;
 
 import ch.ethz.ssh2.sftp.ErrorCodes;
 
-@XmlRootElement(name="testers.SftpUploadFile")
 public class SftpUploadFile extends SftpOperation
 {
-	@XmlElement
 	public String			sourceFile = null;
-	
-	@XmlElement
 	public String			destinationFile = null;
-	
-	@XmlElement
 	public Boolean			isTextFile = false;
-	
-	@XmlElement
 	public String			destinationPath = null;
-	
-	@XmlElement
 	public Integer			doTimes = 1;
 	
 	@Override

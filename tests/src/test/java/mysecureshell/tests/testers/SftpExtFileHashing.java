@@ -4,9 +4,6 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.security.MessageDigest;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import mysecureshell.tests.protocol.SshFxpExtFileHashing;
 import mysecureshell.tests.protocol.SshFxpInit;
 import mysecureshell.tests.protocol.responses.Response;
@@ -16,16 +13,10 @@ import mysecureshell.tests.protocol.responses.ResponseStatus;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.junit.Assert;
 
-@XmlRootElement(name="testers.SftpExtFileHashing")
 public class SftpExtFileHashing extends SftpOperation
 {
-	@XmlElement
 	public String		file = null;
-	
-	@XmlElement
 	public String		algorithm = null;
-	
-	@XmlElement
 	public String		originalPath = null;
 	
 	@Override
