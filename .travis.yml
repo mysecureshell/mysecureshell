@@ -9,14 +9,14 @@ before_install:
   - echo $LANG
   - echo $LC_ALL
   - cat /etc/group
-  - fgrep -qw 3003 /etc/group || sudo addgroup --gid 3003 test
-  - fgrep -qw 3004 /etc/group || sudo addgroup --gid 3004 group1
-  - fgrep -qw 3005 /etc/group || sudo addgroup --gid 3005 group2
-  - fgrep -qw 3006 /etc/group || sudo addgroup --gid 3006 group3
-  - fgrep -qw 3007 /etc/group || sudo addgroup --gid 3007 group4
-  - fgrep -qw 3008 /etc/group || sudo addgroup --gid 3008 group5
-  - fgrep -qw 2002 /etc/passwd || sudo adduser --home /home/test --shell /usr/bin/mysecureshell --uid 2002 --gid 3003 --disabled-password --gecos "" test
-  - fgrep -qw 2003 /etc/passwd || sudo adduser --home /home/test2 --shell /usr/bin/mysecureshell --uid 2003 --gid 3003 --disabled-password --gecos "" test2
+  - sudo addgroup --gid 3003 test
+  - sudo addgroup --gid 3004 group1
+  - sudo addgroup --gid 3005 group2
+  - sudo addgroup --gid 3006 group3
+  - sudo addgroup --gid 3007 group4
+  - sudo addgroup --gid 3008 group5
+  - sudo adduser --home /home/test --shell /usr/bin/mysecureshell --uid 2002 --gid 3003 --disabled-password --gecos "" test
+  - sudo adduser --home /home/test2 --shell /usr/bin/mysecureshell --uid 2003 --gid 3003 --disabled-password --gecos "" test2
   - echo 'test:test' | sudo chpasswd
   - if [ $TRAVIS_OS_NAME == linux ]; then sudo apt-get update && sudo apt-get install -y libacl1-dev libgnutls28-dev; fi
 #  - if [ $TRAVIS_OS_NAME == osx ]; then brew update && brew install llvm35 && brew link --force llvm35; fi

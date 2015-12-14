@@ -10,7 +10,7 @@
      <type>0</type>
      <size>4096</size>
      <owner>2002</owner>
-     <group>1003</group>
+     <group>3003</group>
      <permissions>16877</permissions>
    </attributes>
   </protocol.objects.SftpFile>
@@ -22,7 +22,7 @@
      <type>0</type>
      <size>4096</size>
      <owner>2002</owner>
-     <group>1003</group>
+     <group>3003</group>
      <permissions>16877</permissions>
    </attributes>
   </protocol.objects.SftpFile>
@@ -34,7 +34,7 @@
      <type>0</type>
      <size>4096</size>
      <owner>2002</owner>
-     <group>1003</group>
+     <group>3003</group>
      <permissions>16877</permissions>
    </attributes>
   </protocol.objects.SftpFile>
@@ -46,7 +46,7 @@
      <type>0</type>
      <size>256</size>
      <owner>2002</owner>
-     <group>1003</group>
+     <group>3003</group>
      <permissions>33188</permissions>
    </attributes>
   </protocol.objects.SftpFile>
@@ -58,7 +58,7 @@
      <type>0</type>
      <size>4096</size>
      <owner>0</owner>
-     <group>1004</group>
+     <group>3004</group>
      <permissions>16877</permissions>
    </attributes>
   </protocol.objects.SftpFile>
@@ -70,7 +70,7 @@
      <type>0</type>
      <size>4096</size>
      <owner>0</owner>
-     <group>1005</group>
+     <group>3005</group>
      <permissions>16877</permissions>
    </attributes>
   </protocol.objects.SftpFile>
@@ -82,7 +82,7 @@
      <type>0</type>
      <size>4096</size>
      <owner>0</owner>
-     <group>1006</group>
+     <group>3006</group>
      <permissions>16877</permissions>
    </attributes>
   </protocol.objects.SftpFile>
@@ -94,7 +94,7 @@
      <type>0</type>
      <size>4096</size>
      <owner>0</owner>
-     <group>1007</group>
+     <group>3007</group>
      <permissions>16877</permissions>
    </attributes>
   </protocol.objects.SftpFile>
@@ -106,7 +106,7 @@
      <type>0</type>
      <size>4096</size>
      <owner>0</owner>
-     <group>1008</group>
+     <group>3008</group>
      <permissions>16877</permissions>
    </attributes>
   </protocol.objects.SftpFile>
@@ -142,7 +142,7 @@
      <type>0</type>
      <size>256</size>
      <owner>2002</owner>
-     <group>1003</group>
+     <group>3003</group>
      <permissions>33188</permissions>
    </attributes>
   </protocol.objects.SftpFile>
