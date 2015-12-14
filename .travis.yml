@@ -8,6 +8,7 @@ compiler:
 before_install:
   - echo $LANG
   - echo $LC_ALL
+  - cat /etc/group
   - fgrep -qw 1003 /etc/group || sudo addgroup --gid 1003 test
   - fgrep -qw 1004 /etc/group || sudo addgroup --gid 1004 group1
   - fgrep -qw 1005 /etc/group || sudo addgroup --gid 1005 group2
