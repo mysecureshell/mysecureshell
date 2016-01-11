@@ -42,9 +42,8 @@
    <file>.bashrc</file>
    <attributes type="protocol.objects.SftpFileAttributes">
      <attrib>0</attrib>
-     <flags>7</flags>
+     <flags>6</flags>
      <type>0</type>
-     <size>3353</size>
      <owner>2002</owner>
      <group>3003</group>
      <permissions>33188</permissions>
