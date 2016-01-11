@@ -1,5 +1,6 @@
 language: cpp
 sudo: true
+distrib: trusty
 
 compiler:
   - gcc
@@ -9,6 +10,7 @@ before_install:
   - echo $LANG
   - echo $LC_ALL
   - cat /etc/group
+  - cat /etc/fstab
   - sudo addgroup --gid 3003 test
   - sudo addgroup --gid 3004 group1
   - sudo addgroup --gid 3005 group2
@@ -23,8 +25,6 @@ before_install:
 
 before_script:
   - travis_retry ./configure
-#  - if [ $TRAVIS_OS_NAME == linux ]; then travis_retry ./configure --llvm-config llvm-config-3.4; fi
-#  - if [ $TRAVIS_OS_NAME == osx ]; then travis_retry ./configure; fi
 
 script:
   - sudo make install
