@@ -62,12 +62,11 @@
    </attributes>
   </protocol.objects.SftpFile>
   <protocol.objects.SftpFile>
-   <file>.config</file>
+   <file>.profile</file>
    <attributes type="protocol.objects.SftpFileAttributes">
      <attrib>0</attrib>
-     <flags>7</flags>
+     <flags>6</flags>
      <type>0</type>
-     <size>4096</size>
      <owner>0</owner>
      <group>0</group>
      <permissions>16877</permissions>
