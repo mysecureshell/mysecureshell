@@ -20,7 +20,7 @@ before_install:
   - sudo adduser --home /home/test --shell /usr/bin/mysecureshell --uid 2002 --gid 3003 --disabled-password --gecos "" test
   - sudo adduser --home /home/test2 --shell /usr/bin/mysecureshell --uid 2003 --gid 3003 --disabled-password --gecos "" test2
   - echo 'test:test' | sudo chpasswd
-  - if [ $TRAVIS_OS_NAME == linux ]; then sudo apt-get update && sudo apt-get install -y libacl1-dev libgnutls28-dev acl; fi
+  - if [ $TRAVIS_OS_NAME == linux ]; then sudo apt-get update && sudo apt-get install -y libacl1-dev libgnutls28-dev acl clang; fi
 #  - if [ $TRAVIS_OS_NAME == osx ]; then brew update && brew install llvm35 && brew link --force llvm35; fi
 
 before_script:
