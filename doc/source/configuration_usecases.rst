@@ -87,7 +87,7 @@ Here is a typical configuration::
         Home                    /var/www/sites/www.example.com
         # Set dedicated log file
         LogFile                 /var/log/sftp/www.example.com
-    </Group>
+    </VirtualHost>
 
     <VirtualHost www.exemple.fr>
         # Set home directory for this virtualhost
@@ -96,7 +96,7 @@ Here is a typical configuration::
         LogFile                 /var/log/sftp/www.example.com
         # Override the maximum number of connection per user
         LimitConnectionByUser   4
-    </Group>
+    </VirtualHost>
 
 We can see here 2 different VirtualHost which have their own home directory and logs file. They both inherit their configuration from the ``Default`` parent tag. However *www.exemple.fr* virtual host has a different configuration for the maximum of simultaneous connected users.
 
