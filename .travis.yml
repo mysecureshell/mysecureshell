@@ -24,7 +24,7 @@ before_install:
 #  - if [ $TRAVIS_OS_NAME == osx ]; then brew update && brew install llvm35 && brew link --force llvm35; fi
 
 before_script:
-  - travis_retry ./configure
+  - ./configure
 
 script:
   - sudo make install
@@ -53,3 +53,13 @@ env:
 os:
   - linux
 #  - osx
+
+addons:
+  coverity_scan:
+    project:
+      name: mysecureshell/mysecureshell
+      description: MySecureShell
+    notification_email: $COVERITY_SCAN_EMAIL
+    build_command_prepend: ./configure
+    build_command: sudo make install
+    branch_pattern: master
