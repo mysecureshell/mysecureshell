@@ -61,5 +61,5 @@ addons:
       description: MySecureShell
     notification_email: $COVERITY_SCAN_EMAIL
     build_command_prepend: ./configure
-    build_command: sudo make install
+    build_command: make all
     branch_pattern: master
