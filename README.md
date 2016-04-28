@@ -6,4 +6,4 @@ mysecureshell
 
 MySecureShell
 
-[Documentations](https://readthedocs.org/projects/mysecureshell/)
+[Documentations](https://mysecureshell.readthedocs.io/)
