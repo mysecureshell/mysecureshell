@@ -9,7 +9,7 @@ This method is generally used because you need need to build the latest version 
 
 The first thing to do is to get the sources and you will need git for that::
 
-    $ git clone https://github.com/deimosfr/mysecureshell
+    $ git clone https://github.com/mysecureshell/mysecureshell
     $ cd mysecureshell
 
 Then prepare the sources with the configure command::
