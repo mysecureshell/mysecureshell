@@ -64,7 +64,7 @@ test -z "$ans" && ans="n"
 case "$ans" in
 	[yY])
 		rm -f $BINDIR/MySecureShell $BINDIR/sftp-who $BINDIR/sftp-state $BINDIR/sftp-kill $BINDIR/sftp-admin $BINDIR/sftp-user
-		cat /etc/shells | grep -v MySecureShell > /tmp/shells~
+		cat /etc/shells | grep -vi mysecureshell > /tmp/shells~
 		mv /tmp/shells~ /etc/shells
 
 	# Only for Mac OS X
