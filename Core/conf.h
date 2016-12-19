@@ -26,3 +26,4 @@ int	load_config_file(const char *file, int verbose, int max_recursive_left);
 void	processLine(char **tb, int max_recursive_left, int verbose);
 /*@null@*/ char	*convert_str_with_resolv_env_to_str(const char *str);
 char	*convert_to_path(char *path);
+void	set_custom_config_file(const char *config_file);
