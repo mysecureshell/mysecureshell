@@ -134,14 +134,14 @@ void load_config(int verbose)
 	hash_set("SERVER_IP", get_ip_server());
 	hash_set_int("CanChangeRights", 1);
 	hash_set_int("CanChangeTime", 1);
-        if ((custom_config_file == 0 || load_config_file(custom_config_file, verbose, 10) == 0)
-            && load_config_file(CONFIG_FILE, verbose, 10) == 0
-            && load_config_file(CONFIG_FILE2, verbose, 10) == 0)
-		{
-			(void) fprintf(stderr,
-					"[ERROR]No valid config file were found. Please correct this.\n");
-			exit(2);
-		}
+	if ((custom_config_file == 0 || load_config_file(custom_config_file, verbose, 10) == 0)
+		&& load_config_file(CONFIG_FILE, verbose, 10) == 0
+		&& load_config_file(CONFIG_FILE2, verbose, 10) == 0)
+	{
+		(void) fprintf(stderr,
+				"[ERROR]No valid config file were found. Please correct this.\n");
+		exit(2);
+	}
 	free_user_info();
 	if (verbose > 0)
 	{
@@ -383,5 +383,5 @@ void processLine(char **tb, int max_recursive_left, int verbose)
 
 void set_custom_config_file(const char *config_file)
 {
-    custom_config_file = config_file;
+	custom_config_file = config_file;
 }
