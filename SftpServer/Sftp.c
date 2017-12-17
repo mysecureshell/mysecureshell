@@ -63,6 +63,7 @@
 #include "../Core/security.h"
 #include "../Core/string.h"
 
+
 #define CONN_INIT	0
 #define CONN_SFTP	1
 #define	CONN_ADMIN	2
@@ -284,6 +285,23 @@ void DoReadDir()
 	}
 }
 
+void DoCallback(char *cb, tHandle *hdl)
+{
+	if (cb)
+	{
+		int ret;
+		char *args[4];
+		args[0] = "/bin/sh";
+		args[1] = "-c";
+		args[2] = cb;
+		args[3] = 0;
+		setenv("LAST_FILE_PATH", hdl->path, 1);
+		char *res = ExecCommandWithArgs(args, &ret, NULL, 1);
+		mylog_printf(MYLOG_TRANSFERT, "[%s][%s][%i]Callback invoked: %s; ec: %d; res: %s",
+			gl_var->user, gl_var->ip, gl_var->portSource, cb, ret, res);
+	}
+}
+
 void DoClose()
 {
 	u_int32_t id;
@@ -308,11 +326,13 @@ void DoClose()
 
 				mylog_printf(MYLOG_TRANSFERT, "[%s][%s][%i]End upload into file '%s' (%li bytes)",
 						gl_var->user, gl_var->ip, gl_var->portSource, hdl->path, fileSize);
+				DoCallback(gl_var->callback_upload, hdl);
 			}
 			else
 			{
 				mylog_printf(MYLOG_TRANSFERT, "[%s][%s][%i]End download file '%s' (%li bytes) : %i%%",
 						gl_var->user, gl_var->ip, gl_var->portSource, hdl->path, hdl->filePos, pourcentage);
+				DoCallback(gl_var->callback_download, hdl);
 				BufferSetFastClean(bIn, 0);
 				BufferSetFastClean(bOut, 0);
 			}

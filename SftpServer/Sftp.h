@@ -269,6 +269,8 @@ typedef struct	sGlobal
 	u_int32_t	upload_max;
 	char		*force_user;
 	char		*force_group;
+	char        *callback_download;
+	char        *callback_upload;
 	u_int32_t	dir_mode;
 }				tGlobal;
 
