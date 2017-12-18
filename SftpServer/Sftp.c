@@ -285,7 +285,7 @@ void DoReadDir()
 	}
 }
 
-void DoCallback(char *cb, tHandle *hdl)
+void DoCallback(char *cb, tHandle *hdl, char *cb_type)
 {
 	if (cb)
 	{
@@ -297,8 +297,8 @@ void DoCallback(char *cb, tHandle *hdl)
 		args[3] = 0;
 		setenv("LAST_FILE_PATH", hdl->path, 1);
 		char *res = ExecCommandWithArgs(args, &ret, NULL, 1);
-		mylog_printf(MYLOG_TRANSFERT, "[%s][%s][%i]Callback invoked: %s; ec: %d; res: %s",
-			gl_var->user, gl_var->ip, gl_var->portSource, cb, ret, res);
+		mylog_printf(MYLOG_TRANSFERT, "[%s][%s][%i]%s invoked: %s; ec: %d; res: %s",
+			gl_var->user, gl_var->ip, gl_var->portSource, cb_type, cb, ret, res);
 	}
 }
 
@@ -326,13 +326,13 @@ void DoClose()
 
 				mylog_printf(MYLOG_TRANSFERT, "[%s][%s][%i]End upload into file '%s' (%li bytes)",
 						gl_var->user, gl_var->ip, gl_var->portSource, hdl->path, fileSize);
-				DoCallback(gl_var->callback_upload, hdl);
+				DoCallback(gl_var->callback_upload, hdl, "CallbackUpload");
 			}
 			else
 			{
 				mylog_printf(MYLOG_TRANSFERT, "[%s][%s][%i]End download file '%s' (%li bytes) : %i%%",
 						gl_var->user, gl_var->ip, gl_var->portSource, hdl->path, hdl->filePos, pourcentage);
-				DoCallback(gl_var->callback_download, hdl);
+				DoCallback(gl_var->callback_download, hdl "CallbackDownload");
 				BufferSetFastClean(bIn, 0);
 				BufferSetFastClean(bOut, 0);
 			}
