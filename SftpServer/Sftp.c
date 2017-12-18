@@ -332,7 +332,7 @@ void DoClose()
 			{
 				mylog_printf(MYLOG_TRANSFERT, "[%s][%s][%i]End download file '%s' (%li bytes) : %i%%",
 						gl_var->user, gl_var->ip, gl_var->portSource, hdl->path, hdl->filePos, pourcentage);
-				DoCallback(gl_var->callback_download, hdl "CallbackDownload");
+				DoCallback(gl_var->callback_download, hdl, "CallbackDownload");
 				BufferSetFastClean(bIn, 0);
 				BufferSetFastClean(bOut, 0);
 			}
