@@ -13,3 +13,6 @@
 /utils/sftp-user
 /utils/sftp-verif
 /utils/sftp-who
+/doc/build
+
+*~
