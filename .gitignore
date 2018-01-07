@@ -4,3 +4,6 @@
 /Makefile
 /uninstaller.sh
 /mysecureshell
+/utils/sftp-admin
+/utils/sftp-state
+/utils/sftp-who
