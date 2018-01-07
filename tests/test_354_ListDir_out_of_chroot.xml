@@ -9,7 +9,7 @@
      <flags>7</flags><!-- SSH_FILEXFER_ATTR_PERMISSIONS(4) | SSH_FILEXFER_ATTR_V3_UIDGID(2) | SSH_FILEXFER_ATTR_SIZE(1) -->
      <type>0</type>
      <size>4096</size>
-     <owner>2002</owner>
+     <owner>4002</owner>
      <group>3003</group>
      <permissions>16877</permissions>
    </attributes>
@@ -33,7 +33,7 @@
      <flags>7</flags>
      <type>0</type>
      <size>220</size>
-     <owner>2002</owner>
+     <owner>4002</owner>
      <group>3003</group>
      <permissions>33188</permissions>
    </attributes>
@@ -44,7 +44,7 @@
      <attrib>0</attrib>
      <flags>6</flags>
      <type>0</type>
-     <owner>2002</owner>
+     <owner>4002</owner>
      <group>3003</group>
      <permissions>33188</permissions>
    </attributes>
@@ -56,7 +56,7 @@
      <flags>7</flags>
      <type>0</type>
      <size>4096</size>
-     <owner>2002</owner>
+     <owner>4002</owner>
      <group>3003</group>
      <permissions>16832</permissions>
    </attributes>
@@ -67,7 +67,7 @@
      <attrib>0</attrib>
      <flags>2</flags>
      <type>0</type>
-     <owner>2002</owner>
+     <owner>4002</owner>
      <group>3003</group>
    </attributes>
   </protocol.objects.SftpFile>
@@ -78,7 +78,7 @@
      <flags>7</flags>
      <type>0</type>
      <size>4096</size>
-     <owner>2002</owner>
+     <owner>4002</owner>
      <group>3003</group>
      <permissions>16877</permissions>
    </attributes>
