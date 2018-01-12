@@ -426,7 +426,7 @@ void DoRead()
 		status = SSH2_FX_FAILURE;
 	else if ((hdl = HandleGetFile(h)) != NULL)
 	{
-		if (hdl->fileIsText == 0 && lseek(hdl->fd, off, SEEK_SET) < 0)
+		if (hdl->fileIsText == 0 && lseek(hdl->fd, off, SEEK_SET) == (off_t) -1)
 			status = errnoToPortable(errno);
 		else
 		{
