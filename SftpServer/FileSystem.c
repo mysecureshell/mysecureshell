@@ -215,6 +215,7 @@ static void FSCheckSecurityACL(void *data, int type, u_int32_t id, u_int32_t mod
 	case FS_ENUM_USER:
 		if (id == getuid())
 			*result = SSH2_FX_OK;
+		break;
 	case FS_ENUM_GROUP:
 		if (id == getgid())
 			*result = SSH2_FX_OK;
