@@ -562,7 +562,7 @@ int FSReadLink(const char *file, char *readLink, int sizeofReadLink)
 		FSDestroyPath(path);
 		return SSH2_FX_PERMISSION_DENIED;
 	}
-	len = readlink(path->realPath, readLink, sizeofReadLink);
+	len = readlink(path->realPath, readLink, sizeofReadLink - 1);
 	DEBUG((MYLOG_DEBUG, "[FSReadLink]realPath:'%s' sizeofReadLink:%i => %i", path->realPath, sizeofReadLink, len));
 
 	if (len == -1)
