@@ -4,3 +4,15 @@
 /Makefile
 /uninstaller.sh
 /mysecureshell
+
+*.o
+/config.log
+/config.status
+/utils/sftp-admin
+/utils/sftp-state
+/utils/sftp-user
+/utils/sftp-verif
+/utils/sftp-who
+/doc/build
+
+*~

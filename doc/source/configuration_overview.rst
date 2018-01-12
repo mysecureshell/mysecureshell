@@ -98,6 +98,9 @@ ShowLinksAsLinks_      false/true        See symbolic links as true files or fol
 StayAtHome_            false/true        Restrict user to stay in its home directory and subdirectories
 Upload_                x(units)          Upload bandwidth by connected user
 VirtualChroot_         false/true        Chroot users in their Home directory
+CallbackDownload_      <shell command>   Call a command when download completes
+CallbackUpload_        <shell command>   Call a command when upload completes
+
 ====================== ================= ===============
 
 .. _ByPassGlobalDownload: tags/childs/bypassglobaldownload.html
@@ -153,6 +156,8 @@ VirtualChroot_         false/true        Chroot users in their Home directory
 .. _StayAtHome: tags/childs/stayathome.html
 .. _Upload: tags/childs/upload.html
 .. _VirtualChroot: tags/childs/virtualchroot.html
+.. _CallbackDownload: tags/childs/callbackdownload.html
+.. _CallbackUpload: tags/childs/callbackupload.html
 
 Deprecated tags
 ---------------

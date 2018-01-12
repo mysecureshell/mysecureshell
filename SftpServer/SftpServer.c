@@ -63,6 +63,16 @@ static void end_sftp()
 			free(gl_var->force_group);
 			gl_var->force_group = NULL;
 		}
+		if (gl_var->callback_download != NULL)
+		{
+			free(gl_var->callback_download);
+			gl_var->callback_download = NULL;
+		}
+		if (gl_var->callback_upload != NULL)
+		{
+			free(gl_var->callback_upload);
+			gl_var->callback_upload = NULL;
+		}
 		free(gl_var->user);
 		free(gl_var->ip);
 		free(gl_var->home);

@@ -112,6 +112,9 @@ static const tConf confParams[] =
 	{ "ForceRights", CONF_IS_FILE_AND_DIR, CONF_SHOW },
 	{ "ApplyFileSpec", CONF_IS_STRING, CONF_SHOW_ALWAYS },
 
+	{ "CallbackUpload", CONF_IS_STRING, CONF_SHOW },
+	{ "CallbackDownload", CONF_IS_STRING, CONF_SHOW },
+
 	{ "CanRemoveDir", CONF_DEPRECATED, CONF_SHOW },
 	{ "CanRemoveFile", CONF_DEPRECATED, CONF_SHOW },
 	{ "GMTTime", CONF_DEPRECATED, CONF_NOT_SHOW },

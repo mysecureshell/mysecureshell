@@ -361,6 +361,11 @@ int main(int ac, char **av, char **env)
 		if (hash_get("ForceGroup") != NULL)
 			params->force_group = strdup(hash_get("ForceGroup"));
 
+		if (hash_get("CallbackDownload") != NULL)
+			params->callback_download = strdup(hash_get("CallbackDownload"));
+		if (hash_get("CallbackUpload") != NULL)
+			params->callback_upload = strdup(hash_get("CallbackUpload"));
+
 		if (hash_get("Charset") != NULL)
 			setCharset(hash_get("Charset"));
 		if (hash_get("ApplyFileSpec") != NULL)
