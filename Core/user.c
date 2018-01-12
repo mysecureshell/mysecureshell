@@ -127,7 +127,7 @@ int is_for_rangeip(const char *range, int verbose)
 		return (0);
 	bip = TagParseRangeIP(ip);
 	if (bip == NULL)
-		return (0);
+		goto error_is_for_rangeip;
 	pos = 0;
 	while (size >= 8)
 	{
@@ -157,7 +157,8 @@ int is_for_rangeip(const char *range, int verbose)
 	retValue = 1;
 
 error_is_for_rangeip:
-	free(bip);
+	if (bip != NULL)
+		free(bip);
 	free(ip);
 	return (retValue);
 }
