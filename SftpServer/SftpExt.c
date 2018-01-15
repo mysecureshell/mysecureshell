@@ -146,7 +146,10 @@ static void DoExtFileHashing_FD(tBuffer *bIn, tBuffer *bOut, u_int32_t id, int f
 	gnutls_digest_algorithm_t gnuTlsAlgo = GNUTLS_DIG_UNKNOWN;
 	u_int64_t offset, length;
 	u_int32_t blockSize;
+	tBuffer *b = NULL;
+	char *gnuKey = NULL;
 	char *algo;
+
 	algo = BufferGetString(bIn);
 	offset = BufferGetInt64(bIn);
 	length = BufferGetInt64(bIn);
@@ -196,9 +199,7 @@ static void DoExtFileHashing_FD(tBuffer *bIn, tBuffer *bOut, u_int32_t id, int f
 	if (gnuTlsAlgo != GNUTLS_DIG_UNKNOWN)
 	{
 		gnutls_hash_hd_t dig;
-		tBuffer *b;
 		size_t keySize = gnutls_hash_get_len(gnuTlsAlgo);
-		char *gnuKey;
 		char data[SSH2_READ_HASH];
 		int inError = 0;
 		int gnulTlsError;
@@ -252,8 +253,6 @@ static void DoExtFileHashing_FD(tBuffer *bIn, tBuffer *bOut, u_int32_t id, int f
 		}
 		else
 			SendStatus(bOut, id, SSH2_FX_FAILURE);
-		BufferDelete(b);
-		free(gnuKey);
 	}
 	else
 	{
@@ -261,6 +260,10 @@ static void DoExtFileHashing_FD(tBuffer *bIn, tBuffer *bOut, u_int32_t id, int f
 		SendStatus(bOut, id, SSH2_FX_OP_UNSUPPORTED);
 	}
 	endOfFileHashing: DEBUG((MYLOG_DEBUG, "[DoExtFileHashing_FD]End"));
+	if (gnuKey != NULL)
+		free(gnuKey);
+	if (b != NULL)
+		BufferDelete(b);
 	free(algo);
 }
 
