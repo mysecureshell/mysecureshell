@@ -195,7 +195,7 @@ void StatToAttributes(const struct stat *st, tAttributes *a, const char *fileNam
 		a->flags |= SSH5_FILEXFER_ATTR_BITS;
 		while (pos >= 1 && fileName[pos - 1] != '/')
 			pos--;
-		if (pos >= 0 && fileName[pos] == '.')
+		if (fileName[pos] == '.')
 			a->attrib |= SSH5_FILEXFER_ATTR_FLAGS_HIDDEN;
 #ifdef HAVE_LINUX_EXT2_FS_H
 		if ((fd = open(fileName, O_RDONLY)) >= 0)
