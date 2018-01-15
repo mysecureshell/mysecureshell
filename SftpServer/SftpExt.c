@@ -63,6 +63,7 @@ void DoExtDiskSpace(tBuffer *bIn, tBuffer *bOut, u_int32_t id)
 			BufferPutInt64(b, (u_int64_t) stfs.f_bavail * (u_int64_t) stfs.f_bsize);
 			BufferPutInt32(b, stfs.f_bsize);
 			BufferPutPacket(bOut, b);
+			BufferDelete(b);
 		}
 		else
 			SendStatus(bOut, id, errnoToPortable(errno));
@@ -103,6 +104,7 @@ static void DoExtDiskSpaceOpenSSH_Path(tBuffer *bOut, u_int32_t id, const char *
 			BufferPutInt64(b, stfs.f_flag); /* bit mask of f_flag values */
 			BufferPutInt64(b, stfs.f_namemax); /* maximum filename length */
 			BufferPutPacket(bOut, b);
+			BufferDelete(b);
 		}
 		else
 		{
