@@ -1,4 +1,4 @@
-CallbackDownload
+CallbackUpload
 ================
 
 .. highlight:: apache
