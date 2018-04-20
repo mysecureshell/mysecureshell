@@ -36,3 +36,7 @@ And finally install it (with root user)::
 
     > make install
 
+Now to add the package to the command line::
+
+    $ cd /bin && ln -s /usr/bin/mysecureshell MySecureShell
+
