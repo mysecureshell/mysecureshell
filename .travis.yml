@@ -32,7 +32,7 @@ script:
   - sudo make install
   - cd tests
   - sudo -E `which mvn` -B clean package
-  - [ -s /tmp/sftp-server-900.log ] && echo "Failed: log should be empty" && exit 1
+  - if [ -s /tmp/sftp-server-900.log ]; then echo "Failed: log should be empty" && exit 1; fi
 
 #after_success:
 #  - if [ $TRAVIS_BRANCH == $TRAVIS_TAG ]; then rake deploy; fi
