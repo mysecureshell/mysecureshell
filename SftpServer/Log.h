@@ -20,14 +20,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __LOG_H__
 #define __LOG_H__
 
-#define MYLOG_CONNECTION	0
-#define MYLOG_TRANSFERT		1
-#define	MYLOG_NORMAL		2
-#define	MYLOG_WARNING		3
-#define	MYLOG_ERROR		4
-#define	MYLOG_DEBUG		5
-#define	MYLOG_MAX		6
+#define	MYLOG_OFF			0
+#define MYLOG_CONNECTION	1
+#define MYLOG_TRANSFERT		2
+#define	MYLOG_NORMAL		3
+#define	MYLOG_WARNING		4
+#define	MYLOG_ERROR			5
+#define	MYLOG_DEBUG			6
+#define	MYLOG_MAX			7
 
+void	mylog_level(int level);
 void	mylog_open(char *file, int useSyslog);
 void	mylog_close_and_free();
 void	mylog_close();

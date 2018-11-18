@@ -184,6 +184,9 @@ int main(int ac, char **av, char **env)
 				exit(0);
 			}
 		}
+		max = hash_get_int("LogLevel");
+		if (max >= MYLOG_OFF && max < MYLOG_MAX)
+			mylog_level(max);
 		max = hash_get_int("LogSyslog");
 		if (hash_get("LogFile") != NULL)
 			mylog_open(strdup(hash_get("LogFile")), max);

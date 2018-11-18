@@ -51,6 +51,12 @@ unsigned char color[MYLOG_MAX][3];
 } t_log;
 
 /*@null@*/ static t_log *_log = NULL;
+static int _level = MYLOG_MAX;
+
+void mylog_level(int level)
+{
+	_level = level;
+}
 
 void mylog_open(char *file, int useSyslog)
 {

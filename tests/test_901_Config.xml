@@ -4,6 +4,7 @@
  <configFile>/etc/ssh/sftp_config</configFile>
  <newConfig><![CDATA[
 <Default>
+	LogLevel		0
 	LogFile			/tmp/sftp-server-900.log
 	HideNoAccess	true
 </Default>
