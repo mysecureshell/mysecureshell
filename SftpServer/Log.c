@@ -51,7 +51,7 @@ unsigned char color[MYLOG_MAX][3];
 } t_log;
 
 /*@null@*/ static t_log *_log = NULL;
-static int _level = MYLOG_MAX;
+static int _level = MYLOG_DEBUG;
 
 void mylog_level(int level)
 {

@@ -23,9 +23,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define	MYLOG_OFF			0
 #define MYLOG_CONNECTION	1
 #define MYLOG_TRANSFERT		2
-#define	MYLOG_NORMAL		3
+#define	MYLOG_ERROR			3
 #define	MYLOG_WARNING		4
-#define	MYLOG_ERROR			5
+#define	MYLOG_NORMAL		5
 #define	MYLOG_DEBUG			6
 #define	MYLOG_MAX			7
 
