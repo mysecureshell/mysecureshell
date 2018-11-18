@@ -38,7 +38,8 @@
 static void reset_uid()
 {
 	//if we are in utset byte mode then we restore user's rights to avoid security problems
-	if (getuid() == geteuid()) return;
+	if (getuid() == geteuid())
+		return;
 	if (seteuid(getuid()) == -1 || setegid(getgid()) == -1)
 	{
 		perror("revoke root rights");
