@@ -121,7 +121,7 @@ static const tConf confParams[] =
 	{ "{last item}", CONF_IS_EMPTY, CONF_NOT_SHOW }
 };
 
-static const char * custom_config_file;
+static const char *_custom_config_file = NULL;
 
 void load_config(int verbose)
 {
@@ -134,7 +134,7 @@ void load_config(int verbose)
 	hash_set("SERVER_IP", get_ip_server());
 	hash_set_int("CanChangeRights", 1);
 	hash_set_int("CanChangeTime", 1);
-	if ((custom_config_file == 0 || load_config_file(custom_config_file, verbose, 10) == 0)
+	if ((_custom_config_file == NULL || load_config_file(_custom_config_file, verbose, 10) == 0)
 		&& load_config_file(CONFIG_FILE, verbose, 10) == 0
 		&& load_config_file(CONFIG_FILE2, verbose, 10) == 0)
 	{
@@ -383,5 +383,5 @@ void processLine(char **tb, int max_recursive_left, int verbose)
 
 void set_custom_config_file(const char *config_file)
 {
-	custom_config_file = config_file;
+	_custom_config_file = config_file;
 }
