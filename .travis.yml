@@ -32,6 +32,7 @@ script:
   - sudo make install
   - cd tests
   - sudo -E `which mvn` -B clean package
+  - cat /tmp/sftp-server-900.log
 
 #after_success:
 #  - if [ $TRAVIS_BRANCH == $TRAVIS_TAG ]; then rake deploy; fi
