@@ -166,6 +166,9 @@ void mylog_printf(int level, const char *str, ...)
 	char buffer[1024];
 	size_t size;
 
+	if (level > _level)
+		return;
+
 	if (_log != NULL && _log->useSyslog == 1)
 	{
 		int logprio;
