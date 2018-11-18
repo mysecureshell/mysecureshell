@@ -22,7 +22,7 @@ before_install:
   - sudo adduser --home /home/test2 --shell /usr/bin/mysecureshell --uid 4003 --gid 3003 --disabled-password --gecos "" test2
   - sudo usermod -G group6 test
   - echo 'test:test' | sudo chpasswd
-  - if [ $TRAVIS_OS_NAME == linux ]; then sudo apt-get update && sudo apt-get install -y libacl1-dev libgnutls28-dev acl clang; fi
+  - if [ $TRAVIS_OS_NAME == linux ]; then sudo apt-get update -qq && sudo apt-get install -qqy libacl1-dev libgnutls28-dev acl clang; fi
 #  - if [ $TRAVIS_OS_NAME == osx ]; then brew update && brew install llvm35 && brew link --force llvm35; fi
 
 before_script:

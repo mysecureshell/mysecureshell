@@ -59,7 +59,7 @@
      <size>4096</size>
      <owner>root</owner>
      <group>group4</group>
-     <permissions>16832</permissions>
+     <permissions>16872</permissions>
    </attributes>
   </protocol.objects.SftpFile>
  </wantedFiles>
