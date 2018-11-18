@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testers.SftpConfiguration>
- <protocolVersion>3</protocolVersion>
+ <protocolVersion>4</protocolVersion>
  <configFile>/etc/ssh/sftp_config</configFile>
  <newConfig><![CDATA[
 <Default>
