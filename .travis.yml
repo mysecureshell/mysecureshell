@@ -17,11 +17,15 @@ before_install:
   - sudo addgroup --gid 3006 group3
   - sudo addgroup --gid 3007 group4
   - sudo addgroup --gid 3008 group5
+  - sudo addgroup --gid 3009 group6
   - sudo adduser --home /home/test --shell /usr/bin/mysecureshell --uid 4002 --gid 3003 --disabled-password --gecos "" test
   - sudo adduser --home /home/test2 --shell /usr/bin/mysecureshell --uid 4003 --gid 3003 --disabled-password --gecos "" test2
+  - sudo usermod -G group6 test
   - echo 'test:test' | sudo chpasswd
   - if [ $TRAVIS_OS_NAME == linux ]; then sudo apt-get update && sudo apt-get install -y libacl1-dev libgnutls28-dev acl clang; fi
 #  - if [ $TRAVIS_OS_NAME == osx ]; then brew update && brew install llvm35 && brew link --force llvm35; fi
+  - ls -l /home/test/tests
+  - getfacl /home/test/tests/d4
 
 before_script:
   - ./configure

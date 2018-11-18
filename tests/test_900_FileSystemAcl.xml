@@ -6,6 +6,6 @@
   <testers.fs.FSFile>d:/home/test/tests/d1:0755:root:group1</testers.fs.FSFile>
   <testers.fs.FSFile>d:/home/test/tests/d2:0711:root:group2</testers.fs.FSFile>
   <testers.fs.FSFile>d:/home/test/tests/d3:0700:root:group3</testers.fs.FSFile>
-  <testers.fs.FSFile>d:/home/test/tests/d4:0700:root:group4::g,test,rx</testers.fs.FSFile>
+  <testers.fs.FSFile>d:/home/test/tests/d4:0700:root:group4::g,group6,rx</testers.fs.FSFile>
  </content>
 </testers.LocalFileSystem>
