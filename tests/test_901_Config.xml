@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testers.SftpConfiguration>
+ <protocolVersion>3</protocolVersion>
+ <configFile>/etc/ssh/sftp_config</configFile>
+ <newConfig><![CDATA[
+<Default>
+	LogFile			/tmp/sftp-server-900.log
+	HideNoAccess	true
+</Default>
+]]></newConfig>
+</testers.SftpConfiguration>
