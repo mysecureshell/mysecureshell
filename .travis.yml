@@ -24,8 +24,6 @@ before_install:
   - echo 'test:test' | sudo chpasswd
   - if [ $TRAVIS_OS_NAME == linux ]; then sudo apt-get update && sudo apt-get install -y libacl1-dev libgnutls28-dev acl clang; fi
 #  - if [ $TRAVIS_OS_NAME == osx ]; then brew update && brew install llvm35 && brew link --force llvm35; fi
-  - ls -l /home/test/tests
-  - getfacl /home/test/tests/d4
 
 before_script:
   - ./configure
@@ -34,6 +32,8 @@ script:
   - sudo make install
   - cd tests
   - sudo -E `which mvn` clean package
+  - ls -l /home/test/tests
+  - getfacl /home/test/tests/d4
 
 #after_success:
 #  - if [ $TRAVIS_BRANCH == $TRAVIS_TAG ]; then rake deploy; fi
