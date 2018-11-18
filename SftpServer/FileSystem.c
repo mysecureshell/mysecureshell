@@ -294,6 +294,8 @@ tFSPath *FSCheckPath(const char *file)
 {
 	tFSPath *path;
 
+	if (file == NULL)
+		return NULL;
 	path = FSResolvePath(file, NULL, 0);
 	if (FSCheckSecurity(path->realPath, path->path) != SSH2_FX_OK)
 	{
