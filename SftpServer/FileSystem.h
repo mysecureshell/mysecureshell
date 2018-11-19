@@ -44,6 +44,7 @@ int FSCheckSecurity(const char *fullPath, const char *path);
 void FSChangeRights(struct stat *st);
 
 tFSPath *FSCheckPath(const char *file);
+int FSHardlink(const char *target, const char *linkPath);
 tFSPath *FSRealPath(const char *file);
 int FSOpenFile(const char *file, int *fileHandle, int flags, mode_t mode, struct stat *st);
 int FSOpenDir(char *dir, DIR **dirHandle);

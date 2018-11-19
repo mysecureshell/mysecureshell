@@ -52,3 +52,5 @@ void	DoExtDiskSpaceOpenSSH_Name(tBuffer *bIn, tBuffer *bOut, u_int32_t id);
 void	DoExtFileHashing_Handle(tBuffer *bIn, tBuffer *bOut, u_int32_t id);
 void	DoExtFileHashing_Name(tBuffer *bIn, tBuffer *bOut, u_int32_t id);
 #endif
+
+void	DoExtHardLink(tBuffer *bIn, tBuffer *bOut, u_int32_t id);
