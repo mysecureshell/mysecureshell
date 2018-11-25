@@ -19,7 +19,7 @@ Necessite : gnu-make (par defaut sous linux)
 
 
 Requiere:
---------
+---------
 OpenSSH 3.8.1 (ou superieur)
 
 Optionnel:
