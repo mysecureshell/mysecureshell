@@ -51,6 +51,12 @@ unsigned char color[MYLOG_MAX][3];
 } t_log;
 
 /*@null@*/ static t_log *_log = NULL;
+static int _level = MYLOG_DEBUG;
+
+void mylog_level(int level)
+{
+	_level = level;
+}
 
 void mylog_open(char *file, int useSyslog)
 {
@@ -159,6 +165,9 @@ void mylog_printf(int level, const char *str, ...)
 	va_list ap;
 	char buffer[1024];
 	size_t size;
+
+	if (level > _level)
+		return;
 
 	if (_log != NULL && _log->useSyslog == 1)
 	{
