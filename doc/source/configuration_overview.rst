@@ -85,6 +85,7 @@ LimitConnection_       <integer>         Limit the number of simultaneous connec
 LimitConnectionByIp_   <integer>         Limit the number of simultaneous connections by IP
 LimitConnectionByUser_ <integer>         Limit the number of simultaneous connections by user
 LogFile_               <path>            Allows to change the file of log
+LogLevel_              <integer>         Allows to change the loglevel of log
 LogSyslog_             false/true        Write log to syslog
 MaxOpenFilesForUser_   <integer>         Limit maximum opening files simultaneously
 MaxReadFilesForUser_   <integer>         Limit maximum reading files simultaneously

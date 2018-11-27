@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testers.SftpListDir>
+ <path>tests</path>
+ <wantedFiles type="protocol.objects.SftpFile[]">
+  <protocol.objects.SftpFile>
+   <file>.</file>
+   <attributes type="protocol.objects.SftpFileAttributes">
+     <attrib>0</attrib>
+     <flags>133</flags> <!-- SSH_FILEXFER_ATTR_SIZE | SSH_FILEXFER_ATTR_PERMISSIONS | SSH_FILEXFER_ATTR_OWNERGROUP -->
+     <type>2</type>
+     <size>4096</size>
+     <owner>test</owner>
+     <group>test</group>
+     <permissions>16877</permissions>
+   </attributes>
+  </protocol.objects.SftpFile>
+  <protocol.objects.SftpFile>
+   <file>..</file>
+   <attributes type="protocol.objects.SftpFileAttributes">
+     <attrib>0</attrib>
+     <flags>133</flags>
+     <type>2</type>
+     <size>4096</size>
+     <owner>test</owner>
+     <group>test</group>
+     <permissions>16877</permissions>
+   </attributes>
+  </protocol.objects.SftpFile>
+  <protocol.objects.SftpFile>
+   <file>d1</file>
+   <attributes type="protocol.objects.SftpFileAttributes">
+     <attrib>0</attrib>
+     <flags>133</flags>
+     <type>2</type>
+     <size>4096</size>
+     <owner>root</owner>
+     <group>group1</group>
+     <permissions>16877</permissions>
+   </attributes>
+  </protocol.objects.SftpFile>
+  <protocol.objects.SftpFile>
+   <file>d2</file>
+   <attributes type="protocol.objects.SftpFileAttributes">
+     <attrib>0</attrib>
+     <flags>133</flags>
+     <type>2</type>
+     <size>4096</size>
+     <owner>root</owner>
+     <group>group2</group>
+     <permissions>16841</permissions>
+   </attributes>
+  </protocol.objects.SftpFile>
+  <protocol.objects.SftpFile>
+   <file>d4</file>
+   <attributes type="protocol.objects.SftpFileAttributes">
+     <attrib>0</attrib>
+     <flags>133</flags>
+     <type>2</type>
+     <size>4096</size>
+     <owner>root</owner>
+     <group>group4</group>
+     <permissions>16872</permissions>
+   </attributes>
+  </protocol.objects.SftpFile>
+ </wantedFiles>
+</testers.SftpListDir>
