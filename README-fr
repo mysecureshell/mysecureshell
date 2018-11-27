@@ -85,6 +85,12 @@ Forum:       http://mysecureshell.free.fr
 
 HISTORIQUE:
 -----------
+2.01 (decembre 2018):
+	+ support des liens hards
+	+ ajout d'un nouveau tag LogLevel
+	+ ajout d'un argument pour spécifier le fichier de configuration (merci mateidavid)
+	~ correction d'un bug sur la gestion des ACL et des groupes supplémentaires d'un utilisateur
+
 2.0 (septembre 2014):
 	+ ajoute d'un nouveau tag DisableStatsFs
 	+ remplacement d'OpenSSL par GnuTLS
