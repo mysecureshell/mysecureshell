@@ -35,6 +35,18 @@
 #include "../SftpServer/Log.h"
 #include "security.h"
 
+static void reset_uid()
+{
+	//if we are in utset byte mode then we restore user's rights to avoid security problems
+	if (getuid() == geteuid())
+		return;
+	if (seteuid(getuid()) == -1 || setegid(getgid()) == -1)
+	{
+		perror("revoke root rights");
+		exit(1);
+	}
+}
+
 static void showVersion(int showAll)
 {
 	(void) printf(
@@ -129,6 +141,15 @@ int main(int ac, char **av, char **env)
 	if (ac == 3 && av[1] != NULL && av[2] != NULL && strcmp("-c", av[1]) == 0
 			&& (strstr(av[2], "sftp-server") != NULL || strstr(av[2], "MySecureShell") != NULL))
 		is_sftp = 1;
+	else if (ac == 5
+			&& av[1] != NULL && av[2] != NULL && strcmp("--config", av[1]) == 0
+			&& av[3] != NULL && av[4] != NULL && strcmp("-c", av[3]) == 0
+			&& (strstr(av[4], "sftp-server") != NULL || strstr(av[4], "MySecureShell") != NULL))
+	{
+		reset_uid();
+		set_custom_config_file(av[2]);
+		is_sftp = 1;
+	}
 	else if (ac >= 3 && av[1] != NULL && av[2] != NULL && strcmp("-c", av[1]) == 0)
 		is_command = 1;
 	else
@@ -384,15 +405,7 @@ int main(int ac, char **av, char **env)
 	{
 		char *ptr;
 
-		if (getuid() != geteuid())
-		//if we are in utset byte mode then we restore user's rights to avoid security problems
-		{
-			if (seteuid(getuid()) == -1 || setegid(getgid()) == -1)
-			{
-				perror("revoke root rights");
-				exit(1);
-			}
-		}
+		reset_uid();
 		ptr = hash_get("Shell");
 		if (ptr != NULL)
 		{

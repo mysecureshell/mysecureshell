@@ -125,6 +125,8 @@ static const tConf confParams[] =
 	{ "{last item}", CONF_IS_EMPTY, CONF_NOT_SHOW }
 };
 
+static const char *_custom_config_file = NULL;
+
 void load_config(int verbose)
 {
 	if (init_user_info() == 0)
@@ -136,13 +138,14 @@ void load_config(int verbose)
 	hash_set("SERVER_IP", get_ip_server());
 	hash_set_int("CanChangeRights", 1);
 	hash_set_int("CanChangeTime", 1);
-	if (load_config_file(CONFIG_FILE, verbose, 10) == 0)
-		if (load_config_file(CONFIG_FILE2, verbose, 10) == 0)
-		{
-			(void) fprintf(stderr,
-					"[ERROR]No valid config file were found. Please correct this.\n");
-			exit(2);
-		}
+	if ((_custom_config_file == NULL || load_config_file(_custom_config_file, verbose, 10) == 0)
+		&& load_config_file(CONFIG_FILE, verbose, 10) == 0
+		&& load_config_file(CONFIG_FILE2, verbose, 10) == 0)
+	{
+		(void) fprintf(stderr,
+				"[ERROR]No valid config file were found. Please correct this.\n");
+		exit(2);
+	}
 	free_user_info();
 	if (verbose > 0)
 	{
@@ -380,4 +383,9 @@ void processLine(char **tb, int max_recursive_left, int verbose)
 		if (notRecognized == 1)
 			(void) fprintf(stderr, "Property '%s' is not recognized !\n", tb[0]);
 	}
+}
+
+void set_custom_config_file(const char *config_file)
+{
+	_custom_config_file = config_file;
 }
