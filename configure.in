@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.63)
-AC_INIT([MySecureShell],[2.0],[teka2nerdman@users.sourceforge.net])
+AC_INIT([MySecureShell],[2.01],[teka2nerdman@users.sourceforge.net])
 AC_CONFIG_HEADER(config.h)
 AC_CANONICAL_HOST
 
