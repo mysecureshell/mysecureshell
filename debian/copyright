@@ -3,8 +3,8 @@ Upstream-Name: mysecureshell
 Source: /usr/share/common-licenses/GPL-2
 
 Files: *
-Copyright: 2007-2014 Pierre Mavro <pierre@mavro.fr>
-           2007-2014 Sébastien Tardig <teka101@gmail.com>
+Copyright: 2007-2018 Pierre Mavro <pierre@mavro.fr>
+           2007-2018 Sébastien Tardig <teka101@gmail.com>
 License: GPL-2
 
 Files: debian/*
