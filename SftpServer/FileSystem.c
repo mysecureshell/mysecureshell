@@ -541,7 +541,7 @@ static int FSLink(const int is_symlink, const char *target, const char *linkPath
 		return SSH2_FX_PERMISSION_DENIED;
 	}
 	DEBUG((MYLOG_DEBUG, "[FSLink]'%s' -> '%s' (is_symlink=%i)", oldPath->realPath, newPath->realPath, is_symlink));
-	if (is_symlink)
+	if (is_symlink == 1)
 		returnValue = symlink(oldPath->realPath, newPath->realPath);
 	else
 		returnValue = link(oldPath->realPath, newPath->realPath);
