@@ -89,7 +89,7 @@ HISTORIQUE:
 	+ support des liens hards
 	+ ajout d'un nouveau tag LogLevel
 	+ ajout d'un argument pour spécifier le fichier de configuration (merci mateidavid)
-	~ correction d'un bug sur la gestion des ACL et des groupes supplémentaires d'un utilisateur
+	~ correction d'un bug sur la gestion des ACL et des groupes supplémentaires d'un utilisateur (merci paulbach83)
 
 2.0 (septembre 2014):
 	+ ajoute d'un nouveau tag DisableStatsFs

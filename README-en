@@ -76,6 +76,12 @@ Forum:       http://mysecureshell.free.fr
 
 CHANGE LOG:
 -----------
+2.01 (december 2018):
+	+ support hard link
+	+ add new tag LogLevel
+	+ add command line argument to specify configuration file (thanks mateidavid)
+	~ fix bug on ACL with extra group of an user (thanks paulbach83)
+
 2.0 (september 2014):
 	+ add new tag DisableStatsFs
 	+ replace OpenSSL by GnuTLS
