@@ -180,7 +180,7 @@ Manager users for MySecureShell
 
 You can easily add a new user to MySecureShell by using the ``sftp-user`` command::
 
-    > sftp-user create mssuser /home/mssuser
+    > sftp-user create mssuser
     Enter password:
 
 This will create the user and password, then add MySecureShell shell to this user.
