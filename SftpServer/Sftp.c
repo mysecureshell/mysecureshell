@@ -800,8 +800,8 @@ void DoSymLink()
 	int status = SSH2_FX_OK;
 
 	id = BufferGetInt32(bIn);
-	link = convertFromUtf8(BufferGetString(bIn), 1);
 	target = convertFromUtf8(BufferGetString(bIn), 1);
+	link = convertFromUtf8(BufferGetString(bIn), 1);
 	if (HAS_BIT(gl_var->flagsDisable, SFTP_DISABLE_SYMLINK))
 	{
 		DEBUG((MYLOG_DEBUG, "[DoSymLink]Disabled by conf."));

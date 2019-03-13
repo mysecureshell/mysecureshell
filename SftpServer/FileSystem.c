@@ -547,7 +547,7 @@ static int FSLink(const int is_symlink, const char *target, const char *linkPath
 		returnValue = symlink(oldPath->realPath, newPath->realPath);
 	else
 		returnValue = link(oldPath->realPath, newPath->realPath);
-	if (returnValue == 0)
+	if (returnValue == -1)
 		returnValue = errnoToPortable(errno);
 	else
 		returnValue = SSH2_FX_OK;
