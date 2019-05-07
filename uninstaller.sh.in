@@ -1,6 +1,7 @@
 #!/bin/sh
 
-## Uninstaller Script v0.2 for MySecureShell made by Pierre
+## Uninstaller Script v0.3 for MySecureShell made by Pierre
+## Updated by Igor P. Zenkov May 2, 2019
 ## MySecureShell Team <teka2nerdman@users.sourceforge.net>
 
 ## Language local initialising
@@ -9,7 +10,13 @@ BINDIR=@BINDIR@
 MANDIR=@MANDIR@
 USRBINDIR=@BINDIR@
 ETCDIR=@ETCDIR@
+MSS_LOG=@MSS_LOG@
+
 LANG=
+
+BINFILES='mysecureshell sftp-who sftp-state sftp-kill sftp-admin sftp-user sftp-verif'
+MANFILES='MySecureShell.8 mysecureshell.8 sftp-admin.8 sftp-kill.8 sftp-state.8 sftp-user.8 sftp-verif.8 sftp-who.8'
+CFGFILES='ssh/sftp_config sshd/sftp_config'
 
 ## Functions Looking for available languages
 
@@ -31,8 +38,27 @@ MyListLocale()
 {
 	echo "The available languages are:"
 	grep -F 'DESCRIPTION=' locales_* | cut -d= -f2-
-	echo "Usage: ./uninstall.sh xx(language)"
+	echo "Usage: ./uninstaller.sh xx(language)"
 }
+
+MyRmFiles()
+{
+	# $1: dir $2: files
+	for f in $2; do
+		rm -f "$1/$f"
+	done
+}
+
+MyRmMans()
+{
+	# $1: man dir
+	if [ -d "$1" ] ; then
+		MyRmFiles "$1" "$MANFILES"
+		rmdir -p "$1" &> /dev/null
+	fi
+}
+
+## Main
 
 if [ "$1" = "" ] ; then
 	MyListLocale
@@ -63,7 +89,7 @@ read ans
 test -z "$ans" && ans="n"
 case "$ans" in
 	[yY])
-		rm -f $BINDIR/MySecureShell $BINDIR/sftp-who $BINDIR/sftp-state $BINDIR/sftp-kill $BINDIR/sftp-admin $BINDIR/sftp-user
+		MyRmFiles "$BINDIR" "$BINFILES"
 		cat /etc/shells | grep -v MySecureShell > /tmp/shells~
 		mv /tmp/shells~ /etc/shells
 
@@ -80,33 +106,9 @@ case "$ans" in
 		fi
 
 	# Delete mans
-		if [ -d $MANDIR/man8 ] ; then
-			rm -f $MANDIR/man8/MySecureShell.8
-			rm -f $MANDIR/man8/sftp-admin.8
-			rm -f $MANDIR/man8/sftp-kill.8
-			rm -f $MANDIR/man8/sftp-state.8
-			rm -f $MANDIR/man8/sftp-user.8
-			rm -f $MANDIR/man8/sftp-verif.8
-			rm -f $MANDIR/man8/sftp-who.8
-		fi
-		if [ -d $MANDIR/en/man8 ] ; then
-			rm -f $MANDIR/en/man8/MySecureShell.8
-			rm -f $MANDIR/en/man8/sftp-admin.8
-			rm -f $MANDIR/en/man8/sftp-kill.8
-			rm -f $MANDIR/en/man8/sftp-state.8
-			rm -f $MANDIR/en/man8/sftp-user.8
-			rm -f $MANDIR/en/man8/sftp-verif.8
-			rm -f $MANDIR/en/man8/sftp-who.8
-		fi
-		if [ -d $MANDIR/fr/man8 ] ; then
-			rm -f $MANDIR/fr/man8/MySecureShell.8
-			rm -f $MANDIR/fr/man8/sftp-admin.8
-			rm -f $MANDIR/fr/man8/sftp-kill.8
-			rm -f $MANDIR/fr/man8/sftp-state.8
-			rm -f $MANDIR/fr/man8/sftp-user.8
-			rm -f $MANDIR/fr/man8/sftp-verif.8
-			rm -f $MANDIR/fr/man8/sftp-who.8
-		fi
+		MyRmMans "$MANDIR/man8"
+		MyRmMans "$MANDIR/en/man8" 
+		MyRmMans "$MANDIR/fr/man8"
 
 	# Delete configuration ?
 		MyGetLocale 'delconf?'
@@ -114,9 +116,20 @@ case "$ans" in
 		test -z "$ans2" && ans2="n"
 		case "$ans2" in
 			[yY])
-				rm -f $ETCDIR/ssh/sftp-config $ETCDIR/sshd/sftp-config
+				MyRmFiles "$ETCDIR" "$CFGFILES"
 				;;
 		esac
+
+	# Delete log ?
+		MyGetLocale 'dellog?'
+		read ans3
+		test -z "$ans3" && ans3="n"
+		case "$ans3" in
+			[yY])
+				rm -f "$MSS_LOG"
+				;;
+		esac
+
 		MyGetLocale 'mssuninstok!'
 		;;
 	*)
