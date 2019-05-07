@@ -54,7 +54,7 @@ MyRmMans()
 	# $1: man dir
 	if [ -d "$1" ] ; then
 		MyRmFiles "$1" "$MANFILES"
-		rmdir -p "$1" &> /dev/null
+		rmdir -p "$1" 2>/dev/null
 	fi
 }
 
