@@ -68,3 +68,7 @@ addons:
     build_command_prepend: ./configure
     build_command: make all
     branch_pattern: master
+ 
+arch:
+  - amd64
+  - ppc64le
