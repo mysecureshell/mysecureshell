@@ -144,7 +144,7 @@ void DoInit()
 #ifdef MSSEXT_FILE_HASHING
 				BufferPutString(opt, "check-file");
 #endif //MSSEXT_FILE_HASHING
-				BufferPutString(b, "hardlink@openssh.com");
+				BufferPutString(opt, "hardlink@openssh.com");
 				BufferPutPacket(b, opt);
 				BufferDelete(opt);
 			}
