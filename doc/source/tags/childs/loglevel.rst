@@ -1,5 +1,5 @@
-LogFile
-=======
+LogLevel
+========
 
 .. highlight:: apache
 
