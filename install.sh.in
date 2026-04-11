@@ -105,7 +105,7 @@ filefound() {
 }
 
 shellfunc() {
-grepshell=`grep /usr/bin/mysecureshell $ETCDIR/shells`
+grepshell=`grep $BINDIR/mysecureshell $ETCDIR/shells`
 if [ "$?" = "0" ] ; then
 	echo "`MyGetLocale 'shellalreadyvd'`		`MyGetLocale 'ok'`"
 else
@@ -118,7 +118,7 @@ else
 	fi
 	case "$rep3" in
 		[yY])
-			echo "/usr/bin/mysecureshell" >> $ETCDIR/shells
+			echo "$BINDIR/mysecureshell" >> $ETCDIR/shells
 			echo `MyGetLocale 'shellvalid'`"		"`MyGetLocale 'ok'`
 			;;
 		*)
