@@ -58,6 +58,8 @@ jobs:
           sudo adduser --home /home/test2 --shell /usr/bin/mysecureshell --uid 4003 --gid 3003 --disabled-password --gecos "" test2
           sudo usermod -G group6 test
           echo 'test:test' | sudo chpasswd
+          # Modern Ubuntu creates home dirs with 0750; tests expect 0755
+          sudo chmod 755 /home/test /home/test2
 
       - name: Configure
         run: ./configure --prefix=/usr
