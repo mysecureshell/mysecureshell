@@ -124,6 +124,17 @@ int FSEnumAcl(const char *file, int resolvePath, void (*callback)(void *data, in
 	return SSH2_FX_OK;
 }
 
+void FSRecalcAclMask(const char *path)
+{
+	acl_t acl = acl_get_file(path, ACL_TYPE_ACCESS);
+	if (acl != NULL)
+	{
+		if (acl_calc_mask(&acl) == 0)
+			(void )acl_set_file(path, ACL_TYPE_ACCESS, acl);
+		(void )acl_free(acl);
+	}
+}
+
 #else //ifdef HAVE_CYGWIN
 
 int FSEnumAcl(const char *file, int resolvePath, void (*callback)(void *data, int type, u_int32_t id, u_int32_t mode), void *data, u_int32_t *nbEntries)
@@ -172,6 +183,12 @@ int FSEnumAcl(const char *file, int resolvePath, void (*callback)(void *data, in
 	return SSH2_FX_OK;
 }
 
+
+void FSRecalcAclMask(const char *path)
+{
+	/* Cygwin ACL API does not support acl_calc_mask */
+	(void )path;
+}
 
 #endif //HAVE_CYGWIN
 
