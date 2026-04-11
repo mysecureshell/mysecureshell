@@ -63,6 +63,14 @@ jobs:
           # Remove inherited default ACLs from runner user to prevent
           # ACL mask pollution in test directories
           sudo setfacl -b /home/test /home/test2
+          # Remove extra dot-files copied from /etc/skel (runner has .cargo,
+          # .rustup, .dotnet, .nvm, .ghcup, .composer, .config, .bash_profile)
+          # that tests don't expect — keep only the standard 3 (.bash_logout,
+          # .bashrc, .profile)
+          sudo find /home/test /home/test2 -maxdepth 1 -name '.*' \
+            ! -name '.' ! -name '..' \
+            ! -name '.bash_logout' ! -name '.bashrc' ! -name '.profile' \
+            -exec rm -rf {} +
 
       - name: Configure
         run: ./configure --prefix=/usr
