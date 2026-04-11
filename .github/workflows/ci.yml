@@ -79,6 +79,23 @@ jobs:
           sudo ssh-keygen -A
           sudo /usr/sbin/sshd
 
+      - name: Debug ACL behavior
+        run: |
+          sudo mkdir -p /tmp/acl_test
+          sudo chmod 750 /tmp/acl_test
+          sudo setfacl -m u:test:r /tmp/acl_test
+          echo "=== getfacl ==="
+          getfacl /tmp/acl_test
+          echo "=== stat ==="
+          stat /tmp/acl_test
+          echo "=== ls -ld ==="
+          ls -ld /tmp/acl_test
+          echo "=== mount ==="
+          mount | grep ' / '
+          echo "=== tune2fs ACL check ==="
+          sudo tune2fs -l $(df / --output=source | tail -1) 2>/dev/null | grep -i acl || true
+          sudo rm -rf /tmp/acl_test
+
       - name: Run integration tests
         run: |
           cd tests
