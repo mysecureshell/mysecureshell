@@ -60,6 +60,9 @@ jobs:
           echo 'test:test' | sudo chpasswd
           # Modern Ubuntu creates home dirs with 0750; tests expect 0755
           sudo chmod 755 /home/test /home/test2
+          # Remove inherited default ACLs from runner user to prevent
+          # ACL mask pollution in test directories
+          sudo setfacl -b /home/test /home/test2
 
       - name: Configure
         run: ./configure --prefix=/usr
@@ -80,47 +83,9 @@ jobs:
           sudo /usr/sbin/sshd
 
       - name: Run integration tests
-        id: tests
-        continue-on-error: true
         run: |
           cd tests
           sudo -E mvn -B clean package
-
-      - name: Debug ACL state after tests
-        if: steps.tests.outcome == 'failure'
-        run: |
-          echo "=== /home/test/tests contents ==="
-          sudo ls -la /home/test/tests/ 2>/dev/null || true
-          echo "=== ACL on you_can_see_me.acl_version ==="
-          sudo getfacl /home/test/tests/you_can_see_me.acl_version 2>/dev/null || true
-          sudo stat /home/test/tests/you_can_see_me.acl_version 2>/dev/null || true
-          echo "=== ACL on d4 ==="
-          sudo getfacl /home/test/tests/d4 2>/dev/null || true
-          sudo stat /home/test/tests/d4 2>/dev/null || true
-          echo "=== Reproduce: exact test sequence ==="
-          sudo rm -rf /tmp/acl_exact
-          sudo mkdir -p /tmp/acl_exact
-          sudo chmod 750 /tmp/acl_exact
-          sudo chown root /tmp/acl_exact
-          sudo chgrp root /tmp/acl_exact
-          sudo setfacl -m user:test:r /tmp/acl_exact
-          echo "--- result ---"
-          getfacl /tmp/acl_exact
-          stat -c '%a %A' /tmp/acl_exact
-          echo "=== Reproduce d4: chmod 700 + setfacl g:group6:rx ==="
-          sudo rm -rf /tmp/acl_d4
-          sudo mkdir -p /tmp/acl_d4
-          sudo chmod 700 /tmp/acl_d4
-          sudo chown root /tmp/acl_d4
-          sudo chgrp root /tmp/acl_d4
-          sudo setfacl -m g:group6:rx /tmp/acl_d4
-          echo "--- result ---"
-          getfacl /tmp/acl_d4
-          stat -c '%a %A' /tmp/acl_d4
-
-      - name: Fail if tests failed
-        if: steps.tests.outcome == 'failure'
-        run: exit 1
 
       - name: Verify log files
         run: |
