@@ -548,9 +548,9 @@ static int FSLink(const int is_symlink, const char *target, const char *linkPath
 	else
 		returnValue = link(oldPath->realPath, newPath->realPath);
 	if (returnValue == 0)
-		returnValue = errnoToPortable(errno);
-	else
 		returnValue = SSH2_FX_OK;
+	else
+		returnValue = errnoToPortable(errno);
 	FSDestroyPath(oldPath);
 	FSDestroyPath(newPath);
 	return returnValue;

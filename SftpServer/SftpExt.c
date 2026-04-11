@@ -303,8 +303,8 @@ void DoExtHardLink(tBuffer *bIn, tBuffer *bOut, u_int32_t id)
 	char *link, *target;
 	int status = SSH2_FX_OK;
 
-	link = convertFromUtf8(BufferGetString(bIn), 1);
 	target = convertFromUtf8(BufferGetString(bIn), 1);
+	link = convertFromUtf8(BufferGetString(bIn), 1);
 	if (HAS_BIT(gl_var->flagsDisable, SFTP_DISABLE_SYMLINK))
 	{
 		DEBUG((MYLOG_DEBUG, "[DoExtHardLink]Disabled by conf."));
