@@ -1,0 +1,95 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+      - 'issue*'
+      - 'v*'
+  pull_request:
+    branches:
+      - master
+
+env:
+  LANG: "en_US.UTF-8"
+  serverHost: "localhost"
+  serverUser: "test"
+  serverPassword: "test"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [gcc, clang]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set compiler
+        run: |
+          if [ "${{ matrix.compiler }}" = "gcc" ]; then
+            echo "CC=gcc" >> "$GITHUB_ENV"
+            echo "CXX=g++" >> "$GITHUB_ENV"
+          else
+            echo "CC=clang" >> "$GITHUB_ENV"
+            echo "CXX=clang++" >> "$GITHUB_ENV"
+          fi
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -qqy libacl1-dev libgnutls28-dev acl clang default-jdk maven openssh-server
+
+      - name: Create test groups
+        run: |
+          sudo addgroup --gid 3003 test
+          sudo addgroup --gid 3004 group1
+          sudo addgroup --gid 3005 group2
+          sudo addgroup --gid 3006 group3
+          sudo addgroup --gid 3007 group4
+          sudo addgroup --gid 3008 group5
+          sudo addgroup --gid 3009 group6
+
+      - name: Create test users
+        run: |
+          sudo adduser --home /home/test --shell /usr/bin/mysecureshell --uid 4002 --gid 3003 --disabled-password --gecos "" test
+          sudo adduser --home /home/test2 --shell /usr/bin/mysecureshell --uid 4003 --gid 3003 --disabled-password --gecos "" test2
+          sudo usermod -G group6 test
+          echo 'test:test' | sudo chpasswd
+
+      - name: Configure
+        run: ./configure --prefix=/usr
+
+      - name: Build and install
+        run: sudo make install
+
+      - name: Start SSH server
+        run: |
+          sudo mkdir -p /run/sshd
+          sudo sed -i 's/^#\?PasswordAuthentication.*/PasswordAuthentication yes/' /etc/ssh/sshd_config
+          sudo sed -i 's/^#\?ChallengeResponseAuthentication.*/ChallengeResponseAuthentication no/' /etc/ssh/sshd_config
+          # Enable legacy algorithms for compatibility with ganymed-ssh2 test library
+          echo 'KexAlgorithms +diffie-hellman-group1-sha1,diffie-hellman-group14-sha1' | sudo tee -a /etc/ssh/sshd_config
+          echo 'HostKeyAlgorithms +ssh-rsa,ssh-dss' | sudo tee -a /etc/ssh/sshd_config
+          echo 'PubkeyAcceptedAlgorithms +ssh-rsa' | sudo tee -a /etc/ssh/sshd_config
+          sudo ssh-keygen -A
+          sudo /usr/sbin/sshd
+
+      - name: Run integration tests
+        run: |
+          cd tests
+          sudo -E mvn -B clean package
+
+      - name: Verify log files
+        run: |
+          ls -l /tmp/
+          if [ ! -s /tmp/sftp-server-300.log ]; then
+            echo 'FAILED log sftp-server-300 should not be empty'
+            exit 1
+          fi
+          if [ -s /tmp/sftp-server-900.log ]; then
+            echo 'FAILED log sftp-server-900 should be empty'
+            exit 1
+          fi
