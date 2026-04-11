@@ -143,9 +143,9 @@ AC_CHECK_LIB(acl, acl_get_entry, [])
 AC_CHECK_LIB(gnutls, gnutls_hash_init, [])
 
 #Own defines
-test "$prefix" = "NONE" && prefix=
-test "$exec_prefix" = "NONE" && exec_prefix=/usr
-test -z "$bindir" && bindir="/usr/bin"
+test "$prefix" = "NONE" && prefix=/usr/local
+test "$exec_prefix" = "NONE" && exec_prefix=$prefix
+sysconfdir=/etc
 test -z "$MSS_LOG" && MSS_LOG="/var/log/sftp-server.log"
 test -z "$MSS_CONF" && MSS_CONF="/etc/ssh/sftp_config"
 test -z "$MSS_SHUT" && MSS_SHUT="/etc/sftp.shut"
