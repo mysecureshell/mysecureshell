@@ -342,6 +342,8 @@ int FSOpenFile(const char *file, int *fileHandle, int flags, mode_t mode, struct
 		returnValue = errnoToPortable(errno);
 	else
 	{
+		if (HAS_BIT(flags, O_CREAT))
+			FSRecalcAclMask(path->realPath);
 		returnValue = SSH2_FX_OK;
 		if (st != NULL)
 			if (stat(path->realPath, st) == -1)

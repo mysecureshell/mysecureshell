@@ -661,6 +661,8 @@ void DoSetStat(int usePath)
 			}
 			if (chmod(resolvedPath->realPath, a->perm) == -1)
 				status = errnoToPortable(errno);
+			else
+				FSRecalcAclMask(resolvedPath->realPath);
 		}
 		if (HAS_BIT(a->flags, SSH2_FILEXFER_ATTR_ACMODTIME)
 				&& HAS_BIT(gl_var->flagsGlobals, SFTPWHO_CAN_CHG_TIME))
