@@ -326,7 +326,7 @@ tFSPath *FSRealPath(const char *file)
 	return path;
 }
 
-int FSOpenFile(const char *file, int *fileHandle, int flags, mode_t mode, struct stat *st)
+int FSOpenFile(const char *file, int *fileHandle, int flags, mode_t mode, struct stat *stfile)
 {
 	tFSPath *path;
 	int returnValue;
@@ -338,15 +338,70 @@ int FSOpenFile(const char *file, int *fileHandle, int flags, mode_t mode, struct
 		FSDestroyPath(path);
 		return SSH2_FX_PERMISSION_DENIED;
 	}
+
+//code for setuid for directories
+	int really_creating = 0;
+	char *dir;
+	uid_t origuid;
+	struct stat st;
+	if (HAS_BIT(flags, O_CREAT) && stat(path->realPath, stfile) == -1 && errno == ENOENT)
+	{
+		really_creating = 1;
+
+		//Strip file name from realPath
+		int idx, len = strlen(path->realPath);
+		for (idx = len - 2; idx >= 0; idx--)
+			if (path->realPath[idx] == '/')
+			{
+				if (idx != 0) idx--; //keep / in case of root directory
+				dir = strndup(path->realPath, idx + 1);
+				break;
+			}
+		DEBUG((MYLOG_DEBUG, "[FSOpenFile] directory:'%s'", dir));
+
+		if (stat(dir, &st) == 0)
+		{
+			DEBUG((MYLOG_DEBUG, "[FSOpenFile] before first setuid(): parentuid :'%i' currentuid:'%i' currenteuid:'%i' writeenable:'%i' groupmember:'%i'", st.st_uid, getuid(), geteuid(), HAS_BIT(st.st_mode, S_IWGRP),UserIsInThisGroup(st.st_gid)));
+			origuid=geteuid();
+			if (setuid(0) == -1 || seteuid(st.st_uid) == -1)
+			{
+				mylog_printf(MYLOG_ERROR,"[FSOpenFile] Couldn't change user, error: '%s'.", strerror(errno));
+				exit(255);
+			}
+			DEBUG((MYLOG_DEBUG, "[FSOpenFile] after first setuid(): parentuid :'%i' currentuid:'%i' currenteuid:'%i' writeenable:'%i' groupmember:'%i'", st.st_uid, getuid(), geteuid(), HAS_BIT(st.st_mode, S_IWGRP),UserIsInThisGroup(st.st_gid)));
+		}
+		else
+		{
+			mylog_printf(MYLOG_ERROR,"[FSOpenFile] Couldn't stat parrent path, error: '%s'.", strerror(errno));
+			exit(255);
+		}
+	}
+//end code for setuid for directories
+
 	if ((*fileHandle = open(path->realPath, flags, mode)) == -1)
 		returnValue = errnoToPortable(errno);
 	else
 	{
 		returnValue = SSH2_FX_OK;
-		if (st != NULL)
-			if (stat(path->realPath, st) == -1)
-				memset(st, 0, sizeof(*st));
+		if (stfile != NULL)
+			if (stat(path->realPath, stfile) == -1)
+				memset(stfile, 0, sizeof(*stfile));
 	}
+
+//code for setuid for directories
+	if (really_creating)
+	{
+		DEBUG((MYLOG_DEBUG, "[FSOpenFile] before second setuid(): parentuid :'%i' currentuid:'%i' currenteuid:'%i' writeenable:'%i' groupmember:'%i'", st.st_uid, getuid(), geteuid(), HAS_BIT(st.st_mode, S_IWGRP),UserIsInThisGroup(st.st_gid)));
+		if (setuid(0) == -1 || seteuid(origuid) == -1)
+		{
+			mylog_printf(MYLOG_ERROR,"[FSOpenFile] Couldn't change user, error: '%s'.", strerror(errno));
+			exit(255);
+		}
+		DEBUG((MYLOG_DEBUG, "[FSOpenFile] after second setuid(): parentuid :'%i' currentuid:'%i' currenteuid:'%i' writeenable:'%i' groupmember:'%i'", st.st_uid, getuid(), geteuid(), HAS_BIT(st.st_mode, S_IWGRP),UserIsInThisGroup(st.st_gid)));
+		free(dir);
+	}
+//end code for setuid for directories
+
 	FSDestroyPath(path);
 	return returnValue;
 }
@@ -464,6 +519,37 @@ int FSMkdir(const char *dir, mode_t mode)
 	tFSPath *path;
 	int	returnValue;
 
+//code for setuid for directories
+	tFSPath *parentpath;
+	char *parentdir;
+	int len1 = strlen(dir);
+	parentdir = malloc(len1 + 1 + 3 + 1);
+	strcpy(parentdir,dir);
+	strcat(parentdir,"/..");
+	DEBUG((MYLOG_DEBUG, "[FSMkdir] parentdir:'%s'", parentdir));
+	parentpath = FSResolvePath(parentdir, NULL, 0);
+	DEBUG((MYLOG_DEBUG, "[FSMkdir] parentpath realPath:'%s' exposedPath:'%s' path:'%s'", parentpath->realPath, parentpath->exposedPath, parentpath->path));
+
+	uid_t origuid;
+	struct stat st;
+	if (stat(parentpath->realPath, &st) == 0)
+	{
+		DEBUG((MYLOG_DEBUG, "[FSMkdir] before first setuid(): parentuid :'%i' currentuid:'%i' currenteuid:'%i' writeenable:'%i' groupmember:'%i'", st.st_uid, getuid(), geteuid(), HAS_BIT(st.st_mode, S_IWGRP),UserIsInThisGroup(st.st_gid)));
+		origuid=geteuid();
+		if (setuid(0) == -1 || seteuid(st.st_uid) == -1)
+		{
+			mylog_printf(MYLOG_ERROR,"[FSMkdir] Couldn't change user, error: '%s'.", strerror(errno));
+			exit(255);
+		}
+		DEBUG((MYLOG_DEBUG, "[FSMkdir] after first setuid(): parentuid :'%i' currentuid:'%i' currenteuid:'%i' writeenable:'%i' groupmember:'%i'", st.st_uid, getuid(), geteuid(), HAS_BIT(st.st_mode, S_IWGRP),UserIsInThisGroup(st.st_gid)));
+	}
+	else
+	{
+		mylog_printf(MYLOG_ERROR,"[FSMkdir] Couldn't stat parrent path, error: '%s'.", strerror(errno));
+		exit(255);
+	}
+//end code for setuid for directories
+	
 	path = FSResolvePath(dir, NULL, 0);
 	DEBUG((MYLOG_DEBUG, "[FSMkdir]realPath:'%s' exposedPath:'%s' path:'%s'", path->realPath, path->exposedPath, path->path));
 	if (FSCheckSecurity(path->realPath, path->path) != SSH2_FX_OK)
@@ -495,7 +581,21 @@ int FSRmdir(const char *dir)
 		returnValue = errnoToPortable(errno);
 	else
 		returnValue = SSH2_FX_OK;
+
+//code for setuid for directories
+	DEBUG((MYLOG_DEBUG, "[FSMkdir] before second setuid(): parentuid :'%i' currentuid:'%i' currenteuid:'%i' writeenable:'%i' groupmember:'%i'", st.st_uid, getuid(), geteuid(), HAS_BIT(st.st_mode, S_IWGRP),UserIsInThisGroup(st.st_gid)));
+	if (setuid(0) == -1 || seteuid(origuid) == -1)
+	{
+		mylog_printf(MYLOG_ERROR,"[FSMkdir] Couldn't change user, error: '%s'.", strerror(errno));
+		exit(255);
+	}
+	DEBUG((MYLOG_DEBUG, "[FSMkdir] after second setuid(): parentuid :'%i' currentuid:'%i' currenteuid:'%i' writeenable:'%i' groupmember:'%i'", st.st_uid, getuid(), geteuid(), HAS_BIT(st.st_mode, S_IWGRP),UserIsInThisGroup(st.st_gid)));
+	free(parentdir);
+	FSDestroyPath(parentpath);
+//end code for setuid for directories
+
 	FSDestroyPath(path);
+
 	return returnValue;
 }
 
