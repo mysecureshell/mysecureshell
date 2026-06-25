@@ -15,6 +15,4 @@ sphinx:
   # Fail on all warnings to avoid broken references
   # fail_on_warning: true
 
-formats:
-  - pdf
-  - epub
+formats: all
