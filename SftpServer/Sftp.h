@@ -287,7 +287,7 @@ void DoOpen();
 void DoRead();
 void DoWrite();
 void DoReadLink();
-void DoStat();
+void DoStat(int doLStat);
 void DoFStat();
 void DoSetStat(int usePath);
 void DoRemove();
@@ -295,7 +295,7 @@ void DoMkDir();
 void DoRmDir();
 void DoRename();
 void DoSymLink();
-void DoUnsupported();
+void DoUnsupported(int msgType, int msgLen);
 void DoExtended();
 void DoSFTPProtocol();
 
