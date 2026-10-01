@@ -31,10 +31,12 @@
 #if(MSS_ACL)
 
 int FSEnumAcl(const char *file, int resolvePath, void (*callback)(void *data, int type, u_int32_t id, u_int32_t mode), void *data, u_int32_t *nbEntries);
+void FSRecalcAclMask(const char *path);
 
 #else
 
 #define FSEnumAcl(_A, _B, _C, _D, _E)	SSH2_FX_OK
+#define FSRecalcAclMask(_A)
 
 #endif //MSS_ACL
 
