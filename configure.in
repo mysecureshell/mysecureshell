@@ -201,7 +201,7 @@ fi
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([install.sh], [chmod +x install.sh])
 AC_CONFIG_FILES([uninstaller.sh], [chmod +x uninstaller.sh])
-AC_CONFIG_FILES([utils/sftp-user], [chmod +x utils/sftp-verif])
+AC_CONFIG_FILES([utils/sftp-user], [chmod +x utils/sftp-user])
 AC_CONFIG_FILES([utils/sftp-verif], [chmod +x utils/sftp-verif])
 AC_OUTPUT
 AC_PROG_INSTALL
