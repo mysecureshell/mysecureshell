@@ -20,8 +20,8 @@ public final class SshFxpSymLink
 		PacketSender	sender = new PacketSender(Packet.SSH_FXP_SYMLINK);
 		
 		sender.writeUINT32(id);
-		sender.writeString(linkName);
 		sender.writeString(targetName);
+		sender.writeString(linkName);
 		sender.write(os);
 		receiver = new PacketReceiver().read(is);
 		Assert.assertEquals(receiver.getPacketType(), Packet.SSH_FXP_STATUS);
