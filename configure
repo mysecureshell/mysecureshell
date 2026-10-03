@@ -8611,7 +8611,7 @@ printf '%s\n' "$as_me: $ac_file is unchanged" >&6;}
   case $ac_file$ac_mode in
     "install.sh":F) chmod +x install.sh ;;
     "uninstaller.sh":F) chmod +x uninstaller.sh ;;
-    "utils/sftp-user":F) chmod +x utils/sftp-verif ;;
+    "utils/sftp-user":F) chmod +x utils/sftp-user ;;
     "utils/sftp-verif":F) chmod +x utils/sftp-verif ;;
 
   esac
